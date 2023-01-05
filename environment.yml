@@ -1,0 +1,35 @@
+name: TelSeason
+channels:
+    - conda-forge
+    - defaults
+dependencies:
+    - python>=3.9
+    - pytest
+    - sphinx
+    - numpy 
+    - pandas
+    - matplotlib
+    - cartopy
+    - tqdm
+    - seaborn
+    - eofs    
+    - dask 
+    - netCDF4 
+    - bottleneck
+    - statsmodels
+    - pyextremes
+    - pip
+    - nbsphinx
+    - ipywidgets
+    - proplot
+    - iris
+    - pip:
+        - myst_parser
+        - nc-time-axis
+        - black
+        - mdutils
+        - scikit-learn
+        - intake-esm
+        - aiohttp-requests
+        - xarray[complete]
+        
