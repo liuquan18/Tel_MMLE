@@ -3,11 +3,18 @@ import matplotlib.pyplot as plt
 import proplot as pplt
 
 
-def plot_period(first_ec, last_ec, ax):
-    """plot vertical profile of two peiods"""
+def plot_period(periods_ec, ax):
+    """
+    plot vertical profile of different peiods
+    *periods_ec*: a list of all periods
+    """
+    styles = ['-','--','---']
+    y = (periods_ec[0].hlayers.values) / 100
+
+    # for i,x in enumerate(periods_ec):
+    #     ax.plot(x.values,y,linestyle = styles[i],color = 'k',)
     x_first = first_ec.values
     x_last = last_ec.values
-    y = (first_ec.hlayers.values) / 100
     first_profile = ax.plot(x_first, y, linestyle="-", color="k", label="first10")
     last_profile = ax.plot(x_last, y, linestyle="--", color="k", label="last10")
 
