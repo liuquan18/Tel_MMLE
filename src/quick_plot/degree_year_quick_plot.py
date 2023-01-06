@@ -33,7 +33,7 @@ import src.Teleconnection.tools as tools
 
 
 #%%
-class degree_year_index:
+class period_index:
     def __init__(
         self,
         vertical_eof: str,  # 'ind' or 'dep'
@@ -69,6 +69,12 @@ class degree_year_index:
         self.img_dir = "plots/quick_plots/"  # relative, no why
         self.doc_dir = "/work/mh0033/m300883/Tele_season/docs/source/"
 
+        ###########################################
+        #### tools for naming #####################
+        self.prefix = (
+            self.vertical_eof + "_" + self.fixed_pattern + "_"
+        )  # for name/ ind_all_
+
         ###############################################
         ##### the data reading and preprocessing ######
         # read data of eof, index and explained variance
@@ -83,10 +89,7 @@ class degree_year_index:
         self.gph = self.read_gph_data()
 
         # index of different period to compare, either first10 v.s last10, or 0,2,4 .C (degree)
-        if self.compare == 'CO2':
-            self.periods = [self.pc.isel(time = slice(0,10)),self.pc.isel(time=slice(-10, self.pc.time.size))]
-        elif self.compare == 'temp':
-            pass
+        self.pc_periods = self.split_period()
 
         # index of first10 and last10
         self.first10_pc = self.pc.isel(time=slice(0, 10))
@@ -96,14 +99,6 @@ class degree_year_index:
         self.first_ext_count = extreme.period_extreme_count(self.first10_pc)
         self.last_ext_count = extreme.period_extreme_count(self.last10_pc)
 
-        ###########################################
-        #### tools for naming #####################
-        self.prefix = (
-            self.vertical_eof + "_" + self.fixed_pattern + "_"
-        )  # for name/ ind_all_
-
-
-#%%
     def read_eof_data(self):
         """
         The data are stored in `3rdPanel/data/`
@@ -138,7 +133,9 @@ class degree_year_index:
         trop = trop.var156
 
         trop = tools.standardize(trop)
-        trop['time'] = trop.indexes['time'].to_datetimeindex() # the same time type as index
+        trop["time"] = trop.indexes[
+            "time"
+        ].to_datetimeindex()  # the same time type as index
         return trop
 
     def sel_500hpa(self):
@@ -152,37 +149,26 @@ class degree_year_index:
 
         return eof_500, pc_500, fra_500
 
-
     def period_CO2(self):
         """select the first10 and last10 years"""
         first10_pc = self.pc.isel(time=slice(0, 10))
-        last10_pc = self.pc.isel(time=slice(-10, self.pc.time.size))    
+        last10_pc = self.pc.isel(time=slice(-10, self.pc.time.size))
         periods = [first10_pc, last10_pc]
         return periods
 
-    def period_temp(self):
-        """select the pc in the ten-year window when the global mean
-        temperature is 0,2,4 degree higher than the first year"""
-        glmt = xr.open_mfdataset(self.tsurf_dir)
-        glmt = glmt.tsurf
-        years = self.degree_year(glmt)
-
-        temp0_pc = self.pc.isel(time = slice(0,10))
-        temp2_pc = self.pc.sel(time = slice())
-
-    def return_year(self,xarr):
+    def return_year(self, xarr):
         """return the ten year slice to select"""
-        start = xarr.time.values + DateOffset(years = -4)
-        end = xarr.time.values + DateOffset(years = 5)
-        return slice(str(start.year),str(end.year))
+        start = xarr.time.values + DateOffset(years=-4)
+        end = xarr.time.values + DateOffset(years=5)
+        return slice(str(start.year), str(end.year))
 
-    def degree_period(self,fldmean:xr.DataArray):
+    def temp_period(self, fldmean: xr.DataArray):
         """
         to calculate the year when the mean global surface temperature reaches 1,2,and 4 degrees.
         **Argument**
             *fldmean* the fldmean of tsurf
         """
-        if isinstance(fldmean,xr.DataArray):
+        if isinstance(fldmean, xr.DataArray):
             pass
         else:
             print("only DataArray is accapted, DataSet recevied")
@@ -194,7 +180,7 @@ class degree_year_index:
 
         # ens mean
         if fldmean.ens.size != 1:
-            fld_ens_mean = fldmean.mean(dim = 'ens')
+            fld_ens_mean = fldmean.mean(dim="ens")
         else:
             fld_ens_mean = fldmean
 
@@ -202,23 +188,43 @@ class degree_year_index:
         mean = fld_ens_mean.squeeze()
 
         # anomaly
-        anomaly = mean-mean[0]
+        anomaly = mean - mean[0]
 
-        years = []
+        periods = []
 
         # 0 degree (1855)
-        years.append(self.return_year(anomaly[5]))
+        periods.append(self.return_year(anomaly[5]))
 
         # 2 degree
-        years.append(self.return_year(anomaly.where(anomaly>=2,drop=True)).squeeze()[0])
+        periods.append(
+            self.return_year(anomaly.where(anomaly >= 2, drop=True)).squeeze()[0]
+        )
 
         # 4 degree
-        years.append(self.return_year(anomaly.where(anomaly>=4,drop=True)).squeeze()[0])
+        periods.append(
+            self.return_year(anomaly.where(anomaly >= 4, drop=True)).squeeze()[0]
+        )
 
-        return years
+        return periods
 
-    
+    def CO2_period(self):
+        """select the year from pc"""
+        first10 = slice("1851", "1860")
+        last10 = slice("1990", "1999")
+        periods = [first10, last10]
+        return periods
 
+    def split_period(self):
+        if self.compare == "CO2":
+            periods = self.CO2_period()
+        elif self.compare == "temp":
+            print("reading the mean tsurf data...")
+            tsurf = xr.open_dataset(self.tsurf_dir).tsurf
+            periods = self.temp_period(tsurf)
+        pc_period = []
+        for period in periods:
+            pc_period.append(self.pc.sel(time=period))
+        return pc_period
 
     def first10_last10_index_df(self, index):
 
@@ -236,3 +242,6 @@ class degree_year_index:
         index_500hpa = index_500hpa.to_dataframe().reset_index()
 
         return index_500hpa
+
+
+# %%
