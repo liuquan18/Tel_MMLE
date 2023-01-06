@@ -111,7 +111,7 @@ def spatialMap_hist(eof_500hpa, index_500hpa, fra_500hpa):
             shrink=1,
             bins=np.arange(-4, 4.1, 0.5),
         )
-        violin.legend(ncol=1, labels=["last10", "first10"], title="period")
+        violin.legend(ncol=1, labels=index_500hpa.period.unique(), title="period")
 
         ax2.format(
             xtickminor=False,
