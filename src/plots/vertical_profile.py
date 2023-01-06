@@ -30,7 +30,7 @@ def plot_diff(diff_ec, ax):
     )
 
 
-def plot_vertical_profile(ext_count, mode,std_type):
+def plot_vertical_profile(ext_count, mode):
     """
     plot the vertical profile of extreme counts
     **Arguments**

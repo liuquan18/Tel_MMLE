@@ -302,7 +302,7 @@ class period_index:
             self.pc, mode=mode, periods=self.periods, hlayers=hlayers
         )
         fig = RP_plots.return_period_scatter(
-            pos, mpos, neg, mneg, mode, self.period_name, hlayers=hlayers
+            pos, mpos, neg, mneg, mode, self.periods,self.period_name, hlayers=hlayers
         )
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_return_period_scatter.png", dpi=300
