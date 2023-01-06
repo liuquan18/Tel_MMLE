@@ -62,11 +62,11 @@ class period_index:
 
         # the destination for savinig plots
         self.plot_dir = (
-            "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/"+self.compare+"/"
+            "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/" + self.compare + "/"
         )
 
         # the destination for the doc
-        self.img_dir = "plots/"+self.compare+"/"  # relative, no why
+        self.img_dir = "plots/" + self.compare + "/"  # relative, no why
         self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
 
         ###########################################
@@ -74,6 +74,10 @@ class period_index:
         self.prefix = (
             self.vertical_eof + "_" + self.fixed_pattern + "_"
         )  # for name/ ind_all_
+        if self.compare == "CO2":
+            self.period_name = ["first10", "last10"]
+        elif self.compare == "temp":
+            self.period_name = ["0C", "2C", "4C"]
 
         ###############################################
         ##### the data reading and preprocessing ######
@@ -85,7 +89,7 @@ class period_index:
         self.gph = self.read_gph_data()
 
         # index of different period to compare, either first10 v.s last10, or 0,2,4 .C (degree)
-        self.pc_periods,self.periods = self.split_period()
+        self.pc_periods, self.periods = self.split_period()
 
         # extreme counts
         self.ext_counts_periods = self.extreme_periods()
@@ -213,25 +217,22 @@ class period_index:
     def split_period(self):
         if self.compare == "CO2":
             periods = self.CO2_period()
-            names = ['first10','last10']
         elif self.compare == "temp":
             print("reading the mean tsurf data...")
             tsurf = xr.open_dataset(self.tsurf_dir).tsurf
             periods = self.temp_period(tsurf)
-            names = ['0C','2C','4C']
         pcs_period = []
-        for i,period in enumerate(periods):
-            pc_period = self.pc.sel(time = period)
-            pc_period['compare'] = names[i]
+        for i, period in enumerate(periods):
+            pc_period = self.pc.sel(time=period)
+            pc_period["compare"] = self.period_name[i]
             pcs_period.append(pc_period)
-        return pcs_period,periods
-
+        return pcs_period, periods
 
     def extreme_periods(self):
         ext_counts_list = []
         for pc_period in self.pc_periods:
             ext_counts_list.append(extreme.period_extreme_count(pc_period))
-            ext_counts = xr.concat(ext_counts_list,dim = 'compare')
+            ext_counts = xr.concat(ext_counts_list, dim="compare")
         return ext_counts
 
     def bar500hpa_index_df(self):
@@ -239,11 +240,11 @@ class period_index:
         """
         select the period data, transform to dataframe
         """
-        first = self.pc_periods[0].sel(hlayers = 50000)
-        last = self.pc_periods[-1].sel(hlayers = 50000)
+        first = self.pc_periods[0].sel(hlayers=50000)
+        last = self.pc_periods[-1].sel(hlayers=50000)
 
         # to dataframe()
-        if self.compare == 'CO2':
+        if self.compare == "CO2":
             coords = xr.IndexVariable(dims="periods", data=["first10", "last10"])
         else:
             coords = xr.IndexVariable(dims="periods", data=["0C", "4C"])
@@ -251,7 +252,6 @@ class period_index:
         index_500hpa = index_500hpa.to_dataframe().reset_index()
 
         return index_500hpa
-
 
     def plot_500hpa_spatial_violin(self):
         """
@@ -281,13 +281,16 @@ class period_index:
 
     def violin_profile(self):
         print("ploting the violin profile of NAO and EA index ...")
-        fig = violin_plots.plot_vilion(self.pc_periods[0], self.pc_periods[-1],compare = self.compare)
+        fig = violin_plots.plot_vilion(
+            self.pc_periods[0], self.pc_periods[-1], compare=self.compare
+        )
         plt.savefig(self.plot_dir + self.prefix + "violin_profile.png", dpi=300)
 
     def extreme_count_profile(self, mode):
         print(f"ploting the profile of extreme event count of {mode} index ...")
         fig = profile_plots.plot_vertical_profile(
-            self.ext_counts_periods, mode=mode,
+            self.ext_counts_periods,
+            mode=mode,
         )
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_extreme_count_profile.png", dpi=300
@@ -295,22 +298,27 @@ class period_index:
 
     def return_period_scatter(self, mode, hlayers=50000):
         print("scatter plot of return period")
-        fig = RP_plots.return_period_scatter(self.pc, mode, hlayers=hlayers)
+        pos, mpos, neg, mneg = EVT.mode_return_period(
+            self.pc, mode=mode, periods=self.periods, hlayers=hlayers
+        )
+        fig = RP_plots.return_period_scatter(
+            pos, mpos, neg, mneg, mode, self.period_name, hlayers=hlayers
+        )
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_return_period_scatter.png", dpi=300
         )
 
     def return_period_profile(self, mode):
-        pos, neg = EVT.vertical_return_period(self.pc, mode)
-        fig = RP_plots.return_period_profile(pos, neg, self.pc, mode)
+        pos, neg = EVT.vertical_return_period(self.pc, mode, self.periods)
+        fig = RP_plots.return_period_profile(pos, neg, self.pc, mode,self.period_name)
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_return_period_profile.png", dpi=300
         )
 
     def extreme_spatial_pattern(self, hlayers=100000):
         # do the composite of gph to get the extreme sptial patterns
-        first_sptial_pattern = composite.Tel_field_composite(self.first10_pc, self.gph)
-        last_sptial_pattern = composite.Tel_field_composite(self.last10_pc, self.gph)
+        first_sptial_pattern = composite.Tel_field_composite(self.pc_periods[0], self.gph)
+        last_sptial_pattern = composite.Tel_field_composite(self.pc_periods[-1], self.gph)
         fig = composite_spatial_pattern.composite_spatial_pattern(
             first_sptial_pattern,
             last_sptial_pattern,
@@ -324,42 +332,38 @@ class period_index:
             dpi=300,
         )
 
-    def read_var(self,var):
+    def read_var(self, var):
         """
         read the tsurf or wind, precipitation for composite analysis
         data are stored in 3rdPanel/data/
         """
         data_path = (
-        "/work/mh0033/m300883/3rdPanel/data/influence/"
-        + var
-        + "/"
-        + "onepct_1850-1999_ens_1-100."
-        + var
-        + ".nc"
+            "/work/mh0033/m300883/3rdPanel/data/influence/"
+            + var
+            + "/"
+            + "onepct_1850-1999_ens_1-100."
+            + var
+            + ".nc"
         )
         var_data = xr.open_dataset(data_path)[var]
         return var_data
 
-
-    def composite_var(self,var, mode,hlayers = 50000):
+    def composite_var(self, var, mode, hlayers=50000):
 
         var_data = self.read_var(var)
-        var_data = var_data-var_data.mean(dim = 'ens') # demean ens mean
+        var_data = var_data - var_data.mean(dim="ens")  # demean ens mean
 
-        first_index = self.first10_pc.sel(hlayers = hlayers)
-        last_index = self.last10_pc.sel(hlayers = hlayers)
+        first_index = self.pc_periods[0].sel(hlayers=hlayers)
+        last_index = self.pc_periods[-1].sel(hlayers=hlayers)
 
-        first_var = composite.Tel_field_composite(first_index,var_data)
-        last_var = composite.Tel_field_composite(last_index,var_data)
+        first_var = composite.Tel_field_composite(first_index, var_data)
+        last_var = composite.Tel_field_composite(last_index, var_data)
 
-        fig = composite_var.composite_var(var,first_var, last_var,mode )
+        fig = composite_var.composite_var(var, first_var, last_var, mode)
         plt.savefig(
-            self.plot_dir
-            + self.prefix
-            + f"composite_{var}_{mode}.png",
+            self.plot_dir + self.prefix + f"composite_{var}_{mode}.png",
             dpi=300,
         )
-
 
     def plot_all(self):
         self.plot_500hpa_spatial_violin()
@@ -372,8 +376,8 @@ class period_index:
         self.return_period_profile("NAO")
         self.return_period_profile("EA")
         self.extreme_spatial_pattern(hlayers=100000)
-        self.composite_var('tsurf','NAO',hlayers=50000)
-        self.composite_var('tsurf','EA', hlayers = 50000)
+        self.composite_var("tsurf", "NAO", hlayers=50000)
+        self.composite_var("tsurf", "EA", hlayers=50000)
 
     def create_doc(self):
         create_md.doc_quick_plots(
@@ -383,12 +387,13 @@ class period_index:
             self.prefix,
         )
 
+
 #%%
 if __name__ == "__main__":
-    ind_all = period_index("ind", "all","CO2")
+    ind_all = period_index("ind", "all", "CO2")
     ind_all.plot_all()
     ind_all.create_doc()
-    dep_all = period_index("dep", "all","CO2")
+    dep_all = period_index("dep", "all", "CO2")
     dep_all.plot_all()
     dep_all.create_doc()
 

@@ -2,22 +2,10 @@ import proplot as pplt
 import src.EVT.return_period as EVT
 
 
-def return_period_scatter(index, mode, hlayers=50000):
+def return_period_scatter(pos,mpos,neg,mneg, mode, periods, labels,hlayers=50000):
     """
     return period plot
     """
-
-    (
-        first10_all_pos,
-        last10_all_pos,
-        first10_median_pos,
-        last10_median_pos,
-        first10_all_neg,
-        last10_all_neg,
-        first10_median_neg,
-        last10_median_neg,
-    ) = EVT.mode_return_period(index, mode=mode, hlayers=hlayers)
-
     fig, axes = pplt.subplots(nrows=1, ncols=2, figwidth=8, span=False, share=False)
 
     axes.format(
@@ -32,74 +20,33 @@ def return_period_scatter(index, mode, hlayers=50000):
         grid=False,
     )
 
-    # pos
-    axes[0].scatter(
-        x="return period",
-        y="pc",
-        data=first10_all_pos,
-        label="first10",
-    )
-    axes[0].scatter(
-        x="return period",
-        y="pc",
-        data=last10_all_pos,
-        color="r",
-        label="last10",
-    )
+    all_type = [pos,neg]
+    media_type = [mpos,mneg]
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+    markers = ["+","*","d"]
 
-    # pos media
-    axes[0].scatter(
-        x="return period",
-        y="pc",
-        data=first10_median_pos,
-        color="k",
-        label="first10 median",
-        marker="+",
-        s = 80,
-    )
-    axes[0].scatter(
-        x="return period",
-        y="pc",
-        data=last10_median_pos,
-        color="k",
-        label="last10 median",
-        marker="*",
-        s = 80,
-    )
+    for i, extr_type in enumerate(all_type):
+        for j, period in enumerate(extr_type):
+            # all points
+            axes[i].scatter(
+                x = "return period",
+                y = "pc",
+                data = period,
+                label = labels[j],
+                color = colors[j],
+            )
 
-    # neg
-    axes[1].scatter(
-        x="return period",
-        y="pc",
-        data=first10_all_neg,
-        label="first10",
-    )
-    axes[1].scatter(
-        x="return period",
-        y="pc",
-        data=last10_all_neg,
-        color="r",
-        label="last10",
-    )
-    # neg media
-    axes[1].scatter(
-        x="return period",
-        y="pc",
-        data=first10_median_neg,
-        color="k",
-        label="first10 median",
-        marker="+",
-        s= 80
-    )
-    axes[1].scatter(
-        x="return period",
-        y="pc",
-        data=last10_median_neg,
-        color="k",
-        label="last10 median",
-        marker="*",
-        s = 80
-    )
+            # media points
+            axes[i].scatter(
+                x = "return period",
+                y = "pc",
+                data = media_type[i][j],
+                color = "k",
+                marker = markers[j],
+                label = labels[j]+'med',
+                s = 80,
+                zorder = 100+j
+            )
 
     # a zoom out for NAO very extreme events.
     if mode == "NAO":
@@ -111,7 +58,7 @@ def return_period_scatter(index, mode, hlayers=50000):
             yminorlocator="null",
             title="zoom out",
         )
-        ix.scatter(x="return period", y="pc", data=last10_all_neg, color="r")
+        ix.scatter(x="return period", y="pc", data=neg[-1], color=colors[-1])
         ix.set_xlabel(None)
         ix.set_ylabel(None)
 
@@ -120,7 +67,7 @@ def return_period_scatter(index, mode, hlayers=50000):
     axes[1].format(title="neg")
 
 
-def return_period_profile(pos, neg, index, mode):
+def return_period_profile(pos, neg, index, mode,labels):
     fig, axes = pplt.subplots(nrows=1, ncols=2, figwidth=8, span=False, share=False)
 
     axes.format(
@@ -137,12 +84,13 @@ def return_period_profile(pos, neg, index, mode):
     )
 
     y = index.hlayers.values / 100
-    axes[0].plot(pos[:, 0], y, "k-", label="first10 median")
-
-    axes[0].plot(pos[:, 1], y, "k--", label="last10 median")
-
-    axes[1].plot(neg[:, 0], y, "k-", label="first10 median")
-    axes[1].plot(neg[:, 1], y, "k--", label="last10 median")
+    extrs = ['pos','neg']
+    extr_data = [pos,neg]
+    styles = ['-','--','dotted']
+    for i, extr_type in enumerate(extrs):
+        for j in range(pos.shape[-1]):
+            axes[i].plot(extr_data[i][:,j],y,color = 'k',linestyle = styles[j],label = labels[j])
+            axes[i].set_title(extr_type)
 
     axes[1].set_xlim(0, 5)
     axes[0].set_xlim(0, 5)

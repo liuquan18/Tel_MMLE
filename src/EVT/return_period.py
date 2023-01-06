@@ -50,20 +50,21 @@ def mode_return_period(
 
     index = index.sel(mode=mode, hlayers=hlayers)
 
-    period_pos, media_period_pos = split_period(index, periods,'pos')
-    period_neg, media_period_neg = split_period(index,periods, 'neg')
+    period_pos, media_period_pos = split_period(index, periods, "pos")
+    period_neg, media_period_neg = split_period(index, periods, "neg")
 
     return (period_pos, media_period_pos, period_neg, media_period_neg)
 
-def split_period(index, periods,extr_type):
-    if extr_type == 'pos':
-        method = 'max'
-    elif extr_type == 'neg':
-        method = 'min'
+
+def split_period(index, periods, extr_type):
+    if extr_type == "pos":
+        method = "max"
+    elif extr_type == "neg":
+        method = "min"
     all = return_period(index, extr_type)
     period = [all.loc[period] for period in periods]
     media_period = [median_return_period(p, method) for p in period]
-    return period,media_period
+    return period, media_period
 
 
 def median_return_period(d, method):
@@ -75,7 +76,7 @@ def median_return_period(d, method):
     return d.loc[[close_to_median.idxmin()], :]
 
 
-def vertical_return_period(index: xr.DataArray, mode: str):
+def vertical_return_period(index: xr.DataArray, mode: str, periods):
     """
     the media return period of all altitudes.
     **Parameters**:
@@ -86,10 +87,11 @@ def vertical_return_period(index: xr.DataArray, mode: str):
         *neg* the vertical profile of medai return period for negative extremes.
     """
 
-    pos = np.zeros((index.hlayers.size, 2))
-    neg = np.zeros((index.hlayers.size, 2))
+    pos = np.zeros((index.hlayers.size, len(periods)))
+    neg = np.zeros((index.hlayers.size, len(periods)))
 
     for i, hlayers in enumerate(index.hlayers):
-        _,pos[i],_,neg[i]= mode_return_period(index, mode, hlayers)
+        _, mpos, _, mneg = mode_return_period(index, mode, periods, hlayers)
+        pos[i] = [mp['return period'][0] for mp in mpos]
+        neg[i] = [mn['return period'][0] for mn in mneg]
     return pos, neg
-
