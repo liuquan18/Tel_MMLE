@@ -50,17 +50,20 @@ def mode_return_period(
 
     index = index.sel(mode=mode, hlayers=hlayers)
 
-    # pos
-    all_pos = return_period(index, "pos")
-    period_pos = [all_pos.sel(time=period) for period in periods]
-    media_period_pos = [median_return_period(p_pos, "max") for p_pos in period_pos]
-
-    # neg
-    all_neg = return_period(index, "neg")
-    period_neg = [all_neg.sel(time=period) for period in periods]
-    media_period_neg = [median_return_period(p_neg, "min") for p_neg in period_neg]
+    period_pos, media_period_pos = split_period(index, periods,'pos')
+    period_neg, media_period_neg = split_period(index,periods, 'neg')
 
     return (period_pos, media_period_pos, period_neg, media_period_neg)
+
+def split_period(index, periods,extr_type):
+    if extr_type == 'pos':
+        method = 'max'
+    elif extr_type == 'neg':
+        method = 'min'
+    all = return_period(index, extr_type)
+    period = [all.loc[period] for period in periods]
+    media_period = [median_return_period(p, method) for p in period]
+    return period,media_period
 
 
 def vertical_return_period(index: xr.DataArray, mode: str):
