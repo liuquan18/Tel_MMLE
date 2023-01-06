@@ -34,7 +34,9 @@ def return_period(index: xr.DataArray, extreme_type: str):
     return returnPeriod
 
 
-def mode_return_period(index: xr.DataArray, mode: str, hlayers: int = 50000):
+def mode_return_period(
+    index: xr.DataArray, mode: str, periods: list, hlayers: int = 50000
+):
     """
     the return period of {mode} at one altitude layer.
     split to first10 and last10 years. calculate the media return period.
@@ -50,28 +52,15 @@ def mode_return_period(index: xr.DataArray, mode: str, hlayers: int = 50000):
 
     # pos
     all_pos = return_period(index, "pos")
-    first10_all_pos, last10_all_pos = tenYear_return_period(all_pos)
-    first10_median_pos, last10_median_pos = tenYear_return_period_median(
-        all_pos, method="max"
-    )
+    period_pos = [all_pos.sel(time=period) for period in periods]
+    media_period_pos = [median_return_period(p_pos, "max") for p_pos in period_pos]
 
     # neg
     all_neg = return_period(index, "neg")
-    first10_all_neg, last10_all_neg = tenYear_return_period(all_neg)
-    first10_median_neg, last10_median_neg = tenYear_return_period_median(
-        all_neg, method="min"
-    )
+    period_neg = [all_neg.sel(time=period) for period in periods]
+    media_period_neg = [median_return_period(p_neg, "min") for p_neg in period_neg]
 
-    return (
-        first10_all_pos,
-        last10_all_pos,
-        first10_median_pos,
-        last10_median_pos,
-        first10_all_neg,
-        last10_all_neg,
-        first10_median_neg,
-        last10_median_neg,
-    )
+    return (period_pos, media_period_pos, period_neg, media_period_neg)
 
 
 def vertical_return_period(index: xr.DataArray, mode: str):
@@ -115,22 +104,3 @@ def median_return_period(d, method):
     ranks = d["return period"].rank(pct=True, method=method)
     close_to_median = abs(ranks - 0.5)
     return d.loc[[close_to_median.idxmin()], :]
-
-
-def tenYear_return_period(return_periods):
-    """
-    split into first10 and last10
-    """
-    first10 = return_periods.loc["1850":"1860"]
-    last10 = return_periods.loc["1990":"1999"]
-    return first10, last10
-
-
-def tenYear_return_period_median(all_return_period, method):
-    """
-    calculate the median of first10 and last10.
-    """
-    first10, last10 = tenYear_return_period(all_return_period)
-    first10_median = median_return_period(first10, method=method)
-    last10_median = median_return_period(last10, method=method)
-    return first10_median, last10_median
