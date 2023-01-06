@@ -229,6 +229,7 @@ class period_index:
         ext_counts = []
         for pc_period in self.pc_periods:
             ext_counts.append(extreme.period_extreme_count(pc_period))
+            ext_counts = xr.concat(ext_counts,dim = 'compare')
         return ext_counts
 
     def bar500hpa_index_df(self):
