@@ -212,14 +212,18 @@ class period_index:
     def split_period(self):
         if self.compare == "CO2":
             periods = self.CO2_period()
+            names = ['first10','last10']
         elif self.compare == "temp":
             print("reading the mean tsurf data...")
             tsurf = xr.open_dataset(self.tsurf_dir).tsurf
             periods = self.temp_period(tsurf)
-        pc_period = []
-        for period in periods:
-            pc_period.append(self.pc.sel(time=period))
-        return pc_period
+            names = ['0C','2C','4C']
+        pcs_period = []
+        for i,period in enumerate(periods):
+            pc_period = self.pc.sel(time = period)
+            pc_period['compare'] = names[i]
+            pcs_period.append(pc_period)
+        return pcs_period
 
     def extreme_periods(self):
         ext_counts = []
