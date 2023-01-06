@@ -81,10 +81,6 @@ class period_index:
         self.eof, self.pc, self.fra = self.read_eof_data()
         self.pc["time"] = self.pc.indexes["time"].to_datetimeindex()
 
-        # data of 500 hpa.
-        self.eof_500hpa, self.pc_500hpa, self.fra_500hpa = self.sel_500hpa()
-        self.pc_500hpa_df = self.bar500hpa_index_df(self.pc_500hpa)
-
         # read the original gph data to do the composite spatial pattern
         self.gph = self.read_gph_data()
 
@@ -93,6 +89,10 @@ class period_index:
 
         # extreme counts
         self.ext_counts_periods = self.extreme_periods()
+
+        # data of 500 hpa.
+        self.eof_500hpa, self.pc_500hpa, self.fra_500hpa = self.sel_500hpa()
+        self.pc_500hpa_df = self.bar500hpa_index_df()
 
     def read_eof_data(self):
         """
@@ -227,7 +227,7 @@ class period_index:
             ext_counts.append(extreme.period_extreme_count(pc_period))
         return ext_counts
 
-    def bar500hpa_index_df(self, index):
+    def bar500hpa_index_df(self):
 
         """
         select the period data, transform to dataframe
@@ -239,7 +239,7 @@ class period_index:
         if self.compare == 'CO2':
             coords = xr.IndexVariable(dims="periods", data=["first10", "last10"])
         else:
-            coords = xr.IndexVariable(dims="periods", data=[f"0&deg;C", f"4&deg;C"])
+            coords = xr.IndexVariable(dims="periods", data=["0C", "4C"])
         index_500hpa = xr.concat([first, last], dim=coords)
         index_500hpa = index_500hpa.to_dataframe().reset_index()
 
@@ -376,15 +376,13 @@ class period_index:
             self.prefix,
         )
 
+#%%
 if __name__ == "__main__":
-    # %%
-    ind_all = first10_last10_index("ind", "all")
+    ind_all = period_index("ind", "all","CO2")
     ind_all.plot_all()
     ind_all.create_doc()
-    # %%
-    dep_all = first10_last10_index("dep", "all")
+    dep_all = period_index("dep", "all","CO2")
     dep_all.plot_all()
     dep_all.create_doc()
-    # %%
 
 # %%
