@@ -66,6 +66,15 @@ def split_period(index, periods,extr_type):
     return period,media_period
 
 
+def median_return_period(d, method):
+    """
+    the median return period
+    """
+    ranks = d["return period"].rank(pct=True, method=method)
+    close_to_median = abs(ranks - 0.5)
+    return d.loc[[close_to_median.idxmin()], :]
+
+
 def vertical_return_period(index: xr.DataArray, mode: str):
     """
     the media return period of all altitudes.
@@ -81,29 +90,6 @@ def vertical_return_period(index: xr.DataArray, mode: str):
     neg = np.zeros((index.hlayers.size, 2))
 
     for i, hlayers in enumerate(index.hlayers):
-        (
-            _,
-            _,
-            POS_median_first,
-            POS_median_last,
-            _,
-            _,
-            NEG_median_first,
-            NEG_median_last,
-        ) = mode_return_period(index, mode, hlayers)
-
-        pos[i, 0] = POS_median_first["return period"].values
-        pos[i, 1] = POS_median_last["return period"].values
-
-        neg[i, 0] = NEG_median_first["return period"].values
-        neg[i, 1] = NEG_median_last["return period"].values
+        _,pos[i],_,neg[i]= mode_return_period(index, mode, hlayers)
     return pos, neg
 
-
-def median_return_period(d, method):
-    """
-    the median return period
-    """
-    ranks = d["return period"].rank(pct=True, method=method)
-    close_to_median = abs(ranks - 0.5)
-    return d.loc[[close_to_median.idxmin()], :]
