@@ -274,7 +274,7 @@ class period_index:
 
     def violin_profile(self):
         print("ploting the violin profile of NAO and EA index ...")
-        fig = violin_plots.plot_vilion(self.first10_pc, self.last10_pc, "whole")
+        fig = violin_plots.plot_vilion(self.pc_periods[0], self.pc_periods[-1],compare = self.compare)
         plt.savefig(self.plot_dir + self.prefix + "violin_profile.png", dpi=300)
 
     def extreme_count_profile(self, mode):
