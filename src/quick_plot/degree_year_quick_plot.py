@@ -62,12 +62,12 @@ class period_index:
 
         # the destination for savinig plots
         self.plot_dir = (
-            "/work/mh0033/m300883/Tele_season/docs/source/plots/quick_plots/"
+            "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/"+self.compare+"/"
         )
 
         # the destination for the doc
-        self.img_dir = "plots/quick_plots/"  # relative, no why
-        self.doc_dir = "/work/mh0033/m300883/Tele_season/docs/source/"
+        self.img_dir = "plots/"+self.compare+"/"  # relative, no why
+        self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
 
         ###########################################
         #### tools for naming #####################
@@ -226,10 +226,10 @@ class period_index:
         return pcs_period
 
     def extreme_periods(self):
-        ext_counts = []
+        ext_counts_list = []
         for pc_period in self.pc_periods:
-            ext_counts.append(extreme.period_extreme_count(pc_period))
-            ext_counts = xr.concat(ext_counts,dim = 'compare')
+            ext_counts_list.append(extreme.period_extreme_count(pc_period))
+            ext_counts = xr.concat(ext_counts_list,dim = 'compare')
         return ext_counts
 
     def bar500hpa_index_df(self):
@@ -285,7 +285,7 @@ class period_index:
     def extreme_count_profile(self, mode):
         print(f"ploting the profile of extreme event count of {mode} index ...")
         fig = profile_plots.plot_vertical_profile(
-            self.first_ext_count, self.last_ext_count, mode=mode, std_type="all"
+            self.ext_counts_periods, mode=mode,
         )
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_extreme_count_profile.png", dpi=300

@@ -3,20 +3,16 @@ import matplotlib.pyplot as plt
 import proplot as pplt
 
 
-def plot_period(periods_ec, ax):
-    """
-    plot vertical profile of different peiods
-    *periods_ec*: a list of all periods
-    """
-    styles = ['-','--','---']
-    y = (periods_ec[0].hlayers.values) / 100
+def plot_period(exts, ax):
+    """plot vertical profile of two peiods"""
+    y = (exts.hlayers.values) / 100
+    styles = ['-','--','dotted']
+    labels = exts.compare.values
 
-    # for i,x in enumerate(periods_ec):
-    #     ax.plot(x.values,y,linestyle = styles[i],color = 'k',)
-    x_first = first_ec.values
-    x_last = last_ec.values
-    first_profile = ax.plot(x_first, y, linestyle="-", color="k", label="first10")
-    last_profile = ax.plot(x_last, y, linestyle="--", color="k", label="last10")
+    for i,x_period in enumerate(exts):
+        x = x_period.values
+        ax.plot(x,y,linestyle = styles[i],color = 'k', label = labels[i])
+
 
 
 def plot_diff(diff_ec, ax):
@@ -34,13 +30,14 @@ def plot_diff(diff_ec, ax):
     )
 
 
-def plot_vertical_profile(first_ec, last_ec, mode, std_type):
+def plot_vertical_profile(ext_count, mode,std_type):
     """
     plot the vertical profile of extreme counts
+    **Arguments**
+        *ecs* the extreme counts
     """
-    first_ec = first_ec.sel(mode=mode)
-    last_ec = last_ec.sel(mode=mode)
-    diff_ec = last_ec - first_ec
+    ext_count = ext_count.sel(mode = mode)
+    ext_count_diff = ext_count.isel(compare = -1) - ext_count.isel(compare = 0) 
 
     fig = pplt.figure(space=0, refwidth="20em")
     axes = fig.subplots(nrows=1, ncols=3)
@@ -50,7 +47,7 @@ def plot_vertical_profile(first_ec, last_ec, mode, std_type):
         xlocator=[-20, -10, 0, 10, 20, 30, 40],
         xminorticks="null",
         yminorticks="null",
-        suptitle=f"{mode} extreme event counts standardizised with {std_type}",
+        suptitle=f"{mode} extreme event counts ",
         grid = False,
     )
 
@@ -59,13 +56,12 @@ def plot_vertical_profile(first_ec, last_ec, mode, std_type):
     # first 2 cols
     extr_types = ["pos", "neg"]
     for i, ax in enumerate(axes[:2]):
-        first_ext = first_ec.sel(extr_type=extr_types[i])
-        last_ext = last_ec.sel(extr_type=extr_types[i])
-        plot_period(first_ext, last_ext, ax=ax)
+        ext_type = ext_count.sel(extr_type = extr_types[i])
+        plot_period(ext_type, ax=ax)
         ax.format(title=titles[i], xlabel="extremes count", ylabel="gph/hpa")
 
     # the last col
-    plot_diff(diff_ec, ax=axes[2])
+    plot_diff(ext_count_diff, ax=axes[2])
     axes[2].format(title=titles[2])
 
     for ax in axes[:2]:
@@ -80,3 +76,5 @@ def plot_vertical_profile(first_ec, last_ec, mode, std_type):
     axes[2].set_xlim(-10, 30)
     axes[2].spines["right"].set_visible(False)
     axes[2].spines["top"].set_visible(False)
+
+
