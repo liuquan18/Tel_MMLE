@@ -85,7 +85,7 @@ class period_index:
         self.gph = self.read_gph_data()
 
         # index of different period to compare, either first10 v.s last10, or 0,2,4 .C (degree)
-        self.pc_periods = self.split_period()
+        self.pc_periods,self.periods = self.split_period()
 
         # extreme counts
         self.ext_counts_periods = self.extreme_periods()
@@ -204,8 +204,9 @@ class period_index:
 
     def CO2_period(self):
         """select the year from pc"""
-        first10 = slice("1851", "1860")
-        last10 = slice("1990", "1999")
+        years = self.pc.time
+        first10 = slice(years[0], years[10])
+        last10 = slice(years[-10], years[years.size])
         periods = [first10, last10]
         return periods
 
@@ -223,7 +224,8 @@ class period_index:
             pc_period = self.pc.sel(time = period)
             pc_period['compare'] = names[i]
             pcs_period.append(pc_period)
-        return pcs_period
+        return pcs_period,periods
+
 
     def extreme_periods(self):
         ext_counts_list = []
