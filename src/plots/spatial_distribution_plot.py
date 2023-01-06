@@ -103,7 +103,7 @@ def spatialMap_hist(eof_500hpa, index_500hpa, fra_500hpa):
             ax1.colorbar(map, loc="r", title="std", ticks=0.2, pad=2)
 
         ax2 = fig.subplot(gs[1, i])
-        violin = sns.histplot(
+        bar = sns.histplot(
             data=index_500hpa[index_500hpa["mode"] == mode],
             x="pc",
             hue="periods",
@@ -111,7 +111,7 @@ def spatialMap_hist(eof_500hpa, index_500hpa, fra_500hpa):
             shrink=1,
             bins=np.arange(-4, 4.1, 0.5),
         )
-        violin.legend(ncol=1, labels=["last10", "first10"], title="period")
+        bar.legend(ncol=1, labels=index_500hpa.periods.unique()[::-1], title="period")  # cautious here
 
         ax2.format(
             xtickminor=False,
