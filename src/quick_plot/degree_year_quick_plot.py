@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import proplot as pplt
 import seaborn as sns
+from pandas.tseries.offsets import DateOffset
 
 # functions to plot
 import src.plots.vertical_profile as profile_plots
@@ -30,6 +31,7 @@ import src.composite.field_composite as composite
 import src.html.create_md as create_md
 import src.Teleconnection.tools as tools
 
+
 #%%
 class degree_year_index:
     def __init__(
@@ -40,7 +42,7 @@ class degree_year_index:
     ):
 
         #####################################
-        #### some definitions here ####
+        #### some definitions here ##########
         self.vertical_eof = vertical_eof
         self.fixed_pattern = fixed_pattern
         self.compare = compare
@@ -67,7 +69,7 @@ class degree_year_index:
         self.img_dir = "plots/quick_plots/"  # relative, no why
         self.doc_dir = "/work/mh0033/m300883/Tele_season/docs/source/"
 
-        #############################################
+        ###############################################
         ##### the data reading and preprocessing ######
         # read data of eof, index and explained variance
         self.eof, self.pc, self.fra = self.read_eof_data()
@@ -84,7 +86,7 @@ class degree_year_index:
         if self.compare == 'CO2':
             self.periods = [self.pc.isel(time = slice(0,10)),self.pc.isel(time=slice(-10, self.pc.time.size))]
         elif self.compare == 'temp':
-            
+            pass
 
         # index of first10 and last10
         self.first10_pc = self.pc.isel(time=slice(0, 10))
@@ -95,7 +97,7 @@ class degree_year_index:
         self.last_ext_count = extreme.period_extreme_count(self.last10_pc)
 
         ###########################################
-        #### tools for naming #########
+        #### tools for naming #####################
         self.prefix = (
             self.vertical_eof + "_" + self.fixed_pattern + "_"
         )  # for name/ ind_all_
@@ -157,6 +159,66 @@ class degree_year_index:
         last10_pc = self.pc.isel(time=slice(-10, self.pc.time.size))    
         periods = [first10_pc, last10_pc]
         return periods
+
+    def period_temp(self):
+        """select the pc in the ten-year window when the global mean
+        temperature is 0,2,4 degree higher than the first year"""
+        glmt = xr.open_mfdataset(self.tsurf_dir)
+        glmt = glmt.tsurf
+        years = self.degree_year(glmt)
+
+        temp0_pc = self.pc.isel(time = slice(0,10))
+        temp2_pc = self.pc.sel(time = slice())
+
+    def return_year(self,xarr):
+        """return the ten year slice to select"""
+        start = xarr.time.values + DateOffset(years = -4)
+        end = xarr.time.values + DateOffset(years = 5)
+        return slice(str(start.year),str(end.year))
+
+    def degree_period(self,fldmean:xr.DataArray):
+        """
+        to calculate the year when the mean global surface temperature reaches 1,2,and 4 degrees.
+        **Argument**
+            *fldmean* the fldmean of tsurf
+        """
+        if isinstance(fldmean,xr.DataArray):
+            pass
+        else:
+            print("only DataArray is accapted, DataSet recevied")
+
+        try:
+            fldmean.lon.size == 1 & fldmean.lat.size == 1
+        except ValueError:
+            print("the fldmean temperature should be calculated first")
+
+        # ens mean
+        if fldmean.ens.size != 1:
+            fld_ens_mean = fldmean.mean(dim = 'ens')
+        else:
+            fld_ens_mean = fldmean
+
+        # squeeze
+        mean = fld_ens_mean.squeeze()
+
+        # anomaly
+        anomaly = mean-mean[0]
+
+        years = []
+
+        # 0 degree (1855)
+        years.append(self.return_year(anomaly[5]))
+
+        # 2 degree
+        years.append(self.return_year(anomaly.where(anomaly>=2,drop=True)).squeeze()[0])
+
+        # 4 degree
+        years.append(self.return_year(anomaly.where(anomaly>=4,drop=True)).squeeze()[0])
+
+        return years
+
+    
+
 
     def first10_last10_index_df(self, index):
 
