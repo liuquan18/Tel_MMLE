@@ -15,17 +15,15 @@ class decompose_fixedPattern:
     A class to generate the eof and index
     """
 
-    def __init__(self, vertical_eof, fixed_pattern, standard_ens_time=True):
+    def __init__(self, model, vertical_eof, fixed_pattern, standard_ens_time=True):
         self.vertical_eof = vertical_eof
         self.independence = self.vertical_eof == "ind"
         self.fixed_pattern = fixed_pattern
         self.standard_ens_time = standard_ens_time
+        self.model = model
 
-        self.data_path = (
-            "/work/mh0033/m300883/transition/gr19/gphSeason/allens_season_time.nc"
-        )
+        self.zg_path = "/work/mh0033/m300883/Tel_MMLE/data/"+self.model+"/zg_processed/*.nc"
         self.data = self.read_data()
-
         self.eof, self.index, self.fra = self.decompose()
 
         # standardize the index with mean and std of ens and time (150 yrs)
@@ -33,29 +31,19 @@ class decompose_fixedPattern:
             self.index = self.standardize()
 
         self.save_path = (
-            "/work/mh0033/m300883/3rdPanel/data/class_decompose/"
-            + self.fixed_pattern
-            + "Pattern/"
-            + self.vertical_eof
-            + "/"
+                        '/work/mh0033/m300883/Tel_MMLE/data/'+self.model+'/EOF_result/'
         )
 
 
     def read_data(self):
-        print("reading data ...")
-        allens = xr.open_dataset(self.data_path)
+        zg_data = xr.open_mfdataset(self.zg_path, combine = 'nested',concat_dim = 'ens')
+        # demean
+        zg_ens_mean = zg_data.mean(dim = 'ens')
+        zg_demean = zg_data-zg_ens_mean
 
-        # split ens
-        splitens = tools.split_ens(allens)
-
-        # demean ens-mean
-        demean = splitens - splitens.mean(dim="ens")
-
-        # select traposphere
-        trop = demean.sel(hlayers=slice(20000, 100000))
-
-        trop = trop.var156
-        return trop
+        # select trop
+        zg_trop = zg_demean.sel(plev = slice(100000,20000))
+        return zg_trop
 
     def decompose(self):
         print("decomposing ...")
@@ -108,7 +96,15 @@ class decompose_fixedPattern:
 
 
 # %%
+cesm1_cam5_zg = xr.open_mfdataset("/work/mh0033/m300883/Tel_MMLE/data/CESM1_CAM5/zg_processed/*.nc")
+# demean
+cesm1_cam5_zg_ens_mean = cesm1_cam5_zg.mean(dim = 'ens')
+cesm1_cam5_zg = cesm1_cam5_zg - cesm1_cam5_zg_ens_mean
 
+
+
+
+#%%
 ind_all = decompose_fixedPattern('ind','all')
 ind_all.save_result()
 
