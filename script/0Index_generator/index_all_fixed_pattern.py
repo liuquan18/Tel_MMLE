@@ -36,6 +36,7 @@ class decompose_fixedPattern:
 
 
     def read_data(self):
+        print("reading data...")
         zg_data = xr.open_mfdataset(self.zg_path, combine = 'nested',concat_dim = 'ens')
         zg_data = zg_data.zg
 
