@@ -37,12 +37,16 @@ class decompose_fixedPattern:
 
     def read_data(self):
         zg_data = xr.open_mfdataset(self.zg_path, combine = 'nested',concat_dim = 'ens')
+        zg_data = zg_data.zg
+
+        zg_data = zg_data.rename({'plev':'hlayers'}) # to adapt
+
         # demean
         zg_ens_mean = zg_data.mean(dim = 'ens')
         zg_demean = zg_data-zg_ens_mean
 
         # select trop
-        zg_trop = zg_demean.sel(plev = slice(100000,20000))
+        zg_trop = zg_demean.sel(hlayers = slice(100000,20000))
         return zg_trop
 
     def decompose(self):
@@ -95,28 +99,4 @@ class decompose_fixedPattern:
         )
 
 
-# %%
-cesm1_cam5_zg = xr.open_mfdataset("/work/mh0033/m300883/Tel_MMLE/data/CESM1_CAM5/zg_processed/*.nc")
-# demean
-cesm1_cam5_zg_ens_mean = cesm1_cam5_zg.mean(dim = 'ens')
-cesm1_cam5_zg = cesm1_cam5_zg - cesm1_cam5_zg_ens_mean
-
-
-
-
-#%%
-ind_all = decompose_fixedPattern('ind','all')
-ind_all.save_result()
-
-#%%
-dep_all = decompose_fixedPattern('dep','all')
-dep_all.save_result()
-# %%
-
-ind_first = decompose_fixedPattern('ind','first')
-ind_first.save_result()
-
-# %%
-dep_first = decompose_fixedPattern('dep','first')
-dep_first.save_result()
 # %%
