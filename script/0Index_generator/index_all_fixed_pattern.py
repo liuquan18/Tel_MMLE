@@ -22,7 +22,9 @@ class decompose_fixedPattern:
         self.standard_ens_time = standard_ens_time
         self.model = model
 
-        self.zg_path = "/work/mh0033/m300883/Tel_MMLE/data/"+self.model+"/zg_processed/*.nc"
+        self.zg_path = (
+            "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/zg_processed/*.nc"
+        )
         self.data = self.read_data()
         self.eof, self.index, self.fra = self.decompose()
 
@@ -31,23 +33,22 @@ class decompose_fixedPattern:
             self.index = self.standardize()
 
         self.save_path = (
-                        '/work/mh0033/m300883/Tel_MMLE/data/'+self.model+'/EOF_result/'
+            "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/EOF_result/"
         )
-
 
     def read_data(self):
         print("reading data...")
-        zg_data = xr.open_mfdataset(self.zg_path, combine = 'nested',concat_dim = 'ens')
+        zg_data = xr.open_mfdataset(self.zg_path, combine="nested", concat_dim="ens")
         zg_data = zg_data.zg
 
-        zg_data = zg_data.rename({'plev':'hlayers'}) # to adapt
+        zg_data = zg_data.rename({"plev": "hlayers"})  # to adapt
 
         # demean
-        zg_ens_mean = zg_data.mean(dim = 'ens')
-        zg_demean = zg_data-zg_ens_mean
+        zg_ens_mean = zg_data.mean(dim="ens")
+        zg_demean = zg_data - zg_ens_mean
 
         # select trop
-        zg_trop = zg_demean.sel(hlayers = slice(100000,20000))
+        zg_trop = zg_demean.sel(hlayers=slice(100000, 20000))
         return zg_trop
 
     def decompose(self):
