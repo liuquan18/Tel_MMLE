@@ -55,7 +55,7 @@ class period_index:
         self.eof_dir = odir + "/EOF_result/"
 
         # the loc for the tsurf for determine the time of 1, 2, and 4 degree.
-        self.tsurf_fldmean_dir = odir + "/ts_preprocessed/"
+        self.tsurf_fldmean_dir = odir + "/ts_processed/"
 
         # the loc for original geopotential height data
         self.zg_dir = odir + "/zg/"
@@ -114,6 +114,20 @@ class period_index:
         fra = xr.open_dataset(odir + self.prefix + "fra.nc").exp_var
         return eof, pc, fra
 
+    def read_tsurf_fldmean(self):
+        print("reading the mean tsurf data...")
+        if self.model == "MPI_GE":
+            tsurf = xr.open_dataset(self.tsurf_fldmean_dir)  # already pre-processed
+        else:
+            tsurf = xr.open_mfdataset(
+                self.tsurf_fldmean_dir + "*.nc", combine="nested", concat_dim="ens"
+            )
+        try:  # different name
+            tsurf = tsurf.tsurf
+        except AttributeError:
+            tsurf = tsurf.ts
+        return tsurf
+
     def read_gph_data(self):
         """
         The data are stored somewhere here...
@@ -146,6 +160,7 @@ class period_index:
         read the tsurf or wind, precipitation for composite analysis
         data are stored in 3rdPanel/data/
         """
+        print("reading the var to do composite...")
         if self.model == "MPI_GE":
             data_path = (
                 "/work/mh0033/m300883/3rdPanel/data/influence/"
@@ -245,17 +260,7 @@ class period_index:
         if self.compare == "CO2":
             periods = self.CO2_period()
         elif self.compare == "temp":
-            print("reading the mean tsurf data...")
-            if self.model == "MPI_GE":
-                tsurf = xr.open_dataset(self.tsurf_fldmean_dir)  # already pre-processed
-            else:
-                tsurf = xr.open_mfdataset(
-                    self.tsurf_fldmean_dir, combine="nested", concat_dim="ens"
-                )
-            try:  # different name
-                tsurf = tsurf.tsurf
-            except AttributeError:
-                tsurf = tsurf.ts
+            tsurf = self.read_tsurf_fldmean()
             periods = self.temp_period(tsurf)
         pcs_period = []
         for i, period in enumerate(periods):
