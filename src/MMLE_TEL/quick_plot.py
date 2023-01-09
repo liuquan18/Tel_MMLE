@@ -279,7 +279,7 @@ class period_index:
             ext_counts = xr.concat(ext_counts_list, dim="compare")
         return ext_counts
 
-    #%%
+    
     def bar500hpa_index_df(self):
 
         """

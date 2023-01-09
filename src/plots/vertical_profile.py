@@ -66,7 +66,7 @@ def plot_vertical_profile(ext_count, mode):
 
     for ax in axes[:2]:
         ax.set_ylim(1000, 200)
-        ax.set_xlim(5, 45)
+        # ax.set_xlim(5, 45)
         ax.spines["right"].set_visible(False)
         ax.spines["top"].set_visible(False)
     axes[0].legend(loc="lr", ncols=1, title="period")
