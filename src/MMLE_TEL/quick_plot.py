@@ -36,7 +36,7 @@ import src.Teleconnection.tools as tools
 class period_index:
     def __init__(
         self,
-        model:str, # the model name
+        model: str,  # the model name
         vertical_eof: str,  # 'ind' or 'dep'
         fixed_pattern: str,  # 'all','first','last'
         compare: str,  #'temp', 'CO2'
@@ -50,9 +50,9 @@ class period_index:
         self.model = model
 
         #### some locations here #####
-        odir = "/work/mh0033/m300883/Tel_MMLE/data/"+self.model
+        odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model
         # the loc for EOF result
-        self.eof_dir = odir+"/EOF_result/"
+        self.eof_dir = odir + "/EOF_result/"
 
         # the loc for the tsurf for determine the time of 1, 2, and 4 degree.
         self.tsurf_fldmean_dir = odir + "/ts_preprocessed/"
@@ -120,7 +120,9 @@ class period_index:
         """
         print("reading gph data...")
         # data
-        zg_data = xr.open_mfdataset(self.zg_dir,combine="nested",concat_dim="ens")
+        zg_data = xr.open_mfdataset(
+            self.zg_dir + "*.nc", combine="nested", concat_dim="ens"
+        )
 
         # demean ens-mean
         demean = zg_data - zg_data.mean(dim="ens")
@@ -130,11 +132,11 @@ class period_index:
             trop = demean.sel(hlayers=slice(20000, 100000))
             trop = trop.var156
         else:
-            trop = demean.sel(hlayers=slice(100000,20000))
+            trop = demean.sel(hlayers=slice(100000, 20000))
             trop = trop.zg
 
         trop = tools.standardize(trop)
-        trop["time"] = trop.indexes["time"].to_datetimeindex() 
+        trop["time"] = trop.indexes["time"].to_datetimeindex()
         return trop
 
     def read_var(self, var):
@@ -153,7 +155,9 @@ class period_index:
             )
             var_data = xr.open_dataset(data_path)[var]
         else:
-            var_data = xr.open_mfdataset(self.ts_dir,combine="nested",concat_dim="ens")
+            var_data = xr.open_mfdataset(
+                self.ts_dir + "*.nc", combine="nested", concat_dim="ens"
+            )
             var_data = var_data[var]
         return var_data
 
@@ -242,8 +246,10 @@ class period_index:
             if self.model == "MPI_GE":
                 tsurf = xr.open_dataset(self.tsurf_fldmean_dir)  # already pre-processed
             else:
-                tsurf = xr.open_mfdataset(self.tsurf_fldmean_dir,combine = 'nested',concat_dim = 'ens')
-            try: # different name
+                tsurf = xr.open_mfdataset(
+                    self.tsurf_fldmean_dir, combine="nested", concat_dim="ens"
+                )
+            try:  # different name
                 tsurf = tsurf.tsurf
             except AttributeError:
                 tsurf = tsurf.ts
@@ -329,7 +335,7 @@ class period_index:
             self.pc, mode=mode, periods=self.periods, hlayers=hlayers
         )
         fig = RP_plots.return_period_scatter(
-            pos, mpos, neg, mneg, mode, self.periods,self.period_name, hlayers=hlayers
+            pos, mpos, neg, mneg, mode, self.periods, self.period_name, hlayers=hlayers
         )
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_return_period_scatter.png", dpi=300
@@ -337,15 +343,19 @@ class period_index:
 
     def return_period_profile(self, mode):
         pos, neg = EVT.vertical_return_period(self.pc, mode, self.periods)
-        fig = RP_plots.return_period_profile(pos, neg, self.pc, mode,self.period_name)
+        fig = RP_plots.return_period_profile(pos, neg, self.pc, mode, self.period_name)
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_return_period_profile.png", dpi=300
         )
 
     def extreme_spatial_pattern(self, hlayers=100000):
         # do the composite of gph to get the extreme sptial patterns
-        first_sptial_pattern = composite.Tel_field_composite(self.pc_periods[0], self.gph)
-        last_sptial_pattern = composite.Tel_field_composite(self.pc_periods[-1], self.gph)
+        first_sptial_pattern = composite.Tel_field_composite(
+            self.pc_periods[0], self.gph
+        )
+        last_sptial_pattern = composite.Tel_field_composite(
+            self.pc_periods[-1], self.gph
+        )
         fig = composite_spatial_pattern.composite_spatial_pattern(
             first_sptial_pattern,
             last_sptial_pattern,
@@ -358,7 +368,6 @@ class period_index:
             + f"extreme_spatial_pattern_{hlayers/100:.0f}hpa.png",
             dpi=300,
         )
-
 
     def composite_var(self, var, mode, hlayers=50000):
 
