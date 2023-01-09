@@ -142,15 +142,19 @@ class period_index:
         read the tsurf or wind, precipitation for composite analysis
         data are stored in 3rdPanel/data/
         """
-        data_path = (
-            "/work/mh0033/m300883/3rdPanel/data/influence/"
-            + var
-            + "/"
-            + "onepct_1850-1999_ens_1-100."
-            + var
-            + ".nc"
-        )
-        var_data = xr.open_dataset(data_path)[var]
+        if self.model == "MPI_GE":
+            data_path = (
+                "/work/mh0033/m300883/3rdPanel/data/influence/"
+                + var
+                + "/"
+                + "onepct_1850-1999_ens_1-100."
+                + var
+                + ".nc"
+            )
+            var_data = xr.open_dataset(data_path)[var]
+        else:
+            var_data = xr.open_mfdataset(self.ts_dir,combine="nested",concat_dim="ens")
+            var_data = var_data[var]
         return var_data
 
     def sel_500hpa(self):
