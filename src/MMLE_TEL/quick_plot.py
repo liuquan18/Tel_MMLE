@@ -128,7 +128,7 @@ class period_index:
         demean = zg_data - zg_data.mean(dim="ens")
 
         # select traposphere
-        if self.mode == "MPI_GE":
+        if self.model == "MPI_GE":
             trop = demean.sel(hlayers=slice(20000, 100000))
             trop = trop.var156
         else:
