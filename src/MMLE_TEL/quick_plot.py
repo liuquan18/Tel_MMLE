@@ -36,6 +36,7 @@ import src.Teleconnection.tools as tools
 class period_index:
     def __init__(
         self,
+        model:str, # the model name
         vertical_eof: str,  # 'ind' or 'dep'
         fixed_pattern: str,  # 'all','first','last'
         compare: str,  #'temp', 'CO2'
@@ -46,27 +47,29 @@ class period_index:
         self.vertical_eof = vertical_eof
         self.fixed_pattern = fixed_pattern
         self.compare = compare
+        self.model = model
 
         #### some locations here #####
+        odir = "/work/mh0033/m300883/Tel_MMLE/data/"+self.model
         # the loc for EOF result
-        self.eof_dir = (
-            "/work/mh0033/m300883/3rdPanel/data/class_decompose/"
-            + self.fixed_pattern
-            + "Pattern/"
-            + self.vertical_eof
-            + "/"
-        )
+        self.eof_dir = odir+"/EOF_result/"
 
         # the loc for the tsurf for determine the time of 1, 2, and 4 degree.
-        self.tsurf_dir = "/work/mh0033/m300883/3rdPanel/data/mean_global_temp/mtsurf_mpi_GE_onepct.nc"
+        self.tsurf_fldmean_dir = odir + "/ts_preprocessed/"
+
+        # the loc for original geopotential height data
+        self.zg_dir = odir + "/zg/"
+
+        # the loc for original tsurface map
+        self.ts_dir = odir + "/ts/"
 
         # the destination for savinig plots
         self.plot_dir = (
-            "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/" + self.compare + "/"
+            "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/" + self.model + "/"
         )
 
         # the destination for the doc
-        self.img_dir = "plots/" + self.compare + "/"  # relative, no why
+        self.img_dir = "plots/" + self.model + "/"  # relative, no why
         self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
 
         ###########################################
@@ -117,25 +120,38 @@ class period_index:
         """
         print("reading gph data...")
         # data
-        allens = xr.open_dataset(
-            "/work/mh0033/m300883/transition/gr19/gphSeason/allens_season_time.nc"
-        )
-        # split ens
-        splitens = tools.split_ens(allens)
+        zg_data = xr.open_mfdataset(self.zg_dir,combine="nested",concat_dim="ens")
 
         # demean ens-mean
-        demean = splitens - splitens.mean(dim="ens")
+        demean = zg_data - zg_data.mean(dim="ens")
 
         # select traposphere
-        trop = demean.sel(hlayers=slice(20000, 100000))
-
-        trop = trop.var156
+        if self.mode == "MPI_GE":
+            trop = demean.sel(hlayers=slice(20000, 100000))
+            trop = trop.var156
+        else:
+            trop = demean.sel(hlayers=slice(100000,20000))
+            trop = trop.zg
 
         trop = tools.standardize(trop)
-        trop["time"] = trop.indexes[
-            "time"
-        ].to_datetimeindex()  # the same time type as index
+        trop["time"] = trop.indexes["time"].to_datetimeindex() 
         return trop
+
+    def read_var(self, var):
+        """
+        read the tsurf or wind, precipitation for composite analysis
+        data are stored in 3rdPanel/data/
+        """
+        data_path = (
+            "/work/mh0033/m300883/3rdPanel/data/influence/"
+            + var
+            + "/"
+            + "onepct_1850-1999_ens_1-100."
+            + var
+            + ".nc"
+        )
+        var_data = xr.open_dataset(data_path)[var]
+        return var_data
 
     def sel_500hpa(self):
         eof_500 = self.eof.sel(hlayers=50000)
@@ -219,7 +235,10 @@ class period_index:
             periods = self.CO2_period()
         elif self.compare == "temp":
             print("reading the mean tsurf data...")
-            tsurf = xr.open_dataset(self.tsurf_dir)
+            if self.model == "MPI_GE":
+                tsurf = xr.open_dataset(self.tsurf_fldmean_dir)  # already pre-processed
+            else:
+                tsurf = xr.open_mfdataset(self.tsurf_fldmean_dir,combine = 'nested',concat_dim = 'ens')
             try: # different name
                 tsurf = tsurf.tsurf
             except AttributeError:
@@ -336,21 +355,6 @@ class period_index:
             dpi=300,
         )
 
-    def read_var(self, var):
-        """
-        read the tsurf or wind, precipitation for composite analysis
-        data are stored in 3rdPanel/data/
-        """
-        data_path = (
-            "/work/mh0033/m300883/3rdPanel/data/influence/"
-            + var
-            + "/"
-            + "onepct_1850-1999_ens_1-100."
-            + var
-            + ".nc"
-        )
-        var_data = xr.open_dataset(data_path)[var]
-        return var_data
 
     def composite_var(self, var, mode, hlayers=50000):
 
