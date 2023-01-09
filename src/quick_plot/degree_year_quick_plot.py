@@ -219,7 +219,11 @@ class period_index:
             periods = self.CO2_period()
         elif self.compare == "temp":
             print("reading the mean tsurf data...")
-            tsurf = xr.open_dataset(self.tsurf_dir).tsurf
+            tsurf = xr.open_dataset(self.tsurf_dir)
+            try: # different name
+                tsurf = tsurf.tsurf
+            except AttributeError:
+                tsurf = tsurf.ts
             periods = self.temp_period(tsurf)
         pcs_period = []
         for i, period in enumerate(periods):
