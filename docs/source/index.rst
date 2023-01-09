@@ -11,10 +11,8 @@ Welcome to Teleconnection-season's documentation!
 
    Analysis_process
    functions
-   independently decomposed all pattern <ind_all>
-   dependently decomposed all pattern <dep_all>
-   independently decomposed first pattern <ind_first>
-   dependently decomposed first pattern <dep_first>
+   CanESM2_ind_first_doc
+   MMLE_models_aval
 
 Indices and tables
 ==================

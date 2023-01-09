@@ -22,3 +22,6 @@ canesm_qp.plot_all()
 canesm_qp.create_doc()
 
 # %%
+
+mpige = index_generate.decompose_fixedPattern("MPI_GE",v_eof,fpattern)
+mpige.save_result()

@@ -39,7 +39,10 @@ class decompose_fixedPattern:
     def read_data(self):
         print("reading data...")
         zg_data = xr.open_mfdataset(self.zg_path, combine="nested", concat_dim="ens")
-        zg_data = zg_data.zg
+        if self.model == "MPI_GE":
+            zg_data = zg_data.var156
+        else:
+            zg_data = zg_data.zg
 
         zg_data = zg_data.rename({"plev": "hlayers"})  # to adapt
 
