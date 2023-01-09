@@ -124,7 +124,7 @@ class period_index:
             self.zg_dir + "*.nc", combine="nested", concat_dim="ens"
         )
 
-        zg_data = zg_data.rename({"plev":"hlayers"}) # historical error
+        zg_data = zg_data.rename({"plev": "hlayers"})  # historical error
 
         # demean ens-mean
         demean = zg_data - zg_data.mean(dim="ens")
@@ -161,7 +161,7 @@ class period_index:
                 self.ts_dir + "*.nc", combine="nested", concat_dim="ens"
             )
             var_data = var_data[var]
-            var_data = var_data.rename({"plev":"hlayers"})
+            var_data = var_data.rename({"plev": "hlayers"})
         return var_data
 
     def sel_500hpa(self):
