@@ -60,21 +60,12 @@ def plot_vertical_profile(ext_count, mode):
         plot_period(ext_type, ax=ax)
         ax.format(title=titles[i], xlabel="extremes count", ylabel="gph/hpa")
 
-    # the last col
-    plot_diff(ext_count_diff, ax=axes[2])
-    axes[2].format(title=titles[2])
 
     for ax in axes[:2]:
         ax.set_ylim(1000, 200)
-        # ax.set_xlim(5, 45)
+        ax.set_xlim(0, 20)
         ax.spines["right"].set_visible(False)
         ax.spines["top"].set_visible(False)
     axes[0].legend(loc="lr", ncols=1, title="period")
     axes[1].legend(loc="ll", ncols=1, title="period")
-    axes[2].legend(loc="cr", ncols=1, title="extreme type")
-    axes[2].set_ylim(1000, 200)
-    axes[2].set_xlim(-10, 30)
-    axes[2].spines["right"].set_visible(False)
-    axes[2].spines["top"].set_visible(False)
-
 
