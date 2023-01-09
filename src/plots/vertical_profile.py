@@ -40,7 +40,7 @@ def plot_vertical_profile(ext_count, mode):
     ext_count_diff = ext_count.isel(compare = -1) - ext_count.isel(compare = 0) 
 
     fig = pplt.figure(space=0, refwidth="20em")
-    axes = fig.subplots(nrows=1, ncols=3)
+    axes = fig.subplots(nrows=1, ncols=2)
     axes.format(
         abc="a",
         abcloc="ul",
