@@ -178,13 +178,13 @@ class period_index:
                 + var
                 + ".nc"
             )
-            var_data = xr.open_dataset(data_path)[var]
+            var_data = xr.open_dataset(data_path).tsurf
         else:
             var_data = xr.open_mfdataset(
                 self.ts_dir + "*.nc", combine="nested", concat_dim="ens"
             )
             var_data["time"] = var_data.indexes["time"].to_datetimeindex()
-            var_data = var_data[var]
+            var_data = var_data.ts
             var_data = var_data.rename({"plev": "hlayers"})
         return var_data
 
