@@ -110,6 +110,7 @@ class period_index:
         eof = xr.open_dataset(odir + self.prefix + "eof.nc").eof
 
         pc = xr.open_dataset(odir + self.prefix + "pc.nc").pc
+        pc["time"] = pc.indexes["time"].to_datetimeindex()
 
         fra = xr.open_dataset(odir + self.prefix + "fra.nc").exp_var
         return eof, pc, fra
@@ -122,6 +123,8 @@ class period_index:
             tsurf = xr.open_mfdataset(
                 self.tsurf_fldmean_dir + "*.nc", combine="nested", concat_dim="ens"
             )
+            tsurf["time"] = tsurf.indexes["time"].to_datetimeindex()
+
         try:  # different name
             tsurf = tsurf.tsurf
         except AttributeError:
@@ -138,6 +141,7 @@ class period_index:
             self.zg_dir + "*.nc", combine="nested", concat_dim="ens"
         )
 
+        zg_data["time"] = zg_data.indexes["time"].to_datetimeindex()
         zg_data = zg_data.rename({"plev": "hlayers"})  # historical error
 
         # demean ens-mean
@@ -175,6 +179,7 @@ class period_index:
             var_data = xr.open_mfdataset(
                 self.ts_dir + "*.nc", combine="nested", concat_dim="ens"
             )
+            var_data["time"] = var_data.indexes["time"].to_datetimeindex()
             var_data = var_data[var]
             var_data = var_data.rename({"plev": "hlayers"})
         return var_data
@@ -276,6 +281,7 @@ class period_index:
             ext_counts = xr.concat(ext_counts_list, dim="compare")
         return ext_counts
 
+    #%%
     def bar500hpa_index_df(self):
 
         """
