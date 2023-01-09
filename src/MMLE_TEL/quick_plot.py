@@ -86,7 +86,6 @@ class period_index:
         ##### the data reading and preprocessing ######
         # read data of eof, index and explained variance
         self.eof, self.pc, self.fra = self.read_eof_data()
-        self.pc["time"] = self.pc.indexes["time"].to_datetimeindex()
 
         # read the original gph data to do the composite spatial pattern
         self.gph = self.read_gph_data()
@@ -141,7 +140,6 @@ class period_index:
             self.zg_dir + "*.nc", combine="nested", concat_dim="ens"
         )
 
-        zg_data["time"] = zg_data.indexes["time"].to_datetimeindex()
         zg_data = zg_data.rename({"plev": "hlayers"})  # historical error
 
         # demean ens-mean
