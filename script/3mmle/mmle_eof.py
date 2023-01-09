@@ -18,7 +18,7 @@ canesm.save_result()
 
 # %%
 canesm_qp = quick_plot.period_index("CanESM2",v_eof,fpattern,'temp')
-
-
+canesm_qp.plot_all()
+canesm_qp.create_doc()
 
 # %%

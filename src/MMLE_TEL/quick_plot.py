@@ -65,11 +65,17 @@ class period_index:
 
         # the destination for savinig plots
         self.plot_dir = (
-            "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/" + self.model + "/"
+            "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/"
+            + self.model
+            + "/"
+            + self.model
+            + "_"
         )
 
         # the destination for the doc
-        self.img_dir = "plots/" + self.model + "/"  # relative, no why
+        self.img_dir = (
+            "plots/" + self.model + "/" + self.model + "_"
+        )  # relative, no why
         self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
 
         ###########################################
@@ -279,7 +285,6 @@ class period_index:
             ext_counts = xr.concat(ext_counts_list, dim="compare")
         return ext_counts
 
-    
     def bar500hpa_index_df(self):
 
         """
