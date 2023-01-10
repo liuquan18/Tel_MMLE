@@ -147,7 +147,7 @@ def random_order(xarr, dim="com"):
     random sort the xarr along the dim.
     """
     index = np.arange(xarr.com.size)
-    random_index = shuffle(index)
+    random_index = shuffle(index,random_state=0)
     xarr["com"] = random_index
     xarr = xarr.sortby("com")
     return xarr
