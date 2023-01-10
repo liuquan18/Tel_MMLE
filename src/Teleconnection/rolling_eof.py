@@ -52,6 +52,7 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
 
     # if do the all-all decompose
     if fixed_pattern == "all":  # a little different from the following two.
+        print("     using the all pattern")
         EOF, pc, FRA = ssp.doeof(
             tools.stack_ens(xarr, withdim="time"),
             nmode=nmode,
@@ -64,15 +65,18 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
         PC = fixed_pc(xarr, EOF, standard=standard)
 
     elif fixed_pattern == "False":
+        print("     no fixed pattern used")
         EOF, FRA = changing_eofs(xarr, validtime, nmode=nmode, window=window)
         PC = changing_pc(xarr, validtime, EOF, standard=standard)
 
     elif fixed_pattern == "first":
         # only the EOF of the first10 is needed.
+        print("     using the first pattern")
         EOF, FRA = changing_eofs(xarr, validtime[0], nmode=nmode, window=window)
         PC = fixed_pc(xarr, EOF, standard=standard)
 
     elif fixed_pattern == "last":
+        print("     using the last pattern")
         EOF, FRA = changing_eofs(xarr, validtime[-1], nmode=nmode, window=window)
         PC = fixed_pc(xarr, EOF, standard=standard)
 
