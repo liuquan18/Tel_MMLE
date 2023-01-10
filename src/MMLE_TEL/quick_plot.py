@@ -93,9 +93,6 @@ class period_index:
         # read data of eof, index and explained variance
         self.eof, self.pc, self.fra = self.read_eof_data()
 
-        # read the original gph data to do the composite spatial pattern
-        self.gph = self.read_gph_data()
-
         # index of different period to compare, either first10 v.s last10, or 0,2,4 .C (degree)
         self.pc_periods, self.periods = self.split_period()
 
@@ -118,7 +115,7 @@ class period_index:
         try:
             pc["time"] = pc.indexes["time"].to_datetimeindex()
         except AttributeError:
-            pc["time"] = pd.to_datetime(pc.indexes["time"])
+            pc["time"] = pd.to_datetime(pc.time)
         fra = xr.open_dataset(odir + self.prefix + "fra.nc").exp_var
         return eof, pc, fra
 
@@ -179,7 +176,10 @@ class period_index:
             trop = trop.zg
 
         trop = tools.standardize(trop)
-        trop["time"] = trop.indexes["time"].to_datetimeindex()
+        try:
+            trop["time"] = trop.indexes["time"].to_datetimeindex()
+        except AttributeError:
+            trop["time"] = pd.to_datetime(trop.time)
         return trop
 
     def read_var(self, var):
@@ -225,8 +225,12 @@ class period_index:
 
     def return_year(self, xarr):
         """return the ten year slice to select"""
-        start = xarr.time.values + DateOffset(years=-4)
-        end = xarr.time.values + DateOffset(years=5)
+        try:
+            start = xarr.time.values + DateOffset(years=-4)
+            end = xarr.time.values + DateOffset(years=5)
+        except TypeError:
+            start = xarr.time + DateOffset(years=-4)
+            end = xarr.time + DateOffset(years=5)
         return slice(str(start.year), str(end.year))
 
     def temp_period(self, fldmean: xr.DataArray):
@@ -368,14 +372,15 @@ class period_index:
             self.plot_dir + self.prefix + mode + "_return_period_profile.png", dpi=300
         )
 
+    #%%
     def extreme_spatial_pattern(self, hlayers=100000):
+
+        # read the original gph data to do the composite spatial pattern
+        gph = self.read_gph_data()
+
         # do the composite of gph to get the extreme sptial patterns
-        first_sptial_pattern = composite.Tel_field_composite(
-            self.pc_periods[0], self.gph
-        )
-        last_sptial_pattern = composite.Tel_field_composite(
-            self.pc_periods[-1], self.gph
-        )
+        first_sptial_pattern = composite.Tel_field_composite(self.pc_periods[0], gph)
+        last_sptial_pattern = composite.Tel_field_composite(self.pc_periods[-1], gph)
         fig = composite_spatial_pattern.composite_spatial_pattern(
             first_sptial_pattern,
             last_sptial_pattern,
