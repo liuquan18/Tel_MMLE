@@ -74,7 +74,7 @@ class period_index:
 
         # the destination for the doc
         self.img_dir = (
-            "plots/" + self.model + "/" + self.model + "_"
+            "plots/" + self.model + "/"
         )  # relative, no why
         self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
 
@@ -123,7 +123,9 @@ class period_index:
     def read_tsurf_fldmean(self):
         print("reading the mean tsurf data...")
         if self.model == "MPI_GE" or self.model == "MPI_GE_onepct":
-            tsurf = xr.open_dataset(self.tsurf_fldmean_dir+"tsurf_mean.nc")  # already pre-processed
+            tsurf = xr.open_dataset(
+                self.tsurf_fldmean_dir + "tsurf_mean.nc"
+            )  # already pre-processed
             tsurf = tsurf.tsurf
         else:
             tsurf = xr.open_mfdataset(
@@ -133,7 +135,7 @@ class period_index:
             tsurf = tsurf.ts
 
         try:
-            tsurf.lon.size == 1 & fldmean.lat.size == 1
+            tsurf.lon.size == 1 & tsurf.lat.size == 1
         except ValueError:
             print("the fldmean temperature should be calculated first")
 
@@ -154,8 +156,8 @@ class period_index:
         print("reading gph data...")
         # data
         if self.model == "MPI_GE_onepct":
-            zg_data = xr.open_dataset(self.zg_dir+"allens_zg.nc")
-            zg_data = tools.split_ens(zg_data) # not splited yet here
+            zg_data = xr.open_dataset(self.zg_dir + "allens_zg.nc")
+            zg_data = tools.split_ens(zg_data)  # not splited yet here
 
         else:
             zg_data = xr.open_mfdataset(
@@ -198,9 +200,12 @@ class period_index:
             var_data = xr.open_mfdataset(
                 self.ts_dir + "*.nc", combine="nested", concat_dim="ens"
             )
-            var_data["time"] = var_data.indexes["time"].to_datetimeindex()
             var_data = var_data.ts
             var_data = var_data.rename({"plev": "hlayers"})
+
+        if self.model not in "MPI_GE_onepct":
+            var_data["time"] = var_data.indexes["time"].to_datetimeindex()
+
         return var_data
 
     def sel_500hpa(self):
@@ -239,7 +244,7 @@ class period_index:
             print("only DataArray is accapted, DataSet recevied")
 
         # anomaly
-        anomaly = mean - mean[0]
+        anomaly = fldmean - fldmean[0]
         periods = []
 
         # 0 degree (1855)
@@ -417,7 +422,7 @@ class period_index:
 
     def create_doc(self):
         create_md.doc_quick_plots(
-            self.prefix+"doc",
+            self.prefix + "doc",
             f"{self.model} {self.vertical_eof} decomposition {self.fixed_pattern}-pattern quick plots",
             self.img_dir,
             self.prefix,
