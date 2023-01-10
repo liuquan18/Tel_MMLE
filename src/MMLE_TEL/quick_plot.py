@@ -122,7 +122,7 @@ class period_index:
 
     def read_tsurf_fldmean(self):
         print("reading the mean tsurf data...")
-        if self.model == "MPI_GE":
+        if self.model == "MPI_GE" or self.model == "MPI_GE_onepct":
             tsurf = xr.open_dataset(self.tsurf_fldmean_dir)  # already pre-processed
         else:
             tsurf = xr.open_mfdataset(
@@ -142,17 +142,19 @@ class period_index:
         """
         print("reading gph data...")
         # data
-        zg_data = xr.open_mfdataset(
-            self.zg_dir + "*.nc", combine="nested", concat_dim="ens"
-        )
-
-        zg_data = zg_data.rename({"plev": "hlayers"})  # historical error
+        if self.model == "MPI_GE_onepct":
+            zg_data = xr.open_dataset(self.zg_dir+"allens_zg.nc")
+        else:
+            zg_data = xr.open_mfdataset(
+                self.zg_dir + "*.nc", combine="nested", concat_dim="ens"
+            )
+            zg_data = zg_data.rename({"plev": "hlayers"})  # historical error
 
         # demean ens-mean
         demean = zg_data - zg_data.mean(dim="ens")
 
         # select traposphere
-        if self.model == "MPI_GE":
+        if self.model == "MPI_GE" or self.model == "MPI_GE_onepct":
             trop = demean.sel(hlayers=slice(20000, 100000))
             trop = trop.var156
         else:
@@ -236,20 +238,16 @@ class period_index:
 
         # squeeze
         mean = fld_ens_mean.squeeze()
-
         # anomaly
         anomaly = mean - mean[0]
-
         periods = []
 
         # 0 degree (1855)
         periods.append(self.return_year(anomaly[5]))
-
         # 2 degree
         periods.append(
             self.return_year(anomaly.where(anomaly >= 2, drop=True).squeeze()[0])
         )
-
         # 4 degree
         periods.append(
             self.return_year(anomaly.where(anomaly >= 4, drop=True).squeeze()[0])
