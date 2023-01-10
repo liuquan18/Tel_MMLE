@@ -149,5 +149,5 @@ def random_order(xarr, dim="com"):
     index = np.arange(xarr.com.size)
     random_index = shuffle(index,random_state=0)
     xarr["com"] = random_index
-    xarr = xarr.sortby("com")
+    xarr = xarr.sortby(dim)
     return xarr
