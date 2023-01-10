@@ -73,7 +73,9 @@ class period_index:
         )
 
         # the destination for the doc
-        self.img_dir = "plots/" + self.model + "/" + self.model +"_"  # relative, no why
+        self.img_dir = (
+            "plots/" + self.model + "/" + self.model + "_"
+        )  # relative, no why
         self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
 
         ###########################################
@@ -113,8 +115,10 @@ class period_index:
         eof = xr.open_dataset(odir + self.prefix + "eof.nc").eof
 
         pc = xr.open_dataset(odir + self.prefix + "pc.nc").pc
-        pc["time"] = pc.indexes["time"].to_datetimeindex()
-
+        try:
+            pc["time"] = pc.indexes["time"].to_datetimeindex()
+        except AttributeError:
+            pc["time"] = pd.to_datetime(pc.indexes["time"])
         fra = xr.open_dataset(odir + self.prefix + "fra.nc").exp_var
         return eof, pc, fra
 
@@ -418,7 +422,7 @@ class period_index:
 
     def create_doc(self):
         create_md.doc_quick_plots(
-            self.doc_dir + self.model +"_"+ self.prefix + "doc",
+            self.doc_dir + self.model + "_" + self.prefix + "doc",
             f"{self.model} {self.vertical_eof} decomposition {self.fixed_pattern}-pattern quick plots",
             self.img_dir,
             self.prefix,
