@@ -56,6 +56,7 @@ def independent_eof(xarr, **kwargs):
     eofs = []
     pcs = []
     fras = []
+    print("     indenpendtly decomposing...")
 
     hlayers = xarr.hlayers
     for h in tqdm(hlayers):
@@ -81,6 +82,7 @@ def dependent_eof(xarr, **kwargs):
     **Return**
         EOF, PC and FRA.
     """
+    print("     dependently decomposign...")
     eofs, pcs, fras = rolling_eof.rolling_eof(xarr, **kwargs)
 
     return eofs, pcs, fras
