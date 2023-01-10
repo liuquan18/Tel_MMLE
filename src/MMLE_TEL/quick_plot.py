@@ -124,7 +124,7 @@ class period_index:
         print("reading the mean tsurf data...")
         if self.model == "MPI_GE" or self.model == "MPI_GE_onepct":
             tsurf = xr.open_dataset(self.tsurf_fldmean_dir+"tsurf_mean.nc")  # already pre-processed
-            tsurf = tsruf.tsurf
+            tsurf = tsurf.tsurf
         else:
             tsurf = xr.open_mfdataset(
                 self.tsurf_fldmean_dir + "*.nc", combine="nested", concat_dim="ens"
@@ -132,7 +132,20 @@ class period_index:
             tsurf["time"] = tsurf.indexes["time"].to_datetimeindex()
             tsurf = tsurf.ts
 
-        return tsurf
+        try:
+            tsurf.lon.size == 1 & fldmean.lat.size == 1
+        except ValueError:
+            print("the fldmean temperature should be calculated first")
+
+        # ens mean
+        if tsurf.ens.size != 1:
+            fld_ens_mean = tsurf.mean(dim="ens")
+        else:
+            fld_ens_mean = tsurf
+
+        # squeeze
+        mean = fld_ens_mean.squeeze()
+        return mean
 
     def read_gph_data(self):
         """
@@ -142,6 +155,8 @@ class period_index:
         # data
         if self.model == "MPI_GE_onepct":
             zg_data = xr.open_dataset(self.zg_dir+"allens_zg.nc")
+            zg_data = tools.split_ens(zg_data) # not splited yet here
+
         else:
             zg_data = xr.open_mfdataset(
                 self.zg_dir + "*.nc", combine="nested", concat_dim="ens"
@@ -223,19 +238,6 @@ class period_index:
         else:
             print("only DataArray is accapted, DataSet recevied")
 
-        try:
-            fldmean.lon.size == 1 & fldmean.lat.size == 1
-        except ValueError:
-            print("the fldmean temperature should be calculated first")
-
-        # ens mean
-        if fldmean.ens.size != 1:
-            fld_ens_mean = fldmean.mean(dim="ens")
-        else:
-            fld_ens_mean = fldmean
-
-        # squeeze
-        mean = fld_ens_mean.squeeze()
         # anomaly
         anomaly = mean - mean[0]
         periods = []
