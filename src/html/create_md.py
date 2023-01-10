@@ -4,7 +4,7 @@ from mdutils.mdutils import MdUtils
 #%%
 def doc_quick_plots(file_name, title, plot_dir, prefix):
     qp = MdUtils(file_name, title="")  # qick plots,no title here
-    qp.new_header(level = 1, title = title)
+    qp.new_header(level=1, title=title)
 
     # overview
     qp.new_header(level=2, title="statistical overview")
@@ -54,11 +54,20 @@ def doc_quick_plots(file_name, title, plot_dir, prefix):
     qp.new_header(level=2, title="return period")
 
     qp.new_paragraph("the return period of NAO and EA at 500hpa in different periods")
-    qp.new_header(level=3, title="500hpa scatter")
+    qp.new_header(level=3, title="NAO scatter")
     qp.new_line(
         qp.new_inline_image(
             text="500hpa scatter return period",
             path=plot_dir + prefix + "NAO_return_period_scatter.png",
+        )
+    )
+
+    qp.new_paragraph("the return period of NAO and EA at 500hpa in different periods")
+    qp.new_header(level=3, title="EA scatter")
+    qp.new_line(
+        qp.new_inline_image(
+            text="500hpa scatter return period",
+            path=plot_dir + prefix + "EA_return_period_scatter.png",
         )
     )
 

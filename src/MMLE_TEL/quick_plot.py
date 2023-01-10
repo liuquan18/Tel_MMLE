@@ -73,9 +73,7 @@ class period_index:
         )
 
         # the destination for the doc
-        self.img_dir = (
-            "plots/" + self.model + "/"
-        )  # relative, no why
+        self.img_dir = "plots/" + self.model + "/" + self.model +"_"  # relative, no why
         self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
 
         ###########################################
@@ -186,24 +184,19 @@ class period_index:
         data are stored in 3rdPanel/data/
         """
         print("reading the var to do composite...")
-        if self.model == "MPI_GE":
-            data_path = (
-                "/work/mh0033/m300883/3rdPanel/data/influence/"
-                + var
-                + "/"
-                + "onepct_1850-1999_ens_1-100."
-                + var
-                + ".nc"
-            )
-            var_data = xr.open_dataset(data_path).tsurf
+        # MPI is different format...
+        if self.model == "MPI_GE_onepct":
+            var_data = xr.open_dataset(self.ts_dir + "all_ens_tsurf.nc").tsurf
+        elif self.mode == "MPI_GE":
+            var_data = xr.open_mfdataset(
+                self.ts_dir + "*.nc", combine="nested", concat_dim="ens"
+            ).tsurf
         else:
             var_data = xr.open_mfdataset(
                 self.ts_dir + "*.nc", combine="nested", concat_dim="ens"
             )
             var_data = var_data.ts
             var_data = var_data.rename({"plev": "hlayers"})
-
-        if self.model not in "MPI_GE_onepct":
             var_data["time"] = var_data.indexes["time"].to_datetimeindex()
 
         return var_data
@@ -341,9 +334,12 @@ class period_index:
 
     def extreme_count_profile(self, mode):
         print(f"ploting the profile of extreme event count of {mode} index ...")
+        if self.model not in "MPI_GE_onepct":
+            xlim = (0, 20)
+        else:
+            xlim = (-5, 45)
         fig = profile_plots.plot_vertical_profile(
-            self.ext_counts_periods,
-            mode=mode,
+            self.ext_counts_periods, mode=mode, xlim=xlim
         )
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_extreme_count_profile.png", dpi=300
@@ -422,7 +418,7 @@ class period_index:
 
     def create_doc(self):
         create_md.doc_quick_plots(
-            self.prefix + "doc",
+            self.doc_dir + self.model +"_"+ self.prefix + "doc",
             f"{self.model} {self.vertical_eof} decomposition {self.fixed_pattern}-pattern quick plots",
             self.img_dir,
             self.prefix,
