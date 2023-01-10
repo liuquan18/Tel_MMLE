@@ -148,6 +148,11 @@ def random_order(xarr, dim="com"):
     """
     index = np.arange(xarr.com.size)
     random_index = shuffle(index,random_state=0)
-    xarr["com"] = random_index
-    xarr = xarr.sortby(dim)
-    return xarr
+
+    # new coords
+    xarr = xarr.assign_coords(randcom = (dim,random_index))
+    rand_xarr = xarr.sortby('randcom')
+    rand_xarr = rand_xarr.drop_vars('randcom')
+    return rand_xarr
+
+ 
