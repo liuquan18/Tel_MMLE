@@ -123,17 +123,15 @@ class period_index:
     def read_tsurf_fldmean(self):
         print("reading the mean tsurf data...")
         if self.model == "MPI_GE" or self.model == "MPI_GE_onepct":
-            tsurf = xr.open_dataset(self.tsurf_fldmean_dir)  # already pre-processed
+            tsurf = xr.open_dataset(self.tsurf_fldmean_dir+"tsurf_mean.nc")  # already pre-processed
+            tsurf = tsruf.tsurf
         else:
             tsurf = xr.open_mfdataset(
                 self.tsurf_fldmean_dir + "*.nc", combine="nested", concat_dim="ens"
             )
             tsurf["time"] = tsurf.indexes["time"].to_datetimeindex()
-
-        try:  # different name
-            tsurf = tsurf.tsurf
-        except AttributeError:
             tsurf = tsurf.ts
+
         return tsurf
 
     def read_gph_data(self):
