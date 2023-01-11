@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import proplot as pplt
 import seaborn as sns
 from pandas.tseries.offsets import DateOffset
+import warnings
 
 # functions to plot
 import src.plots.vertical_profile as profile_plots
@@ -225,7 +226,7 @@ class period_index:
 
     def return_year(self, xarr):
         """return the ten year slice to select"""
-    
+
         start = xarr.time.values + DateOffset(years=-4)
         end = xarr.time.values + DateOffset(years=5)
         return slice(str(start.year), str(end.year))
@@ -242,7 +243,8 @@ class period_index:
             print("only DataArray is accapted, DataSet recevied")
 
         # anomaly
-        anomaly = fldmean - fldmean[0]
+        period_mean = fldmean.isel(time = slice(0,10)).mean() # mean as the basis
+        anomaly = fldmean - period_mean
         periods = []
 
         # 0 degree (1855)
@@ -252,10 +254,13 @@ class period_index:
             self.return_year(anomaly.where(anomaly >= 2, drop=True).squeeze()[0])
         )
         # 4 degree
-        periods.append(
-            self.return_year(anomaly.where(anomaly >= 4, drop=True).squeeze()[0])
-        )
-
+        try:
+            periods.append(
+                self.return_year(anomaly.where(anomaly >= 4, drop=True).squeeze()[0])
+            )
+        except IndexError:
+            warnings.warn("No fldmean above 4 degree. use the last 10 years instead")
+            periods.append(anomaly[-10].time,anomaly[anomaly.time.size].time)
         return periods
 
     def CO2_period(self):
