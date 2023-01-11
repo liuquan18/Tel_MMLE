@@ -60,6 +60,7 @@ def independent_eof(xarr, **kwargs):
 
     hlayers = xarr.hlayers
     for h in tqdm(hlayers):
+        print(f"         gph at {hlayers.values}")
         field = xarr.sel(hlayers=h)
         eof, pc, fra = rolling_eof.rolling_eof(field, **kwargs)
 
