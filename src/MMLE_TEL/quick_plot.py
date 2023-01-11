@@ -260,7 +260,12 @@ class period_index:
             )
         except IndexError:
             warnings.warn("No fldmean above 4 degree. use the last 10 years instead")
-            periods.append(slice(str(anomaly[-11].time.dt.year), str(anomaly[-1].time.dt.year)))
+            periods.append(
+                slice(
+                    str(anomaly[-11].time.dt.year.values),
+                    str(anomaly[-1].time.dt.year.values),
+                )
+            )
         return periods
 
     def CO2_period(self):

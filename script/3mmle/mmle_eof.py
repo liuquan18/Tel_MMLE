@@ -38,3 +38,8 @@ mpige_onepct_qp = quick_plot.period_index("MPI_GE_onepct",v_eof,fpattern, 'temp'
 mpige_onepct_qp.plot_all()
 mpige_onepct_qp.create_doc()
 # %%
+
+
+pos, mpos, neg, mneg = EVT.mode_return_period(
+            mpige_qp.pc, mode='NAO', periods=mpige_qp.periods, hlayers=50000
+        )

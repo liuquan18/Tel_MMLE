@@ -95,3 +95,8 @@ def vertical_return_period(index: xr.DataArray, mode: str, periods):
         pos[i] = [mp['return period'][0] for mp in mpos]
         neg[i] = [mn['return period'][0] for mn in mneg]
     return pos, neg
+
+if __name__ == "__main__":
+    pass
+    pos, mpos, neg, mneg = mode_return_period(
+)
