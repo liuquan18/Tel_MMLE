@@ -75,6 +75,7 @@ def doeof(
     # xarray container for eof
     eof_cnt = data[:nmode]
     eof_cnt = eof_cnt.rename({dim: "mode"})
+    eof_cnt = eof_cnt.drop_vars(("ens","time"))
     eof_cnt["mode"] = ["NAO", "EA"]
 
     # to xarray
