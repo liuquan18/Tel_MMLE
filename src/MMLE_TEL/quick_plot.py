@@ -225,12 +225,9 @@ class period_index:
 
     def return_year(self, xarr):
         """return the ten year slice to select"""
-        try:
-            start = xarr.time.values + DateOffset(years=-4)
-            end = xarr.time.values + DateOffset(years=5)
-        except TypeError:
-            start = xarr.time + DateOffset(years=-4)
-            end = xarr.time + DateOffset(years=5)
+    
+        start = xarr.time.values + DateOffset(years=-4)
+        end = xarr.time.values + DateOffset(years=5)
         return slice(str(start.year), str(end.year))
 
     def temp_period(self, fldmean: xr.DataArray):
