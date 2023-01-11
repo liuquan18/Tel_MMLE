@@ -243,7 +243,7 @@ class period_index:
             print("only DataArray is accapted, DataSet recevied")
 
         # anomaly
-        period_mean = fldmean.isel(time = slice(0,10)).mean() # mean as the basis
+        period_mean = fldmean.isel(time=slice(0, 10)).mean()  # mean as the basis
         anomaly = fldmean - period_mean
         periods = []
 
@@ -260,7 +260,7 @@ class period_index:
             )
         except IndexError:
             warnings.warn("No fldmean above 4 degree. use the last 10 years instead")
-            periods.append(anomaly[-11].time,anomaly[-1].time)
+            periods.append(slice(anomaly[-11].time, anomaly[-1].time))
         return periods
 
     def CO2_period(self):
