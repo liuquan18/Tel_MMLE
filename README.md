@@ -1,1 +1,2 @@
-# Tel_MMLE
+# Tele_season
+teleconnection with seasonal data 
