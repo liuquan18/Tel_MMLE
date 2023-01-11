@@ -6,13 +6,13 @@ import src.Teleconnection.rolling_eof as rolling_eof
 
 
 def vertical_eof(
-        xarr: xr.DataArray,             # the data to be decomposed
-        nmode: int = 2,                 # the number of mode to be generated
-        window: int = 10,               # the window size if fix_pattern = 'False' is adopted.
-        fixed_pattern: str= "all",      # the fixed_pattern mode
-        independent: bool=True,         # the vertical strategy. 
-        standard: bool= True,           # standard pc or not
-        ):
+    xarr: xr.DataArray,  # the data to be decomposed
+    nmode: int = 2,  # the number of mode to be generated
+    window: int = 10,  # the window size if fix_pattern = 'False' is adopted.
+    fixed_pattern: str = "all",  # the fixed_pattern mode
+    independent: bool = True,  # the vertical strategy.
+    standard: bool = True,  # standard pc or not
+):
     """
     different way to do the eof vertically,
     **Arguments**:
@@ -20,7 +20,7 @@ def vertical_eof(
         *nmode*: int = 2,                 # the number of mode to be generated
         *window*: int = 10,               # the window size if fix_pattern = 'False' is adopted.
         *fixed_pattern*: str= "all",      # the fixed_pattern mode
-        *independent*: bool=True,         # the vertical strategy. 
+        *independent*: bool=True,         # the vertical strategy.
         *standard*: bool= True,           # standard pc or not
     **Return**
 
@@ -28,20 +28,23 @@ def vertical_eof(
     """
     if independent == True:
         eof, pc, fra = independent_eof(
-            xarr, 
-            nmode = nmode, 
-            window = window, 
-            fixed_pattern = fixed_pattern,
-            standard = standard)
+            xarr,
+            nmode=nmode,
+            window=window,
+            fixed_pattern=fixed_pattern,
+            standard=standard,
+        )
     else:
         eof, pc, fra = dependent_eof(
-            xarr, 
-            nmode = nmode, 
-            window = window, 
-            fixed_pattern = fixed_pattern,
-            standard = standard)
+            xarr,
+            nmode=nmode,
+            window=window,
+            fixed_pattern=fixed_pattern,
+            standard=standard,
+        )
 
     return eof, pc, fra
+
 
 def independent_eof(xarr, **kwargs):
     """
@@ -60,7 +63,7 @@ def independent_eof(xarr, **kwargs):
 
     hlayers = xarr.hlayers
     for h in tqdm(hlayers):
-        print(f"         gph at {hlayers.values}")
+        print(f"         gph at {h.values}")
         field = xarr.sel(hlayers=h)
         eof, pc, fra = rolling_eof.rolling_eof(field, **kwargs)
 
@@ -87,4 +90,3 @@ def dependent_eof(xarr, **kwargs):
     eofs, pcs, fras = rolling_eof.rolling_eof(xarr, **kwargs)
 
     return eofs, pcs, fras
-
