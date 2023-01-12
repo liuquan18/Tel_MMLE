@@ -75,7 +75,7 @@ def doeof(
     # xarray container for eof
     eof_cnt = data[:nmode]
     eof_cnt = eof_cnt.rename({dim: "mode"})
-    eof_cnt = eof_cnt.drop_vars(("ens","time"))
+    eof_cnt = eof_cnt.drop_vars(("ens", "time"))
     eof_cnt["mode"] = ["NAO", "EA"]
 
     # to xarray
@@ -93,10 +93,34 @@ def doeof(
     eofx = eofx * coef
     pcx = pcx * coef
 
+    # make sure the loc where the data==np.nan, the eof==np.nan as well.
+    map_data = data[0]  # just one map
+    nanindex = map_data.where(map_data.isnull(), drop=True)  # all values are np.nan
+    if nanindex.size > 0:
+        eofx = xr.where(nanindex, map_data, eofx, keep_attrs=True)
+
     # unstack the dim 'ens' and 'time' or 'win'
     pcx = pcx.unstack()
 
     return eofx, pcx, frax
+
+
+def project(x, y):
+    """
+    do the projection (np.dot)
+    """
+
+    # flat
+    x_flat = x.stack(spatial=("lon", "lat"))
+    y_flat = y.stack(spatial=("lon", "lat"))
+
+    # dropnan
+    x_nonan = x_flat.where(np.logical_not(x_flat.isnull()), drop=True)
+    y_nonan = y_flat.where(np.logical_not(y_flat.isnull()), drop=True) 
+
+    projed = xr.dot(x_nonan, y_nonan, dims="spatial")
+    projed.name = "pc"
+    return projed
 
 
 def project_field(fieldx, eofx, dim="com", standard=True):
@@ -116,91 +140,19 @@ def project_field(fieldx, eofx, dim="com", standard=True):
         projected pcs
     """
     fieldx = fieldx.transpose(dim, ...)
-    neofs = eofx.shape[0]
+    eofx = eofx.transpose("mode", ...)
 
     # weight
     wgts = tools.sqrtcoslat(fieldx)
-    field = fieldx.values * wgts
+    fieldx = fieldx * wgts
+    pc = project(fieldx, eofx)
 
-    # fill with nan
-    try:
-        field = field.filled(fill_value=np.nan)
-    except AttributeError:
-        pass
-
-    # flat field to [time,lon-lat] or [time,lon-lat,heith]
-    records = field.shape[0]
-    channels = np.product(field.shape[1:3])  # only lat and lon stack here.
-    nspdim = len(tools.detect_spdim(fieldx))  # how many spatial dims
-    if nspdim > 2:
-        heights = eofx.shape[3]
-    try:
-        field_flat = field.reshape([records, channels, heights])
-    except NameError:
-        field_flat = field.reshape([records, channels])
-
-    # non missing value check
-    nonMissingIndex = np.where(np.logical_not(np.isnan(field_flat[0])))[0]
-    field_flat = field_flat[:, nonMissingIndex]
-
-    # flat eof to [mode, space]
-    try:
-        _flatE = eofx.values.reshape(neofs, channels, heights)
-    except NameError:
-        _flatE = eofx.values.reshape(neofs, channels)
-
-    eofNonMissingIndex = np.where(np.logical_not(np.isnan(_flatE[0])))[0]
-
-    # missing value align check
-    if (
-        eofNonMissingIndex.shape != nonMissingIndex.shape
-        or (eofNonMissingIndex != nonMissingIndex).any()
-    ):
-        raise ValueError("field and EOFs have different " "missing value locations")
-    eofs_flat = _flatE[:, eofNonMissingIndex]
-
-    # for three dimentional space data
-    try:
-        projected_pcs = []  # for all height layers
-        for h in range(heights):
-            field_flat_h = field_flat[:, :, h]
-            eofs_flat_h = eofs_flat[:, :, h]
-            projected_pc = np.dot(field_flat_h, eofs_flat_h.T)
-            projected_pcs.append(projected_pc)
-        projected_pcs = np.array(projected_pcs)
-
-        PPC = xr.DataArray(
-            projected_pcs,
-            dims=[
-                fieldx.dims[-1],
-                fieldx.dims[0],
-                eofx.dims[0],
-            ],  # [height,record,mode]
-            coords={
-                fieldx.dims[-1]: fieldx[fieldx.dims[-1]],
-                fieldx.dims[0]: fieldx[fieldx.dims[0]],
-                eofx.dims[0]: eofx[eofx.dims[0]],
-            },
-        )
-    # for 2-d space
-    except NameError:
-        projected_pcs = np.dot(field_flat, eofs_flat.T)
-        PPC = xr.DataArray(
-            projected_pcs,
-            dims=[fieldx.dims[0], eofx.dims[0]],
-            coords={
-                fieldx.dims[0]: fieldx[fieldx.dims[0]],
-                eofx.dims[0]: eofx[eofx.dims[0]],
-            },
-        )
-    PPC.name = "pc"
-
-    # to unstack 'com' to 'time' and 'ens' if 'com' exists.
-    PPC = PPC.unstack()
+    # is 'com' exit
+    pc = pc.unstack()
 
     if standard:
-        PPC = tools.standardize(PPC)
-    return PPC
+        pc = tools.standardize(pc)
+    return pc
 
 
 def sign_coef(eof):
