@@ -169,11 +169,11 @@ class period_index:
         demean = zg_data - zg_data.mean(dim="ens")
 
         # select traposphere
-        if self.model == "MPI_GE" or self.model == "MPI_GE_onepct":
-            trop = demean.sel(hlayers=slice(20000, 100000))
+        trop = demean.sel(hlayers=slice(100000, 20000))
+
+        if self.model == "MPI_GE_onepct":
             trop = trop.var156
         else:
-            trop = demean.sel(hlayers=slice(100000, 20000))
             trop = trop.zg
 
         trop = tools.standardize(trop)
@@ -387,19 +387,20 @@ class period_index:
 
         # do the composite of gph to get the extreme sptial patterns
         first_sptial_pattern = composite.Tel_field_composite(self.pc_periods[0], gph)
-        last_sptial_pattern = composite.Tel_field_composite(self.pc_periods[-1], gph)
-        fig = composite_spatial_pattern.composite_spatial_pattern(
-            first_sptial_pattern,
-            last_sptial_pattern,
-            levels=np.arange(-2, 2.1, 0.4),
-            hlayers=hlayers,
-        )
-        plt.savefig(
-            self.plot_dir
-            + self.prefix
-            + f"extreme_spatial_pattern_{hlayers/100:.0f}hpa.png",
-            dpi=300,
-        )
+        # last_sptial_pattern = composite.Tel_field_composite(self.pc_periods[-1], gph)
+        # fig = composite_spatial_pattern.composite_spatial_pattern(
+        #     first_sptial_pattern,
+        #     last_sptial_pattern,
+        #     levels=np.arange(-2, 2.1, 0.4),
+        #     hlayers=hlayers,
+        # )
+        # plt.savefig(
+        #     self.plot_dir
+        #     + self.prefix
+        #     + f"extreme_spatial_pattern_{hlayers/100:.0f}hpa.png",
+        #     dpi=300,
+        # )
+        return first_sptial_pattern
 
     def composite_var(self, var, mode, hlayers=50000):
 
