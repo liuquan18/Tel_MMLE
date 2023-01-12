@@ -32,6 +32,8 @@ import src.composite.field_composite as composite
 import src.html.create_md as create_md
 import src.Teleconnection.tools as tools
 
+import warnings
+warnings.filterwarnings("ignore")
 
 #%%
 class period_index:
