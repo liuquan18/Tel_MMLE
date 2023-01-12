@@ -40,5 +40,9 @@ zg_ens_mean = zg_data.mean(dim="ens")
 zg_demean = zg_data - zg_ens_mean
 #%%
 # select trop
-zg_ex = zg_demean.sel(hlayers = 100000)
+zg_ex = zg_demean.sel(hlayers = 50000)
+# %%
+zg_ex = zg_ex.stack(com = ('ens','time'))
+# %%
+eof,pc,fra = ssp.doeof(zg_ex)
 # %%
