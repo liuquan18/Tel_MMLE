@@ -31,6 +31,15 @@ mpige.save_result()
 mpige_qp = quick_plot.period_index("MPI_GE",v_eof,fpattern,'temp')
 mpige_qp.plot_all()
 mpige_qp.create_doc()
+
+#%%
+mpige_qp = quick_plot.period_index("MPI_GE",v_eof,fpattern,'temp')
+
+#%%
+mpige_qp.extreme_spatial_pattern()
+
+
+
 # %%
 # MPI-GE_onepct
 # mpige_onepct = index_generate.decompose_fixedPattern("MPI_GE_onepct",v_eof,fpattern)

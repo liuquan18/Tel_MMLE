@@ -13,6 +13,7 @@ Welcome to Teleconnection-season's documentation!
    functions
    CanESM2_ind_first_doc
    MPI_GE_onepct_ind_first_doc
+   MPI_GE_ind_first_doc
    MMLE_models_aval
 
 Indices and tables
