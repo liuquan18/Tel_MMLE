@@ -171,7 +171,7 @@ class period_index:
         # select traposphere
         trop = demean.sel(hlayers=slice(100000, 20000))
 
-        if self.model == "MPI_GE_onepct":
+        if self.model in "MPI_GE_onepct" :
             trop = trop.var156
         else:
             trop = trop.zg
