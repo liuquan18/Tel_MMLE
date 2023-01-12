@@ -194,7 +194,7 @@ class period_index:
         # MPI is different format...
         if self.model == "MPI_GE_onepct":
             var_data = xr.open_dataset(self.ts_dir + "all_ens_tsurf.nc").tsurf
-        elif self.mode == "MPI_GE":
+        elif self.model == "MPI_GE":
             var_data = xr.open_mfdataset(
                 self.ts_dir + "*.nc", combine="nested", concat_dim="ens"
             ).tsurf
