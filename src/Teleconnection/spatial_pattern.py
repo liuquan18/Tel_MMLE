@@ -84,9 +84,6 @@ def doeof(
         pc, dims=[dim, "mode"], coords={dim: data[dim], "mode": ["NAO", "EA"]}
     )
     frax = xr.DataArray(fra, dims=["mode"], coords={"mode": ["NAO", "EA"]})
-    eofx.name = "eof"
-    pcx.name = "pc"
-    frax.name = "exp_var"
 
     # change sign
     coef = sign_coef(eofx)
@@ -101,6 +98,11 @@ def doeof(
 
     # unstack the dim 'ens' and 'time' or 'win'
     pcx = pcx.unstack()
+
+    # names
+    eofx.name = "eof"
+    pcx.name = "pc"
+    frax.name = "exp_var"
 
     return eofx, pcx, frax
 
