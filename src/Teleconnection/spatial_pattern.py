@@ -103,7 +103,7 @@ def doeof(
     frax.name = "exp_var"
 
     # dorp vars
-    eofx.drop_vars(("ens","time","com"))
+    eofx = eofx.drop_vars(("ens","time","com"))
 
     return eofx, pcx, frax
 
