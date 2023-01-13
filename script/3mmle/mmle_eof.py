@@ -42,5 +42,12 @@ mpige_onepct_qp.plot_all()
 mpige_onepct_qp.create_doc()
 # %%
 
+# NCAR mode
 cesm = index_generate.decompose_fixedPattern("CESM1_CAM5",v_eof,fpattern)
 cesm.save_result()
+# %%
+cesm_qp = quick_plot.period_index("CESM1_CAM5",v_eof,fpattern,'temp')
+# %%
+cesm_qp.plot_all()
+
+# %%
