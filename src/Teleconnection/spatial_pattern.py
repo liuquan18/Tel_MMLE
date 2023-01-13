@@ -102,6 +102,9 @@ def doeof(
     pcx.name = "pc"
     frax.name = "exp_var"
 
+    # dorp vars
+    eofx.drop_vars(("ens","time","com"))
+
     return eofx, pcx, frax
 
 
