@@ -122,6 +122,7 @@ def changing_eofs(xarr, validtime, nmode, window):
     elif validtime.size == 1:
         tenyear_xarr = field.sel(time=validtime)
         EOFs, _, FRA = ssp.doeof(tenyear_xarr, nmode=nmode, dim="com")
+        EOFs.drop_vars("window_dim")
 
     return EOFs, FRA
 
