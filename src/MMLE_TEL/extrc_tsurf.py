@@ -1,3 +1,6 @@
+import xarray as xr
+import numpy as np
+import src.extreme.period_pattern_extreme as extreme
 
 # %%
 def decadal_extrc_tsurf(index:xr.DataArray,temp:xr.DataArray,hlayers: int= 50000):
