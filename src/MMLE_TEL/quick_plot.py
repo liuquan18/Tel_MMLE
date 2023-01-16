@@ -272,7 +272,7 @@ class period_index:
         """select the year from pc"""
         years = self.pc.time
         first10 = slice(years[0], years[10])
-        last10 = slice(years[-10], years[years.size])
+        last10 = slice(years[-10], years[-1])
         periods = [first10, last10]
         return periods
 
@@ -314,6 +314,7 @@ class period_index:
 
         return index_500hpa
 
+#%%
     def plot_500hpa_spatial_violin(self):
         """
         sptail maps and violin plots of indexes (NAO and EA).
