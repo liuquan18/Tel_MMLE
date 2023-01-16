@@ -1,20 +1,23 @@
 import proplot as pplt
 import matplotlib.pyplot as plt
 
-def plot_scatter(ext_counts, tsurf, axes):
-    extr_types = ['pos','neg']  # rows
-    modes = ['NAO','EA']  # cols
+
+def plot_scatter(ext_counts, tsurf, label, axes):
+    extr_types = ["pos", "neg"]  # rows
+    modes = ["NAO", "EA"]  # cols
 
     for i, extr_type in enumerate(extr_types):
         for j, mode in enumerate(modes):
-            axes[i,j].scatter(
-            x = tsurf,
-            y = ext_counts.sel(extr_type = extr_type,mode = mode)
-        )
+            axes[i, j].scatter(
+                x=tsurf,
+                y=ext_counts.sel(extr_type=extr_type, mode=mode),
+                alpha=0.5,
+                legend_kw = {'label':label}
+            )
     return axes
 
 
-def extCount_tsurf_scatter(extc_tsuf_pairs):
+def extCount_tsurf_scatter(extc_tsuf_pairs, labels):
     """
     rows: pos/neg
     cols: NAO/EA
@@ -31,9 +34,10 @@ def extCount_tsurf_scatter(extc_tsuf_pairs):
         xlabel="temperature (K)",
         ylabel="extreme count",
         grid=False,
-        toplabels = ['NAO','EA'],
-        leftlabels = ['pos','neg']
+        toplabels=["NAO", "EA"],
+        leftlabels=["pos", "neg"],
     )
 
-    for ext_counts, t_surf in extc_tsuf_pairs:
-        plot_scatter(ext_counts, t_surf, axes)
+    for i, (ext_counts, t_surf) in enumerate(extc_tsuf_pairs):
+        hs = plot_scatter(ext_counts, t_surf, label=labels[i], axes=axes)
+    axes[1,1].legend(hs, ncols=1)
