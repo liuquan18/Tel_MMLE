@@ -11,7 +11,7 @@ import src.Teleconnection.tools as tools
 import src.MMLE_TEL.index_generator as index_generate
 
 # %%
-data = xr.open_mfdataset("/work/mh0033/m300883/Tel_MMLE/data/CESM1_CAM5/zg_processed/*.nc",concat_dim = 'ens', combine = 'nested')
+data = xr.open_mfdataset("/work/mh0033/m300883/Tel_MMLE/data/CESM1_CAM5/zg_processed/*.nc",concat_dim = 'ens', combine = 'nested',join = 'override')
 # %%
 ddata = data.isel(time = slice(0,10))
 # %%
@@ -23,7 +23,7 @@ eof,pc,fra = ssp.doeof(cdata.sel(plev = 50000))
 
 
 # %%
-cesm = index_generate.decompose_fixedPattern("test_CESM1_CAM5",'ind','first')
+cesm = index_generate.decompose_fixedPattern("test_CESM",'ind','first')
 
 # %%
 
