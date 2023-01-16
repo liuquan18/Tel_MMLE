@@ -92,7 +92,7 @@ def doeof(
 
     # make sure the loc where the data==np.nan, the eof==np.nan as well.
     map_data = data[0]  # just one map
-    eofx = eofx.where(map_data.isnull(),map_data)
+    eofx = eofx.where(np.logical_not(map_data.isnull()),map_data)
 
     # unstack the dim 'ens' and 'time' or 'win'
     pcx = pcx.unstack()
