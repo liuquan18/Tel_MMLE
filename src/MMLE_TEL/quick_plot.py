@@ -406,7 +406,7 @@ class period_index:
         if average:
             extr_count = extr_count/self.pc.ens.size
         
-        scatter = extrc_tsurf.extCount_tsurf_scatter((extr_count,ts_mean))
+        scatter = extrc_tsurf.extCount_tsurf_scatter(extr_count,ts_mean)
         plt.savefig(
             self.plot_dir + self.prefix + "extrc_fldmean_ts_scatter.png", dpi=300
         )
