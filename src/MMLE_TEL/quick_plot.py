@@ -32,6 +32,7 @@ import src.composite.field_composite as composite
 import src.html.create_md as create_md
 import src.Teleconnection.tools as tools
 import src.MMLE_TEL.spatial_pattern_change as sp_change
+import src.MMLE_TEL.extrc_tsurf as extrc_tsurf
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -105,7 +106,8 @@ class period_index:
         # extreme counts
         self.ext_counts_periods = self.extreme_periods()
 
-        # changing spatial patterns
+        # fldmean
+        self.fldmean_tsurf = self.read_tsurf_fldmean()
 
     def read_eof_data(self):
         """
@@ -154,8 +156,7 @@ class period_index:
         if self.compare == "CO2":
             periods = self.CO2_period()
         elif self.compare == "temp":
-            tsurf = self.read_tsurf_fldmean()
-            periods = self.temp_period(tsurf)
+            periods = self.temp_period(self.fldmean_tsurf)
         pcs_period = []
         for i, period in enumerate(periods):
             pc_period = self.pc.sel(time=period)
@@ -372,14 +373,13 @@ class period_index:
         EOFs, FRAs = self.spatial_change()
         maps = sp_change.spatial_pattern_maps(EOFs,FRAs,levels=np.arange(-1.6, 1.7, 0.2))
         plt.savefig(
-            self.plot_dir + self.prefix + "_spatial_pattern_change_map.png", dpi=300
+            self.plot_dir + self.prefix + "spatial_pattern_change_map.png", dpi=300
         )
     
         vetmaps = sp_change.spatial_pattern_profile(EOFs)
         plt.savefig(
-            self.plot_dir + self.prefix + "_sptial_pattern_change_profile.png", dpi=300
+            self.plot_dir + self.prefix + "sptial_pattern_change_profile.png", dpi=300
         )
-
 
     def extreme_count_profile(self, mode):
         print(f"ploting the profile of extreme event count of {mode} index ...")
@@ -393,6 +393,22 @@ class period_index:
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_extreme_count_profile.png", dpi=300
         )
+
+    def extrc_tsurf_scatter(self,average = False):
+        """
+        scatter plot of extreme_count v.s fldmean tsurf
+        """
+        extr_count, ts_mean = extrc_tsurf.decadal_extrc_tsurf(
+                self.pc, self.fldmean_tsurf, hlayers=50000
+            )
+        if average:
+            extr_count = extr_count/self.pc.ens.size
+        
+        scatter = extrc_tsurf.plot_scatter(extr_count,ts_mean)
+        plt.savefig(
+            self.plot_dir + self.prefix + "extrc_fldmean_ts_scatter.png", dpi=300
+        )
+
 
     def return_period_scatter(self, mode, hlayers=50000):
         print("scatter plot of return period")

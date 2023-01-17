@@ -64,6 +64,15 @@ def doc_quick_plots(file_name, title, plot_dir, prefix):
         )
     )
 
+    qp.new_header(level=3, title="extreme count v.s. fldmean tsurf")
+    qp.new_line(
+        qp.new_inline_image(
+            text="extrc_tsurf",
+            path=plot_dir + prefix + "extrc_fldmean_ts_scatter.png",
+        )
+    )
+
+
     # return period
     qp.new_header(level=2, title="return period")
 
