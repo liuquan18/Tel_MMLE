@@ -19,6 +19,9 @@ data = xr.open_mfdataset(
 )
 
 #%%
+data = data.rename({'plev':'hlayers'}).zg
+data = data.sel(hlayers = slice(100000,20000))
+
 periods = [slice("1920","1930"),slice("2000","2010"),slice("2090","2100")]
 
 # %%
@@ -26,6 +29,8 @@ def spatial_pattern_change(data, periods,dim = 'hlayers'):
     """
     get the spatial pattern of the data in periods
     """
+    if data.hlayers.size>1:
+        data = tools.standardize(data)
     EOFs = []
     period_index = xr.IndexVariable(dims="period", data=periods)
     for period in periods:
@@ -111,16 +116,19 @@ def spatial_pattern_maps(eofs, hlayers = 50000,levels=np.arange(-2.0, 2.1, 0.4))
         suptitle=f"spatial patterns on {hlayers/100:.0f}hpa",
     )
 
-    for r, mode in eofs.mode:
-        for c, period in eofs.periods:
+    for r, mode in enumerate(eofs.mode):
+        for c, period in enumerate(eofs.period):
 
             eof = eofs.sel(hlayers = hlayers, mode = mode, period = period)
-            map = axes[i,j].contourf(
+            map = axes[r,c].contourf(
                 eof,
                 x = 'lon',
                 y = 'lat',
                 levels = levels,
                 extend = 'both',
                 transform = ccrs.PlateCarree(),
-
+                cmap = "RdBu_r"
             )
+
+    fig.colorbar(map, loc = "r", pad = 3, title = "gph/std")
+# %%
