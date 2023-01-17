@@ -25,18 +25,18 @@ data = data.sel(hlayers = slice(100000,20000))
 periods = [slice("1920","1930"),slice("2000","2010"),slice("2090","2100")]
 
 # %%
-def spatial_pattern_change(data, periods,dim = 'hlayers'):
+def spatial_pattern_change(data, periods):
     """
     get the spatial pattern of the data in periods
     """
     if data.hlayers.size>1:
-        data = tools.standardize(data)
+        data = tools.standardize(data,dim = 'time')
     EOFs = []
     FRAs = []
     period_index = xr.IndexVariable(dims="period", data=periods)
     for period in periods:
         data_p = data.sel(time=period)
-        EOF,FRA = vertical_spatial_pattern(data_p,dim = dim)
+        EOF,FRA = vertical_spatial_pattern(data_p)
         EOFs.append(EOF)
         FRAs.append(FRA)
     EOFs = xr.concat(EOFs, dim=period_index)
@@ -52,17 +52,22 @@ def vertical_spatial_pattern(data,dim = 'hlayers'):
     get the spatial pattern for all levels.
     """
     data = data.stack(com = ("time","ens"))
-    eofs,fras= data.groupby(dim,squeeze = True).apply(spatial_pattern)
+    eofs= data.groupby(dim,squeeze = True).apply(spatial_pattern, output = 'eof')
+    fras= data.groupby(dim,squeeze = True).apply(spatial_pattern, output = 'fra')
+
     return eofs,fras
 
 
-def spatial_pattern(data):
+def spatial_pattern(data,output = 'eof'):
     """
     get the spatial pattern of single data
     """
     eof, _, fra = ssp.doeof(data, nmode=2, dim="com", standard=True)
-
-    return eof,fra
+    if output == 'eof':
+        out = eof
+    elif output == 'fra':
+        out = fra
+    return out
 
 # %%
 
@@ -93,7 +98,7 @@ def spatial_stat(eof,mode,dim = 'lon'):
 
 
 # PLOT maps
-def spatial_pattern_maps(eofs, hlayers = 50000,levels=np.arange(-2.0, 2.1, 0.4)):
+def spatial_pattern_maps(eofs,fras, hlayers = 50000,levels=np.arange(-2.0, 2.1, 0.4)):
     """
     rows as modes
     cols in different periods
@@ -114,7 +119,6 @@ def spatial_pattern_maps(eofs, hlayers = 50000,levels=np.arange(-2.0, 2.1, 0.4))
         coast=True,
         coastlinewidth=0.5,
         coastcolor="gray7",
-        toplabels=("0C","2C","4C"),
         leftlabels=("NAO", "EA"),
         suptitle=f"spatial patterns on {hlayers/100:.0f}hpa",
     )
@@ -123,6 +127,7 @@ def spatial_pattern_maps(eofs, hlayers = 50000,levels=np.arange(-2.0, 2.1, 0.4))
         for c, period in enumerate(eofs.period):
 
             eof = eofs.sel(hlayers = hlayers, mode = mode, period = period)
+            fra = fras.sel(hlayers = hlayers, mode = mode, period = period)
             map = axes[r,c].contourf(
                 eof,
                 x = 'lon',
@@ -132,6 +137,57 @@ def spatial_pattern_maps(eofs, hlayers = 50000,levels=np.arange(-2.0, 2.1, 0.4))
                 transform = ccrs.PlateCarree(),
                 cmap = "RdBu_r"
             )
+            axes[r,c].set_title(str(period.values) + f"({fra.values:.0%})")
 
     fig.colorbar(map, loc = "r", pad = 3, title = "gph/std")
+# %%
+
+def spatial_pattern_profile(eofs,levels=np.arange(-2.0, 2.1, 0.4)):
+    """
+    rows mode
+    cols periods
+    """
+    eofs['hlayers'] = eofs['hlayers']/100
+
+    lon_NAO = spatial_stat(eofs,mode = 'NAO',dim = 'lon')
+    
+    lat_EA = spatial_stat(eofs, mode = 'EA', dim = 'lat')
+
+
+    fig, axes = pplt.subplots(
+        space=0,
+        refwidth="25em",
+        wspace=3,
+        hspace=3,
+        nrows=2,
+        ncols=3,
+        share = False,
+    )
+    axes.format(
+        latlines=20,
+        lonlines=30,
+        toplabels=("0C","2C","4C"),
+        leftlabels=("NAO", "EA"),
+        suptitle=f"spatial change profile",
+        ylim = (1000,200),
+        ylabel = "gph/hpa"
+    )
+
+    xs = ['lon','lat']
+
+    for r, profile in enumerate([lon_NAO,lat_EA]):
+        for c, period in enumerate(eofs.period):
+            prof = profile.sel(period = period)
+            vertmap = axes[r,c].contourf(
+                prof,
+                x = xs[r],
+                y = 'hlayers',
+                levels = levels,
+                extend = 'both',
+                cmap = "RdBu_r"
+            )
+    fig.colorbar(vertmap, loc = "r", pad = 3, title = "gph/std")
+
+
+
 # %%
