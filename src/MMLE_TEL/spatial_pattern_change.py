@@ -90,7 +90,7 @@ def spatial_stat(eof,mode,dim = 'lon'):
 
     data = eof.sel(mode = mode)
     data_height = (data.groupby_bins(dim,bins = bins, labels = labels)
-                    .mean(dim = average_dim )
+                    .mean(dim = average_dim, skipna=True)
     )
     return data_height
     
