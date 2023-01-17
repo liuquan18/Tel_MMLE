@@ -30,6 +30,20 @@ def doc_quick_plots(file_name, title, plot_dir, prefix):
         )
     )
 
+    qp.new_paragraph("the spatial pattern change at 500hpa")
+    qp.new_line(
+        qp.new_inline_image(
+            text="spatial change", path=plot_dir + prefix + "_spatial_pattern_change_map.png"
+        )
+    )
+
+    qp.new_paragraph("the spatial profile change")
+    qp.new_line(
+        qp.new_inline_image(
+            text="spatial change", path=plot_dir + prefix + "_spatial_pattern_change_profile.png"
+        )
+    )
+
     # extreme count
     qp.new_header(level=2, title="extreme count")
     qp.new_paragraph("the extreme count of NAO and EA for all vertical levels")
