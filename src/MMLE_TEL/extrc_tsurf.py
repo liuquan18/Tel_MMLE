@@ -56,7 +56,7 @@ def plot_scatter(ext_counts, tsurf, axes):
     return axes
 
 
-def extCount_tsurf_scatter(extc_tsuf_pairs):
+def extCount_tsurf_scatter(ext_counts, t_surf):
     """
     rows: pos/neg
     cols: NAO/EA
@@ -77,6 +77,4 @@ def extCount_tsurf_scatter(extc_tsuf_pairs):
         leftlabels=["pos", "neg"],
     )
 
-    for i, (ext_counts, t_surf) in enumerate(extc_tsuf_pairs):
-        hs = plot_scatter(ext_counts, t_surf, axes=axes)
-    axes[1,1].legend(hs, ncols=1)
+    hs = plot_scatter(ext_counts, t_surf, axes=axes)
