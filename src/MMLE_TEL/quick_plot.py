@@ -102,9 +102,7 @@ class period_index:
         # extreme counts
         self.ext_counts_periods = self.extreme_periods()
 
-        # data of 500 hpa.
-        self.eof_500hpa, self.pc_500hpa, self.fra_500hpa = self.sel_500hpa()
-        self.pc_500hpa_df = self.bar500hpa_index_df()
+
 
     def read_eof_data(self):
         """
@@ -320,8 +318,13 @@ class period_index:
         sptail maps and violin plots of indexes (NAO and EA).
         """
         print("ploting spatial patterns and violin plot of NAO and EA index ...")
+
+        # data of 500 hpa.
+        eof_500hpa, _, fra_500hpa = self.sel_500hpa()
+        pc_500hpa_df = self.bar500hpa_index_df()
+
         fig = spatial_dis_plots.spatialMap_violin(
-            self.eof_500hpa, self.pc_500hpa_df, self.fra_500hpa
+            eof_500hpa, pc_500hpa_df, fra_500hpa
         )
 
         plt.savefig(
@@ -333,8 +336,13 @@ class period_index:
         sptail maps and violin plots of indexes.
         """
         print("ploting spatial patterns map and histgram of NAO and EA index ...")
+
+        # data of 500 hpa.
+        eof_500hpa, _, fra_500hpa = self.sel_500hpa()
+        pc_500hpa_df = self.bar500hpa_index_df()
+
         fig = spatial_dis_plots.spatialMap_hist(
-            self.eof_500hpa, self.pc_500hpa_df, self.fra_500hpa
+            eof_500hpa, pc_500hpa_df, fra_500hpa
         )
 
         plt.savefig(
