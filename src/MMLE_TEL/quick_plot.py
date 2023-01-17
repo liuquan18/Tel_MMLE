@@ -100,14 +100,16 @@ class period_index:
         # read data of eof, index and explained variance
         self.eof, self.pc, self.fra = self.read_eof_data()
 
+        # fldmean tsurf
+        self.fldmean_tsurf = self.read_tsurf_fldmean()
+
         # index of different period to compare, either first10 v.s last10, or 0,2,4 .C (degree)
         self.pc_periods, self.periods = self.split_period()
 
         # extreme counts
         self.ext_counts_periods = self.extreme_periods()
 
-        # fldmean
-        self.fldmean_tsurf = self.read_tsurf_fldmean()
+
 
     def read_eof_data(self):
         """
