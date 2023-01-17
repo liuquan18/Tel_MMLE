@@ -32,16 +32,19 @@ def spatial_pattern_change(data, periods,dim = 'hlayers'):
     if data.hlayers.size>1:
         data = tools.standardize(data)
     EOFs = []
+    FRAs = []
     period_index = xr.IndexVariable(dims="period", data=periods)
     for period in periods:
         data_p = data.sel(time=period)
-        EOF = vertical_spatial_pattern(data_p,dim = dim)
+        EOF,FRA = vertical_spatial_pattern(data_p,dim = dim)
         EOFs.append(EOF)
-
+        FRAs.append(FRA)
     EOFs = xr.concat(EOFs, dim=period_index)
     EOFs['period'] = ['0C','2C','4C']
 
-    return EOFs
+    FRAs = xr.concat(FRAs, dim = period_index)
+    FRAs
+    return EOFs, FRAs
 
 
 def vertical_spatial_pattern(data,dim = 'hlayers'):
@@ -49,17 +52,17 @@ def vertical_spatial_pattern(data,dim = 'hlayers'):
     get the spatial pattern for all levels.
     """
     data = data.stack(com = ("time","ens"))
-    eofs = data.groupby(dim,squeeze = True).apply(spatial_pattern)
-    return eofs
+    eofs,fras= data.groupby(dim,squeeze = True).apply(spatial_pattern)
+    return eofs,fras
 
 
 def spatial_pattern(data):
     """
     get the spatial pattern of single data
     """
-    eof, _, _ = ssp.doeof(data, nmode=2, dim="com", standard=True)
+    eof, _, fra = ssp.doeof(data, nmode=2, dim="com", standard=True)
 
-    return eof
+    return eof,fra
 
 # %%
 
