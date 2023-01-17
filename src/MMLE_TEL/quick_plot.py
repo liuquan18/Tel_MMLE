@@ -477,6 +477,7 @@ class period_index:
         self.spatial_pattern_change()
         self.extreme_count_profile("NAO")
         self.extreme_count_profile("EA")
+        self.extrc_tsurf_scatter()
         self.return_period_scatter("NAO")
         self.return_period_scatter("EA")
         self.return_period_profile("NAO")
