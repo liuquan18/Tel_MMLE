@@ -51,3 +51,5 @@ cesm_qp = quick_plot.period_index("CESM1_CAM5",v_eof,fpattern,'temp')
 cesm_qp.plot_all()
 
 # %%
+cesm_qp.create_doc()
+# %%
