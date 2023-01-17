@@ -370,14 +370,14 @@ class period_index:
     def spatial_pattern_change(self):
         print("ploting the spatial pattern changes...")
         EOFs, FRAs = self.spatial_change()
-        maps = sp_change.spatial_pattern_maps(EOFs,FRAs)
+        maps = sp_change.spatial_pattern_maps(EOFs,FRAs,levels=np.arange(-1.6, 1.7, 0.2))
         plt.savefig(
-            self.plot_dir + self.prefix + mode + "_spatial_pattern_change_map.png", dpi=300
+            self.plot_dir + self.prefix + "_spatial_pattern_change_map.png", dpi=300
         )
     
         vetmaps = sp_change.spatial_pattern_profile(EOFs)
         plt.savefig(
-            self.plot_dir + self.prefix + mode + "_sptial_pattern_change_profile.png", dpi=300
+            self.plot_dir + self.prefix + "_sptial_pattern_change_profile.png", dpi=300
         )
 
 
@@ -456,6 +456,7 @@ class period_index:
         self.plot_500hpa_spatial_violin()
         self.plot_500hpa_spatial_hist()
         self.violin_profile()
+        self.spatial_pattern_change()
         self.extreme_count_profile("NAO")
         self.extreme_count_profile("EA")
         self.return_period_scatter("NAO")
