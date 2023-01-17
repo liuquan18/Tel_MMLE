@@ -2,7 +2,7 @@ import proplot as pplt
 import matplotlib.pyplot as plt
 
 
-def plot_scatter(ext_counts, tsurf, label, axes):
+def plot_scatter(ext_counts, tsurf, axes):
     extr_types = ["pos", "neg"]  # rows
     modes = ["NAO", "EA"]  # cols
 
@@ -12,7 +12,6 @@ def plot_scatter(ext_counts, tsurf, label, axes):
                 x=tsurf,
                 y=ext_counts.sel(extr_type=extr_type, mode=mode),
                 alpha=0.5,
-                legend_kw = {'label':label}
             )
     return axes
 
