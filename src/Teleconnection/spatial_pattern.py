@@ -33,6 +33,11 @@ def doeof(
 
     """
 
+    # make sure that there are only three dims
+    data = data.squeeze()
+    if len(data.dims) > 3:
+        raise AttributeError("there are more than three dims")
+
     # make sure that the first dim is the 'com' or 'time'.
     try:
         data = data.transpose(dim, ...)
@@ -92,7 +97,7 @@ def doeof(
 
     # make sure the loc where the data==np.nan, the eof==np.nan as well.
     map_data = data[0]  # just one map
-    eofx = eofx.where(np.logical_not(map_data.isnull()),map_data)
+    eofx = eofx.where(np.logical_not(map_data.isnull()), map_data)
 
     # unstack the dim 'ens' and 'time' or 'win'
     pcx = pcx.unstack()
@@ -103,7 +108,7 @@ def doeof(
     frax.name = "exp_var"
 
     # dorp vars
-    eofx = eofx.drop_vars(("ens","time","com"))
+    eofx = eofx.drop_vars(("ens", "time", "com"))
 
     return eofx, pcx, frax
 
@@ -119,7 +124,7 @@ def project(x, y):
 
     # dropnan
     x_nonan = x_flat.where(np.logical_not(x_flat.isnull()), drop=True)
-    y_nonan = y_flat.where(np.logical_not(y_flat.isnull()), drop=True) 
+    y_nonan = y_flat.where(np.logical_not(y_flat.isnull()), drop=True)
 
     projed = xr.dot(x_nonan, y_nonan, dims="spatial")
     projed.name = "pc"
