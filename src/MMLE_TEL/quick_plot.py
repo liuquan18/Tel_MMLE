@@ -31,7 +31,7 @@ import src.EVT.return_period as EVT
 import src.composite.field_composite as composite
 import src.html.create_md as create_md
 import src.Teleconnection.tools as tools
-
+import src.MMLE_TEL.spatial_pattern_change as sp_change
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -65,6 +65,9 @@ class period_index:
 
         # the loc for original tsurface map
         self.ts_dir = odir + "/ts/"
+
+        # the loc for zg_processed
+        self.zg_processed_dir = odir + "/zg_processed/"
 
         # the destination for savinig plots
         self.plot_dir = (
@@ -102,7 +105,7 @@ class period_index:
         # extreme counts
         self.ext_counts_periods = self.extreme_periods()
 
-
+        # changing spatial patterns
 
     def read_eof_data(self):
         """
@@ -146,6 +149,27 @@ class period_index:
         # squeeze
         mean = fld_ens_mean.squeeze()
         return mean
+
+    def split_period(self):
+        if self.compare == "CO2":
+            periods = self.CO2_period()
+        elif self.compare == "temp":
+            tsurf = self.read_tsurf_fldmean()
+            periods = self.temp_period(tsurf)
+        pcs_period = []
+        for i, period in enumerate(periods):
+            pc_period = self.pc.sel(time=period)
+            pc_period["compare"] = self.period_name[i]
+            pcs_period.append(pc_period)
+        return pcs_period, periods
+
+    def extreme_periods(self):
+        ext_counts_list = []
+        for pc_period in self.pc_periods:
+            ext_counts_list.append(extreme.period_extreme_count(pc_period))
+            ext_counts = xr.concat(ext_counts_list, dim="compare")
+        return ext_counts
+
 
     def read_gph_data(self):
         """
@@ -274,26 +298,6 @@ class period_index:
         periods = [first10, last10]
         return periods
 
-    def split_period(self):
-        if self.compare == "CO2":
-            periods = self.CO2_period()
-        elif self.compare == "temp":
-            tsurf = self.read_tsurf_fldmean()
-            periods = self.temp_period(tsurf)
-        pcs_period = []
-        for i, period in enumerate(periods):
-            pc_period = self.pc.sel(time=period)
-            pc_period["compare"] = self.period_name[i]
-            pcs_period.append(pc_period)
-        return pcs_period, periods
-
-    def extreme_periods(self):
-        ext_counts_list = []
-        for pc_period in self.pc_periods:
-            ext_counts_list.append(extreme.period_extreme_count(pc_period))
-            ext_counts = xr.concat(ext_counts_list, dim="compare")
-        return ext_counts
-
     def bar500hpa_index_df(self):
 
         """
@@ -355,6 +359,27 @@ class period_index:
             self.pc_periods[0], self.pc_periods[-1], compare=self.compare
         )
         plt.savefig(self.plot_dir + self.prefix + "violin_profile.png", dpi=300)
+
+
+    def spatial_change(self):
+        print("decomposing spatial patterns at all periods...")
+        data = sp_change.read_gph_data(self.zg_processed_dir)
+        EOFs,FRAs = sp_change.spatial_pattern_change(data,periods = self.periods,names = self.period_name)
+        return EOFs, FRAs
+    
+    def spatial_pattern_change(self):
+        print("ploting the spatial pattern changes...")
+        EOFs, FRAs = self.spatial_change()
+        maps = sp_change.spatial_pattern_maps(EOFs,FRAs)
+        plt.savefig(
+            self.plot_dir + self.prefix + mode + "_spatial_pattern_change_map.png", dpi=300
+        )
+    
+        vetmaps = sp_change.spatial_pattern_profile(EOFs)
+        plt.savefig(
+            self.plot_dir + self.prefix + mode + "_sptial_pattern_change_profile.png", dpi=300
+        )
+
 
     def extreme_count_profile(self, mode):
         print(f"ploting the profile of extreme event count of {mode} index ...")
