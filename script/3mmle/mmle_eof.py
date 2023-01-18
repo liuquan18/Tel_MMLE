@@ -42,6 +42,10 @@ mpige_qp = quick_plot.period_index("MPI_GE",v_eof,fpattern,'temp')
 
 # mpige_qp.plot_all()
 #%%
+mpige_qp.spatial_pattern_change()
+mpige_qp.extrc_tsurf_scatter()
+
+#%%
 mpige_qp.create_doc()
 
 
