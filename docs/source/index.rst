@@ -16,6 +16,7 @@ Welcome to Teleconnection-season's documentation!
    MPI_GE_onepct_ind_first_doc
    MPI_GE_ind_first_doc
    MMLE_models_aval
+   Compare_extreme_count
 
 Indices and tables
 ==================
