@@ -40,22 +40,6 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers: int = 
     return ext_counts, t_surf_mean
 
 
-# plot
-
-def plot_scatter(ext_counts, tsurf, axes):
-    extr_types = ["pos", "neg"]  # rows
-    modes = ["NAO", "EA"]  # cols
-
-    for i, extr_type in enumerate(extr_types):
-        for j, mode in enumerate(modes):
-            axes[i, j].scatter(
-                x=tsurf,
-                y=ext_counts.sel(extr_type=extr_type, mode=mode),
-                alpha=0.5,
-            )
-    return axes
-
-
 def extCount_tsurf_scatter(ext_counts, t_surf):
     """
     rows: pos/neg
@@ -77,4 +61,12 @@ def extCount_tsurf_scatter(ext_counts, t_surf):
         leftlabels=["pos", "neg"],
     )
 
-    hs = plot_scatter(ext_counts, t_surf, axes=axes)
+    extr_types = ["pos", "neg"]  # rows
+    modes = ["NAO", "EA"]  # cols
+
+    for i, extr_type in enumerate(ext_counts.extr_type):
+        for j, mode in enumerate(ext_counts.mode):
+            axes[i, j].scatter(
+                x=t_surf,
+                y=ext_counts.sel(extr_type=extr_type, mode=mode),
+            )
