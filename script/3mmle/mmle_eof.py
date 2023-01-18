@@ -52,7 +52,9 @@ mpige_qp.create_doc()
 #%%
 ## MPI-GE_onepct
 mpige_onepct_qp = quick_plot.period_index("MPI_GE_onepct",v_eof,fpattern, 'temp')
-mpige_onepct_qp.plot_all()
+# mpige_onepct_qp.plot_all()
+mpige_onepct_qp.spatial_pattern_change()
+mpige_onepct_qp.extrc_tsurf_scatter()
 mpige_onepct_qp.create_doc()
 
 #%%
