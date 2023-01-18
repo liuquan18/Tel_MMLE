@@ -131,8 +131,12 @@ class period_index:
         tsurf = xr.open_dataset(
             self.tsurf_fldmean_dir + "tsurf_mean.nc"
         )  # already pre-processed
-        tsurf["time"] = tsurf.indexes["time"].to_datetimeindex()
 
+        try:
+            tsurf["time"] = tsurf.indexes["time"].to_datetimeindex()
+        except AttributeError:
+            pass
+        
         try:
             tsurf = tsurf.tsurf
         except AttributeError:
