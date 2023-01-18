@@ -17,9 +17,10 @@ def read_gph_data(dir):
         concat_dim="ens",
         join="override",
     )
+    data = data.rename({"plev": "hlayers"})
     try:
-        data = data.rename({"plev": "hlayers"}).zg
-    except ValueError:
+        data = data.zg
+    except AttributeError:
         data = data.var156
 
     data = data.sel(hlayers=slice(100000, 20000))
