@@ -479,9 +479,9 @@ class period_index:
         self.return_period_scatter("EA")
         self.return_period_profile("NAO")
         self.return_period_profile("EA")
-        self.extreme_spatial_pattern(hlayers=100000)
-        self.composite_var("tsurf", "NAO", hlayers=50000)
-        self.composite_var("tsurf", "EA", hlayers=50000)
+        # self.extreme_spatial_pattern(hlayers=100000)
+        # self.composite_var("tsurf", "NAO", hlayers=50000)
+        # self.composite_var("tsurf", "EA", hlayers=50000)
 
     def create_doc(self):
         create_md.doc_quick_plots(
