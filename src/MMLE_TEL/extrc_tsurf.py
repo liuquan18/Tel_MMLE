@@ -18,6 +18,9 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers: int = 
 
     index = index.sel(hlayers=hlayers)
 
+    # tsurf increase
+    temp = temp - temp.isel(time = 0)
+
     ext_counts = []
     t_surf_mean = []
     for i in range(0, index.time.size, 10):

@@ -369,7 +369,7 @@ class period_index:
         print("ploting the spatial pattern changes...")
         EOFs, FRAs = self.spatial_change()
         maps = sp_change.spatial_pattern_maps(
-            EOFs, FRAs, levels=np.arange(-1.6, 1.7, 0.2)
+            EOFs, FRAs, levels=np.arange(-1, 1.1, 0.2)
         )
         plt.savefig(
             self.plot_dir + self.prefix + "spatial_pattern_change_map.png", dpi=300
@@ -377,7 +377,7 @@ class period_index:
 
         vetmaps = sp_change.spatial_pattern_profile(EOFs)
         plt.savefig(
-            self.plot_dir + self.prefix + "sptial_pattern_change_profile.png", dpi=300
+            self.plot_dir + self.prefix + "spatial_pattern_change_profile.png", dpi=300
         )
 
     def extreme_count_profile(self, mode):
@@ -407,6 +407,7 @@ class period_index:
         plt.savefig(
             self.plot_dir + self.prefix + "extrc_fldmean_ts_scatter.png", dpi=300
         )
+      
 
     def return_period_scatter(self, mode, hlayers=50000):
         print("scatter plot of return period")
