@@ -174,7 +174,7 @@ def sign_coef(eof):
         coefficient of NAO and EA in xarray.
     """
 
-    # sortby lat since some dataset the lat goes from big to small.
+    # sortby lat since some dataset the lat goes from higher to lower.
     eof = eof.sortby("lat")
 
     # NAO
