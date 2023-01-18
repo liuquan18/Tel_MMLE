@@ -66,7 +66,7 @@ def doeof(
     # standarize coef
     std_pc = (np.std(pc, axis=0)).astype(
         "float64"
-    )  # (mode)  # here should it be temporal std????
+    )  # the standardization here only for map (eof) adjust, the final pc are generated using function project_field below. 
     dim_add_sp = np.hstack([nmode, tools.detect_spdim(data)])  # [-1,1,1] or [-1,1,1,1]
     std_pc_sp = std_pc.reshape(dim_add_sp)
 
@@ -95,7 +95,7 @@ def doeof(
     eofx = eofx * coef
     pcx = pcx * coef
 
-    # make sure the loc where the data==np.nan, the eof==np.nan as well.
+    # make sure at the loc where the data==np.nan, the eof==np.nan as well.
     map_data = data[0]  # just one map
     eofx = eofx.where(np.logical_not(map_data.isnull()), map_data)
 
@@ -173,9 +173,13 @@ def sign_coef(eof):
     **Returns**:
         coefficient of NAO and EA in xarray.
     """
+
+    # sortby lat since some dataset the lat goes from big to small.
+    eof = eof.sortby("lat")
+
     # NAO
     coef_NAO = (
-        eof.sel(lat=slice(90, 60), lon=slice(-70, -10), mode="NAO").mean(
+        eof.sel(lat=slice(60,90), lon=slice(-70, -10), mode="NAO").mean(
             dim=["lat", "lon"]
         )
         < 0
@@ -184,7 +188,7 @@ def sign_coef(eof):
 
     # EA
     coef_EA = (
-        eof.sel(lat=slice(65, 45), lon=slice(-40, 40), mode="EA").mean(
+        eof.sel(lat=slice(45,65), lon=slice(-40, 40), mode="EA").mean(
             dim=["lat", "lon"]
         )
         < 0
