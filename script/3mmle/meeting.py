@@ -41,3 +41,4 @@ canesm_qp.create_doc()
 ## CANESM2
 canesm = index_generate.decompose_fixedPattern("CanESM2",v_eof,fpattern)
 canesm.save_result()
+# %%
