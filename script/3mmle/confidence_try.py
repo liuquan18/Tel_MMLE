@@ -23,5 +23,5 @@ ds = xr.DataArray(np.random.randn(10,5), dims=('time','ensemble'), coords={'time
 # %%
 extreme = extreme.period_extreme(ds,2)
 # %%
-count = extreme._period_extreme_count(extreme, dim = ('time','ens'))
+count= extreme.extreme_count(extreme, dim = ('time','ens'))
 # %%
