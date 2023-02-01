@@ -11,3 +11,8 @@ dir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/EOF_result/ind_first_pc.
 ds = xr.open_dataset(dir)
 
 # %%
+# change ds time to datetime
+ds['time'] = ds.indexes['time'].to_datetimeindex()
+
+# normalize the data
+ds = (ds - ds.mean(dim='time')) / ds.std(dim='time')
