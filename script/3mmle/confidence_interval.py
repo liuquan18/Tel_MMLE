@@ -19,3 +19,5 @@ ds = (ds - ds.mean(dim='time')) / ds.std(dim='time')
 
 pc = ds.pc
 # %%
+# select the first 10 years of pc
+pc_first = pc.sel(time = slice('1850-01-01', '1860-01-01'))
