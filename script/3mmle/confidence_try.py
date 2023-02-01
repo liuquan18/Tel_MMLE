@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 # and ensemble starting from 1
 # dataarray is a random normal distribution with mean 0 and std 1
 # dataarray is a 2d array with 50 rows and 10 columns
-ds = xr.DataArray(np.random.randn(50,10), dims=('time','ensemble'), coords={'time':pd.date_range('1850-12-31', periods=50, freq='M'),'ensemble':np.arange(1,11)})
+ds = xr.DataArray(np.random.randn(10,5), dims=('time','ensemble'), coords={'time':pd.date_range('1850-12-31', periods=10, freq='M'),'ensemble':np.arange(1,6)})
 
 
 # %%
