@@ -4,6 +4,7 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import src.extreme.period_pattern_extreme as extreme
 
 
 #%%
@@ -21,3 +22,6 @@ pc = ds.pc
 # %%
 # select the first 10 years of pc
 pc_first = pc.sel(time = slice('1850-01-01', '1860-01-01'))
+# %%
+count = extreme.period_extreme_count(pc_first,pc)
+# %%
