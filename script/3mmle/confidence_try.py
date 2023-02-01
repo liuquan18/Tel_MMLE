@@ -6,6 +6,7 @@ import pandas as pd
 import xarray as xr
 import scipy.stats as stats
 import matplotlib.pyplot as plt
+import src.extreme.period_pattern_extreme as extreme
 
 #%%
 # create random xarray dataarray with dims of (time:50, ensemble:10),time starting from 1850-12-31
@@ -16,3 +17,4 @@ ds = xr.DataArray(np.random.randn(10,5), dims=('time','ensemble'), coords={'time
 
 
 # %%
+extreme = extreme
