@@ -38,7 +38,7 @@ def period_extreme(peiod_index: xr.DataArray, threshold=2):
     return period_extreme
 
 
-def _period_extreme_count(period_extreme: xr.DataArray, dim: tuple):
+def extreme_count(period_extreme: xr.DataArray, dim: tuple):
     """
     count the number of the extremes
     **Arguments**
@@ -73,5 +73,5 @@ def period_extreme_count(
             period_period = normalize(period_period, all_all)
 
     extreme = period_extreme(period_period, threshold)
-    count = _period_extreme_count(extreme, dim=dim)
+    count = extreme_count(extreme, dim=dim)
     return count
