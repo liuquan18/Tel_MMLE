@@ -17,11 +17,11 @@ importlib.reload(extreme)
 # and ensemble starting from 1
 # dataarray is a random normal distribution with mean 0 and std 1
 # dataarray is a 2d array with 50 rows and 10 columns
-ds = xr.DataArray(np.random.randn(10,5), dims=('time','ensemble'), coords={'time':pd.date_range('1850-12-31', periods=10, freq='M'),'ensemble':np.arange(1,6)})
+ds = xr.DataArray(np.random.randn(10,5), dims=('time','ens'), coords={'time':pd.date_range('1850-12-31', periods=10, freq='M'),'ens':np.arange(1,6)})
 
 
 # %%
-extreme = extreme.period_extreme(ds,2)
+extr = extreme.period_extreme(ds,2)
 # %%
-count= extreme.extreme_count(extreme, dim = ('time','ens'))
+count= extreme.extreme_count(extr, dim = ('time','ens'))
 # %%
