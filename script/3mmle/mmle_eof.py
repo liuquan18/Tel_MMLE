@@ -11,30 +11,55 @@ v_eof = 'ind' # vertical_eof
 fpattern = 'first' # fixed pattern
 
 # %% 
-# CANESM2
+# generate index
+## CANESM2
 canesm = index_generate.decompose_fixedPattern("CanESM2",v_eof,fpattern)
 canesm.save_result()
 
-# %%
+## MPI-GE
+mpige = index_generate.decompose_fixedPattern("MPI_GE",v_eof,fpattern)
+mpige.save_result()
+
+## MPI-GE_onepct
+mpige_onepct = index_generate.decompose_fixedPattern("MPI_GE_onepct",v_eof,fpattern)
+
+# NCAR mode
+cesm = index_generate.decompose_fixedPattern("CESM1_CAM5",v_eof,fpattern)
+cesm.save_result()
+
+
+#%%
+# quick plot
+## CANESM
 canesm_qp = quick_plot.period_index("CanESM2",v_eof,fpattern,'temp')
 canesm_qp.plot_all()
 canesm_qp.create_doc()
 
-# %%
-# MPI-GE
-## index generator
-mpige = index_generate.decompose_fixedPattern("MPI_GE",v_eof,fpattern)
-mpige.save_result()
+#%%
+## MPI
+mpige_qp = quick_plot.period_index("MPI_GE",v_eof,fpattern,'temp')
+
+
+# mpige_qp.plot_all()
+#%%
+mpige_qp.spatial_pattern_change()
+mpige_qp.extrc_tsurf_scatter()
 
 #%%
-## plot
-mpige_qp = quick_plot.period_index("MPI_GE",v_eof,fpattern,'temp')
-mpige_qp.plot_all()
 mpige_qp.create_doc()
-# %%
-# MPI-GE_onepct
-# mpige_onepct = index_generate.decompose_fixedPattern("MPI_GE_onepct",v_eof,fpattern)
+
+
+#%%
+## MPI-GE_onepct
 mpige_onepct_qp = quick_plot.period_index("MPI_GE_onepct",v_eof,fpattern, 'temp')
-mpige_onepct_qp.plot_all()
+# mpige_onepct_qp.plot_all()
+mpige_onepct_qp.spatial_pattern_change()
+mpige_onepct_qp.extrc_tsurf_scatter()
 mpige_onepct_qp.create_doc()
+
+#%%
+## NCAR
+cesm_qp = quick_plot.period_index("CESM1_CAM5",v_eof,fpattern,'temp')
+cesm_qp.plot_all()
+cesm_qp.create_doc()
 # %%

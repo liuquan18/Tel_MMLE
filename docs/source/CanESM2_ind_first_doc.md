@@ -15,6 +15,12 @@ The spatial pattern and distribution of NAO and EA
 
 the violin plot of NAO and EA for all vertical levels  
 ![violin profile](plots/CanESM2/CanESM2_ind_first_violin_profile.png)
+
+the spatial pattern change at 500hpa  
+![spatial change](plots/CanESM2/CanESM2_ind_first_spatial_pattern_change_map.png)
+
+the spatial profile change  
+![spatial change](plots/CanESM2/CanESM2_ind_first_spatial_pattern_change_profile.png)
 ## extreme count
 
 
@@ -25,13 +31,21 @@ the extreme count of NAO and EA for all vertical levels
 ### EA profile
   
 ![EA_extreme count profile](plots/CanESM2/CanESM2_ind_first_EA_extreme_count_profile.png)
+### extreme count v.s. fldmean tsurf
+  
+![extrc_tsurf](plots/CanESM2/CanESM2_ind_first_extrc_fldmean_ts_scatter.png)
 ## return period
 
 
 the return period of NAO and EA at 500hpa in different periods
-### 500hpa scatter
+### NAO scatter
   
 ![500hpa scatter return period](plots/CanESM2/CanESM2_ind_first_NAO_return_period_scatter.png)
+
+the return period of NAO and EA at 500hpa in different periods
+### EA scatter
+  
+![500hpa scatter return period](plots/CanESM2/CanESM2_ind_first_EA_return_period_scatter.png)
 ### NAO profile
   
 ![NAO profile return period](plots/CanESM2/CanESM2_ind_first_NAO_return_period_profile.png)

@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import proplot as pplt
 import seaborn as sns
 from pandas.tseries.offsets import DateOffset
+import warnings
 
 # functions to plot
 import src.plots.vertical_profile as profile_plots
@@ -30,7 +31,11 @@ import src.EVT.return_period as EVT
 import src.composite.field_composite as composite
 import src.html.create_md as create_md
 import src.Teleconnection.tools as tools
+import src.MMLE_TEL.spatial_pattern_change as sp_change
+import src.MMLE_TEL.extrc_tsurf as extrc_tsurf
+import warnings
 
+warnings.filterwarnings("ignore")
 
 #%%
 class period_index:
@@ -63,6 +68,9 @@ class period_index:
         # the loc for original tsurface map
         self.ts_dir = odir + "/ts/"
 
+        # the loc for zg_processed
+        self.zg_processed_dir = odir + "/zg_processed/"
+
         # the destination for savinig plots
         self.plot_dir = (
             "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/"
@@ -93,15 +101,14 @@ class period_index:
         # read data of eof, index and explained variance
         self.eof, self.pc, self.fra = self.read_eof_data()
 
+        # fldmean tsurf
+        self.fldmean_tsurf = self.read_tsurf_fldmean()
+
         # index of different period to compare, either first10 v.s last10, or 0,2,4 .C (degree)
         self.pc_periods, self.periods = self.split_period()
 
         # extreme counts
         self.ext_counts_periods = self.extreme_periods()
-
-        # data of 500 hpa.
-        self.eof_500hpa, self.pc_500hpa, self.fra_500hpa = self.sel_500hpa()
-        self.pc_500hpa_df = self.bar500hpa_index_df()
 
     def read_eof_data(self):
         """
@@ -121,16 +128,18 @@ class period_index:
 
     def read_tsurf_fldmean(self):
         print("reading the mean tsurf data...")
-        if self.model == "MPI_GE" or self.model == "MPI_GE_onepct":
-            tsurf = xr.open_dataset(
-                self.tsurf_fldmean_dir + "tsurf_mean.nc"
-            )  # already pre-processed
-            tsurf = tsurf.tsurf
-        else:
-            tsurf = xr.open_mfdataset(
-                self.tsurf_fldmean_dir + "*.nc", combine="nested", concat_dim="ens"
-            )
+        tsurf = xr.open_dataset(
+            self.tsurf_fldmean_dir + "tsurf_mean.nc"
+        )  # already pre-processed
+
+        try:
             tsurf["time"] = tsurf.indexes["time"].to_datetimeindex()
+        except AttributeError:
+            pass
+
+        try:
+            tsurf = tsurf.tsurf
+        except AttributeError:
             tsurf = tsurf.ts
 
         try:
@@ -139,14 +148,33 @@ class period_index:
             print("the fldmean temperature should be calculated first")
 
         # ens mean
-        if tsurf.ens.size != 1:
+        try:
             fld_ens_mean = tsurf.mean(dim="ens")
-        else:
+        except ValueError:
             fld_ens_mean = tsurf
 
         # squeeze
         mean = fld_ens_mean.squeeze()
         return mean
+
+    def split_period(self):
+        if self.compare == "CO2":
+            periods = self.CO2_period()
+        elif self.compare == "temp":
+            periods = self.temp_period(self.fldmean_tsurf)
+        pcs_period = []
+        for i, period in enumerate(periods):
+            pc_period = self.pc.sel(time=period)
+            pc_period["compare"] = self.period_name[i]
+            pcs_period.append(pc_period)
+        return pcs_period, periods
+
+    def extreme_periods(self):
+        ext_counts_list = []
+        for pc_period in self.pc_periods:
+            ext_counts_list.append(extreme.period_extreme_count(pc_period))
+            ext_counts = xr.concat(ext_counts_list, dim="compare")
+        return ext_counts
 
     def read_gph_data(self):
         """
@@ -168,11 +196,11 @@ class period_index:
         demean = zg_data - zg_data.mean(dim="ens")
 
         # select traposphere
-        if self.model == "MPI_GE" or self.model == "MPI_GE_onepct":
-            trop = demean.sel(hlayers=slice(20000, 100000))
+        trop = demean.sel(hlayers=slice(100000, 20000))
+
+        if self.model in "MPI_GE_onepct":
             trop = trop.var156
         else:
-            trop = demean.sel(hlayers=slice(100000, 20000))
             trop = trop.zg
 
         trop = tools.standardize(trop)
@@ -191,7 +219,7 @@ class period_index:
         # MPI is different format...
         if self.model == "MPI_GE_onepct":
             var_data = xr.open_dataset(self.ts_dir + "all_ens_tsurf.nc").tsurf
-        elif self.mode == "MPI_GE":
+        elif self.model == "MPI_GE":
             var_data = xr.open_mfdataset(
                 self.ts_dir + "*.nc", combine="nested", concat_dim="ens"
             ).tsurf
@@ -225,12 +253,9 @@ class period_index:
 
     def return_year(self, xarr):
         """return the ten year slice to select"""
-        try:
-            start = xarr.time.values + DateOffset(years=-4)
-            end = xarr.time.values + DateOffset(years=5)
-        except TypeError:
-            start = xarr.time + DateOffset(years=-4)
-            end = xarr.time + DateOffset(years=5)
+
+        start = xarr.time.values + DateOffset(years=-4)
+        end = xarr.time.values + DateOffset(years=5)
         return slice(str(start.year), str(end.year))
 
     def temp_period(self, fldmean: xr.DataArray):
@@ -245,7 +270,8 @@ class period_index:
             print("only DataArray is accapted, DataSet recevied")
 
         # anomaly
-        anomaly = fldmean - fldmean[0]
+        period_mean = fldmean.isel(time=slice(0, 10)).mean()  # mean as the basis
+        anomaly = fldmean - period_mean
         periods = []
 
         # 0 degree (1855)
@@ -255,39 +281,27 @@ class period_index:
             self.return_year(anomaly.where(anomaly >= 2, drop=True).squeeze()[0])
         )
         # 4 degree
-        periods.append(
-            self.return_year(anomaly.where(anomaly >= 4, drop=True).squeeze()[0])
-        )
-
+        try:
+            periods.append(
+                self.return_year(anomaly.where(anomaly >= 4, drop=True).squeeze()[0])
+            )
+        except IndexError:
+            warnings.warn("No fldmean above 4 degree. use the last 10 years instead")
+            periods.append(
+                slice(
+                    str(anomaly[-11].time.dt.year.values),
+                    str(anomaly[-1].time.dt.year.values),
+                )
+            )
         return periods
 
     def CO2_period(self):
         """select the year from pc"""
         years = self.pc.time
         first10 = slice(years[0], years[10])
-        last10 = slice(years[-10], years[years.size])
+        last10 = slice(years[-10], years[-1])
         periods = [first10, last10]
         return periods
-
-    def split_period(self):
-        if self.compare == "CO2":
-            periods = self.CO2_period()
-        elif self.compare == "temp":
-            tsurf = self.read_tsurf_fldmean()
-            periods = self.temp_period(tsurf)
-        pcs_period = []
-        for i, period in enumerate(periods):
-            pc_period = self.pc.sel(time=period)
-            pc_period["compare"] = self.period_name[i]
-            pcs_period.append(pc_period)
-        return pcs_period, periods
-
-    def extreme_periods(self):
-        ext_counts_list = []
-        for pc_period in self.pc_periods:
-            ext_counts_list.append(extreme.period_extreme_count(pc_period))
-            ext_counts = xr.concat(ext_counts_list, dim="compare")
-        return ext_counts
 
     def bar500hpa_index_df(self):
 
@@ -307,14 +321,18 @@ class period_index:
 
         return index_500hpa
 
+    #%%
     def plot_500hpa_spatial_violin(self):
         """
         sptail maps and violin plots of indexes (NAO and EA).
         """
         print("ploting spatial patterns and violin plot of NAO and EA index ...")
-        fig = spatial_dis_plots.spatialMap_violin(
-            self.eof_500hpa, self.pc_500hpa_df, self.fra_500hpa
-        )
+
+        # data of 500 hpa.
+        eof_500hpa, _, fra_500hpa = self.sel_500hpa()
+        pc_500hpa_df = self.bar500hpa_index_df()
+
+        fig = spatial_dis_plots.spatialMap_violin(eof_500hpa, pc_500hpa_df, fra_500hpa)
 
         plt.savefig(
             self.plot_dir + self.prefix + "spatial_pattern_violin500hpa.png", dpi=300
@@ -325,9 +343,12 @@ class period_index:
         sptail maps and violin plots of indexes.
         """
         print("ploting spatial patterns map and histgram of NAO and EA index ...")
-        fig = spatial_dis_plots.spatialMap_hist(
-            self.eof_500hpa, self.pc_500hpa_df, self.fra_500hpa
-        )
+
+        # data of 500 hpa.
+        eof_500hpa, _, fra_500hpa = self.sel_500hpa()
+        pc_500hpa_df = self.bar500hpa_index_df()
+
+        fig = spatial_dis_plots.spatialMap_hist(eof_500hpa, pc_500hpa_df, fra_500hpa)
 
         plt.savefig(
             self.plot_dir + self.prefix + "spatial_pattern_hist500hpa.png", dpi=300
@@ -339,6 +360,29 @@ class period_index:
             self.pc_periods[0], self.pc_periods[-1], compare=self.compare
         )
         plt.savefig(self.plot_dir + self.prefix + "violin_profile.png", dpi=300)
+
+    def spatial_change(self):
+        print("decomposing spatial patterns at all periods...")
+        data = sp_change.read_gph_data(self.zg_processed_dir)
+        EOFs, FRAs = sp_change.spatial_pattern_change(
+            data, periods=self.periods, names=self.period_name
+        )
+        return EOFs, FRAs
+
+    def spatial_pattern_change(self):
+        print("ploting the spatial pattern changes...")
+        EOFs, FRAs = self.spatial_change()
+        maps = sp_change.spatial_pattern_maps(
+            EOFs, FRAs, levels=np.arange(-1, 1.1, 0.2)
+        )
+        plt.savefig(
+            self.plot_dir + self.prefix + "spatial_pattern_change_map.png", dpi=300
+        )
+
+        vetmaps = sp_change.spatial_pattern_profile(EOFs,levels=np.arange(-1.0, 1.1, 0.2))
+        plt.savefig(
+            self.plot_dir + self.prefix + "spatial_pattern_change_profile.png", dpi=300
+        )
 
     def extreme_count_profile(self, mode):
         print(f"ploting the profile of extreme event count of {mode} index ...")
@@ -352,6 +396,22 @@ class period_index:
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_extreme_count_profile.png", dpi=300
         )
+
+    def extrc_tsurf_scatter(self, average=False):
+        """
+        scatter plot of extreme_count v.s fldmean tsurf
+        """
+        extr_count, ts_mean = extrc_tsurf.decadal_extrc_tsurf(
+            self.pc, self.fldmean_tsurf, hlayers=50000
+        )
+        if average:
+            extr_count = extr_count / self.pc.ens.size
+
+        fig = extrc_tsurf.extCount_tsurf_scatter(extr_count, ts_mean)
+        plt.savefig(
+            self.plot_dir + self.prefix + "extrc_fldmean_ts_scatter.png", dpi=300
+        )
+      
 
     def return_period_scatter(self, mode, hlayers=50000):
         print("scatter plot of return period")
@@ -415,15 +475,17 @@ class period_index:
         self.plot_500hpa_spatial_violin()
         self.plot_500hpa_spatial_hist()
         self.violin_profile()
+        self.spatial_pattern_change()
         self.extreme_count_profile("NAO")
         self.extreme_count_profile("EA")
+        self.extrc_tsurf_scatter()
         self.return_period_scatter("NAO")
         self.return_period_scatter("EA")
         self.return_period_profile("NAO")
         self.return_period_profile("EA")
-        self.extreme_spatial_pattern(hlayers=100000)
-        self.composite_var("tsurf", "NAO", hlayers=50000)
-        self.composite_var("tsurf", "EA", hlayers=50000)
+        # self.extreme_spatial_pattern(hlayers=100000)
+        # self.composite_var("tsurf", "NAO", hlayers=50000)
+        # self.composite_var("tsurf", "EA", hlayers=50000)
 
     def create_doc(self):
         create_md.doc_quick_plots(

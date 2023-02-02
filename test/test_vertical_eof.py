@@ -31,8 +31,10 @@ ex = xr.DataArray(
 eof, pc, fra = vertical_eof.vertical_eof(
     ex, nmode=2, window=6, fixed_pattern="first", independent=False, standard=True
 )
+
+#%%
 eof, pc, fra = vertical_eof.vertical_eof(
-    ex, nmode=2, window=6, fixed_pattern="first", independent=False, standard=False
+    ex, nmode=2, window=6, fixed_pattern="first", independent=True, standard=False
 )
 # %%
 eof, pc, fra = vertical_eof.vertical_eof(
@@ -50,3 +52,5 @@ eof, pc, fra = vertical_eof.vertical_eof(
 # test
 def test_vertical_eof():
     assert pc.std().values > 0 and pc.std().values < 2
+
+

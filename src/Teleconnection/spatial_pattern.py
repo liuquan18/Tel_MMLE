@@ -33,6 +33,11 @@ def doeof(
 
     """
 
+    # make sure that there are only three dims
+    data = data.squeeze()
+    if len(data.dims) > 3:
+        raise AttributeError("there are more than three dims")
+
     # make sure that the first dim is the 'com' or 'time'.
     try:
         data = data.transpose(dim, ...)
@@ -61,7 +66,7 @@ def doeof(
     # standarize coef
     std_pc = (np.std(pc, axis=0)).astype(
         "float64"
-    )  # (mode)  # here should it be temporal std????
+    )  # the standardization here only for map (eof) adjust, the final pc are generated using function project_field below. 
     dim_add_sp = np.hstack([nmode, tools.detect_spdim(data)])  # [-1,1,1] or [-1,1,1,1]
     std_pc_sp = std_pc.reshape(dim_add_sp)
 
@@ -75,6 +80,7 @@ def doeof(
     # xarray container for eof
     eof_cnt = data[:nmode]
     eof_cnt = eof_cnt.rename({dim: "mode"})
+    eof_cnt = eof_cnt.drop_vars(("ens", "time"))
     eof_cnt["mode"] = ["NAO", "EA"]
 
     # to xarray
@@ -83,19 +89,46 @@ def doeof(
         pc, dims=[dim, "mode"], coords={dim: data[dim], "mode": ["NAO", "EA"]}
     )
     frax = xr.DataArray(fra, dims=["mode"], coords={"mode": ["NAO", "EA"]})
-    eofx.name = "eof"
-    pcx.name = "pc"
-    frax.name = "exp_var"
 
     # change sign
     coef = sign_coef(eofx)
     eofx = eofx * coef
     pcx = pcx * coef
 
+    # make sure at the loc where the data==np.nan, the eof==np.nan as well.
+    map_data = data[0]  # just one map
+    eofx = eofx.where(np.logical_not(map_data.isnull()), map_data)
+
     # unstack the dim 'ens' and 'time' or 'win'
     pcx = pcx.unstack()
 
+    # names
+    eofx.name = "eof"
+    pcx.name = "pc"
+    frax.name = "exp_var"
+
+    # dorp vars
+    eofx = eofx.drop_vars(("ens", "time", "com"))
+
     return eofx, pcx, frax
+
+
+def project(x, y):
+    """
+    do the projection (np.dot)
+    """
+
+    # flat
+    x_flat = x.stack(spatial=("lon", "lat"))
+    y_flat = y.stack(spatial=("lon", "lat"))
+
+    # dropnan
+    x_nonan = x_flat.where(np.logical_not(x_flat.isnull()), drop=True)
+    y_nonan = y_flat.where(np.logical_not(y_flat.isnull()), drop=True)
+
+    projed = xr.dot(x_nonan, y_nonan, dims="spatial")
+    projed.name = "pc"
+    return projed
 
 
 def project_field(fieldx, eofx, dim="com", standard=True):
@@ -115,91 +148,19 @@ def project_field(fieldx, eofx, dim="com", standard=True):
         projected pcs
     """
     fieldx = fieldx.transpose(dim, ...)
-    neofs = eofx.shape[0]
+    eofx = eofx.transpose("mode", ...)
 
     # weight
     wgts = tools.sqrtcoslat(fieldx)
-    field = fieldx.values * wgts
+    fieldx = fieldx * wgts
+    pc = project(fieldx, eofx)
 
-    # fill with nan
-    try:
-        field = field.filled(fill_value=np.nan)
-    except AttributeError:
-        pass
-
-    # flat field to [time,lon-lat] or [time,lon-lat,heith]
-    records = field.shape[0]
-    channels = np.product(field.shape[1:3])  # only lat and lon stack here.
-    nspdim = len(tools.detect_spdim(fieldx))  # how many spatial dims
-    if nspdim > 2:
-        heights = eofx.shape[3]
-    try:
-        field_flat = field.reshape([records, channels, heights])
-    except NameError:
-        field_flat = field.reshape([records, channels])
-
-    # non missing value check
-    nonMissingIndex = np.where(np.logical_not(np.isnan(field_flat[0])))[0]
-    field_flat = field_flat[:, nonMissingIndex]
-
-    # flat eof to [mode, space]
-    try:
-        _flatE = eofx.values.reshape(neofs, channels, heights)
-    except NameError:
-        _flatE = eofx.values.reshape(neofs, channels)
-
-    eofNonMissingIndex = np.where(np.logical_not(np.isnan(_flatE[0])))[0]
-
-    # missing value align check
-    if (
-        eofNonMissingIndex.shape != nonMissingIndex.shape
-        or (eofNonMissingIndex != nonMissingIndex).any()
-    ):
-        raise ValueError("field and EOFs have different " "missing value locations")
-    eofs_flat = _flatE[:, eofNonMissingIndex]
-
-    # for three dimentional space data
-    try:
-        projected_pcs = []  # for all height layers
-        for h in range(heights):
-            field_flat_h = field_flat[:, :, h]
-            eofs_flat_h = eofs_flat[:, :, h]
-            projected_pc = np.dot(field_flat_h, eofs_flat_h.T)
-            projected_pcs.append(projected_pc)
-        projected_pcs = np.array(projected_pcs)
-
-        PPC = xr.DataArray(
-            projected_pcs,
-            dims=[
-                fieldx.dims[-1],
-                fieldx.dims[0],
-                eofx.dims[0],
-            ],  # [height,record,mode]
-            coords={
-                fieldx.dims[-1]: fieldx[fieldx.dims[-1]],
-                fieldx.dims[0]: fieldx[fieldx.dims[0]],
-                eofx.dims[0]: eofx[eofx.dims[0]],
-            },
-        )
-    # for 2-d space
-    except NameError:
-        projected_pcs = np.dot(field_flat, eofs_flat.T)
-        PPC = xr.DataArray(
-            projected_pcs,
-            dims=[fieldx.dims[0], eofx.dims[0]],
-            coords={
-                fieldx.dims[0]: fieldx[fieldx.dims[0]],
-                eofx.dims[0]: eofx[eofx.dims[0]],
-            },
-        )
-    PPC.name = "pc"
-
-    # to unstack 'com' to 'time' and 'ens' if 'com' exists.
-    PPC = PPC.unstack()
+    # is 'com' exit
+    pc = pc.unstack()
 
     if standard:
-        PPC = tools.standardize(PPC)
-    return PPC
+        pc = tools.standardize(pc)
+    return pc
 
 
 def sign_coef(eof):
@@ -212,9 +173,13 @@ def sign_coef(eof):
     **Returns**:
         coefficient of NAO and EA in xarray.
     """
+
+    # sortby lat since some dataset the lat goes from higher to lower.
+    eof = eof.sortby("lat")
+
     # NAO
     coef_NAO = (
-        eof.sel(lat=slice(90, 60), lon=slice(-70, -10), mode="NAO").mean(
+        eof.sel(lat=slice(60,90), lon=slice(-70, -10), mode="NAO").mean(
             dim=["lat", "lon"]
         )
         < 0
@@ -223,7 +188,7 @@ def sign_coef(eof):
 
     # EA
     coef_EA = (
-        eof.sel(lat=slice(65, 45), lon=slice(-40, 40), mode="EA").mean(
+        eof.sel(lat=slice(45,65), lon=slice(-40, 40), mode="EA").mean(
             dim=["lat", "lon"]
         )
         < 0

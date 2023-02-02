@@ -38,7 +38,7 @@ class decompose_fixedPattern:
 
     def read_data(self):
         print("reading data...")
-        zg_data = xr.open_mfdataset(self.zg_path, combine="nested", concat_dim="ens")
+        zg_data = xr.open_mfdataset(self.zg_path, combine="nested", concat_dim="ens",join = 'override')
         if self.model == "MPI_GE":
             zg_data = zg_data.var156
         else:
@@ -51,7 +51,11 @@ class decompose_fixedPattern:
         zg_demean = zg_data - zg_ens_mean
 
         # select trop
-        zg_trop = zg_demean.sel(hlayers=slice(100000, 20000))
+        try:
+            zg_trop = zg_demean.sel(hlayers=slice(100000, 20000))
+        except zg_trop.hlayers.size == 0:
+            zg_trop = zg_demean.sel(hlayers=slice(20000, 100000))
+            
         return zg_trop
 
     def decompose(self):
