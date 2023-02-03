@@ -35,23 +35,23 @@ def _neg_count(ts):
     return extreme_count(ts, -2, False)
 
 
-def bootstrap_pos_count_low(ts):
-    res = bootstrap((ts,), _pos_count, random_state=0, vectorized=False)
+def bootstrap_pos_count_low(ts,cl=0.95):
+    res = bootstrap((ts,), _pos_count, random_state=0, vectorized=False,confidence_level=cl)
     return res.confidence_interval.low
 
 
-def bootstrap_pos_count_high(ts):
-    res = bootstrap((ts,), _pos_count, random_state=0, vectorized=False)
+def bootstrap_pos_count_high(ts,cl=0.95):
+    res = bootstrap((ts,), _pos_count, random_state=0, vectorized=False,confidence_level=cl)
     return res.confidence_interval.high
 
 
-def bootstrap_neg_count_low(ts):
-    res = bootstrap((ts,), _neg_count, random_state=0, vectorized=False)
+def bootstrap_neg_count_low(ts,cl=0.95):
+    res = bootstrap((ts,), _neg_count, random_state=0, vectorized=False,confidence_level=cl)
     return res.confidence_interval.low
 
 
-def bootstrap_neg_count_high(ts):
-    res = bootstrap((ts,), _neg_count, random_state=0, vectorized=False)
+def bootstrap_neg_count_high(ts,cl=0.95):
+    res = bootstrap((ts,), _neg_count, random_state=0, vectorized=False,confidence_level=cl)
     return res.confidence_interval.high
 
 
