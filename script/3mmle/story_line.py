@@ -7,6 +7,9 @@ import proplot as pplt
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
+import src.plots.plot_violin as violin_plots
+import seaborn as sns
+
 
 # extremes
 import src.extreme.extreme_ci as extreme
@@ -33,6 +36,13 @@ periods_pc,periods = warming_stage.split_period(pc, compare = 'CO2')
 first_pc, last_pc = periods_pc[0], periods_pc[1]
 
 #%%
+# extreme events count
+first_count = extreme.extreme_count_xr(first_pc)
+last_count = extreme.extreme_count_xr(last_pc)
+
+
+#*************** Figs ************************
+#%%
 # Fig 1 spatial patterns and statistics of the pcs
 # rows for 'NAO' and 'EA'
 # colums for 'spatial map','pc hist','violion vertical profile'.
@@ -43,6 +53,7 @@ fig.format(
     abcloc="ul",
     abcstyle="a",
     title="spatial patterns and statistics of the pcs",
+    leftlabels=("NAO", "EA"),
 )
 
 
@@ -72,7 +83,6 @@ for i, mode in enumerate(modes):
         coastcolor="charcoal",
         title = mode + f"({fra.sel(mode = mode,hlayers = 50000):.0%})"
     )
-    spatial_ax.colorbar(map, loc="r", title="std", ticks=0.2, pad=2)
 
     # plot pc hist
     hist_ax = fig.add_subplot(gs[i, 1])
@@ -94,14 +104,50 @@ for i, mode in enumerate(modes):
     patch = mpatches.Patch(color='grey', label='first10 years')   
     line = Line2D([0], [0], label='last10 years', color='k')
     handles = [patch,line]
-    hist_ax.legend(handles,ncols = 1,title = 'periods')
-
+    
     hist_ax.format(
         grid=False,
         yminorticks="null",
         xminorticks="null",
+        title = mode
     )
     hist_ax.spines['right'].set_visible(False)
     hist_ax.spines['top'].set_visible(False)
 
+    # plot violin
+    violin_ax = fig.add_subplot(gs[i, 2])
+    df = violin_plots.xr2df(first_pc, last_pc, mode=modes[i], compare='CO2')
+    g = sns.violinplot(
+        data=df,
+        y="hlayers",
+        x=modes[i],
+        hue="period",
+        kind="violin",
+        palette="pastel",
+        orient="h",
+        ax=violin_ax,
+        split=False,
+        dodge=True,
+        linewidth=1,
+    )
+    g.axes.legend().remove()
+    violin_ax.format(
+        grid=False,
+        yminorticks="null",
+        xminorticks="null",
+        title=mode,
+        xlabel = 'std',
+        ylabel = 'gph/hPa',
+        xlim = (-5,5)
+    )
+    violin_ax.spines['left'].set_visible(False)
+    violin_ax.spines['right'].set_visible(False)
+    violin_ax.spines['top'].set_visible(False)
+
+    if i == 1:
+        spatial_ax.colorbar(map, loc="b", title="std", ticks=0.2, pad=2)
+        hist_ax.legend(handles,loc = 'b', ncols = 2,title = 'periods')
+        violin_ax.legend(loc="b", ncols=2, title="periods")
+    plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig1.png')
 # %%
+# Fig 2  extreme event count profile
