@@ -14,6 +14,10 @@ import seaborn as sns
 # extremes
 import src.extreme.extreme_ci as extreme
 
+# reimport extreme
+import importlib
+importlib.reload(extreme)
+
 # warming stage
 import src.warming_stage.warming_stage as warming_stage
 
@@ -151,3 +155,6 @@ for i, mode in enumerate(modes):
     plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig1.png')
 # %%
 # Fig 2  extreme event count profile
+extreme_profile = extreme.extreme_count_profile(first_count, last_count, colored = False)
+plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig2.png')
+# %%

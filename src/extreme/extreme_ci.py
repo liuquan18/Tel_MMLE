@@ -6,7 +6,7 @@ import pandas as pd
 import xarray as xr
 import scipy.stats as stats
 import matplotlib.pyplot as plt
-import proplot as plt
+import proplot as pplt
 from scipy.stats import bootstrap
 
 
