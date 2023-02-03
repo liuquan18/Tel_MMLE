@@ -4,6 +4,11 @@ import numpy as np
 import src.extreme.extreme_ci as extreme
 import proplot as pplt
 
+# reimport extreme
+import importlib
+importlib.reload(extreme)
+
+
 # %%
 def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers = None):
     """
@@ -61,14 +66,14 @@ def extCount_tsurf_scatter(ext_counts, t_surf, hlayers = None):
         xlabel="temperature (K)",
         ylabel="extreme count",
         grid=False,
-        toplabels=["NAO", "EA"],
-        leftlabels=["pos", "neg"],
+        leftlabels=["NAO", "EA"],
+        toplabels=["pos", "neg"],
     )
     if hlayers is not None:
         ext_counts = ext_counts.sel(hlayers=hlayers)
 
-    for i, extr_type in enumerate(ext_counts.extr_type):
-        for j, mode in enumerate(ext_counts.mode):
+    for j, extr_type in enumerate(ext_counts.extr_type):
+        for i, mode in enumerate(ext_counts.mode):
 
             # true values
             true = ext_counts.sel(extr_type=extr_type, mode=mode,confidence="true")
