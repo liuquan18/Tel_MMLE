@@ -7,12 +7,12 @@ import proplot as pplt
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
-import src.plots.plot_violin as violin_plots
 import seaborn as sns
-
 
 # extremes
 import src.extreme.extreme_ci as extreme
+import src.MMLE_TEL.extrc_tsurf as extrc_tsurf
+import src.plots.plot_violin as violin_plots
 
 # reimport extreme
 import importlib
@@ -158,3 +158,8 @@ for i, mode in enumerate(modes):
 extreme_profile = extreme.extreme_count_profile(first_count, last_count, colored = False)
 plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig2.png')
 # %%
+# Fig 3  extreme event count vs. tsurf
+tsurf_mean = tsurf.mean(dim = 'ens')
+ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(pc, tsurf)
+Fig3 = extrc_tsurf.plot_extrc_tsurf(ext_counts, t_surf_mean,hlayers = 50000)
+plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig3.png')
