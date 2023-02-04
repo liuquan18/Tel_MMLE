@@ -70,6 +70,7 @@ def extCount_tsurf_scatter(ext_counts, t_surf, hlayers = None):
         toplabels=["pos", "neg"],
         xminorticks="null",
         yminorticks="null",
+        ylim = (0,55),
     )
     if hlayers is not None:
         ext_counts = ext_counts.sel(hlayers=hlayers)
