@@ -24,6 +24,11 @@ def read_gph_data(dir):
         data = data.var156
 
     data = data.sel(hlayers=slice(100000, 20000))
+
+    # the data should be standarize if there are more than one altitudes
+    if xarr.hlayers.size>1:
+        xarr = tools.standardize(xarr)
+
     return data
 
 
