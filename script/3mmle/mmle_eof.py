@@ -16,6 +16,7 @@ fpattern = 'first' # fixed pattern
 canesm = index_generate.decompose_fixedPattern("CanESM2",v_eof,fpattern)
 canesm.save_result()
 
+#%%
 ## MPI-GE
 mpige = index_generate.decompose_fixedPattern("MPI_GE",v_eof,fpattern)
 mpige.save_result()

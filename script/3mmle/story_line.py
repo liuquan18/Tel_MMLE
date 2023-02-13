@@ -23,7 +23,7 @@ import src.warming_stage.warming_stage as warming_stage
 
 #%%
 # load data
-odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/"
+odir = "/work/mh0033/m300883/Tel_MMLE/data/CanESM2/"
 pc_dir = odir + "EOF_result/ind_first_pc.nc"
 eof_dir = odir + "EOF_result/ind_first_eof.nc"
 fra_dir = odir + "EOF_result/ind_first_fra.nc"
@@ -33,7 +33,7 @@ tsurf_dir = odir + "ts_processed/tsurf_mean.nc"
 pc = xr.open_dataset(pc_dir).pc
 eof = xr.open_dataset(eof_dir).eof
 fra = xr.open_dataset(fra_dir).exp_var
-tsurf = xr.open_dataset(tsurf_dir).tsurf
+tsurf = xr.open_dataset(tsurf_dir).ts
 # %%
 # split into first 10 and last 10 years
 periods_pc,periods = warming_stage.split_period(pc, compare = 'CO2')
@@ -152,14 +152,15 @@ for i, mode in enumerate(modes):
         spatial_ax.colorbar(map, loc="b", title="std", ticks=0.2, pad=2)
         hist_ax.legend(handles,loc = 'b', ncols = 2,title = 'periods')
         violin_ax.legend(loc="b", ncols=2, title="periods")
-    plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig1.png')
+    # plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig1.png')
 # %%
 # Fig 2  extreme event count profile
 extreme_profile = extreme.extreme_count_profile(first_count, last_count, colored = False)
-plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig2.png')
+# plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig2.png')
 # %%
 # Fig 3  extreme event count vs. tsurf
-tsurf_mean = tsurf.mean(dim = 'ens')
+tsurf_mean = tsurf#.mean(dim = 'ens')
 ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(pc, tsurf)
 Fig3 = extrc_tsurf.plot_extrc_tsurf(ext_counts, t_surf_mean,hlayers = 50000)
-plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig3.png')
+# plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig3.png')
+# %%

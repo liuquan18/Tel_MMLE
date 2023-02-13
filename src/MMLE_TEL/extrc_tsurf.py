@@ -84,9 +84,9 @@ def extCount_tsurf_scatter(ext_counts, t_surf, hlayers = None):
             high = ext_counts.sel(extr_type=extr_type, mode=mode,confidence="high")
 
             axes[i, j].errorbar(
-                x=t_surf.values,
-                y=true.values,
-                yerr=[(true-low).values, (high-true).values],
+                x=t_surf,
+                y=true,
+                yerr=[(true-low), (high-true)],
                 fmt='o', linewidth=2, capsize=6)
 
 # %%
