@@ -1,10 +1,16 @@
+#%%
 import xarray as xr
 import numpy as np
-import src.extreme.period_pattern_extreme as extreme
+import src.extreme.extreme_ci as extreme
 import proplot as pplt
 
+# reimport extreme
+import importlib
+importlib.reload(extreme)
+
+
 # %%
-def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers: int = 50000):
+def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers = None):
     """
     extract the extreme count and the mean surface temperature every ten years.
     **Arguments**
@@ -15,8 +21,8 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers: int = 
         *t_surf_mean* the mean t_surface,
         the time here use the first year of the decade.
     """
-
-    index = index.sel(hlayers=hlayers)
+    if hlayers is not None:
+        index = index.sel(hlayers=hlayers)
 
     # tsurf increase
     temp = temp - temp.isel(time = 0)
@@ -31,7 +37,7 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers: int = 
         period_tm = temp.isel(time=period)
 
         # extreme count
-        period_ext_count = extreme.period_extreme_count(period_pc)
+        period_ext_count = extreme.extreme_count_xr(period_pc)
         period_mean_t = period_tm.mean(dim="time")
 
         ext_counts.append(period_ext_count)
@@ -42,8 +48,8 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers: int = 
     t_surf_mean = xr.concat(t_surf_mean, dim=periods)
     return ext_counts, t_surf_mean
 
-
-def extCount_tsurf_scatter(ext_counts, t_surf):
+#%%
+def extCount_tsurf_scatter(ext_counts, t_surf, hlayers = None):
     """
     rows: pos/neg
     cols: NAO/EA
@@ -60,16 +66,27 @@ def extCount_tsurf_scatter(ext_counts, t_surf):
         xlabel="temperature (K)",
         ylabel="extreme count",
         grid=False,
-        toplabels=["NAO", "EA"],
-        leftlabels=["pos", "neg"],
+        leftlabels=["NAO", "EA"],
+        toplabels=["pos", "neg"],
+        xminorticks="null",
+        yminorticks="null",
+        ylim = (0,55),
     )
+    if hlayers is not None:
+        ext_counts = ext_counts.sel(hlayers=hlayers)
 
-    extr_types = ["pos", "neg"]  # rows
-    modes = ["NAO", "EA"]  # cols
+    for j, extr_type in enumerate(ext_counts.extr_type):
+        for i, mode in enumerate(ext_counts.mode):
 
-    for i, extr_type in enumerate(ext_counts.extr_type):
-        for j, mode in enumerate(ext_counts.mode):
-            axes[i, j].scatter(
+            # true values
+            true = ext_counts.sel(extr_type=extr_type, mode=mode,confidence="true")
+            low =  ext_counts.sel(extr_type=extr_type, mode=mode,confidence="low")
+            high = ext_counts.sel(extr_type=extr_type, mode=mode,confidence="high")
+
+            axes[i, j].errorbar(
                 x=t_surf,
-                y=ext_counts.sel(extr_type=extr_type, mode=mode),
-            )
+                y=true,
+                yerr=[(true-low), (high-true)],
+                fmt='o', linewidth=2, capsize=6)
+
+# %%

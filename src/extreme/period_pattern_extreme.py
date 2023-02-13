@@ -25,7 +25,7 @@ def normalize(period_period: xr.DataArray, all_all: xr.DataArray,dim = 'time'):
     return period_period
 
 
-def period_extreme(peiod_index: xr.DataArray, threshold=2):
+def detect_extreme(peiod_index: xr.DataArray, threshold=2):
     """
     mask out non-extreme cases as np.nan.
     **Arguments**
@@ -38,7 +38,7 @@ def period_extreme(peiod_index: xr.DataArray, threshold=2):
     return period_extreme
 
 
-def _period_extreme_count(period_extreme: xr.DataArray, dim: tuple):
+def count_extreme(period_extreme: xr.DataArray, dim: tuple):
     """
     count the number of the extremes
     **Arguments**
@@ -72,6 +72,6 @@ def period_extreme_count(
         if standard:
             period_period = normalize(period_period, all_all)
 
-    extreme = period_extreme(period_period, threshold)
-    count = _period_extreme_count(extreme, dim=dim)
+    extreme = detect_extreme(period_period, threshold)
+    count = count_extreme(extreme, dim=dim)
     return count
