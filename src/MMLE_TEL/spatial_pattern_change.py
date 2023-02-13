@@ -25,10 +25,6 @@ def read_gph_data(dir):
 
     data = data.sel(hlayers=slice(100000, 20000))
 
-    # the data should be standarize if there are more than one altitudes
-    if data.hlayers.size>1:
-        data = tools.standardize(data)
-
     return data
 
 
@@ -39,6 +35,7 @@ def spatial_pattern_change(data, periods,names):
     """
     if data.hlayers.size > 1:
         data = tools.standardize(data, dim="time")
+
     EOFs = []
     FRAs = []
     period_index = xr.IndexVariable(dims="period", data=periods)
