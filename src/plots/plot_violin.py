@@ -25,7 +25,7 @@ def xr2df(first10_all_period, last10_all_period, mode, compare):
     if compare == "CO2":
         keys = ["first10", "last10"]
     elif compare == "temp":
-        keys = ["0C", "4C"]
+        keys = ["0K", "4K"]
     periods = pd.concat([first, last], keys=keys, names=["period", "hlayers", "com"])
     periods = periods.reset_index().set_index("com")
     periods["hlayers"] = periods["hlayers"] / 100

@@ -174,7 +174,7 @@ def spatial_pattern_profile(eofs, levels=np.arange(-2.0, 2.1, 0.4)):
     axes.format(
         latlines=20,
         lonlines=30,
-        toplabels=("0C", "2C", "4C"),
+        toplabels=("0K", "2K", "4K"),
         leftlabels=("NAO", "EA"),
         suptitle=f"spatial change profile",
         ylim=(1000, 200),
