@@ -43,7 +43,7 @@ def spatial_pattern_change(data, periods,names):
         EOFs.append(EOF)
         FRAs.append(FRA)
     EOFs = xr.concat(EOFs, dim=period_index)
-    EOFs["period"] = ["0C", "2C", "4C"]
+    EOFs["period"] = ["0K", "2K", "4K"]
 
     FRAs = xr.concat(FRAs, dim=period_index)
     FRAs["period"] = names
