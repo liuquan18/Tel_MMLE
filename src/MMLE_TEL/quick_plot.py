@@ -293,12 +293,12 @@ class period_index:
             self.plot_dir + self.prefix + "spatial_pattern_change_map.png", dpi=300
         )
 
-        vetmaps = sp_change.spatial_pattern_profile(
-            EOFs, levels=np.arange(-1.0, 1.1, 0.2)
-        )
-        plt.savefig(
-            self.plot_dir + self.prefix + "spatial_pattern_change_profile.png", dpi=300
-        )
+        # vetmaps = sp_change.spatial_pattern_profile(
+        #     EOFs, levels=np.arange(-1.0, 1.1, 0.2)
+        # )
+        # plt.savefig(
+        #     self.plot_dir + self.prefix + "spatial_pattern_change_profile.png", dpi=300
+        # )
 
     def extreme_count_profile(self, mode):
         print(f"ploting the profile of extreme event count of {mode} index ...")
