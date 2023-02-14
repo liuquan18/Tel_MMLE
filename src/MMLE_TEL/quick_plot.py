@@ -54,6 +54,7 @@ class period_index:
         self.fixed_pattern = fixed_pattern
         self.compare = compare
         self.model = model
+        self.prefix = self.vertical_eof + "_" + self.fixed_pattern + "_"
 
         #### some locations here #####
         odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model
@@ -72,6 +73,10 @@ class period_index:
         # the loc for zg_processed
         self.zg_processed_dir = odir + "/zg_processed/"
 
+        # the loc of eofs and fras at all periods
+        self.all_eofs_dir = odir + self.prefix + "eofs_allPeriods.nc"
+        self.all_fras_dir = odir + self.prefix + "fras_allPeriods.nc"
+
         # the destination for savinig plots
         self.plot_dir = (
             "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/"
@@ -89,9 +94,6 @@ class period_index:
 
         ###########################################
         #### tools for naming #####################
-        self.prefix = (
-            self.vertical_eof + "_" + self.fixed_pattern + "_"
-        )  # for name/ ind_all_
         if self.compare == "CO2":
             self.period_name = ["first10", "last10"]
         elif self.compare == "temp":
@@ -120,7 +122,6 @@ class period_index:
             ext_counts_list.append(extreme.period_extreme_count(pc_period))
             ext_counts = xr.concat(ext_counts_list, dim="compare")
         return ext_counts
-
 
     def read_eof_data(self):
         """
@@ -277,10 +278,12 @@ class period_index:
 
         # try read data first
         try:
-            EOFs = xr.open_dataset(self.odir + self.prefix + "eofs_allPeriods.nc").eof
-            FRAs = xr.open_dataset(self.odir + self.prefix + "fras_allPeriods.nc").exp_var
+            EOFs = xr.open_dataset(self.all_eofs_dir).eof
+            FRAs = xr.open_dataset(self.all_fras_dir).exp_var
+            print("found the EOFs and FRAs files")
 
         except FileNotFoundError:
+            print("EOFs file did found, starting a long decomposition now")
             EOFs, FRAs = self.spatial_change()
 
         maps = sp_change.spatial_pattern_maps(
