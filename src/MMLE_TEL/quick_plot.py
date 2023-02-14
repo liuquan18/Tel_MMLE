@@ -103,13 +103,16 @@ class period_index:
         self.eof, self.pc, self.fra = self.read_eof_data()
 
         # fldmean tsurf
-        self.fldmean_tsurf = self.read_tsurf_fldmean()
+        self.fldmean_tsurf = warming_stage.read_tsurf_fldmean(
+            self.tsurf_fldmean_dir + "tsurf_mean.nc"
+        )
 
-        # index of different period to compare, either first10 v.s last10, or 0,2,4 .C (degree)
-        self.pc_periods, self.periods = self.split_period()
-
+        # index of different period to compare, either first10 v.s last10, or 0,2,4 .K (degree)
+        self.pc_periods, self.periods = warming_stage.split_period(
+            self.pc, self.compare, self.fldmean_tsurf
+        )
         # extreme counts
-        self.ext_counts_periods = self.extreme_periods()
+        self.ext_counts_periods = self.period_wise_extreme()
 
     def read_eof_data(self):
         """
@@ -127,50 +130,7 @@ class period_index:
         fra = xr.open_dataset(odir + self.prefix + "fra.nc").exp_var
         return eof, pc, fra
 
-    def read_tsurf_fldmean(self):
-        print("reading the mean tsurf data...")
-        tsurf = xr.open_dataset(
-            self.tsurf_fldmean_dir + "tsurf_mean.nc"
-        )  # already pre-processed
-
-        try:
-            tsurf["time"] = tsurf.indexes["time"].to_datetimeindex()
-        except AttributeError:
-            pass
-
-        try:
-            tsurf = tsurf.tsurf
-        except AttributeError:
-            tsurf = tsurf.ts
-
-        try:
-            tsurf.lon.size == 1 & tsurf.lat.size == 1
-        except ValueError:
-            print("the fldmean temperature should be calculated first")
-
-        # ens mean
-        try:
-            fld_ens_mean = tsurf.mean(dim="ens")
-        except ValueError:
-            fld_ens_mean = tsurf
-
-        # squeeze
-        mean = fld_ens_mean.squeeze()
-        return mean
-
-    def split_period(self):
-        if self.compare == "CO2":
-            periods = self.CO2_period()
-        elif self.compare == "temp":
-            periods = self.temp_period(self.fldmean_tsurf)
-        pcs_period = []
-        for i, period in enumerate(periods):
-            pc_period = self.pc.sel(time=period)
-            pc_period["compare"] = self.period_name[i]
-            pcs_period.append(pc_period)
-        return pcs_period, periods
-
-    def extreme_periods(self):
+    def period_wise_extreme(self):
         ext_counts_list = []
         for pc_period in self.pc_periods:
             ext_counts_list.append(extreme.period_extreme_count(pc_period))
@@ -244,65 +204,6 @@ class period_index:
             fra_500 = self.fra
 
         return eof_500, pc_500, fra_500
-
-    def period_CO2(self):
-        """select the first10 and last10 years"""
-        first10_pc = self.pc.isel(time=slice(0, 10))
-        last10_pc = self.pc.isel(time=slice(-10, self.pc.time.size))
-        periods = [first10_pc, last10_pc]
-        return periods
-
-    def return_year(self, xarr):
-        """return the ten year slice to select"""
-
-        start = xarr.time.values + DateOffset(years=-4)
-        end = xarr.time.values + DateOffset(years=5)
-        return slice(str(start.year), str(end.year))
-
-    def temp_period(self, fldmean: xr.DataArray):
-        """
-        to calculate the year when the mean global surface temperature reaches 1,2,and 4 degrees.
-        **Argument**
-            *fldmean* the fldmean of tsurf
-        """
-        if isinstance(fldmean, xr.DataArray):
-            pass
-        else:
-            print("only DataArray is accapted, DataSet recevied")
-
-        # anomaly
-        period_mean = fldmean.isel(time=slice(0, 10)).mean()  # mean as the basis
-        anomaly = fldmean - period_mean
-        periods = []
-
-        # 0 degree (1855)
-        periods.append(self.return_year(anomaly[5]))
-        # 2 degree
-        periods.append(
-            self.return_year(anomaly.where(anomaly >= 2, drop=True).squeeze()[0])
-        )
-        # 4 degree
-        try:
-            periods.append(
-                self.return_year(anomaly.where(anomaly >= 4, drop=True).squeeze()[0])
-            )
-        except IndexError:
-            warnings.warn("No fldmean above 4 degree. use the last 10 years instead")
-            periods.append(
-                slice(
-                    str(anomaly[-11].time.dt.year.values),
-                    str(anomaly[-1].time.dt.year.values),
-                )
-            )
-        return periods
-
-    def CO2_period(self):
-        """select the year from pc"""
-        years = self.pc.time
-        first10 = slice(years[0], years[10])
-        last10 = slice(years[-10], years[-1])
-        periods = [first10, last10]
-        return periods
 
     def bar500hpa_index_df(self):
 
@@ -380,7 +281,9 @@ class period_index:
             self.plot_dir + self.prefix + "spatial_pattern_change_map.png", dpi=300
         )
 
-        vetmaps = sp_change.spatial_pattern_profile(EOFs,levels=np.arange(-1.0, 1.1, 0.2))
+        vetmaps = sp_change.spatial_pattern_profile(
+            EOFs, levels=np.arange(-1.0, 1.1, 0.2)
+        )
         plt.savefig(
             self.plot_dir + self.prefix + "spatial_pattern_change_profile.png", dpi=300
         )
@@ -412,7 +315,6 @@ class period_index:
         plt.savefig(
             self.plot_dir + self.prefix + "extrc_fldmean_ts_scatter.png", dpi=300
         )
-      
 
     def return_period_scatter(self, mode, hlayers=50000):
         print("scatter plot of return period")
