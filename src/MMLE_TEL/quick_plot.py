@@ -25,6 +25,7 @@ import src.plots.spatial_distribution_plot as spatial_dis_plots
 import src.plots.return_period as RP_plots
 import src.plots.composite_spatial_pattern as composite_spatial_pattern
 import src.plots.composite_var as composite_var
+import src.warming_stage.warming_stage as warming_stage
 
 import src.extreme.period_pattern_extreme as extreme
 import src.EVT.return_period as EVT
@@ -53,23 +54,28 @@ class period_index:
         self.fixed_pattern = fixed_pattern
         self.compare = compare
         self.model = model
+        self.prefix = self.vertical_eof + "_" + self.fixed_pattern + "_"
 
         #### some locations here #####
-        odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model
+        odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         # the loc for EOF result
-        self.eof_dir = odir + "/EOF_result/"
+        self.eof_dir = odir + "EOF_result/"
 
         # the loc for the tsurf for determine the time of 1, 2, and 4 degree.
-        self.tsurf_fldmean_dir = odir + "/ts_processed/"
+        self.tsurf_fldmean_dir = odir + "ts_processed/"
 
         # the loc for original geopotential height data
-        self.zg_dir = odir + "/zg/"
+        self.zg_dir = odir + "zg/"
 
         # the loc for original tsurface map
-        self.ts_dir = odir + "/ts/"
+        self.ts_dir = odir + "ts/"
 
         # the loc for zg_processed
-        self.zg_processed_dir = odir + "/zg_processed/"
+        self.zg_processed_dir = odir + "zg_processed/"
+
+        # the loc of eofs and fras at all periods
+        self.all_eofs_dir = odir + "EOF_result/" + self.prefix + "eofs_allPeriods.nc"
+        self.all_fras_dir = odir + "EOF_result/" + self.prefix + "fras_allPeriods.nc"
 
         # the destination for savinig plots
         self.plot_dir = (
@@ -88,13 +94,10 @@ class period_index:
 
         ###########################################
         #### tools for naming #####################
-        self.prefix = (
-            self.vertical_eof + "_" + self.fixed_pattern + "_"
-        )  # for name/ ind_all_
         if self.compare == "CO2":
             self.period_name = ["first10", "last10"]
         elif self.compare == "temp":
-            self.period_name = ["0C", "2C", "4C"]
+            self.period_name = ["0K", "2K", "4K"]
 
         ###############################################
         ##### the data reading and preprocessing ######
@@ -102,13 +105,23 @@ class period_index:
         self.eof, self.pc, self.fra = self.read_eof_data()
 
         # fldmean tsurf
-        self.fldmean_tsurf = self.read_tsurf_fldmean()
+        self.fldmean_tsurf = warming_stage.read_tsurf_fldmean(
+            self.tsurf_fldmean_dir + "tsurf_mean.nc"
+        )
 
-        # index of different period to compare, either first10 v.s last10, or 0,2,4 .C (degree)
-        self.pc_periods, self.periods = self.split_period()
-
+        # index of different period to compare, either first10 v.s last10, or 0,2,4 .K (degree)
+        self.pc_periods, self.periods = warming_stage.split_period(
+            self.pc, self.compare, self.fldmean_tsurf
+        )
         # extreme counts
-        self.ext_counts_periods = self.extreme_periods()
+        self.ext_counts_periods = self.period_wise_extreme()
+
+    def period_wise_extreme(self):
+        ext_counts_list = []
+        for pc_period in self.pc_periods:
+            ext_counts_list.append(extreme.period_extreme_count(pc_period))
+            ext_counts = xr.concat(ext_counts_list, dim="compare")
+        return ext_counts
 
     def read_eof_data(self):
         """
@@ -125,56 +138,6 @@ class period_index:
             pc["time"] = pd.to_datetime(pc.time)
         fra = xr.open_dataset(odir + self.prefix + "fra.nc").exp_var
         return eof, pc, fra
-
-    def read_tsurf_fldmean(self):
-        print("reading the mean tsurf data...")
-        tsurf = xr.open_dataset(
-            self.tsurf_fldmean_dir + "tsurf_mean.nc"
-        )  # already pre-processed
-
-        try:
-            tsurf["time"] = tsurf.indexes["time"].to_datetimeindex()
-        except AttributeError:
-            pass
-
-        try:
-            tsurf = tsurf.tsurf
-        except AttributeError:
-            tsurf = tsurf.ts
-
-        try:
-            tsurf.lon.size == 1 & tsurf.lat.size == 1
-        except ValueError:
-            print("the fldmean temperature should be calculated first")
-
-        # ens mean
-        try:
-            fld_ens_mean = tsurf.mean(dim="ens")
-        except ValueError:
-            fld_ens_mean = tsurf
-
-        # squeeze
-        mean = fld_ens_mean.squeeze()
-        return mean
-
-    def split_period(self):
-        if self.compare == "CO2":
-            periods = self.CO2_period()
-        elif self.compare == "temp":
-            periods = self.temp_period(self.fldmean_tsurf)
-        pcs_period = []
-        for i, period in enumerate(periods):
-            pc_period = self.pc.sel(time=period)
-            pc_period["compare"] = self.period_name[i]
-            pcs_period.append(pc_period)
-        return pcs_period, periods
-
-    def extreme_periods(self):
-        ext_counts_list = []
-        for pc_period in self.pc_periods:
-            ext_counts_list.append(extreme.period_extreme_count(pc_period))
-            ext_counts = xr.concat(ext_counts_list, dim="compare")
-        return ext_counts
 
     def read_gph_data(self):
         """
@@ -244,65 +207,6 @@ class period_index:
 
         return eof_500, pc_500, fra_500
 
-    def period_CO2(self):
-        """select the first10 and last10 years"""
-        first10_pc = self.pc.isel(time=slice(0, 10))
-        last10_pc = self.pc.isel(time=slice(-10, self.pc.time.size))
-        periods = [first10_pc, last10_pc]
-        return periods
-
-    def return_year(self, xarr):
-        """return the ten year slice to select"""
-
-        start = xarr.time.values + DateOffset(years=-4)
-        end = xarr.time.values + DateOffset(years=5)
-        return slice(str(start.year), str(end.year))
-
-    def temp_period(self, fldmean: xr.DataArray):
-        """
-        to calculate the year when the mean global surface temperature reaches 1,2,and 4 degrees.
-        **Argument**
-            *fldmean* the fldmean of tsurf
-        """
-        if isinstance(fldmean, xr.DataArray):
-            pass
-        else:
-            print("only DataArray is accapted, DataSet recevied")
-
-        # anomaly
-        period_mean = fldmean.isel(time=slice(0, 10)).mean()  # mean as the basis
-        anomaly = fldmean - period_mean
-        periods = []
-
-        # 0 degree (1855)
-        periods.append(self.return_year(anomaly[5]))
-        # 2 degree
-        periods.append(
-            self.return_year(anomaly.where(anomaly >= 2, drop=True).squeeze()[0])
-        )
-        # 4 degree
-        try:
-            periods.append(
-                self.return_year(anomaly.where(anomaly >= 4, drop=True).squeeze()[0])
-            )
-        except IndexError:
-            warnings.warn("No fldmean above 4 degree. use the last 10 years instead")
-            periods.append(
-                slice(
-                    str(anomaly[-11].time.dt.year.values),
-                    str(anomaly[-1].time.dt.year.values),
-                )
-            )
-        return periods
-
-    def CO2_period(self):
-        """select the year from pc"""
-        years = self.pc.time
-        first10 = slice(years[0], years[10])
-        last10 = slice(years[-10], years[-1])
-        periods = [first10, last10]
-        return periods
-
     def bar500hpa_index_df(self):
 
         """
@@ -315,7 +219,7 @@ class period_index:
         if self.compare == "CO2":
             coords = xr.IndexVariable(dims="periods", data=["first10", "last10"])
         else:
-            coords = xr.IndexVariable(dims="periods", data=["0C", "4C"])
+            coords = xr.IndexVariable(dims="periods", data=["0K", "4K"])
         index_500hpa = xr.concat([first, last], dim=coords)
         index_500hpa = index_500hpa.to_dataframe().reset_index()
 
@@ -371,7 +275,17 @@ class period_index:
 
     def spatial_pattern_change(self):
         print("ploting the spatial pattern changes...")
-        EOFs, FRAs = self.spatial_change()
+
+        # try read data first
+        try:
+            EOFs = xr.open_dataset(self.all_eofs_dir).eof
+            FRAs = xr.open_dataset(self.all_fras_dir).exp_var
+            print("found the EOFs and FRAs files")
+
+        except FileNotFoundError:
+            print("EOFs file did found, starting a long decomposition now")
+            EOFs, FRAs = self.spatial_change()
+
         maps = sp_change.spatial_pattern_maps(
             EOFs, FRAs, levels=np.arange(-1, 1.1, 0.2)
         )
@@ -379,10 +293,12 @@ class period_index:
             self.plot_dir + self.prefix + "spatial_pattern_change_map.png", dpi=300
         )
 
-        vetmaps = sp_change.spatial_pattern_profile(EOFs,levels=np.arange(-1.0, 1.1, 0.2))
-        plt.savefig(
-            self.plot_dir + self.prefix + "spatial_pattern_change_profile.png", dpi=300
-        )
+        # vetmaps = sp_change.spatial_pattern_profile(
+        #     EOFs, levels=np.arange(-1.0, 1.1, 0.2)
+        # )
+        # plt.savefig(
+        #     self.plot_dir + self.prefix + "spatial_pattern_change_profile.png", dpi=300
+        # )
 
     def extreme_count_profile(self, mode):
         print(f"ploting the profile of extreme event count of {mode} index ...")
@@ -411,7 +327,6 @@ class period_index:
         plt.savefig(
             self.plot_dir + self.prefix + "extrc_fldmean_ts_scatter.png", dpi=300
         )
-      
 
     def return_period_scatter(self, mode, hlayers=50000):
         print("scatter plot of return period")

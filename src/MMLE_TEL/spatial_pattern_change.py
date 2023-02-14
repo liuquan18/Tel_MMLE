@@ -24,6 +24,7 @@ def read_gph_data(dir):
         data = data.var156
 
     data = data.sel(hlayers=slice(100000, 20000))
+
     return data
 
 
@@ -34,6 +35,7 @@ def spatial_pattern_change(data, periods,names):
     """
     if data.hlayers.size > 1:
         data = tools.standardize(data, dim="time")
+
     EOFs = []
     FRAs = []
     period_index = xr.IndexVariable(dims="period", data=periods)
@@ -43,7 +45,7 @@ def spatial_pattern_change(data, periods,names):
         EOFs.append(EOF)
         FRAs.append(FRA)
     EOFs = xr.concat(EOFs, dim=period_index)
-    EOFs["period"] = ["0C", "2C", "4C"]
+    EOFs["period"] = ["0K", "2K", "4K"]
 
     FRAs = xr.concat(FRAs, dim=period_index)
     FRAs["period"] = names
@@ -104,7 +106,7 @@ def spatial_stat(eof, mode, dim="lon"):
 
 
 # PLOT maps
-def spatial_pattern_maps(eofs, fras, hlayers=50000, levels=np.arange(-2.0, 2.1, 0.4)):
+def spatial_pattern_maps(eofs, fras, levels=np.arange(-1.0, 1.1, 0.2)):
     """
     rows as modes
     cols in different periods
@@ -126,14 +128,14 @@ def spatial_pattern_maps(eofs, fras, hlayers=50000, levels=np.arange(-2.0, 2.1, 
         coastlinewidth=0.5,
         coastcolor="gray7",
         leftlabels=("NAO", "EA"),
-        suptitle=f"spatial patterns on {hlayers/100:.0f}hpa",
+        suptitle=f"spatial patterns on 500hPa",
     )
 
     for r, mode in enumerate(eofs.mode):
         for c, period in enumerate(eofs.period):
 
-            eof = eofs.sel(hlayers=hlayers, mode=mode, period=period)
-            fra = fras.sel(hlayers=hlayers, mode=mode, period=period)
+            eof = eofs.sel( mode=mode, period=period)
+            fra = fras.sel(mode=mode, period=period)
             map = axes[r, c].contourf(
                 eof,
                 x="lon",
@@ -174,7 +176,7 @@ def spatial_pattern_profile(eofs, levels=np.arange(-2.0, 2.1, 0.4)):
     axes.format(
         latlines=20,
         lonlines=30,
-        toplabels=("0C", "2C", "4C"),
+        toplabels=("0K", "2K", "4K"),
         leftlabels=("NAO", "EA"),
         suptitle=f"spatial change profile",
         ylim=(1000, 200),

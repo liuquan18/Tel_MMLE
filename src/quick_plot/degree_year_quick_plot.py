@@ -77,7 +77,7 @@ class period_index:
         if self.compare == "CO2":
             self.period_name = ["first10", "last10"]
         elif self.compare == "temp":
-            self.period_name = ["0C", "2C", "4C"]
+            self.period_name = ["0K", "2K", "4K"]
 
         ###############################################
         ##### the data reading and preprocessing ######
@@ -251,7 +251,7 @@ class period_index:
         if self.compare == "CO2":
             coords = xr.IndexVariable(dims="periods", data=["first10", "last10"])
         else:
-            coords = xr.IndexVariable(dims="periods", data=["0C", "4C"])
+            coords = xr.IndexVariable(dims="periods", data=["0K", "4K"])
         index_500hpa = xr.concat([first, last], dim=coords)
         index_500hpa = index_500hpa.to_dataframe().reset_index()
 
