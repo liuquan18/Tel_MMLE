@@ -106,7 +106,7 @@ def spatial_stat(eof, mode, dim="lon"):
 
 
 # PLOT maps
-def spatial_pattern_maps(eofs, fras, hlayers=50000, levels=np.arange(-2.0, 2.1, 0.4)):
+def spatial_pattern_maps(eofs, fras, levels=np.arange(-1.0, 1.1, 0.2)):
     """
     rows as modes
     cols in different periods
@@ -128,14 +128,14 @@ def spatial_pattern_maps(eofs, fras, hlayers=50000, levels=np.arange(-2.0, 2.1, 
         coastlinewidth=0.5,
         coastcolor="gray7",
         leftlabels=("NAO", "EA"),
-        suptitle=f"spatial patterns on {hlayers/100:.0f}hpa",
+        suptitle=f"spatial patterns on 500hPa",
     )
 
     for r, mode in enumerate(eofs.mode):
         for c, period in enumerate(eofs.period):
 
-            eof = eofs.sel(hlayers=hlayers, mode=mode, period=period)
-            fra = fras.sel(hlayers=hlayers, mode=mode, period=period)
+            eof = eofs.sel( mode=mode, period=period)
+            fra = fras.sel(mode=mode, period=period)
             map = axes[r, c].contourf(
                 eof,
                 x="lon",
