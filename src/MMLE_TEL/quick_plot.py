@@ -57,21 +57,21 @@ class period_index:
         self.prefix = self.vertical_eof + "_" + self.fixed_pattern + "_"
 
         #### some locations here #####
-        odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model
+        odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model+'/'
         # the loc for EOF result
-        self.eof_dir = odir + "/EOF_result/"
+        self.eof_dir = odir + "EOF_result/"
 
         # the loc for the tsurf for determine the time of 1, 2, and 4 degree.
-        self.tsurf_fldmean_dir = odir + "/ts_processed/"
+        self.tsurf_fldmean_dir = odir + "ts_processed/"
 
         # the loc for original geopotential height data
-        self.zg_dir = odir + "/zg/"
+        self.zg_dir = odir + "zg/"
 
         # the loc for original tsurface map
-        self.ts_dir = odir + "/ts/"
+        self.ts_dir = odir + "ts/"
 
         # the loc for zg_processed
-        self.zg_processed_dir = odir + "/zg_processed/"
+        self.zg_processed_dir = odir + "zg_processed/"
 
         # the loc of eofs and fras at all periods
         self.all_eofs_dir = odir + self.prefix + "eofs_allPeriods.nc"
