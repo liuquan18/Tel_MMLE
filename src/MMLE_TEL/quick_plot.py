@@ -114,6 +114,14 @@ class period_index:
         # extreme counts
         self.ext_counts_periods = self.period_wise_extreme()
 
+    def period_wise_extreme(self):
+        ext_counts_list = []
+        for pc_period in self.pc_periods:
+            ext_counts_list.append(extreme.period_extreme_count(pc_period))
+            ext_counts = xr.concat(ext_counts_list, dim="compare")
+        return ext_counts
+
+
     def read_eof_data(self):
         """
         The data are stored in `3rdPanel/data/`
@@ -129,13 +137,6 @@ class period_index:
             pc["time"] = pd.to_datetime(pc.time)
         fra = xr.open_dataset(odir + self.prefix + "fra.nc").exp_var
         return eof, pc, fra
-
-    def period_wise_extreme(self):
-        ext_counts_list = []
-        for pc_period in self.pc_periods:
-            ext_counts_list.append(extreme.period_extreme_count(pc_period))
-            ext_counts = xr.concat(ext_counts_list, dim="compare")
-        return ext_counts
 
     def read_gph_data(self):
         """
@@ -273,7 +274,15 @@ class period_index:
 
     def spatial_pattern_change(self):
         print("ploting the spatial pattern changes...")
-        EOFs, FRAs = self.spatial_change()
+
+        # try read data first
+        try:
+            EOFs = xr.open_dataset(self.odir + self.prefix + "eofs_allPeriods.nc").eof
+            FRAs = xr.open_dataset(self.odir + self.prefix + "fras_allPeriods.nc").exp_var
+
+        except FileNotFoundError:
+            EOFs, FRAs = self.spatial_change()
+
         maps = sp_change.spatial_pattern_maps(
             EOFs, FRAs, levels=np.arange(-1, 1.1, 0.2)
         )
