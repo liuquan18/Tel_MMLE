@@ -46,7 +46,7 @@ def doeof(
 
     # shuffle
     if shuffle:
-        data = tools.random_order(data, dim=dim)
+        data.sel(com=np.random.permutation(data.com))
 
     # weights
     wgts = tools.sqrtcoslat(data)
