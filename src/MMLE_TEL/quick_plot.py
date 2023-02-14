@@ -57,7 +57,7 @@ class period_index:
         self.prefix = self.vertical_eof + "_" + self.fixed_pattern + "_"
 
         #### some locations here #####
-        odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model+'/'
+        odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         # the loc for EOF result
         self.eof_dir = odir + "EOF_result/"
 
@@ -74,8 +74,8 @@ class period_index:
         self.zg_processed_dir = odir + "zg_processed/"
 
         # the loc of eofs and fras at all periods
-        self.all_eofs_dir = odir + self.prefix + "eofs_allPeriods.nc"
-        self.all_fras_dir = odir + self.prefix + "fras_allPeriods.nc"
+        self.all_eofs_dir = odir + "EOF_result/" + self.prefix + "eofs_allPeriods.nc"
+        self.all_fras_dir = odir + "EOF_result/" + self.prefix + "fras_allPeriods.nc"
 
         # the destination for savinig plots
         self.plot_dir = (
