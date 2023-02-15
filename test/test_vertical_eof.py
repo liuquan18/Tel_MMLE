@@ -28,22 +28,22 @@ ex = xr.DataArray(
 
 
 #%%
-eof, pc, fra = vertical_eof.vertical_eof(
+eof = vertical_eof.vertical_eof(
     ex, nmode=2, window=6, fixed_pattern="first", independent=False, standard=True
 )
 
 #%%
-eof, pc, fra = vertical_eof.vertical_eof(
+eof = vertical_eof.vertical_eof(
     ex, nmode=2, window=6, fixed_pattern="first", independent=True, standard=False
 )
 # %%
-eof, pc, fra = vertical_eof.vertical_eof(
+eof = vertical_eof.vertical_eof(
     ex, nmode=2, window=6, fixed_pattern="all", independent=True, standard=True
 )
-eof, pc, fra = vertical_eof.vertical_eof(
+eof = vertical_eof.vertical_eof(
     ex, nmode=2, window=6, fixed_pattern="first", independent=True, standard=True
 )
-eof, pc, fra = vertical_eof.vertical_eof(
+eof = vertical_eof.vertical_eof(
     ex, nmode=2, window=6, fixed_pattern="last", independent=True, standard=True
 )
 
@@ -51,6 +51,4 @@ eof, pc, fra = vertical_eof.vertical_eof(
 # %%
 # test
 def test_vertical_eof():
-    assert pc.std().values > 0 and pc.std().values < 2
-
-
+    assert eof.pc.std().values > 0 and eof.pc.std().values < 2
