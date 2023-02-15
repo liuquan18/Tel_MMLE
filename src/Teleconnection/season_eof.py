@@ -45,6 +45,40 @@ def season_eof(
 
     return eof_result
 
+def read_data(gph_dir):
+    """
+    read the gph data and do some pre-process.
+    """
+    print("reading data...")
+    zg_data = xr.open_mfdataset(
+        gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
+    )
+    try:
+        zg_data = zg_data.var156
+    except AttributeError:
+        zg_data = zg_data.zg
+
+    # time to datetime
+    try:
+        zg_data["time"] = zg_data.indexes["time"].to_datetimeindex()
+    except AttributeError:
+        zg_data["time"] = pd.to_datetime(zg_data.time)
+
+    # demean
+    print(" demean the ensemble mean...")
+    zg_ens_mean = zg_data.mean(dim="ens")
+    zg_demean = zg_data - zg_ens_mean
+
+    # select trop
+    print(" select troposphere...")
+    zg_trop = zg_demean.sel(plev=slice(100000, 20000))
+    if zg_trop.plev.size == 0:
+        zg_trop = zg_demean.sel(plev=slice(20000, 100000))
+
+    # standardize seperately with the temporal mean and std
+    print(" standardize each altitudes seperately...")
+    zg_trop = (zg_trop - zg_trop.mean(dim="time")) / zg_trop.std(dim="time")
+    return zg_trop
 
 def main():
     """
