@@ -23,7 +23,7 @@ class decompose_fixedPattern:
         self.model = model
 
         self.zg_path = (
-            "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/zg_processed/*.nc"
+            "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/zg_processed/"
         )
 
         # read data
