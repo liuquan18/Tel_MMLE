@@ -27,7 +27,7 @@ def vertical_eof(
         *eof*, *pc* and *fra*
     """
     if independent == True:
-        eof, pc, fra = independent_eof(
+        eof_result = independent_eof(
             xarr,
             nmode=nmode,
             window=window,
@@ -35,7 +35,7 @@ def vertical_eof(
             standard=standard,
         )
     else:
-        eof, pc, fra = dependent_eof(
+        eof_result = dependent_eof(
             xarr,
             nmode=nmode,
             window=window,
@@ -43,7 +43,7 @@ def vertical_eof(
             standard=standard,
         )
 
-    return eof, pc, fra
+    return eof_result
 
 
 def independent_eof(xarr, **kwargs):
@@ -77,6 +77,6 @@ def dependent_eof(xarr, **kwargs):
         EOF, PC and FRA.
     """
     print("     dependently decomposign...")
-    eofs, pcs, fras = rolling_eof.rolling_eof(xarr, **kwargs)
+    eof_result = rolling_eof.rolling_eof(xarr, **kwargs)
 
-    return eofs, pcs, fras
+    return eof_result
