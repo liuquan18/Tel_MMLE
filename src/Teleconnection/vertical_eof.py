@@ -56,24 +56,14 @@ def independent_eof(xarr, **kwargs):
     **Return**
         EOF, PC and FRA.
     """
-    eofs = []
-    pcs = []
-    fras = []
+
     print("     indenpendtly decomposing...")
 
-    hlayers = xarr.hlayers
-    for h in tqdm(hlayers):
-        print(f"         gph at {h.values}")
-        field = xarr.sel(hlayers=h)
-        eof, pc, fra = rolling_eof.rolling_eof(field, **kwargs)
+    eof_result = xarr.groupby("hlayers").apply(
+        rolling_eof.rolling_eof, **kwargs
+    )
 
-        eofs.append(eof)
-        pcs.append(pc)
-        fras.append(fra)
-    eofs = xr.concat(eofs, dim=xarr.hlayers)
-    pcs = xr.concat(pcs, dim=xarr.hlayers)
-    fras = xr.concat(fras, dim=xarr.hlayers)
-    return eofs, pcs, fras
+    return eof_result
 
 
 def dependent_eof(xarr, **kwargs):
