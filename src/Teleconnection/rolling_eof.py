@@ -64,11 +64,6 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
         # in order to make it the same  order as the following, we do project-field to get the index.
         PC = fixed_pc(xarr, eof_result['eof'], standard=standard)
 
-    elif fixed_pattern == "False":
-        print("     no fixed pattern used")
-        eof_result = changing_eofs(xarr, validtime, nmode=nmode, window=window)
-        PC = changing_pc(xarr, validtime, eof_result['eof'], standard=standard)
-
     elif fixed_pattern == "first":
         # only the EOF of the first10 is needed.
         print("     using the first pattern")
@@ -79,6 +74,12 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
         print("     using the last pattern")
         eof_result = changing_eofs(xarr, validtime[-1], nmode=nmode, window=window)
         PC = fixed_pc(xarr, eof_result['eof'], standard=standard)
+
+    elif fixed_pattern == "False":
+        print("     no fixed pattern used")
+        eof_result = changing_eofs(xarr, validtime, nmode=nmode, window=window)
+        PC = changing_pc(xarr, validtime, eof_result['eof'], standard=standard)
+
     # replace the pc with the pc from projection
     eof_result['pc'] = PC
     return eof_result
