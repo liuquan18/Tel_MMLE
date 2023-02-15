@@ -130,7 +130,12 @@ def sqrtcoslat(xarr):
     **Returns**:
         weight with the right shape.
     """
+    # weight values
     wgts = np.sqrt(np.cos(np.deg2rad(xarr.lat)))
+    
+    # make the shape of wgts the same as xarr
+    W = xr.ones_like(xarr)
+    wgts = wgts * W
     return wgts
 
 
