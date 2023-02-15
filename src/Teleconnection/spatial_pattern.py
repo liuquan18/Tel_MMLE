@@ -111,9 +111,9 @@ def doeof(
     eofx = eofx.drop_vars(("ens", "time", "com"))
 
     # to dataset
-    decompose = xr.Dataset({'eof':eofx,'pc':pcx,'fra':frax})
+    eof_result = xr.Dataset({'eof':eofx,'pc':pcx,'fra':frax})
 
-    return decompose
+    return eof_result
 
 
 def project(x, y):
