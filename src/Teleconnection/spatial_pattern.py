@@ -94,11 +94,6 @@ def doeof(
     # unstack the dim 'ens' and 'time' or 'win'
     pcx = pcx.unstack()
 
-    # names
-    eofx.name = "eof"
-    pcx.name = "pc"
-    frax.name = "exp_var"
-
     # dorp vars
     eofx = eofx.drop_vars(("ens", "time", "com"))
 
