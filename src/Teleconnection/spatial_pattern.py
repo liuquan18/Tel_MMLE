@@ -72,7 +72,7 @@ def doeof(
     frax = xr.DataArray(fra, dims=["mode"], coords={"mode": ["NAO", "EA"]})
 
     # deweight
-    eofx = eofx / wgts
+    eofx = eofx / wgts.isel(com = 0)
 
     # standardize
     std_pc = pcx.std(dim = 'com') # std for standardization comes from the pc, not the eof.
