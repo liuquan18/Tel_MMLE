@@ -135,7 +135,7 @@ def sqrtcoslat(xarr):
     
     # make the shape of wgts the same as xarr
     W = xr.ones_like(xarr)
-    wgts = wgts * W
+    wgts = W * wgts
     return wgts
 
 
