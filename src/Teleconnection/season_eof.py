@@ -41,9 +41,9 @@ def season_eof(
         "standard": standard
     }
 
-    eof, pc, fra = vertical_eof.vertical_eof(xarr, **kwargs)
+    eof_result = vertical_eof.vertical_eof(xarr, **kwargs)
 
-    return eof, pc, fra
+    return eof_result
 
 
 def main():
@@ -65,7 +65,7 @@ def main():
     #     eof_sar,pc_sar,fra_sar = season_eof(ex,nmode=2,method ="rolling_eof",
     # window=10,fixed_pattern='all',return_full_eof= False,independent = True,standard=True)
 
-    eof, index, fra = season_eof(
+    eof = season_eof(
         trop.var156,
         nmode=2,
         window=10,
