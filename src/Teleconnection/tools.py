@@ -130,15 +130,7 @@ def sqrtcoslat(xarr):
     **Returns**:
         weight with the right shape.
     """
-    # the shape of the weight should have the same number of spatial dims as the input DataArray.
-    # the first dim is lat of course, all the rest spatial dim should be 1.
-    sp_dim = detect_spdim(xarr)
-    weight_shape = np.hstack([-1, sp_dim[1:]])  # the size of 'lat' should not be 1.
-
-    # cos of rad of latitude
-    coslat = np.cos(np.deg2rad(xarr.lat)).clip(0.0, 1.0)
-    # sqrt
-    wgts = np.sqrt(coslat.values).reshape(weight_shape)
+    wgts = np.sqrt(np.cos(np.deg2rad(xarr.lat)))
     return wgts
 
 
