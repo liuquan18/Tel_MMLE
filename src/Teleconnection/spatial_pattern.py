@@ -35,8 +35,6 @@ def doeof(
 
     # make sure that there are only three dims
     data = data.squeeze()
-    if len(data.dims) > 3:
-        raise AttributeError("there are more than three dims")
 
     # make sure that the first dim is the 'com' or 'time'.
     try:
