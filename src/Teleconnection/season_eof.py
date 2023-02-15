@@ -29,7 +29,7 @@ def season_eof(
         EOF, PC and FRA
     """
     # the data should be standarize if there are more than one altitudes
-    if xarr.hlayers.size>1:
+    if xarr.plev.size>1:
         xarr = tools.standardize(xarr)
 
     # passing parameters
@@ -93,7 +93,7 @@ def main():
     # demean ens-mean
     demean = splitens - splitens.mean(dim="ens")
     # select traposphere
-    trop = demean.sel(hlayers=slice(85000, 100000)).isel(time=slice(0, 40))
+    trop = demean.sel(plev=slice(85000, 100000)).isel(time=slice(0, 40))
 
     #     eof_sar,pc_sar,fra_sar = season_eof(ex,nmode=2,method ="rolling_eof",
     # window=10,fixed_pattern='all',return_full_eof= False,independent = True,standard=True)
