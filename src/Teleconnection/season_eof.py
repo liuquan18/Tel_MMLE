@@ -49,7 +49,6 @@ def read_data(gph_dir):
     """
     read the gph data and do some pre-process.
     """
-    print("reading data...")
     zg_data = xr.open_mfdataset(
         gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
     )
