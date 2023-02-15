@@ -58,35 +58,29 @@ def doeof(
     pc = solver.pcs(npcs=nmode)  # (com,mode)
     fra = solver.varianceFraction(nmode)  # (mode)
 
-    # deweight
-    eof_dw = eof / wgts
-
-    # standarize coef
-    std_pc = (np.std(pc, axis=0)).astype(
-        "float64"
-    )  # the standardization here only for map (eof) adjust, the final pc are generated using function project_field below. 
-    dim_add_sp = np.hstack([nmode, tools.detect_spdim(data)])  # [-1,1,1] or [-1,1,1,1]
-    std_pc_sp = std_pc.reshape(dim_add_sp)
-
-    # eof should always be normalized.
-    eof = eof_dw * std_pc_sp
-
-    # while pc sometime should not for comparation.
-    if standard:
-        pc = pc / std_pc
-
-    # xarray container for eof
+    # eof to xarray
     eof_cnt = data[:nmode]
     eof_cnt = eof_cnt.rename({dim: "mode"})
     eof_cnt = eof_cnt.drop_vars(("ens", "time"))
     eof_cnt["mode"] = ["NAO", "EA"]
-
-    # to xarray
     eofx = eof_cnt.copy(data=eof)
+
+    # xarray container for pc
     pcx = xr.DataArray(
         pc, dims=[dim, "mode"], coords={dim: data[dim], "mode": ["NAO", "EA"]}
     )
     frax = xr.DataArray(fra, dims=["mode"], coords={"mode": ["NAO", "EA"]})
+
+    # deweight
+    eofx = eofx / wgts
+
+    # standardize
+    std_pc = pcx.std(dim = 'com') # std for standardization comes from the pc, not the eof.
+    eofx = eofx * std_pc
+
+    # standard pc or not
+    if standard:
+        pc = pc / std_pc
 
     # change sign
     coef = sign_coef(eofx)
@@ -109,7 +103,7 @@ def doeof(
     eofx = eofx.drop_vars(("ens", "time", "com"))
 
     # to dataset
-    eof_result = xr.Dataset({'eof':eofx,'pc':pcx,'fra':frax})
+    eof_result = xr.Dataset({"eof": eofx, "pc": pcx, "fra": frax})
 
     return eof_result
 
@@ -180,7 +174,7 @@ def sign_coef(eof):
 
     # NAO
     coef_NAO = (
-        eof.sel(lat=slice(60,90), lon=slice(-70, -10), mode="NAO").mean(
+        eof.sel(lat=slice(60, 90), lon=slice(-70, -10), mode="NAO").mean(
             dim=["lat", "lon"]
         )
         < 0
@@ -189,7 +183,7 @@ def sign_coef(eof):
 
     # EA
     coef_EA = (
-        eof.sel(lat=slice(45,65), lon=slice(-40, 40), mode="EA").mean(
+        eof.sel(lat=slice(45, 65), lon=slice(-40, 40), mode="EA").mean(
             dim=["lat", "lon"]
         )
         < 0
