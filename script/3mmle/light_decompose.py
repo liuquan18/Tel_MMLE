@@ -9,14 +9,16 @@ import src.Teleconnection.tools as tools
 
 #%%
 gph_dir = "/work/mh0033/m300883/Tel_MMLE/data/CanESM2/zg_processed/"
-period = 'first'
-if period == 'first':
-    period = slice('1951-01-01', '1960-12-31')
+period = "first"
+if period == "first":
+    period = slice("1951-01-01", "1960-12-31")
 
 #%%
 def read_data(gph_dir):
     print("reading data...")
-    zg_data = xr.open_mfdataset(gph_dir+"*.nc", combine="nested", concat_dim="ens",join = 'override')
+    zg_data = xr.open_mfdataset(
+        gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
+    )
     try:
         zg_data = zg_data.var156
     except AttributeError:
@@ -43,6 +45,8 @@ def read_data(gph_dir):
     print(" standardize each altitudes seperately...")
     zg_trop = (zg_trop - zg_trop.mean(dim="time")) / zg_trop.std(dim="time")
     return zg_trop
+
+
 # %%
 
 # the spatial pattern
@@ -60,10 +64,13 @@ def spatial_pattern(zg_data, period):
     eof, _, fra = ssp.doeof(data, nmode=2, dim="com", standard=True)
     return eof, fra
 
-def pc(zg_data,eofs):
+
+def pc(zg_data, eofs):
     data = zg_data.stack(com=("ens", "time"))
-    pc = ssp.project_field(data,eofs, dim="com")
+    pc = ssp.project_field(data, eofs, dim="com")
     return pc
+
+
 #%%
 
 # spatial pattern
@@ -80,15 +87,18 @@ def decompose(zg_data, period):
     fras: xarray.DataArray
         FRAs
     pcs: xarray.DataArray
-        PCs 
+        PCs
     """
     print("decompose the spatial pattern...")
-    eofs = zg_data.groupby("plev", squeeze=True).apply(lambda x,period = period: spatial_pattern(x,period)[0])
-    fras = zg_data.groupby("plev", squeeze=True).apply(lambda x,period = period: spatial_pattern(x,period)[1])
+    eofs = zg_data.groupby("plev", squeeze=True).apply(
+        lambda x, period=period: spatial_pattern(x, period)[0]
+    )
+    fras = zg_data.groupby("plev", squeeze=True).apply(
+        lambda x, period=period: spatial_pattern(x, period)[1]
+    )
     print("decompose the temporal indexes...")
-    pcs = pc(zg_data,eofs)
+    pcs = pc(zg_data, eofs)
     return eofs, fras, pcs
-
 
 
 # %%

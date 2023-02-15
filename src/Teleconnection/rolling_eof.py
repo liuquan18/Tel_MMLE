@@ -100,33 +100,26 @@ def changing_eofs(xarr, validtime, nmode, window):
 
     field = rolling(xarr, win=window)
     field = tools.stack_ens(field, withdim="window_dim")
-    # calculate eof and fra
-    eofs = list()
-    fras = list()
+
+    # select only the valid time
+    field = field.sel(time=validtime)
+
 
     # changing eofs (dynamic):
     if validtime.size > 1:
-        for time in tqdm(validtime):
-            tenyear_xarr = field.sel(time=time)
-            eof, _, fra = ssp.doeof(
-                tenyear_xarr, nmode=nmode, dim="com"
-            )  # the pc here is neither
-            # fixed nor non-fixed pattern.
-            eofs.append(eof)
-            fras.append(fra)
-
-        EOFs = xr.concat(eofs, dim=validtime)
-        FRA = xr.concat(fras, dim=validtime)
-
+        EOFs = field.groupby("time").apply(
+            lambda x: ssp.doeof(x, nmode=nmode, dim="com")[0])
+        FRAs = field.groupby("time").apply(
+            lambda x: ssp.doeof(x, nmode=nmode, dim="com")[2])
+        
     # for one pattern (first,all,last) and all time step
     elif validtime.size == 1:
-        tenyear_xarr = field.sel(time=validtime)
-        EOFs, _, FRA = ssp.doeof(tenyear_xarr, nmode=nmode, dim="com")
+        EOFs, _, FRAs = ssp.doeof(field, nmode=nmode, dim="com")
         
     # drop vars
     EOFs = EOFs.drop_vars("window_dim")
 
-    return EOFs, FRA
+    return EOFs, FRAs
 
 
 def fixed_pc(xarr, pattern, standard):
