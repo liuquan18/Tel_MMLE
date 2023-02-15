@@ -28,22 +28,22 @@ ex = xr.DataArray(
 ex = ex.sel(hlayers = 1000)
 #%%
 # rolling eof on generated dataset.
-eof, pc, fra = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="all")
+eof= rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="all")
 
 #%%
-eof, pc, fra = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="first")
+eof = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="first")
 
 #%%
-eof, pc, fra = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="last")
+eof = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="last")
 
 #%%
-eof, pc, fra = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="False")
+eof = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="False")
 
 
 #%%
 # test
 def test_rolling_eof():
-    assert pc.std().values > 0 and pc.std().values < 2
+    assert eof['pc'].std().values > 0 and pc.std().values < 2
 
 
 # %%
