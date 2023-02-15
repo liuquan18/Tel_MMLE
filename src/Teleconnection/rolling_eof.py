@@ -63,7 +63,6 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
         # do the project-field, the resulted projectd-pc is not the same as the pc from the solver.
         # in order to make it the same  order as the following, we do project-field to get the index.
         PC = fixed_pc(xarr, eof_result['eof'], standard=standard)
-        eof_result['pc'] = PC
 
     elif fixed_pattern == "False":
         print("     no fixed pattern used")
