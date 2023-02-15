@@ -27,9 +27,11 @@ class decompose_fixedPattern:
         )
 
         # read data
+        print("reading the gph data ...")
         self.data = season_eof.read_data(self.zg_path)
 
         # deompose
+        print("decomposing the data ...")
         self.eof_result = season_eof.season_eof(
             self.data,
             nmode=2,
