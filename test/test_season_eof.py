@@ -32,21 +32,23 @@ ex = xr.DataArray(
 )
 
 #%%
-eof, pc, fra = season_eof.season_eof(
+eof = season_eof.season_eof(
     ex, nmode=2, window=6, fixed_pattern="all", independent=True, standard=True
 )
 
 #%%
-eof, pc, fra = season_eof.season_eof(
+eof = season_eof.season_eof(
     ex, nmode=2, window=6, fixed_pattern="all", independent=True, standard=False
 )
 
 
 #%%
-eof, pc, fra = season_eof.season_eof(
+eof = season_eof.season_eof(
     ex, nmode=2, window=6, fixed_pattern="first", independent=False, standard=True
 )
 #%%
 # test
 def test_season_eof():
-    assert pc.std().values > 0 and pc.std().values < 2
+    assert eof.pc.std().values > 0 and eof.pc.std().values < 2
+
+# %%
