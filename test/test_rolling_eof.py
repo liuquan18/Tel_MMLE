@@ -25,6 +25,7 @@ ex = xr.DataArray(
     dims=["time", "lon", "lat", "ens", "hlayers"],
     coords={"time": time, "lon": lon, "lat": lat, "ens": ens, "hlayers": hlayers},
 )
+ex = ex.sel(hlayers = 1000)
 #%%
 # rolling eof on generated dataset.
 eof, pc, fra = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="all")

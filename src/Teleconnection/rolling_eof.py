@@ -99,11 +99,9 @@ def changing_eofs(xarr, validtime, nmode, window):
     """
 
     field = rolling(xarr, win=window)
-    field = tools.stack_ens(field, withdim="window_dim")
-
+    field = field.stack(com = ("time","window_dim"))
     # select only the valid time
     field = field.sel(time=validtime)
-
 
     # changing eofs (dynamic):
     if validtime.size > 1:
