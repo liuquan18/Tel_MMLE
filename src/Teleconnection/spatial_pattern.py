@@ -80,7 +80,7 @@ def doeof(
 
     # standard pc or not
     if standard:
-        pc = pc / std_pc
+        pcx = pcx / std_pc
 
     # change sign
     coef = sign_coef(eofx)
