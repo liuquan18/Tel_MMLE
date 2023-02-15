@@ -53,7 +53,7 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
     # if do the all-all decompose
     if fixed_pattern == "all":  # a little different from the following two.
         print("     using the all pattern")
-        EOF, pc, FRA = ssp.doeof(
+        eof_result = ssp.doeof(
             tools.stack_ens(xarr, withdim="time"),
             nmode=nmode,
             dim="com",
@@ -62,25 +62,27 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
         # here the pc is not directly used since the eof is multiplied by the std of pc, then if we
         # do the project-field, the resulted projectd-pc is not the same as the pc from the solver.
         # in order to make it the same  order as the following, we do project-field to get the index.
-        PC = fixed_pc(xarr, EOF, standard=standard)
+        PC = fixed_pc(xarr, eof_result['eof'], standard=standard)
+        eof_result['pc'] = PC
 
     elif fixed_pattern == "False":
         print("     no fixed pattern used")
-        EOF, FRA = changing_eofs(xarr, validtime, nmode=nmode, window=window)
-        PC = changing_pc(xarr, validtime, EOF, standard=standard)
+        eof_result = changing_eofs(xarr, validtime, nmode=nmode, window=window)
+        PC = changing_pc(xarr, validtime, eof_result['eof'], standard=standard)
 
     elif fixed_pattern == "first":
         # only the EOF of the first10 is needed.
         print("     using the first pattern")
-        EOF, FRA = changing_eofs(xarr, validtime[0], nmode=nmode, window=window)
-        PC = fixed_pc(xarr, EOF, standard=standard)
+        eof_result = changing_eofs(xarr, validtime[0], nmode=nmode, window=window)
+        PC = fixed_pc(xarr, eof_result['eof'], standard=standard)
 
     elif fixed_pattern == "last":
         print("     using the last pattern")
-        EOF, FRA = changing_eofs(xarr, validtime[-1], nmode=nmode, window=window)
-        PC = fixed_pc(xarr, EOF, standard=standard)
-
-    return EOF, PC, FRA
+        eof_result = changing_eofs(xarr, validtime[-1], nmode=nmode, window=window)
+        PC = fixed_pc(xarr, eof_result['eof'], standard=standard)
+    # replace the pc with the pc from projection
+    eof_result['pc'] = PC
+    return eof_result
 
 
 def changing_eofs(xarr, validtime, nmode, window):
@@ -99,25 +101,27 @@ def changing_eofs(xarr, validtime, nmode, window):
     """
 
     field = rolling(xarr, win=window)
-    field = field.stack(com = ("time","window_dim"))
+    field = field.stack(com = ("ens","window_dim"))
     # select only the valid time
     field = field.sel(time=validtime)
 
     # changing eofs (dynamic):
     if validtime.size > 1:
-        EOFs = field.groupby("time").apply(
-            lambda x: ssp.doeof(x, nmode=nmode, dim="com")[0])
-        FRAs = field.groupby("time").apply(
-            lambda x: ssp.doeof(x, nmode=nmode, dim="com")[2])
+        eof_result = field.groupby("time").apply(
+            lambda x: ssp.doeof(x, nmode=nmode, dim="com")
+        )
         
     # for one pattern (first,all,last) and all time step
     elif validtime.size == 1:
-        EOFs, _, FRAs = ssp.doeof(field, nmode=nmode, dim="com")
+        eof_result = ssp.doeof(field, nmode=nmode, dim="com")
         
     # drop vars
-    EOFs = EOFs.drop_vars("window_dim")
+    try:
+        eof_result = eof_result.drop_vars("window_dim")
+    except:
+        pass
 
-    return EOFs, FRAs
+    return eof_result
 
 
 def fixed_pc(xarr, pattern, standard):
