@@ -149,7 +149,7 @@ def fixed_pc(xarr, pattern, standard, dim="time"):
     return pc
 
 
-def decadal_pc(xarr, validtime, pattern, window):
+def decadal_pc(xarr, validtime, EOF, window):
     """decompose the xarr into decadal patterns.
 
     **Arguments**
@@ -167,11 +167,20 @@ def decadal_pc(xarr, validtime, pattern, window):
     PC = []
     # select only the valid time
     for time in validtime:
+        lowyear = pd.Timestamp(time.values) - pd.DateOffset(years = window/2)
+        highyear = pd.Timestamp(time.values) + pd.DateOffset(years = window/2 - 1)
+        time_window = pd.date_range(lowyear, periods=window,freq='A-MAR')
+
         field_dec = field.sel(time=time)
-        pattern = pattern.sel(time=time)
+        pattern = EOF.sel(time=time)
         pc = fixed_pc(field_dec, pattern, standard=False, dim="decade")
+
+        # change 'decade' to 'time'
+        pc = pc.drop_vars("time")
+        pc = pc.rename({"decade": "time"})
+        pc['time'] = time_window
         PC.append(pc)
-    PC = xr.concat(PC, dim=validtime)
+    PC = xr.concat(PC, dim='time')
     return PC
 
 
