@@ -45,6 +45,7 @@ class decompose_fixedPattern:
         self.save_path = (
             "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/EOF_result/"
         )
+        print("saving the result ...")
         self.eof_result.to_netcdf(
             self.save_path
             + self.vertical_eof
