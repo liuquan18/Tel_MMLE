@@ -102,7 +102,10 @@ class period_index:
         ###############################################
         ##### the data reading and preprocessing ######
         # read data of eof, index and explained variance
-        self.eof, self.pc, self.fra = self.read_eof_data()
+        eof_result = self.read_eof_data()
+        self.eof = eof_result.eof
+        self.fra = eof_result.fra
+        self.pc = eof_result.pc
 
         # fldmean tsurf
         self.fldmean_tsurf = warming_stage.read_tsurf_fldmean(
@@ -129,15 +132,8 @@ class period_index:
         """
         print("reading eof result data...")
         odir = self.eof_dir
-        eof = xr.open_dataset(odir + self.prefix + "eof.nc").eof
-
-        pc = xr.open_dataset(odir + self.prefix + "pc.nc").pc
-        try:
-            pc["time"] = pc.indexes["time"].to_datetimeindex()
-        except AttributeError:
-            pc["time"] = pd.to_datetime(pc.time)
-        fra = xr.open_dataset(odir + self.prefix + "fra.nc").exp_var
-        return eof, pc, fra
+        eof_result = xr.open_dataset(odir + self.prefix + "eof_result.nc")
+        return eof_result
 
     def read_gph_data(self):
         """
@@ -153,13 +149,13 @@ class period_index:
             zg_data = xr.open_mfdataset(
                 self.zg_dir + "*.nc", combine="nested", concat_dim="ens"
             )
-            zg_data = zg_data.rename({"plev": "hlayers"})  # historical error
+            zg_data = zg_data.rename({"plev": "plev"})  # historical error
 
         # demean ens-mean
         demean = zg_data - zg_data.mean(dim="ens")
 
         # select traposphere
-        trop = demean.sel(hlayers=slice(100000, 20000))
+        trop = demean.sel(plev=slice(100000, 20000))
 
         if self.model in "MPI_GE_onepct":
             trop = trop.var156
@@ -191,17 +187,17 @@ class period_index:
                 self.ts_dir + "*.nc", combine="nested", concat_dim="ens"
             )
             var_data = var_data.ts
-            var_data = var_data.rename({"plev": "hlayers"})
+            var_data = var_data.rename({"plev": "plev"})
             var_data["time"] = var_data.indexes["time"].to_datetimeindex()
 
         return var_data
 
     def sel_500hpa(self):
-        eof_500 = self.eof.sel(hlayers=50000)
-        pc_500 = self.pc.sel(hlayers=50000)
+        eof_500 = self.eof.sel(plev=50000)
+        pc_500 = self.pc.sel(plev=50000)
 
         if self.vertical_eof == "ind":
-            fra_500 = self.fra.sel(hlayers=50000)
+            fra_500 = self.fra.sel(plev=50000)
         elif self.vertical_eof == "dep":
             fra_500 = self.fra
 
@@ -212,8 +208,8 @@ class period_index:
         """
         select the period data, transform to dataframe
         """
-        first = self.pc_periods[0].sel(hlayers=50000)
-        last = self.pc_periods[-1].sel(hlayers=50000)
+        first = self.pc_periods[0].sel(plev=50000)
+        last = self.pc_periods[-1].sel(plev=50000)
 
         # to dataframe()
         if self.compare == "CO2":
@@ -234,6 +230,12 @@ class period_index:
 
         # data of 500 hpa.
         eof_500hpa, _, fra_500hpa = self.sel_500hpa()
+        try:
+            eof_500hpa = eof_500hpa.isel(decade=1)
+            fra_500hpa = fra_500hpa.isel(decade=1)
+        except KeyError:
+            pass
+
         pc_500hpa_df = self.bar500hpa_index_df()
 
         fig = spatial_dis_plots.spatialMap_violin(eof_500hpa, pc_500hpa_df, fra_500hpa)
@@ -250,6 +252,11 @@ class period_index:
 
         # data of 500 hpa.
         eof_500hpa, _, fra_500hpa = self.sel_500hpa()
+        try:
+            eof_500hpa = eof_500hpa.isel(decade=1)
+            fra_500hpa = fra_500hpa.isel(decade=1)
+        except KeyError:
+            pass
         pc_500hpa_df = self.bar500hpa_index_df()
 
         fig = spatial_dis_plots.spatialMap_hist(eof_500hpa, pc_500hpa_df, fra_500hpa)
@@ -318,7 +325,7 @@ class period_index:
         scatter plot of extreme_count v.s fldmean tsurf
         """
         extr_count, ts_mean = extrc_tsurf.decadal_extrc_tsurf(
-            self.pc, self.fldmean_tsurf, hlayers=50000
+            self.pc, self.fldmean_tsurf, plev=50000
         )
         if average:
             extr_count = extr_count / self.pc.ens.size
@@ -328,13 +335,13 @@ class period_index:
             self.plot_dir + self.prefix + "extrc_fldmean_ts_scatter.png", dpi=300
         )
 
-    def return_period_scatter(self, mode, hlayers=50000):
+    def return_period_scatter(self, mode, plev=50000):
         print("scatter plot of return period")
         pos, mpos, neg, mneg = EVT.mode_return_period(
-            self.pc, mode=mode, periods=self.periods, hlayers=hlayers
+            self.pc, mode=mode, periods=self.periods, plev=plev
         )
         fig = RP_plots.return_period_scatter(
-            pos, mpos, neg, mneg, mode, self.periods, self.period_name, hlayers=hlayers
+            pos, mpos, neg, mneg, mode, self.periods, self.period_name, plev=plev
         )
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_return_period_scatter.png", dpi=300
@@ -348,7 +355,7 @@ class period_index:
         )
 
     #%%
-    def extreme_spatial_pattern(self, hlayers=100000):
+    def extreme_spatial_pattern(self, plev=100000):
 
         # read the original gph data to do the composite spatial pattern
         gph = self.read_gph_data()
@@ -360,22 +367,22 @@ class period_index:
             first_sptial_pattern,
             last_sptial_pattern,
             levels=np.arange(-2, 2.1, 0.4),
-            hlayers=hlayers,
+            plev=plev,
         )
         plt.savefig(
             self.plot_dir
             + self.prefix
-            + f"extreme_spatial_pattern_{hlayers/100:.0f}hpa.png",
+            + f"extreme_spatial_pattern_{plev/100:.0f}hpa.png",
             dpi=300,
         )
 
-    def composite_var(self, var, mode, hlayers=50000):
+    def composite_var(self, var, mode, plev=50000):
 
         var_data = self.read_var(var)
         var_data = var_data - var_data.mean(dim="ens")  # demean ens mean
 
-        first_index = self.pc_periods[0].sel(hlayers=hlayers)
-        last_index = self.pc_periods[-1].sel(hlayers=hlayers)
+        first_index = self.pc_periods[0].sel(plev=plev)
+        last_index = self.pc_periods[-1].sel(plev=plev)
 
         first_var = composite.Tel_field_composite(first_index, var_data)
         last_var = composite.Tel_field_composite(last_index, var_data)
@@ -398,9 +405,9 @@ class period_index:
         self.return_period_scatter("EA")
         self.return_period_profile("NAO")
         self.return_period_profile("EA")
-        # self.extreme_spatial_pattern(hlayers=100000)
-        # self.composite_var("tsurf", "NAO", hlayers=50000)
-        # self.composite_var("tsurf", "EA", hlayers=50000)
+        # self.extreme_spatial_pattern(plev=100000)
+        # self.composite_var("tsurf", "NAO", plev=50000)
+        # self.composite_var("tsurf", "EA", plev=50000)
 
     def create_doc(self):
         create_md.doc_quick_plots(
