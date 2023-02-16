@@ -65,7 +65,7 @@ def doeof(
     eof_cnt["mode"] = ["NAO", "EA"]
     eofx = eof_cnt.copy(data=eof)
 
-    # xarray container for pc
+    # pc to xarray
     pcx = xr.DataArray(
         pc, dims=[dim, "mode"], coords={dim: data[dim], "mode": ["NAO", "EA"]}
     )
