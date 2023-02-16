@@ -12,20 +12,21 @@ import src.Teleconnection.tools as tools
 #%%
 importlib.reload(rolling_eof)
 
+#%%
 # genrate random data
 time = pd.date_range("2000-10-01", "2020-10-01", freq="Y")
 lon = np.linspace(-180, 180, 10)
 lat = np.linspace(-90, 90, 10)
 ens = np.arange(3)
-hlayers = np.linspace(1000, 100, 2)
-values = np.random.random((20, 10, 10, 3, 2))  # time, lon, lat, ens, hlayers
+plev = np.linspace(1000, 100, 2)
+values = np.random.random((20, 10, 10, 3, 2))  # time, lon, lat, ens, plev
 
 ex = xr.DataArray(
     values,
-    dims=["time", "lon", "lat", "ens", "hlayers"],
-    coords={"time": time, "lon": lon, "lat": lat, "ens": ens, "hlayers": hlayers},
+    dims=["time", "lon", "lat", "ens", "plev"],
+    coords={"time": time, "lon": lon, "lat": lat, "ens": ens, "plev": plev},
 )
-ex = ex.sel(hlayers = 1000)
+ex = ex.sel(plev = 1000)
 #%%
 # rolling eof on generated dataset.
 eof= rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="all")
@@ -39,11 +40,12 @@ eof = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="last")
 #%%
 eof = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="False")
 
-
+#%%
+eof = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="decade")
 #%%
 # test
 def test_rolling_eof():
-    assert eof['pc'].std().values > 0 and pc.std().values < 2
+    assert eof.pc.std().values > 0 and eof.pc.std().values < 2
 
 
 # %%
