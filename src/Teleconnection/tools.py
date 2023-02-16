@@ -105,23 +105,6 @@ def standardize(xarr,dim = None):
 
 ########## Function to do EOF #####################
 
-
-def detect_spdim(xarr):
-    """
-    output the length of the spatil dim. since some of the xarr is lon-lat, while some lon-lat-height.
-    **Arguments**:
-        xarr: the DataArray, with spatil dim starting from the second dim. e.g, [com,lat,lon,height]
-    **Returns**:
-        np.array, the number of spatial dim, but with value of one.
-    """
-    # the number of spatial dims
-    sp_dim_len = len(xarr.shape) - 1
-
-    # output a np.array with same number of spatial dims.
-    sp_dim = np.ones(sp_dim_len).astype("int")  # [1,1] or [1,1,1]
-    return sp_dim
-
-
 def sqrtcoslat(xarr):
     """
     calculte the square-root of the cosine of the latitude as the weight
@@ -138,18 +121,5 @@ def sqrtcoslat(xarr):
     wgts = W * wgts
     return wgts
 
-
-def random_order(xarr, dim="com"):
-    """
-    random sort the xarr along the dim.
-    """
-    index = np.arange(xarr.com.size)
-    random_index = shuffle(index,random_state=0)
-
-    # new coords
-    xarr = xarr.assign_coords(randcom = (dim,random_index))
-    rand_xarr = xarr.sortby('randcom')
-    rand_xarr = rand_xarr.drop_vars('randcom')
-    return rand_xarr
 
  
