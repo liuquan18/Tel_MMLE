@@ -63,7 +63,7 @@ def split_ens(xarr):
     return replace
 
 
-def stack_ens(xarr, withdim="window_dim"):
+def stack_ens(xarr, withdim="decade"):
     """
     The first dim of input data for python-eofs-package standard interface should be 'time', but
     here we do eof not along the time dim only, but the win (10) years of all ensembles. so should
@@ -95,8 +95,8 @@ def standardize(xarr,dim = None):
             time_mean = xarr.mean(dim="time")
             time_std = xarr.std(dim="time")
         except ValueError:
-            time_mean = xarr.mean(dim="window_dim")
-            time_std = xarr.std(dim="window_dim")
+            time_mean = xarr.mean(dim="decade")
+            time_std = xarr.std(dim="decade")
     else:
         time_mean = xarr.mean(dim = dim)
         time_std = xarr.std(dim = dim)
