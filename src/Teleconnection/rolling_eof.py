@@ -173,7 +173,7 @@ def decadal_pc(xarr, validtime, EOF, window):
     # select only the valid time
     for time in validtime:
         lowyear = pd.Timestamp(time.values) - pd.DateOffset(years = window/2)
-        highyear = pd.Timestamp(time.values) + pd.DateOffset(years = window/2 - 1)
+        highyear = pd.Timestamp(time.values) + pd.DateOffset(years = window/2)
         time_window = pd.date_range(lowyear, highyear, freq='Y')
 
         field_dec = field.sel(time=time)
