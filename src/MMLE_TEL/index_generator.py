@@ -38,7 +38,7 @@ class decompose_fixedPattern:
             window=10,
             fixed_pattern=self.fixed_pattern,
             independent=self.independence,
-            standard=False,
+            standard=False, # standardization is done seperately
         )
 
         # save the result
