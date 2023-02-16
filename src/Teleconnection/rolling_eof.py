@@ -148,18 +148,30 @@ def fixed_pc(xarr, pattern, standard, dim="time"):
     return pc
 
 
-def decadal_pc(field, validtime, pattern, standard):
-    field = rolling(field, win=10)
+def decadal_pc(xarr, pattern, validtime, window):
+    """decompose the xarr into decadal patterns.
+
+    **Arguments**
+
+        *xarr* : the DataArray to be composed.
+        *nmode* : how many modes to decompose.
+        *windo* : rolling window.
+
+    **Return**
+
+        eof and fra.
+    """
+
+    field = rolling(xarr, win=window)
+    field = field.stack(com=("ens", "decade"))
     PC = []
+    # select only the valid time
     for time in validtime:
         field_dec = field.sel(time=time)
-        pattern_dec = pattern.sel(time=time)
-        pc = ssp.project_field(
-            field_dec, pattern_dec, standard=False, dim="decade"
-        )  # False the standard since the standard would be done with the 'all' index
+        pattern = pattern.sel(time=time)
+        pc = fixed_pc(field_dec, pattern, standard=False, dim="com")
         PC.append(pc)
     PC = xr.concat(PC, dim=validtime)
-
     return PC
 
 
