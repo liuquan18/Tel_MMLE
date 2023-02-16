@@ -23,9 +23,15 @@ canesm.save_result()
 mpige = index_generate.decompose_fixedPattern("MPI_GE",v_eof,fpattern)
 mpige.save_result()
 
+#%%
 ## MPI-GE_onepct
 mpige_onepct = index_generate.decompose_fixedPattern("MPI_GE_onepct",v_eof,fpattern)
 
+#%%
+mpige_onepct.save_result()
+
+
+#%%
 # NCAR mode
 cesm = index_generate.decompose_fixedPattern("CESM1_CAM5",v_eof,fpattern)
 cesm.save_result()
