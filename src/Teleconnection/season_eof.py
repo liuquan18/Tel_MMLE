@@ -49,9 +49,14 @@ def read_data(gph_dir):
     """
     read the gph data and do some pre-process.
     """
-    zg_data = xr.open_mfdataset(
-        gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
-    )
+    # read MPI_onepct data
+    try:
+        zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
+        zg_data = tools.split_ens(zg_data)
+    except FileNotFoundError:
+        zg_data = xr.open_mfdataset(
+            gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
+        )
     try:
         zg_data = zg_data.var156
     except AttributeError:
