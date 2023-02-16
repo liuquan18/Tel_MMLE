@@ -83,6 +83,7 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
         decade_time = validtime[::window]
         eof_result = changing_eofs(xarr, decade_time, nmode=nmode, window=window)
         eof_result = eof_result[['eof','fra']]
+        eof_result = eof_result.rename({"time":"decade"}) # the time for eof is the decade time
         PC = decadal_pc(xarr, decade_time, eof_result["eof"],window=window)
 
     elif fixed_pattern == "False":
@@ -173,10 +174,10 @@ def decadal_pc(xarr, validtime, EOF, window):
     for time in validtime:
         lowyear = pd.Timestamp(time.values) - pd.DateOffset(years = window/2)
         highyear = pd.Timestamp(time.values) + pd.DateOffset(years = window/2 - 1)
-        time_window = pd.date_range(lowyear, periods=window,freq='A-MAR')
+        time_window = pd.date_range(lowyear, highyear, freq='Y')
 
         field_dec = field.sel(time=time)
-        pattern = EOF.sel(time=time)
+        pattern = EOF.sel(decade=time)  # decade rather than time
         pc = fixed_pc(field_dec, pattern, standard=False, dim="decade")
 
         # change 'decade' to 'time'
