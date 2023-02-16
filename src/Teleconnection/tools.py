@@ -58,6 +58,7 @@ def split_ens(xarr):
 
     # replace the old coords with ind, and then unstack.
     replace = xarr.assign_coords(plev=ind).unstack("plev")
+    replace = replace.rename({'hlayers':'plev'})
 
     return replace
 
