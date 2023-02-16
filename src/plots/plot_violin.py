@@ -26,9 +26,9 @@ def xr2df(first10_all_period, last10_all_period, mode, compare):
         keys = ["first10", "last10"]
     elif compare == "temp":
         keys = ["0K", "4K"]
-    periods = pd.concat([first, last], keys=keys, names=["period", "hlayers", "com"])
+    periods = pd.concat([first, last], keys=keys, names=["period", "plev", "com"])
     periods = periods.reset_index().set_index("com")
-    periods["hlayers"] = periods["hlayers"] / 100
+    periods["plev"] = periods["plev"] / 100
     return periods
 
 
@@ -41,7 +41,7 @@ def plot_vilion(first, last, compare="CO2", split=False):
         xlocator=np.arange(-4, 4.1, 2),
         xminorlocator="null",
         yminorlocator="null",
-        ylocator=(first.hlayers.values.astype(int)) / 100,
+        ylocator=(first.plev.values.astype(int)) / 100,
         suptitle=f"distribution of different periods",
     )
 
@@ -51,7 +51,7 @@ def plot_vilion(first, last, compare="CO2", split=False):
         df = xr2df(first, last, mode=modes[i], compare=compare)
         g = sns.violinplot(
             data=df,
-            y="hlayers",
+            y="plev",
             x=modes[i],
             hue="period",
             kind="violin",
@@ -64,7 +64,7 @@ def plot_vilion(first, last, compare="CO2", split=False):
         )
         g.axes.legend().remove()
         ax.set_xlim(-5, 5)
-        ylabel = (first.hlayers.values) / 100
+        ylabel = (first.plev.values) / 100
         ax.format(title=modes[i], xlabel="std", ylabel="gph/hpa")
 
     axes[-1].legend(loc="lr", ncols=1, title="period")

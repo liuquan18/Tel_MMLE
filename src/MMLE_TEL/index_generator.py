@@ -65,7 +65,7 @@ class decompose_fixedPattern:
             try:
                 all_index = xr.open_dataset(
                 self.odir + "EOF_result/" + self.vertical_eof + "_all_eof_result.nc"
-                ).pc
+                )
 
             except FileNotFoundError:
                 print("all index not found, generate it first")

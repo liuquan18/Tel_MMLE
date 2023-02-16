@@ -6,11 +6,12 @@ import proplot as pplt
 
 # reimport extreme
 import importlib
+
 importlib.reload(extreme)
 
 
 # %%
-def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers = None):
+def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None):
     """
     extract the extreme count and the mean surface temperature every ten years.
     **Arguments**
@@ -21,11 +22,11 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers = None)
         *t_surf_mean* the mean t_surface,
         the time here use the first year of the decade.
     """
-    if hlayers is not None:
-        index = index.sel(hlayers=hlayers)
+    if plev is not None:
+        index = index.sel(plev=plev)
 
     # tsurf increase
-    temp = temp - temp.isel(time = 0)
+    temp = temp - temp.isel(time=0)
 
     ext_counts = []
     t_surf_mean = []
@@ -48,8 +49,9 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers = None)
     t_surf_mean = xr.concat(t_surf_mean, dim=periods)
     return ext_counts, t_surf_mean
 
+
 #%%
-def extCount_tsurf_scatter(ext_counts, t_surf, hlayers = None):
+def extCount_tsurf_scatter(ext_counts, t_surf, plev=None):
     """
     rows: pos/neg
     cols: NAO/EA
@@ -70,23 +72,27 @@ def extCount_tsurf_scatter(ext_counts, t_surf, hlayers = None):
         toplabels=["pos", "neg"],
         xminorticks="null",
         yminorticks="null",
-        ylim = (0,55),
+        ylim=(0, 55),
     )
-    if hlayers is not None:
-        ext_counts = ext_counts.sel(hlayers=hlayers)
+    if plev is not None:
+        ext_counts = ext_counts.sel(plev=plev)
 
     for j, extr_type in enumerate(ext_counts.extr_type):
         for i, mode in enumerate(ext_counts.mode):
 
             # true values
-            true = ext_counts.sel(extr_type=extr_type, mode=mode,confidence="true")
-            low =  ext_counts.sel(extr_type=extr_type, mode=mode,confidence="low")
-            high = ext_counts.sel(extr_type=extr_type, mode=mode,confidence="high")
+            true = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="true")
+            low = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="low")
+            high = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="high")
 
             axes[i, j].errorbar(
                 x=t_surf,
                 y=true,
-                yerr=[(true-low), (high-true)],
-                fmt='o', linewidth=2, capsize=6)
+                yerr=[(true - low), (high - true)],
+                fmt="o",
+                linewidth=2,
+                capsize=6,
+            )
+
 
 # %%

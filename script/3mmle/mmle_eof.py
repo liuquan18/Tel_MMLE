@@ -8,7 +8,7 @@ import src.MMLE_TEL.quick_plot as quick_plot
 
 # config
 v_eof = 'ind' # vertical_eof
-fpattern = 'all' # fixed pattern
+fpattern = 'decade' # fixed pattern
 
 # %% 
 # generate index
@@ -57,7 +57,9 @@ mpige_qp.create_doc()
 
 #%%
 ## MPI-GE_onepct
-mpige_onepct_qp = quick_plot.period_index("MPI_GE_onepct",v_eof,fpattern, 'temp')
+mpige_onepct_qp = quick_plot.period_index("MPI_GE_onepct",v_eof,fpattern, 'CO2')
+
+#%%
 # mpige_onepct_qp.plot_all()
 mpige_onepct_qp.spatial_pattern_change()
 mpige_onepct_qp.extrc_tsurf_scatter()

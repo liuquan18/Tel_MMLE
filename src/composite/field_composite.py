@@ -76,12 +76,12 @@ def field_composite(var, independent="dep", hlayer=100000):
     # index
     all_all_dep = xr.open_dataset(indexname).pc
     changing_dep = xr.open_dataset(changing_name).pc
-    all_all_dep = all_all_dep.transpose("time", "ens", "mode", "hlayers")
+    all_all_dep = all_all_dep.transpose("time", "ens", "mode", "plev")
 
     mean_dep = all_all_dep.mean(dim="time")
     std_dep = all_all_dep.std(dim="time")
     dep_std = (changing_dep - mean_dep) / std_dep
-    index = dep_std.sel(hlayers=hlayer)
+    index = dep_std.sel(plev=hlayer)
 
     # change time
     index["time"] = index.time.dt.year

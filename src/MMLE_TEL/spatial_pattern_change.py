@@ -17,23 +17,23 @@ def read_gph_data(dir):
         concat_dim="ens",
         join="override",
     )
-    data = data.rename({"plev": "hlayers"})
+    data = data.rename({"plev": "plev"})
     try:
         data = data.zg
     except AttributeError:
         data = data.var156
 
-    data = data.sel(hlayers=slice(100000, 20000))
+    data = data.sel(plev=slice(100000, 20000))
 
     return data
 
 
 # %%
-def spatial_pattern_change(data, periods,names):
+def spatial_pattern_change(data, periods, names):
     """
     get the spatial pattern of the data in periods
     """
-    if data.hlayers.size > 1:
+    if data.plev.size > 1:
         data = tools.standardize(data, dim="time")
 
     EOFs = []
@@ -52,7 +52,7 @@ def spatial_pattern_change(data, periods,names):
     return EOFs, FRAs
 
 
-def vertical_spatial_pattern(data, dim="hlayers"):
+def vertical_spatial_pattern(data, dim="plev"):
     """
     get the spatial pattern for all levels.
     """
@@ -134,7 +134,7 @@ def spatial_pattern_maps(eofs, fras, levels=np.arange(-1.0, 1.1, 0.2)):
     for r, mode in enumerate(eofs.mode):
         for c, period in enumerate(eofs.period):
 
-            eof = eofs.sel( mode=mode, period=period)
+            eof = eofs.sel(mode=mode, period=period)
             fra = fras.sel(mode=mode, period=period)
             map = axes[r, c].contourf(
                 eof,
@@ -158,7 +158,7 @@ def spatial_pattern_profile(eofs, levels=np.arange(-2.0, 2.1, 0.4)):
     rows mode
     cols periods
     """
-    eofs["hlayers"] = eofs["hlayers"] / 100
+    eofs["plev"] = eofs["plev"] / 100
 
     lon_NAO = spatial_stat(eofs, mode="NAO", dim="lon")
 
@@ -189,7 +189,7 @@ def spatial_pattern_profile(eofs, levels=np.arange(-2.0, 2.1, 0.4)):
         for c, period in enumerate(eofs.period):
             prof = profile.sel(period=period)
             vertmap = axes[r, c].contourf(
-                prof, x=xs[r], y="hlayers", levels=levels, extend="both", cmap="RdBu_r"
+                prof, x=xs[r], y="plev", levels=levels, extend="both", cmap="RdBu_r"
             )
     fig.colorbar(vertmap, loc="r", pad=3, title="gph/std")
 

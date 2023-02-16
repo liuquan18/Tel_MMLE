@@ -11,44 +11,49 @@ def add_legend(fig):
     """
     add fake legend.
     """
-    patch = mpatches.Patch(color='grey', label='first10 years')   
-    line = Line2D([0], [0], label='last10 years', color='k')
-    handles = [patch,line]
-    fig.legend(handles,ncols = 1,title = 'periods')
+    patch = mpatches.Patch(color="grey", label="first10 years")
+    line = Line2D([0], [0], label="last10 years", color="k")
+    handles = [patch, line]
+    fig.legend(handles, ncols=1, title="periods")
 
-def plot_hist(first, last, std_type,hlayers,bins = np.arange(-4,4.1,1)):
-    fig = pplt.figure(space = 0, refwidth = "20em")
-    axes = fig.subplots(nrows = 1, ncols = 2)
+
+def plot_hist(first, last, std_type, plev, bins=np.arange(-4, 4.1, 1)):
+    fig = pplt.figure(space=0, refwidth="20em")
+    axes = fig.subplots(nrows=1, ncols=2)
     axes.format(
-        abc = 'a',
-        abcloc = 'ul',
-        xticks = 5,
-        xlocator = np.arange(-4,4.1,2),
-        xminorlocator = 'null',
-        yminorlocator = 'null',
-        suptitle = f"PDF of index at {hlayers/100:.0f}hpa standardizised with {std_type}"
+        abc="a",
+        abcloc="ul",
+        xticks=5,
+        xlocator=np.arange(-4, 4.1, 2),
+        xminorlocator="null",
+        yminorlocator="null",
+        suptitle=f"PDF of index at {plev/100:.0f}hpa standardizised with {std_type}",
     )
 
-    modes = ['NAO','EA']
+    modes = ["NAO", "EA"]
     for i, ax in enumerate(axes):
 
-        first_hist = first.sel(mode = modes[i],hlayers = hlayers).plot.hist(bins = bins,
-                                histtype = 'stepfilled',
-                                color = 'grey',
-                                legend_kw = {'order':'F','title':'first10'},
-                                ax = ax)
-        last_hist = last.sel(mode = modes[i],hlayers = hlayers).plot.hist(bins =bins,
-                                histtype = 'step',
-                                color = 'k',
-                                linewidth = 1.,
-                                legend_kw = {'order':'F','title':'last10'},
-                                ax = ax)
+        first_hist = first.sel(mode=modes[i], plev=plev).plot.hist(
+            bins=bins,
+            histtype="stepfilled",
+            color="grey",
+            legend_kw={"order": "F", "title": "first10"},
+            ax=ax,
+        )
+        last_hist = last.sel(mode=modes[i], plev=plev).plot.hist(
+            bins=bins,
+            histtype="step",
+            color="k",
+            linewidth=1.0,
+            legend_kw={"order": "F", "title": "last10"},
+            ax=ax,
+        )
         ims = [first_hist, last_hist]
 
-    axes[0].format(title = 'NAO',xlabel = 'std')
-    axes[1].format(title = 'EA',xlabel = 'std')
+    axes[0].format(title="NAO", xlabel="std")
+    axes[1].format(title="EA", xlabel="std")
     for ax in axes:
-        ax.spines['right'].set_visible(False)
-        ax.spines['top'].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["top"].set_visible(False)
 
     add_legend(fig)

@@ -22,13 +22,13 @@ class extr_counts_tsurf:
         self,
         models: list,  # the name of the models
         ens: list = None,
-        hlayers: int = 50000,  # which layer to compare
+        plev: int = 50000,  # which layer to compare
         average: bool = None,  # divided by the number of ens members
     ):
 
         # models
         self.models = models
-        self.hlayers = hlayers
+        self.plev = plev
         self.average = average
         self.ens = ens
 
@@ -71,7 +71,7 @@ class extr_counts_tsurf:
             index, ts = self.read_data(pc_dir, ts_dir)
 
             extr_count, ts_mean = extrc_tsurf.decadal_extrc_tsurf(
-                index, ts, hlayers=self.hlayers
+                index, ts, plev=self.plev
             )
             if self.average:
                 extr_count = extr_count / self.ens[i]
@@ -90,7 +90,7 @@ class extr_counts_tsurf:
 allm = extr_counts_tsurf(
     ["MPI_GE", "MPI_GE_onepct", "CanESM2"],
     ens=[100, 100, 40],
-    hlayers=20000,
+    plev=20000,
     average=True,
 )
 # %%

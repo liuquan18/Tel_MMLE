@@ -35,7 +35,7 @@ def return_period(index: xr.DataArray, extreme_type: str):
 
 
 def mode_return_period(
-    index: xr.DataArray, mode: str, periods: list, hlayers: int = 50000
+    index: xr.DataArray, mode: str, periods: list, plev: int = 50000
 ):
     """
     the return period of {mode} at one altitude layer.
@@ -43,12 +43,12 @@ def mode_return_period(
     **Parameters**
         *index* index of NAO and EA in xr.DataArray.
         *mode* the mode NAO or EA.
-        *hlayers* the height layer to be calculate
+        *plev* the height layer to be calculate
     **Return**
         pos and neg for first10, last10, and media return period. (8 output...)
     """
 
-    index = index.sel(mode=mode, hlayers=hlayers)
+    index = index.sel(mode=mode, plev=plev)
 
     period_pos, media_period_pos = split_period(index, periods, "pos")
     period_neg, media_period_neg = split_period(index, periods, "neg")
@@ -87,16 +87,16 @@ def vertical_return_period(index: xr.DataArray, mode: str, periods):
         *neg* the vertical profile of medai return period for negative extremes.
     """
 
-    pos = np.zeros((index.hlayers.size, len(periods)))
-    neg = np.zeros((index.hlayers.size, len(periods)))
+    pos = np.zeros((index.plev.size, len(periods)))
+    neg = np.zeros((index.plev.size, len(periods)))
 
-    for i, hlayers in enumerate(index.hlayers):
-        _, mpos, _, mneg = mode_return_period(index, mode, periods, hlayers)
-        pos[i] = [mp['return period'][0] for mp in mpos]
-        neg[i] = [mn['return period'][0] for mn in mneg]
+    for i, plev in enumerate(index.plev):
+        _, mpos, _, mneg = mode_return_period(index, mode, periods, plev)
+        pos[i] = [mp["return period"][0] for mp in mpos]
+        neg[i] = [mn["return period"][0] for mn in mneg]
     return pos, neg
+
 
 if __name__ == "__main__":
     pass
-    pos, mpos, neg, mneg = mode_return_period(
-)
+    pos, mpos, neg, mneg = mode_return_period()
