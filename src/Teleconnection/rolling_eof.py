@@ -68,11 +68,13 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
         # only the EOF of the first10 is needed.
         print("     using the first pattern")
         eof_result = changing_eofs(xarr, validtime[0], nmode=nmode, window=window)
+        eof_result = eof_result[['eof','fra']]
         PC = fixed_pc(xarr, eof_result["eof"], standard=standard)
 
     elif fixed_pattern == "last":
         print("     using the last pattern")
         eof_result = changing_eofs(xarr, validtime[-1], nmode=nmode, window=window)
+        eof_result = eof_result[['eof','fra']]
         PC = fixed_pc(xarr, eof_result["eof"], standard=standard)
 
     elif fixed_pattern == "decade":
@@ -80,11 +82,13 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
         # select the middle year of each decade from validtime
         decade_time = validtime[::window]
         eof_result = changing_eofs(xarr, decade_time, nmode=nmode, window=window)
+        eof_result = eof_result[['eof','fra']]
         PC = decadal_pc(xarr, decade_time, eof_result["eof"],window=window)
 
     elif fixed_pattern == "False":
         print("     no fixed pattern used")
         eof_result = changing_eofs(xarr, validtime, nmode=nmode, window=window)
+        eof_result = eof_result[['eof','fra']]
         PC = changing_pc(xarr, validtime, eof_result["eof"], standard=standard)
 
     # replace the pc with the pc from projection
