@@ -78,8 +78,9 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
     elif fixed_pattern == "decade":
         print("     decomposing everty ten years")
         # select the middle year of each decade from validtime
-        eof_result = changing_eofs(xarr, validtime[::10], nmode=nmode, window=window)
-        PC = decadal_pc(xarr, validtime[::10], eof_result["eof"], standard=standard)
+        decade_time = validtime[::window]
+        eof_result = changing_eofs(xarr, decade_time, nmode=nmode, window=window)
+        PC = decadal_pc(xarr, decade_time, eof_result["eof"],window=window)
 
     elif fixed_pattern == "False":
         print("     no fixed pattern used")
@@ -148,7 +149,7 @@ def fixed_pc(xarr, pattern, standard, dim="time"):
     return pc
 
 
-def decadal_pc(xarr, pattern, validtime, window):
+def decadal_pc(xarr, validtime, pattern, window):
     """decompose the xarr into decadal patterns.
 
     **Arguments**
@@ -163,13 +164,12 @@ def decadal_pc(xarr, pattern, validtime, window):
     """
 
     field = rolling(xarr, win=window)
-    field = field.stack(com=("ens", "decade"))
     PC = []
     # select only the valid time
     for time in validtime:
         field_dec = field.sel(time=time)
         pattern = pattern.sel(time=time)
-        pc = fixed_pc(field_dec, pattern, standard=False, dim="com")
+        pc = fixed_pc(field_dec, pattern, standard=False, dim="decade")
         PC.append(pc)
     PC = xr.concat(PC, dim=validtime)
     return PC
