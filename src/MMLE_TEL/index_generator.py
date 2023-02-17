@@ -33,7 +33,7 @@ class decompose_fixedPattern:
         print("reading the gph data ...")
         self.data = season_eof.read_data(self.zg_path)
         self.eof_result = self.decompose()
-        self.std_eof_result = self.standard_index()
+        self.standard_index()
         self.save_result()
 
     def decompose(self):
@@ -56,7 +56,6 @@ class decompose_fixedPattern:
         if (
             self.fixed_pattern == "first"
             or self.fixed_pattern == "last"
-            or self.fixed_pattern == "all"
         ):
             self.eof_result["pc"] = (
                 self.eof_result["pc"] - self.eof_result["pc"].mean(dim=("time", "ens"))
@@ -76,8 +75,8 @@ class decompose_fixedPattern:
                 self.eof_result["pc"] - all_index["pc"].mean(dim=("time", "ens"))
             ) / all_index["pc"].std(dim=("time", "ens"))
 
-        else:
-            print("wrong fixed pattern")
+        elif self.fixed_pattern == 'all':
+            print("     no standarization for all pattern")
         return self.eof_result
 
     # save
@@ -85,7 +84,7 @@ class decompose_fixedPattern:
         print("saving the result ...")
         # save the result
 
-        self.std_eof_result.to_netcdf(
+        self.eof_result.to_netcdf(
             self.save_path
             + self.vertical_eof
             + "_"
