@@ -34,6 +34,7 @@ class decompose_fixedPattern:
         self.data = season_eof.read_data(self.zg_path)
         self.eof_result = self.decompose()
         self.std_eof_result = self.standard_index()
+        self.save_result()
 
     def decompose(self):
         # deompose
