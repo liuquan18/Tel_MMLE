@@ -22,28 +22,39 @@ importlib.reload(extreme)
 # warming stage
 import src.warming_stage.warming_stage as warming_stage
 
-#%%
-# load data
-odir = "/work/mh0033/m300883/Tel_MMLE/data/CanESM2/"
-pc_dir = odir + "EOF_result/ind_first_pc.nc"
-eof_dir = odir + "EOF_result/ind_first_eof.nc"
-fra_dir = odir + "EOF_result/ind_first_fra.nc"
+# class story line
+class story_line:
+    """
+    generating the plots for the paper
+    """
+    def init(self,model,vetical_eof,fixed_pattern):
+        self.model = model
+        self.v_eof = vetical_eof
+        self.f_pattern = fixed_pattern
+        self.prefix = self.vertical_eof + "_" + self.fixed_pattern + "_"
 
-tsurf_dir = odir + "ts_processed/tsurf_mean.nc"
+        # locations
+        odir = "/work/mh0033/m300883/Tel_MMLE/data/"+self.model+"/"
+        self.eof_result_dir = odir + self.prefix + "eof_result.nc"
+        self.tsurf_dir = odir + "ts_processed/tsurf_mean.nc"
 
-pc = xr.open_dataset(pc_dir).pc
-eof = xr.open_dataset(eof_dir).eof
-fra = xr.open_dataset(fra_dir).exp_var
-tsurf = xr.open_dataset(tsurf_dir).ts
-# %%
-# split into first 10 and last 10 years
-periods_pc, periods = warming_stage.split_period(pc, compare="CO2")
-first_pc, last_pc = periods_pc[0], periods_pc[1]
+        # read eof
+        eof_result = self.read_eof()
+        self.eof = eof_result.eof
+        self.fra = eof_result.fra
+        self.pc = eof_result.pc
 
-#%%
-# extreme events count
-first_count = extreme.extreme_count_xr(first_pc)
-last_count = extreme.extreme_count_xr(last_pc)
+        # read tsurf
+        self.tsurf = warming_stage.read_tsurf_fldmean(self.tsurf_dir)
+
+
+        # split index into first 10 and last 10 years
+        periods_pc, self.periods = warming_stage.split_period(self.pc, compare="CO2")
+        self.first_pc, self.last_pc = periods_pc[0], periods_pc[1]
+
+        # extreme event count
+        self.first_count = extreme.extreme_count_xr(self.first_pc)
+        self.last_count = extreme.extreme_count_xr(self.last_pc)
 
 
 # *************** Figs ************************
