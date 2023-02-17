@@ -33,6 +33,7 @@ class decompose_fixedPattern:
         print("reading the gph data ...")
         self.data = season_eof.read_data(self.zg_path)
         self.eof_result = self.decompose()
+        self.std_eof_result = self.standard_index()
 
     def decompose(self):
         # deompose
@@ -83,7 +84,7 @@ class decompose_fixedPattern:
         print("saving the result ...")
         # save the result
 
-        self.eof_result.to_netcdf(
+        self.std_eof_result.to_netcdf(
             self.save_path
             + self.vertical_eof
             + "_"
