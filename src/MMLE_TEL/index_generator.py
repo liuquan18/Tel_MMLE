@@ -80,7 +80,7 @@ class decompose_fixedPattern:
         return self.eof_result
 
     # save
-    def save(self):
+    def save_result(self):
         print("saving the result ...")
         # save the result
 
