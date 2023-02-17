@@ -233,7 +233,7 @@ class period_index:
         try:
             eof_500hpa = eof_500hpa.isel(decade=1)
             fra_500hpa = fra_500hpa.isel(decade=1)
-        except KeyError:
+        except ValueError:
             pass
 
         pc_500hpa_df = self.bar500hpa_index_df()
