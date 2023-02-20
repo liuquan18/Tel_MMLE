@@ -7,7 +7,7 @@ import src.MMLE_TEL.index_generator as index_generate
 import src.MMLE_TEL.quick_plot as quick_plot
 
 # config
-v_eof = 'ind' # vertical_eof
+v_eof = 'dep' # vertical_eof
 fpattern = 'decade' # fixed pattern
 
 # %% 
@@ -26,7 +26,6 @@ mpige.save_result()
 #%%
 ## MPI-GE_onepct
 mpige_onepct = index_generate.decompose_fixedPattern("MPI_GE_onepct",v_eof,fpattern)
-
 
 #%%
 # NCAR mode
