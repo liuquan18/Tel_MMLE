@@ -234,7 +234,7 @@ def spatial_pattern_change_decade(
         coastlinewidth=0.5,
         coastcolor="gray7",
         leftlabels=("NAO", "EA"),
-        suptitle=f"spatial patterns on 500hPa",
+        suptitle=f"spatial patterns on {plev/100:.0%}hPa",
     )
 
     period_names = ["0K", "2K", "4K"]

@@ -11,11 +11,13 @@ import xarray as xr
 # extremes
 import src.extreme.extreme_ci as extreme
 import src.MMLE_TEL.extrc_tsurf as extrc_tsurf
+import src.MMLE_TEL.spatial_pattern_change as sp_change
 
 # reimport extreme
 import importlib
 
 importlib.reload(extreme)
+importlib.reload(sp_change)
 
 # warming stage
 import src.warming_stage.warming_stage as warming_stage
@@ -52,15 +54,13 @@ class story_line:
 
         # read tsurf
         self.tsurf = warming_stage.read_tsurf_fldmean(self.tsurf_dir)
-
+        self.warming_periods = warming_stage.temp_period(self.tsurf)
 
         # split index into first 10 and last 10 years
         periods_pc, self.periods = warming_stage.split_period(self.pc, compare="CO2")
         self.first_pc, self.last_pc = periods_pc[0], periods_pc[1]
         self.first_eof = self.eof.sel(decade=self.periods[0]) # not time
         self.last_eof = self.eof.sel(decade=self.periods[-1])
-        
-
 
         # extreme event count
         self.first_count = extreme.extreme_count_xr(self.first_pc)
@@ -74,16 +74,20 @@ class story_line:
 
     # statistical overview
     def stat_overview(self):
-        "ploting the statistical overview"
-        Fig1 = stat_overview.plot_stat_overview(self.eof_result)
+        print("ploting the statistical overview")
+        Fig1 = stat_overview.stat_overview(self.eof_result)
         plt.savefig(self.to_plot_dir + "stat_overview.png")
 
     # spatial pattern change at 0K, 2K, 4K
+    def spatial_pattern_change(self,plev = 50000,**kwargs):
+        print("ploting the spatial pattern change at 0K, 2K, 4K")
+        Fig2 = sp_change.spatial_pattern_change_decade(self.warming_periods,self.eof,self.fra,**kwargs)
+        plt.savefig(self.to_plot_dir + "spatial_pattern_change"+f"_{plev/100:.0%}hPa"+".png")
 
     # extreme event count profile
-    def extreme_count_profile(self):
-        "ploting the extreme event count profile"
-        extreme_profile = extreme.extreme_count_profile(self.first_count, self.last_count, colored=False)
+    def extreme_count_profile(self,**kwargs):
+        print("ploting the extreme event count profile")
+        extreme_profile = extreme.extreme_count_profile(self.first_count, self.last_count, colored=False,**kwargs)
         plt.savefig(self.to_plot_dir + "extreme_count_vertical_profile.png")
 
 # *************** Figs ************************
@@ -106,4 +110,6 @@ mpige_onepct_ind_decade = story_line("MPI_GE_onepct", "ind", "decade")
 Fig1 = stat_overview.stat_overview(mpige_onepct_ind_decade.eof_result)
 # %%
 extreme.extreme_count_profile(mpige_onepct_ind_decade.first_count, mpige_onepct_ind_decade.last_count, colored=False,xlim = (-5,65))
+# %%
+sp_change.spatial_pattern_change_decade(mpige_onepct_ind_decade.warming_periods,mpige_onepct_ind_decade.eof,mpige_onepct_ind_decade.fra,plev = 50000)
 # %%
