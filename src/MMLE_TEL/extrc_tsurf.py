@@ -49,7 +49,6 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None):
 
 def corr_coef(ext_count, tsurf_increase):
     """calculate the correlation coefficient between extreme count and surface temperature increase"""
-    tsurf_increase = tsurf_increase.sel(time=ext_count.time, method="nearest")
     func = lambda x: np.corrcoef(x, tsurf_increase.values)[0][1]
     return xr.apply_ufunc(
         func,
@@ -61,13 +60,14 @@ def corr_coef(ext_count, tsurf_increase):
 
 
 #%%
-def extCount_tsurf_scatter(ext_counts, t_surf, corr, plev=None, ylim=(0, 55)):
+def extCount_tsurf_scatter(ext_counts, t_surf, plev=None, ylim=(0, 55)):
     """
     rows: pos/neg
     cols: NAO/EA
     scatter: extreme_count v.s surface temperature
     hue: different  dataset
     """
+    r = corr_coef(ext_counts.sel(confidence="true"), t_surf)
     fig, axes = pplt.subplots(nrows=2, ncols=2, figwidth=8, span=False, share=False)
 
     axes.format(
@@ -86,6 +86,7 @@ def extCount_tsurf_scatter(ext_counts, t_surf, corr, plev=None, ylim=(0, 55)):
     )
     if plev is not None:
         ext_counts = ext_counts.sel(plev=plev)
+        r = r.sel(plev=plev)
 
     for j, extr_type in enumerate(ext_counts.extr_type):
         for i, mode in enumerate(ext_counts.mode):
@@ -102,6 +103,14 @@ def extCount_tsurf_scatter(ext_counts, t_surf, corr, plev=None, ylim=(0, 55)):
                 fmt="o",
                 linewidth=2,
                 capsize=6,
+            )
+
+            axes[i, j].text(
+                0.8,
+                0.1,
+                f"r={r.sel(extr_type=extr_type, mode=mode).values:.2f}",
+                transform=axes[i, j].transAxes,
+                fontsize="large",
             )
 
 
