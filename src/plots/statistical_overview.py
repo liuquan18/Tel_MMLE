@@ -117,8 +117,8 @@ def stat_overview(eof_result, plev=50000):
             coastlinewidth=0.5,
             coastcolor="charcoal",
             title=mode
-            + f"({first_fra.sel(mode = mode,plev = 50000).squeeze():.0%}"
-            + f"->{last_fra.sel(mode = mode,plev = 50000).squeeze():.0%})",
+            + f"({first_fra_500:.0f}"
+            + f"->{last_fra_500:.0f})",
         )
 
         # plot pc hist
