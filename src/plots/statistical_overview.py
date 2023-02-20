@@ -79,6 +79,14 @@ def stat_overview(eof_result, plev=50000):
         first_eof_500 = first_eof.sel(mode=mode, plev=50000).squeeze()
         last_eof_500 = last_eof.sel(mode=mode, plev=50000).squeeze()
 
+        ## fras selecte the plev
+        try:
+            first_fra_500 = first_fra.sel(mode=mode, plev=50000).squeeze()
+            last_fra_500 = last_fra.sel(mode=mode, plev=50000).squeeze()
+        except KeyError:
+            first_fra_500 = first_fra.sel(mode=mode).squeeze()
+            last_fra_500 = last_fra.sel(mode=mode).squeeze()
+
         ## pc to dataframe
         df = to_dataframe(first_pc, last_pc, mode)
         df_500 = df[df["plev"] == 500]
