@@ -196,6 +196,7 @@ def extreme_count_profile(
     first_count,
     last_count,
     colored=False,
+    xlim = (-5, 45)
 ):
     """
     plot the extreme event count profile for the NAO and EA,
@@ -253,6 +254,6 @@ def extreme_count_profile(
             colored=colored,
         )
     for ax in axes:
-        ax.set_xlim(-5, 45)
+        ax.set_xlim(xlim)
     # add legend
     axes[0, 0].legend(loc="lr", ncols=1, frame=True)
