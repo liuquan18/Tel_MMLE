@@ -46,7 +46,8 @@ class story_line:
         # locations
         odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.eof_result_dir = odir + "EOF_result/" + self.prefix + "eof_result.nc"
-        self.tsurf_dir = odir + "ts_processed/tsurf_mean.nc"
+        self.tsurf_dir = odir + "ts_processed/tsurf_anom_gradient.nc"
+        self.atg_dir = odir + "ts_processed/atg_mean.nc"
         self.to_plot_dir = (
             "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/" + self.prefix
         )
@@ -59,6 +60,7 @@ class story_line:
 
         # read tsurf
         self.tsurf = warming_stage.read_tsurf_fldmean(self.tsurf_dir)
+        self.atg = warming_stage.read_tsurf_fldmean(self.atg_dir)
         self.warming_periods = warming_stage.temp_period(self.tsurf)
 
         # split index into first 10 and last 10 years
@@ -115,6 +117,20 @@ class story_line:
         plt.savefig(
             self.to_plot_dir + "extreme_count_tsurf" + f"_{(plev/100):.0f}hPa" + ".png"
         )
+
+    # extreme event count vs. arctic-tropical gradient
+    def extrc_atg(self, plev=50000):
+        print("ploting the extreme event count vs. arctic-tropical gradient")
+        atg = self.atg
+        ext_counts, atg_dec = extrc_tsurf.decadal_extrc_tsurf(
+            self.pc, atg
+        )
+        extc_atg_scatter = extrc_tsurf.extCount_tsurf_scatter(
+            ext_counts, atg_dec, plev=plev, ylim=(-5, 65)
+        )
+        plt.savefig(
+            self.to_plot_dir + "extreme_count_atg" + f"_{(plev/100):.0f}hPa" + ".png")
+
 
     def plot_all(self):
         self.stat_overview()
