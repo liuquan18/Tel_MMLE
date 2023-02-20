@@ -34,13 +34,12 @@ def to_dataframe(first_pc, last_pc, mode):
     both = pd.concat([first, last], axis=0)
     both = both.reset_index()
     both = both[["plev", "compare", mode]]
-    both['plev'] = (both['plev']/100).astype(int)
+    both["plev"] = (both["plev"] / 100).astype(int)
     return both
 
 
 def stat_overview(eof_result, plev=50000):
 
-    # select plev
     eof = eof_result.eof
     pc = eof_result.pc
     fra = eof_result.fra
@@ -49,11 +48,6 @@ def stat_overview(eof_result, plev=50000):
     first_eof, last_eof, first_pc, last_pc, first_fra, last_fra = split_period(
         eof, pc, fra
     )
-
-    # pc to dataframe
-    coords = xr.IndexVariable(dims="periods", data=["first10", "last10"])
-    index_all_periods = xr.concat([first_pc, last_pc], dim=coords)
-    index_all_periods = index_all_periods.to_dataframe().reset_index()
 
     # plot
     fig = pplt.figure(space=0, refwidth="25em", wspace=3, hspace=3)
@@ -72,22 +66,28 @@ def stat_overview(eof_result, plev=50000):
         wratios=(1, 1, 1),
     )
     modes = ["NAO", "EA"]
-    levels = np.arange(-1, 1.1, 0.2)
+    levels = np.arange(-0.8, 0.9, 0.2)
 
     for i, mode in enumerate(modes):
+        # data preparation
+        ## eof as xr.DataArray
+        first_eof_500 = first_eof.sel(mode=mode, plev=50000).squeeze()
+        last_eof_500 = last_eof.sel(mode=mode, plev=50000).squeeze()
+
+        ## pc to dataframe
+        df = to_dataframe(first_pc, last_pc, mode)
+        df_500 = df[df["plev"] == 500]
+
         # plot spatial map at 500hPa
         spatial_ax = fig.add_subplot(
             gs[i, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60}
         )
 
-        first_data = first_eof.sel(mode=mode, plev=50000).squeeze()
-        last_data = last_eof.sel(mode=mode, plev=50000).squeeze()
-
-        fmap = first_data.plot.contourf(
+        fmap = first_eof_500.plot.contourf(
             ax=spatial_ax, levels=levels, extend="both", add_colorbar=False
         )
 
-        lmap = last_data.plot.contour(
+        lmap = last_eof_500.plot.contour(
             ax=spatial_ax,
             colors="gray8",
             nozero=True,
@@ -111,27 +111,17 @@ def stat_overview(eof_result, plev=50000):
         # plot pc hist
         hist_ax = fig.add_subplot(gs[i, 1])
 
-        # if i == 1, add legend
-        if i == 1:
-            legend = True
-        else:
-            legend = False
-
         hist = sns.histplot(
-            data=index_all_periods[index_all_periods["mode"] == mode],
-            x="pc",
-            hue="periods",
+            data=df_500,
+            x=mode,
+            hue="compare",
             hue_order=["first10", "last10"],
             multiple="dodge",
-            shrink=1,
+            shrink=0.6,
             bins=np.arange(-4, 4.1, 0.5),
-            legend = legend,
+            legend=False,
+            ax=hist_ax,
         )
-
-        # legend
-        fpatch = mpatches.Patch(color="grey", label="first10 years")
-        lpatch = mpatches.Patch(color="black", label="first10 years")
-        handles = [fpatch, lpatch]
 
         hist_ax.format(grid=False, yminorticks="null", xminorticks="null", title=mode)
         hist_ax.spines["right"].set_visible(False)
@@ -139,7 +129,6 @@ def stat_overview(eof_result, plev=50000):
 
         # plot violin
         violin_ax = fig.add_subplot(gs[i, 2])
-        df = to_dataframe(first_pc, last_pc, mode)
         g = sns.violinplot(
             data=df,
             y="plev",
@@ -167,11 +156,16 @@ def stat_overview(eof_result, plev=50000):
         violin_ax.spines["right"].set_visible(False)
         violin_ax.spines["top"].set_visible(False)
 
+        # add legend
+        f_patch = mpatches.Patch(color="C0", label="first10")
+        l_patch = mpatches.Patch(color="C1", label="last10")
+
         if i == 1:
             spatial_ax.colorbar(fmap, loc="b", title="std", ticks=0.2, pad=2)
-            sns.move_legend(hist_ax, "b", title="periods", ncol=2)
-            violin_ax.legend(loc="b", ncols=2, title="periods")
-
+            hist_ax.legend(
+                handles=[f_patch, l_patch], loc="b", title="periods", frameon=False
+            )
+            violin_ax.legend(loc="b", ncols=2, title="periods", frameon=False)
 
     return fig
 
