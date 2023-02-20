@@ -195,3 +195,69 @@ def spatial_pattern_profile(eofs, levels=np.arange(-2.0, 2.1, 0.4)):
 
 
 # %%
+# given a time slice called period, for example ['1851-12-31','1860-12-31'],find the middle time
+def get_middle_time(period):
+    """
+    get the middle time of a period
+    """
+    start = np.array(period.start).astype("datetime64[Y]")
+    end = np.array(period.stop).astype("datetime64[Y]")
+    middle = start + (end - start) / 2
+    return middle
+
+
+# plot the spatial pattern changes under 0K,2K,4K warming
+def spatial_pattern_change_decade(
+    periods, patterns, fras, plev=50000, levels=np.arange(-1.0, 1.1, 0.2)
+):
+    # data preapration
+    patterns = patterns.sel(plev=plev)
+    fras = fras.sel(plev=plev)
+    middle_years = [get_middle_time(period) for period in periods]
+    patterns_warming = patterns.sel(decade=middle_years, method="nearest")
+
+    # plot
+    fig, axes = pplt.subplots(
+        space=0,
+        refwidth="25em",
+        wspace=3,
+        hspace=3,
+        proj="ortho",
+        proj_kw=({"lon_0": -20, "lat_0": 60}),
+        nrows=2,
+        ncols=3,
+    )
+    axes.format(
+        latlines=20,
+        lonlines=30,
+        coast=True,
+        coastlinewidth=0.5,
+        coastcolor="gray7",
+        leftlabels=("NAO", "EA"),
+        suptitle=f"spatial patterns on 500hPa",
+    )
+
+    period_names = ["0K", "2K", "4K"]
+    for r, mode in enumerate(patterns_warming.mode):
+        for c, period in enumerate(patterns_warming.decade):
+
+            eof = patterns_warming.sel(mode=mode, decade=period)
+            fra = fras.sel(mode=mode, decade=period)
+            map = axes[r, c].contourf(
+                eof,
+                x="lon",
+                y="lat",
+                levels=levels,
+                extend="both",
+                transform=ccrs.PlateCarree(),
+                cmap="RdBu_r",
+            )
+            axes[r, c].set_title(
+                period_names[c]
+                + "-"
+                + str(period.dt.year.values)
+                + f"({fra.values:.0%})"
+            )
+
+    fig.colorbar(map, loc="r", pad=3, title="gph/std")
+    return fig
