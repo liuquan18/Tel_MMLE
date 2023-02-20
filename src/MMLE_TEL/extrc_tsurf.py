@@ -60,7 +60,7 @@ def corr_coef(ext_count, tsurf_increase):
 
 
 #%%
-def extCount_tsurf_scatter(ext_counts, t_surf, plev=None, ylim=(0, 55)):
+def extCount_tsurf_scatter(ext_counts, t_surf, plev=None, ylim=(0, 55),xlim=(-1, 6),xlabel = 'temperature (K)'):
     """
     rows: pos/neg
     cols: NAO/EA
@@ -73,9 +73,9 @@ def extCount_tsurf_scatter(ext_counts, t_surf, plev=None, ylim=(0, 55)):
     axes.format(
         abc="a",
         abcloc="ul",
-        xlim=(-1, 6),
+        xlim=xlim,
         suptitle=f"extreme counts v.s surface temperature in decadal time scale",
-        xlabel="temperature (K)",
+        xlabel=xlabel,
         ylabel="extreme count",
         grid=False,
         leftlabels=["NAO", "EA"],
