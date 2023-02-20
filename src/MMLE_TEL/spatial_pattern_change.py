@@ -212,7 +212,10 @@ def spatial_pattern_change_decade(
 ):
     # data preapration
     patterns = patterns.sel(plev=plev)
-    fras = fras.sel(plev=plev)
+    try:
+        fras = fras.sel(plev=plev)
+    except KeyError:
+        pass
     middle_years = [get_middle_time(period) for period in periods]
     patterns_warming = patterns.sel(decade=middle_years, method="nearest")
 
