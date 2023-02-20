@@ -11,6 +11,11 @@ import matplotlib.patches as mpatches
 
 import src.warming_stage.warming_stage as warming_stage
 
+# no warnings
+import warnings
+warnings.filterwarnings("ignore")
+
+
 
 # Fig 1 spatial patterns and statistics of the pcs
 # rows for 'NAO' and 'EA'
