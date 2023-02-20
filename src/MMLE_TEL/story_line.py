@@ -46,8 +46,8 @@ class story_line:
         # locations
         odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.eof_result_dir = odir + "EOF_result/" + self.prefix + "eof_result.nc"
-        self.tsurf_dir = odir + "ts_processed/tsurf_anom_gradient.nc"
-        self.atg_dir = odir + "ts_processed/atg_mean.nc"
+        self.tsurf_dir = odir + "ts_processed/tsurf_mean.nc"
+        self.atg_dir = odir + "ts_processed/tsurf_anom_gradient.nc"
         self.to_plot_dir = (
             "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/" + self.prefix
         )
