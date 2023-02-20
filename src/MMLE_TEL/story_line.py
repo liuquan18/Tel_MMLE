@@ -134,4 +134,4 @@ class story_line:
             f.write("## Extreme event count profile\n")
             f.write(f"![extreme_count_vertical_profile](plots/story_line/{self.prefix}extreme_count_vertical_profile.png)\n")
             f.write("## Extreme event count vs. tsurf\n")
-            f.write(f"![extreme_count_tsurf](plots/story_line/{self.prefix}extreme_count_tsurf_50hPa.png)\n")
+            f.write(f"![extreme_count_tsurf](plots/story_line/{self.prefix}extreme_count_tsurf_500hPa.png)\n")
