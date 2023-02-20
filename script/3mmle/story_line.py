@@ -16,16 +16,16 @@ import src.MMLE_TEL.spatial_pattern_change as sp_change
 # reimport extreme
 import importlib
 
-importlib.reload(extreme)
-importlib.reload(sp_change)
-
 # warming stage
 import src.warming_stage.warming_stage as warming_stage
 
 # Stats overview
 import src.plots.statistical_overview as stat_overview
-
-import importlib
+#%%
+importlib.reload(extreme)
+importlib.reload(sp_change)
+importlib.reload(extrc_tsurf)
+importlib.reload(warming_stage)
 importlib.reload(stat_overview)
 
 #%%
@@ -45,7 +45,7 @@ class story_line:
         self.eof_result_dir = odir + "EOF_result/"+ self.prefix + "eof_result.nc"
         self.tsurf_dir = odir + "ts_processed/tsurf_mean.nc"
         self.to_plot_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/"+self.prefix
-
+        self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
         # read eof
         self.eof_result = self.read_eof()
         self.eof = self.eof_result.eof
@@ -90,26 +90,31 @@ class story_line:
         extreme_profile = extreme.extreme_count_profile(self.first_count, self.last_count, colored=False,**kwargs)
         plt.savefig(self.to_plot_dir + "extreme_count_vertical_profile.png")
 
-# *************** Figs ************************
-#%%
+    # extreme event count vs. tsurf
+    def extrc_tsurf(self,plev = 50000):
+        print("ploting the extreme event count vs. tsurf")
+        tsurf_mean = self.tsurf
+        tsurf_increase = tsurf_mean - tsurf_mean[0]
+        ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(self.pc, tsurf_increase)
+        Fig3 = extrc_tsurf.extCount_tsurf_scatter(ext_counts, t_surf_mean, plev=50000,ylim=(-5,65))
+        plt.savefig(self.to_plot_dir + "extreme_count_tsurf"+f"_{plev/100:.0%}hPa"+".png")
 
-    # plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig1.png')
-# %%
-# Fig 2  extreme event count profile
-extreme_profile = extreme.extreme_count_profile(first_count, last_count, colored=False)
-# plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig2.png')
-# %%
-# Fig 3  extreme event count vs. tsurf
-tsurf_mean = tsurf  # .mean(dim = 'ens')
-ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(pc, tsurf)
-Fig3 = extrc_tsurf.plot_extrc_tsurf(ext_counts, t_surf_mean, plev=50000)
-# plt.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/Fig3.png')
-# %%
-mpige_onepct_ind_decade = story_line("MPI_GE_onepct", "ind", "decade")
-#%%
-Fig1 = stat_overview.stat_overview(mpige_onepct_ind_decade.eof_result)
-# %%
-extreme.extreme_count_profile(mpige_onepct_ind_decade.first_count, mpige_onepct_ind_decade.last_count, colored=False,xlim = (-5,65))
-# %%
-sp_change.spatial_pattern_change_decade(mpige_onepct_ind_decade.warming_periods,mpige_onepct_ind_decade.eof,mpige_onepct_ind_decade.fra,plev = 50000)
-# %%
+    def plot_all(self):
+        self.stat_overview()
+        self.spatial_pattern_change()
+        self.extreme_count_profile()
+        self.extrc_tsurf()
+
+    def create_doc(self):
+        """create md file for the plots"""
+        with open(self.doc_dir + "story_line.md", "w") as f:
+            f.write(f"# {self.prefix}Story line\n")
+            f.write("## Statistical overview\n")
+            f.write("![stat_overview](plots/story_line/stat_overview.png)\n")
+            f.write("## Spatial pattern change at 0K, 2K, 4K\n")
+            f.write("![spatial_pattern_change](plots/story_line/spatial_pattern_change_50hPa.png)\n")
+            f.write("## Extreme event count profile\n")
+            f.write("![extreme_count_vertical_profile](plots/story_line/extreme_count_vertical_profile.png)\n")
+            f.write("## Extreme event count vs. tsurf\n")
+            f.write("![extreme_count_tsurf](plots/story_line/extreme_count_tsurf_50hPa.png)\n")
+    
