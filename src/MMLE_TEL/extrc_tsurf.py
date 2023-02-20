@@ -19,14 +19,11 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None):
         *temp* the -fldmean, -yearmean -ensmean surface temperauter.
     **Return**
         *ext_counts* the DataArray of extreme count, *time, *extr_type, *mode
-        *t_surf_mean* the mean t_surface,
+        *t_surf_mean* the mean t_surface (the increase of the temperature)
         the time here use the first year of the decade.
     """
     if plev is not None:
         index = index.sel(plev=plev)
-
-    # tsurf increase
-    temp = temp - temp.isel(time=0)
 
     ext_counts = []
     t_surf_mean = []
@@ -51,7 +48,7 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None):
 
 
 #%%
-def extCount_tsurf_scatter(ext_counts, t_surf, plev=None):
+def extCount_tsurf_scatter(ext_counts, t_surf, plev=None,ylim = (0, 55)):
     """
     rows: pos/neg
     cols: NAO/EA
@@ -72,7 +69,7 @@ def extCount_tsurf_scatter(ext_counts, t_surf, plev=None):
         toplabels=["pos", "neg"],
         xminorticks="null",
         yminorticks="null",
-        ylim=(0, 55),
+        ylim=ylim,
     )
     if plev is not None:
         ext_counts = ext_counts.sel(plev=plev)
