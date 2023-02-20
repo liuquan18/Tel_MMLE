@@ -110,7 +110,7 @@ class story_line:
             self.pc, tsurf_increase
         )
         Fig3 = extrc_tsurf.extCount_tsurf_scatter(
-            ext_counts, t_surf_mean, plev=50000, ylim=(-5, 65)
+            ext_counts, t_surf_mean, plev=plev, ylim=(-5, 65)
         )
         plt.savefig(
             self.to_plot_dir + "extreme_count_tsurf" + f"_{(plev/100):.0f}hPa" + ".png"
