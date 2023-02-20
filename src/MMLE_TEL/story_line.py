@@ -90,7 +90,7 @@ class story_line:
             self.warming_periods, self.eof, self.fra, **kwargs
         )
         plt.savefig(
-            self.to_plot_dir + "spatial_pattern_change" + f"_{plev/100:.0%}hPa" + ".png"
+            self.to_plot_dir + "spatial_pattern_change" + f"_{(plev/100):.0f}hPa" + ".png"
         )
 
     # extreme event count profile
@@ -113,7 +113,7 @@ class story_line:
             ext_counts, t_surf_mean, plev=50000, ylim=(-5, 65)
         )
         plt.savefig(
-            self.to_plot_dir + "extreme_count_tsurf" + f"_{plev/100:.0%}hPa" + ".png"
+            self.to_plot_dir + "extreme_count_tsurf" + f"_{(plev/100):.0f}hPa" + ".png"
         )
 
     def plot_all(self):
@@ -124,6 +124,7 @@ class story_line:
 
     def create_doc(self):
         """create md file for the plots"""
+        print("creating md files")
         with open(self.doc_dir + self.prefix + "story_line.md", "w") as f:
             f.write(f"# {self.prefix}Story line\n")
             f.write("## Statistical overview\n")
