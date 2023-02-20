@@ -126,7 +126,7 @@ class story_line:
             self.pc, atg
         )
         extc_atg_scatter = extrc_tsurf.extCount_tsurf_scatter(
-            ext_counts, atg_dec, plev=plev, ylim=(-5, 65), xlim = (-7,7), **kwargs
+            ext_counts, atg_dec, plev=plev, ylim=(-5, 65), xlim = (-7,7),xlabel = 'tropic-arctic gradient' **kwargs
         )
         plt.savefig(
             self.to_plot_dir + "extreme_count_atg" + f"_{(plev/100):.0f}hPa" + ".png")
