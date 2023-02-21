@@ -47,7 +47,7 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None):
     return ext_counts, t_surf_mean
 
 
-def corr_coef(ext_count, tsurf_increase,dim = 'time'):
+def corr_coef(ext_count, tsurf_increase, dim="time"):
     """calculate the correlation coefficient between extreme count and surface temperature increase"""
     func = lambda x: np.corrcoef(x, tsurf_increase.values)[0][1]
     return xr.apply_ufunc(
@@ -60,14 +60,15 @@ def corr_coef(ext_count, tsurf_increase,dim = 'time'):
 
 
 #%%
-def extCount_tsurf_scatter(ext_counts, t_surf, plev=None, ylim=(0, 55),xlim=(-1, 6),xlabel = 'temperature (K)'):
+def extCount_tsurf_scatter(
+    ext_counts, t_surf, plev=None, ylim=(0, 55), xlim=(-1, 6), xlabel="temperature (K)"
+):
     """
     rows: pos/neg
     cols: NAO/EA
     scatter: extreme_count v.s surface temperature
     hue: different  dataset
     """
-    r = corr_coef(ext_counts.sel(confidence="true"), t_surf)
     fig, axes = pplt.subplots(nrows=2, ncols=2, figwidth=8, span=False, share=False)
 
     axes.format(
@@ -85,24 +86,46 @@ def extCount_tsurf_scatter(ext_counts, t_surf, plev=None, ylim=(0, 55),xlim=(-1,
         ylim=ylim,
     )
     if plev is not None:
+        # data preparation
         ext_counts = ext_counts.sel(plev=plev)
-        r = r.sel(plev=plev)
-        scatter_single_plev(ext_counts, t_surf, r, axes)
+        r = corr_coef(ext_counts.sel(confidence="true"), t_surf).sel(plev=plev)
+
+        # plot
+        scatter_plot(ext_counts, t_surf, r, axes)
 
     else:
-        for plev in ext_counts.plev:
-            scatter_single_plev(ext_counts.sel(plev=plev), t_surf, r.sel(plev=plev), axes)
+        # data preparation
+        plevs = ext_counts.plev
+        # repeat the t_surf to match the shape of plev
+        T = xr.concat([t_surf] * plevs.size, dim=plevs).transpose("time", "plev")
+        r = corr_coef(
+            ext_counts.sel(confidence="true").stack(com=("plev", "time")),
+            T.stack(com=("plev", "time")),
+            dim="com",
+        )
+        scatter_plot(ext_counts, T, r, axes)
 
-def scatter_single_plev(ext_counts, t_surf, r, axes):
+
+def scatter_plot(ext_counts, t_surf, r, axes):
     for j, extr_type in enumerate(ext_counts.extr_type):
         for i, mode in enumerate(ext_counts.mode):
-            # true values
+            # data preparation
             true = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="true")
             low = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="low")
             high = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="high")
 
+            # for the data with plev
+            try:
+                true = true.stack(com=("time", "plev"))
+                low = low.stack(com=("time", "plev"))
+                high = high.stack(com=("time", "plev"))
+                t = t_surf.stack(com=("time", "plev"))
+
+            except KeyError:
+                pass
+
             axes[i, j].errorbar(
-                x=t_surf,
+                x=t,
                 y=true,
                 yerr=[(true - low), (high - true)],
                 fmt="o",
