@@ -47,13 +47,13 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None):
     return ext_counts, t_surf_mean
 
 
-def corr_coef(ext_count, tsurf_increase):
+def corr_coef(ext_count, tsurf_increase,dim = 'time'):
     """calculate the correlation coefficient between extreme count and surface temperature increase"""
     func = lambda x: np.corrcoef(x, tsurf_increase.values)[0][1]
     return xr.apply_ufunc(
         func,
         ext_count,
-        input_core_dims=[["time"]],
+        input_core_dims=[[dim]],
         output_core_dims=[[]],
         vectorize=True,
     )
