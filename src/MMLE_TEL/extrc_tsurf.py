@@ -87,10 +87,15 @@ def extCount_tsurf_scatter(ext_counts, t_surf, plev=None, ylim=(0, 55),xlim=(-1,
     if plev is not None:
         ext_counts = ext_counts.sel(plev=plev)
         r = r.sel(plev=plev)
+        scatter_single_plev(ext_counts, t_surf, r, axes)
 
+    else:
+        for plev in ext_counts.plev:
+            scatter_single_plev(ext_counts.sel(plev=plev), t_surf, r.sel(plev=plev), axes)
+
+def scatter_single_plev(ext_counts, t_surf, r, axes):
     for j, extr_type in enumerate(ext_counts.extr_type):
         for i, mode in enumerate(ext_counts.mode):
-
             # true values
             true = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="true")
             low = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="low")
