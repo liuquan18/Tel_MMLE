@@ -161,6 +161,10 @@ def spatial_pattern_profile(eofs, levels=np.arange(-2.0, 2.1, 0.4)):
     cols periods
     """
     eofs["plev"] = eofs["plev"] / 100
+    try :
+        eofs = eofs.rename({"period": "decade"})
+    except ValueError:
+        pass
 
     lon_NAO = spatial_stat(eofs, mode="NAO", dim="lon")
 
@@ -188,8 +192,8 @@ def spatial_pattern_profile(eofs, levels=np.arange(-2.0, 2.1, 0.4)):
     xs = ["lon", "lat"]
 
     for r, profile in enumerate([lon_NAO, lat_EA]):
-        for c, period in enumerate(eofs.period):
-            prof = profile.sel(period=period)
+        for c, period in enumerate(eofs.decade):
+            prof = profile.sel(decade=period)
             vertmap = axes[r, c].contourf(
                 prof, x=xs[r], y="plev", levels=levels, extend="both", cmap="RdBu_r"
             )

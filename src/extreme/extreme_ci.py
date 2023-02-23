@@ -28,11 +28,11 @@ def extreme_count(ts, threshold, gt=True):
 
 
 def _pos_count(ts):
-    return extreme_count(ts, 2, True)
+    return extreme_count(ts, 1.5, True)
 
 
 def _neg_count(ts):
-    return extreme_count(ts, -2, False)
+    return extreme_count(ts, -1.5, False)
 
 
 def bootstrap_pos_count_low(ts, cl=0.95):

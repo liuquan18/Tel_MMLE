@@ -99,7 +99,7 @@ class story_line:
     def extreme_count_profile(self, **kwargs):
         print("ploting the extreme event count profile")
         extreme_profile = extreme.extreme_count_profile(
-            self.first_count, self.last_count, colored=False,xlim = (-5,65), **kwargs
+            self.first_count, self.last_count, colored=False, **kwargs
         )
         plt.savefig(self.to_plot_dir + "extreme_count_vertical_profile.png")
 
