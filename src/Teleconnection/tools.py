@@ -58,11 +58,12 @@ def split_ens(xarr):
 
     # replace the old coords with ind, and then unstack.
     replace = xarr.assign_coords(plev=ind).unstack("plev")
+    replace = replace.rename({'hlayers':'plev'})
 
     return replace
 
 
-def stack_ens(xarr, withdim="window_dim"):
+def stack_ens(xarr, withdim="decade"):
     """
     The first dim of input data for python-eofs-package standard interface should be 'time', but
     here we do eof not along the time dim only, but the win (10) years of all ensembles. so should
@@ -94,8 +95,8 @@ def standardize(xarr,dim = None):
             time_mean = xarr.mean(dim="time")
             time_std = xarr.std(dim="time")
         except ValueError:
-            time_mean = xarr.mean(dim="window_dim")
-            time_std = xarr.std(dim="window_dim")
+            time_mean = xarr.mean(dim="decade")
+            time_std = xarr.std(dim="decade")
     else:
         time_mean = xarr.mean(dim = dim)
         time_std = xarr.std(dim = dim)
@@ -105,23 +106,6 @@ def standardize(xarr,dim = None):
 
 ########## Function to do EOF #####################
 
-
-def detect_spdim(xarr):
-    """
-    output the length of the spatil dim. since some of the xarr is lon-lat, while some lon-lat-height.
-    **Arguments**:
-        xarr: the DataArray, with spatil dim starting from the second dim. e.g, [com,lat,lon,height]
-    **Returns**:
-        np.array, the number of spatial dim, but with value of one.
-    """
-    # the number of spatial dims
-    sp_dim_len = len(xarr.shape) - 1
-
-    # output a np.array with same number of spatial dims.
-    sp_dim = np.ones(sp_dim_len).astype("int")  # [1,1] or [1,1,1]
-    return sp_dim
-
-
 def sqrtcoslat(xarr):
     """
     calculte the square-root of the cosine of the latitude as the weight
@@ -130,29 +114,13 @@ def sqrtcoslat(xarr):
     **Returns**:
         weight with the right shape.
     """
-    # the shape of the weight should have the same number of spatial dims as the input DataArray.
-    # the first dim is lat of course, all the rest spatial dim should be 1.
-    sp_dim = detect_spdim(xarr)
-    weight_shape = np.hstack([-1, sp_dim[1:]])  # the size of 'lat' should not be 1.
-
-    # cos of rad of latitude
-    coslat = np.cos(np.deg2rad(xarr.lat)).clip(0.0, 1.0)
-    # sqrt
-    wgts = np.sqrt(coslat.values).reshape(weight_shape)
+    # weight values
+    wgts = np.sqrt(np.cos(np.deg2rad(xarr.lat)))
+    
+    # make the shape of wgts the same as xarr
+    W = xr.ones_like(xarr)
+    wgts = W * wgts
     return wgts
 
-
-def random_order(xarr, dim="com"):
-    """
-    random sort the xarr along the dim.
-    """
-    index = np.arange(xarr.com.size)
-    random_index = shuffle(index,random_state=0)
-
-    # new coords
-    xarr = xarr.assign_coords(randcom = (dim,random_index))
-    rand_xarr = xarr.sortby('randcom')
-    rand_xarr = rand_xarr.drop_vars('randcom')
-    return rand_xarr
 
  

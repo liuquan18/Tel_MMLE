@@ -4,7 +4,7 @@ import cartopy.crs as ccrs
 
 
 def composite_spatial_pattern(
-    first, last, levels=np.arange(-2.0, 2.1, 0.4), hlayers=100000
+    first, last, levels=np.arange(-2.0, 2.1, 0.4), plev=100000
 ):
     """
     composite map of first10 and last10 years, contourf and contour
@@ -36,8 +36,8 @@ def composite_spatial_pattern(
     for i, extr_type in enumerate(extr_types):
         for j, mode in enumerate(modes):  # one row
 
-            first_single = first.sel(mode=mode, extr_type=extr_type, hlayers=hlayers)
-            last_single = last.sel(mode=mode, extr_type=extr_type, hlayers=hlayers)
+            first_single = first.sel(mode=mode, extr_type=extr_type, plev=plev)
+            last_single = last.sel(mode=mode, extr_type=extr_type, plev=plev)
 
             first_m = axes[i, j].contourf(
                 first_single,

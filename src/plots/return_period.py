@@ -2,7 +2,7 @@ import proplot as pplt
 import src.EVT.return_period as EVT
 
 
-def return_period_scatter(pos,mpos,neg,mneg, mode, periods, labels,hlayers=50000):
+def return_period_scatter(pos, mpos, neg, mneg, mode, periods, labels, plev=50000):
     """
     return period plot
     """
@@ -14,38 +14,38 @@ def return_period_scatter(pos,mpos,neg,mneg, mode, periods, labels,hlayers=50000
         xlim=(0, 10),
         xminorlocator="null",
         yminorlocator="null",
-        suptitle=f"return period of {mode} index at {hlayers/100:.0f}hpa",
+        suptitle=f"return period of {mode} index at {plev/100:.0f}hpa",
         xlabel="return period / yr",
         ylabel="pc / std",
         grid=False,
     )
 
-    all_type = [pos,neg]
-    media_type = [mpos,mneg]
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
-    markers = ["+","*","d"]
+    all_type = [pos, neg]
+    media_type = [mpos, mneg]
+    colors = ["#1f77b4", "#ff7f0e", "#2ca02c"]
+    markers = ["+", "*", "d"]
 
     for i, extr_type in enumerate(all_type):
         for j, period in enumerate(extr_type):
             # all points
             axes[i].scatter(
-                x = "return period",
-                y = "pc",
-                data = period,
-                label = labels[j],
-                color = colors[j],
+                x="return period",
+                y="pc",
+                data=period,
+                label=labels[j],
+                color=colors[j],
             )
 
             # media points
             axes[i].scatter(
-                x = "return period",
-                y = "pc",
-                data = media_type[i][j],
-                color = "k",
-                marker = markers[j],
-                label = labels[j]+'med',
-                s = 80,
-                zorder = 100+j
+                x="return period",
+                y="pc",
+                data=media_type[i][j],
+                color="k",
+                marker=markers[j],
+                label=labels[j] + "med",
+                s=80,
+                zorder=100 + j,
             )
 
     # a zoom out for NAO very extreme events.
@@ -67,7 +67,7 @@ def return_period_scatter(pos,mpos,neg,mneg, mode, periods, labels,hlayers=50000
     axes[1].format(title="neg")
 
 
-def return_period_profile(pos, neg, index, mode,labels):
+def return_period_profile(pos, neg, index, mode, labels):
     fig, axes = pplt.subplots(nrows=1, ncols=2, figwidth=8, span=False, share=False)
 
     axes.format(
@@ -83,13 +83,15 @@ def return_period_profile(pos, neg, index, mode,labels):
         grid=False,
     )
 
-    y = index.hlayers.values / 100
-    extrs = ['pos','neg']
-    extr_data = [pos,neg]
-    styles = ['-','--','dotted']
+    y = index.plev.values / 100
+    extrs = ["pos", "neg"]
+    extr_data = [pos, neg]
+    styles = ["-", "--", "dotted"]
     for i, extr_type in enumerate(extrs):
         for j in range(pos.shape[-1]):
-            axes[i].plot(extr_data[i][:,j],y,color = 'k',linestyle = styles[j],label = labels[j])
+            axes[i].plot(
+                extr_data[i][:, j], y, color="k", linestyle=styles[j], label=labels[j]
+            )
             axes[i].set_title(extr_type)
 
     axes[1].set_xlim(0, 5)

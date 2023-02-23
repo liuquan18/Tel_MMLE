@@ -5,7 +5,7 @@ import proplot as pplt
 
 def plot_period(exts, ax):
     """plot vertical profile of two peiods"""
-    y = (exts.hlayers.values) / 100
+    y = (exts.plev.values) / 100
     styles = ["-", "--", "dotted"]
     labels = exts.compare.values
 
@@ -20,7 +20,7 @@ def plot_diff(diff_ec, ax):
     """
     x_diff_pos = diff_ec.sel(extr_type="pos").values
     x_diff_neg = diff_ec.sel(extr_type="neg").values
-    y = (diff_ec.hlayers.values) / 100
+    y = (diff_ec.plev.values) / 100
     diff_pos_profile = ax.plot(
         x_diff_pos, y, linestyle="-", color="k", label="Positive"
     )

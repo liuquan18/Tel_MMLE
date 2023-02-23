@@ -53,7 +53,9 @@ class first10_last10_index:
         )  # for name/ ind_all_
 
         # the destination for savinig plots
-        self.plot_dir = "/work/mh0033/m300883/Tele_season/docs/source/plots/quick_plots/"
+        self.plot_dir = (
+            "/work/mh0033/m300883/Tele_season/docs/source/plots/quick_plots/"
+        )
 
         # the destination for the doc
         self.img_dir = "plots/quick_plots/"  # relative, no why
@@ -77,7 +79,6 @@ class first10_last10_index:
 
         # read the original gph data to do the composite spatial pattern
         self.gph = self.read_gph_data()
-
 
     def read_eof_data(self):
         """
@@ -114,20 +115,22 @@ class first10_last10_index:
         demean = splitens - splitens.mean(dim="ens")
 
         # select traposphere
-        trop = demean.sel(hlayers=slice(20000, 100000))
+        trop = demean.sel(plev=slice(20000, 100000))
 
         trop = trop.var156
 
         trop = tools.standardize(trop)
-        trop['time'] = trop.indexes['time'].to_datetimeindex() # the same time type as index
+        trop["time"] = trop.indexes[
+            "time"
+        ].to_datetimeindex()  # the same time type as index
         return trop
 
     def sel_500hpa(self):
-        eof_500 = self.eof.sel(hlayers=50000)
-        pc_500 = self.pc.sel(hlayers=50000)
+        eof_500 = self.eof.sel(plev=50000)
+        pc_500 = self.pc.sel(plev=50000)
 
         if self.vertical_eof == "ind":
-            fra_500 = self.fra.sel(hlayers=50000)
+            fra_500 = self.fra.sel(plev=50000)
         elif self.vertical_eof == "dep":
             fra_500 = self.fra
 
@@ -190,9 +193,9 @@ class first10_last10_index:
             self.plot_dir + self.prefix + mode + "_extreme_count_profile.png", dpi=300
         )
 
-    def return_period_scatter(self, mode, hlayers=50000):
+    def return_period_scatter(self, mode, plev=50000):
         print("scatter plot of return period")
-        fig = RP_plots.return_period_scatter(self.pc, mode, hlayers=hlayers)
+        fig = RP_plots.return_period_scatter(self.pc, mode, plev=plev)
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_return_period_scatter.png", dpi=300
         )
@@ -204,7 +207,7 @@ class first10_last10_index:
             self.plot_dir + self.prefix + mode + "_return_period_profile.png", dpi=300
         )
 
-    def extreme_spatial_pattern(self, hlayers=100000):
+    def extreme_spatial_pattern(self, plev=100000):
         # do the composite of gph to get the extreme sptial patterns
         first_sptial_pattern = composite.Tel_field_composite(self.first10_pc, self.gph)
         last_sptial_pattern = composite.Tel_field_composite(self.last10_pc, self.gph)
@@ -212,51 +215,47 @@ class first10_last10_index:
             first_sptial_pattern,
             last_sptial_pattern,
             levels=np.arange(-2, 2.1, 0.4),
-            hlayers=hlayers,
+            plev=plev,
         )
         plt.savefig(
             self.plot_dir
             + self.prefix
-            + f"extreme_spatial_pattern_{hlayers/100:.0f}hpa.png",
+            + f"extreme_spatial_pattern_{plev/100:.0f}hpa.png",
             dpi=300,
         )
 
-    def read_var(self,var):
+    def read_var(self, var):
         """
         read the tsurf or wind, precipitation for composite analysis
         data are stored in 3rdPanel/data/
         """
         data_path = (
-        "/work/mh0033/m300883/3rdPanel/data/influence/"
-        + var
-        + "/"
-        + "onepct_1850-1999_ens_1-100."
-        + var
-        + ".nc"
+            "/work/mh0033/m300883/3rdPanel/data/influence/"
+            + var
+            + "/"
+            + "onepct_1850-1999_ens_1-100."
+            + var
+            + ".nc"
         )
         var_data = xr.open_dataset(data_path)[var]
         return var_data
 
-
-    def composite_var(self,var, mode,hlayers = 50000):
+    def composite_var(self, var, mode, plev=50000):
 
         var_data = self.read_var(var)
-        var_data = var_data-var_data.mean(dim = 'ens') # demean ens mean
+        var_data = var_data - var_data.mean(dim="ens")  # demean ens mean
 
-        first_index = self.first10_pc.sel(hlayers = hlayers)
-        last_index = self.last10_pc.sel(hlayers = hlayers)
+        first_index = self.first10_pc.sel(plev=plev)
+        last_index = self.last10_pc.sel(plev=plev)
 
-        first_var = composite.Tel_field_composite(first_index,var_data)
-        last_var = composite.Tel_field_composite(last_index,var_data)
+        first_var = composite.Tel_field_composite(first_index, var_data)
+        last_var = composite.Tel_field_composite(last_index, var_data)
 
-        fig = composite_var.composite_var(var,first_var, last_var,mode )
+        fig = composite_var.composite_var(var, first_var, last_var, mode)
         plt.savefig(
-            self.plot_dir
-            + self.prefix
-            + f"composite_{var}_{mode}.png",
+            self.plot_dir + self.prefix + f"composite_{var}_{mode}.png",
             dpi=300,
         )
-
 
     def plot_all(self):
         self.plot_500hpa_spatial_violin()
@@ -268,9 +267,9 @@ class first10_last10_index:
         self.return_period_scatter("EA")
         self.return_period_profile("NAO")
         self.return_period_profile("EA")
-        self.extreme_spatial_pattern(hlayers=100000)
-        self.composite_var('tsurf','NAO',hlayers=50000)
-        self.composite_var('tsurf','EA', hlayers = 50000)
+        self.extreme_spatial_pattern(plev=100000)
+        self.composite_var("tsurf", "NAO", plev=50000)
+        self.composite_var("tsurf", "EA", plev=50000)
 
     def create_doc(self):
         create_md.doc_quick_plots(
@@ -279,6 +278,7 @@ class first10_last10_index:
             self.img_dir,
             self.prefix,
         )
+
 
 if __name__ == "__main__":
     # %%

@@ -21,90 +21,76 @@ class decompose_fixedPattern:
         self.fixed_pattern = fixed_pattern
         self.standard_ens_time = standard_ens_time
         self.model = model
-
+        self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.zg_path = (
-            "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/zg_processed/*.nc"
+            self.odir + "zg_processed/"
         )
-        self.data = self.read_data()
-        self.eof, self.index, self.fra = self.decompose()
-
-        # standardize the index with mean and std of ens and time (150 yrs)
-        if standard_ens_time:
-            self.index = self.standardize()
-
         self.save_path = (
-            "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/EOF_result/"
+            self.odir + "EOF_result/"
         )
 
-    def read_data(self):
-        print("reading data...")
-        zg_data = xr.open_mfdataset(self.zg_path, combine="nested", concat_dim="ens",join = 'override')
-        if self.model == "MPI_GE":
-            zg_data = zg_data.var156
-        else:
-            zg_data = zg_data.zg
-
-        zg_data = zg_data.rename({"plev": "hlayers"})  # to adapt
-
-        # demean
-        zg_ens_mean = zg_data.mean(dim="ens")
-        zg_demean = zg_data - zg_ens_mean
-
-        # select trop
-        try:
-            zg_trop = zg_demean.sel(hlayers=slice(100000, 20000))
-        except zg_trop.hlayers.size == 0:
-            zg_trop = zg_demean.sel(hlayers=slice(20000, 100000))
-            
-        return zg_trop
+        # read data
+        print("reading the gph data ...")
+        self.data = season_eof.read_data(self.zg_path)
+        self.eof_result = self.decompose()
+        self.std_eof_result = self.standard_index()
+        self.save_result()
 
     def decompose(self):
-        print("decomposing ...")
-        eof_all, index_all, fra_all = season_eof.season_eof(
+        # deompose
+        print("decomposing the data ...")
+        eof_result = season_eof.season_eof(
             self.data,
             nmode=2,
             window=10,
             fixed_pattern=self.fixed_pattern,
             independent=self.independence,
-            standard=False,
+            standard=False,  # standardization is done seperately
         )
-        return eof_all, index_all, fra_all
+        return eof_result
 
-    def standardize(self, dim=("time", "ens")):
-        """
-        standardardize with the mean and std of 'time' and 'ens'.
-        """
-        print("standardizing...")
-        mean = self.index.mean(dim=dim)
-        std = self.index.std(dim=dim)
-        index = (self.index - mean) / std
-        return index
 
+    def standard_index(self):
+        print("standardizing the index ...")
+        # if single pattern, standardize the index with its own mean and std (temporal and ens)
+        if (
+            self.fixed_pattern == "first"
+            or self.fixed_pattern == "last"
+        ):
+            self.eof_result["pc"] = (
+                self.eof_result["pc"] - self.eof_result["pc"].mean(dim=("time", "ens"))
+            ) / self.eof_result["pc"].std(dim=("time", "ens"))
+
+        # if changing pattern, standardize the index with the mean and std of all the index
+        elif self.fixed_pattern == "decade" or self.fixed_pattern == "False":
+            try:
+                all_index = xr.open_dataset(
+                self.odir + "EOF_result/" + self.vertical_eof + "_all_eof_result.nc"
+                )
+
+            except FileNotFoundError:
+                print("all index not found, generate it first")
+            
+            self.eof_result["pc"] = (
+                self.eof_result["pc"] - all_index["pc"].mean(dim=("time", "ens"))
+            ) / all_index["pc"].std(dim=("time", "ens"))
+
+        elif self.fixed_pattern == 'all':
+            print("     no standarization for all pattern")
+        return self.eof_result
+
+    # save
     def save_result(self):
-        print("saving...")
-        self.eof.to_netcdf(
+        print("saving the result ...")
+        # save the result
+
+        self.std_eof_result.to_netcdf(
             self.save_path
             + self.vertical_eof
             + "_"
             + self.fixed_pattern
             + "_"
-            + "eof.nc"
-        )
-        self.index.to_netcdf(
-            self.save_path
-            + self.vertical_eof
-            + "_"
-            + self.fixed_pattern
-            + "_"
-            + "pc.nc"
-        )
-        self.fra.to_netcdf(
-            self.save_path
-            + self.vertical_eof
-            + "_"
-            + self.fixed_pattern
-            + "_"
-            + "fra.nc"
+            + "eof_result.nc"
         )
 
 

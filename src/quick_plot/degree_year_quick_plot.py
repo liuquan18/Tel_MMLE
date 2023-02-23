@@ -127,7 +127,7 @@ class period_index:
         demean = splitens - splitens.mean(dim="ens")
 
         # select traposphere
-        trop = demean.sel(hlayers=slice(20000, 100000))
+        trop = demean.sel(plev=slice(20000, 100000))
 
         trop = trop.var156
 
@@ -138,11 +138,11 @@ class period_index:
         return trop
 
     def sel_500hpa(self):
-        eof_500 = self.eof.sel(hlayers=50000)
-        pc_500 = self.pc.sel(hlayers=50000)
+        eof_500 = self.eof.sel(plev=50000)
+        pc_500 = self.pc.sel(plev=50000)
 
         if self.vertical_eof == "ind":
-            fra_500 = self.fra.sel(hlayers=50000)
+            fra_500 = self.fra.sel(plev=50000)
         elif self.vertical_eof == "dep":
             fra_500 = self.fra
 
@@ -220,7 +220,7 @@ class period_index:
         elif self.compare == "temp":
             print("reading the mean tsurf data...")
             tsurf = xr.open_dataset(self.tsurf_dir)
-            try: # different name
+            try:  # different name
                 tsurf = tsurf.tsurf
             except AttributeError:
                 tsurf = tsurf.ts
@@ -244,8 +244,8 @@ class period_index:
         """
         select the period data, transform to dataframe
         """
-        first = self.pc_periods[0].sel(hlayers=50000)
-        last = self.pc_periods[-1].sel(hlayers=50000)
+        first = self.pc_periods[0].sel(plev=50000)
+        last = self.pc_periods[-1].sel(plev=50000)
 
         # to dataframe()
         if self.compare == "CO2":
@@ -300,13 +300,13 @@ class period_index:
             self.plot_dir + self.prefix + mode + "_extreme_count_profile.png", dpi=300
         )
 
-    def return_period_scatter(self, mode, hlayers=50000):
+    def return_period_scatter(self, mode, plev=50000):
         print("scatter plot of return period")
         pos, mpos, neg, mneg = EVT.mode_return_period(
-            self.pc, mode=mode, periods=self.periods, hlayers=hlayers
+            self.pc, mode=mode, periods=self.periods, plev=plev
         )
         fig = RP_plots.return_period_scatter(
-            pos, mpos, neg, mneg, mode, self.periods,self.period_name, hlayers=hlayers
+            pos, mpos, neg, mneg, mode, self.periods, self.period_name, plev=plev
         )
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_return_period_scatter.png", dpi=300
@@ -314,25 +314,29 @@ class period_index:
 
     def return_period_profile(self, mode):
         pos, neg = EVT.vertical_return_period(self.pc, mode, self.periods)
-        fig = RP_plots.return_period_profile(pos, neg, self.pc, mode,self.period_name)
+        fig = RP_plots.return_period_profile(pos, neg, self.pc, mode, self.period_name)
         plt.savefig(
             self.plot_dir + self.prefix + mode + "_return_period_profile.png", dpi=300
         )
 
-    def extreme_spatial_pattern(self, hlayers=100000):
+    def extreme_spatial_pattern(self, plev=100000):
         # do the composite of gph to get the extreme sptial patterns
-        first_sptial_pattern = composite.Tel_field_composite(self.pc_periods[0], self.gph)
-        last_sptial_pattern = composite.Tel_field_composite(self.pc_periods[-1], self.gph)
+        first_sptial_pattern = composite.Tel_field_composite(
+            self.pc_periods[0], self.gph
+        )
+        last_sptial_pattern = composite.Tel_field_composite(
+            self.pc_periods[-1], self.gph
+        )
         fig = composite_spatial_pattern.composite_spatial_pattern(
             first_sptial_pattern,
             last_sptial_pattern,
             levels=np.arange(-2, 2.1, 0.4),
-            hlayers=hlayers,
+            plev=plev,
         )
         plt.savefig(
             self.plot_dir
             + self.prefix
-            + f"extreme_spatial_pattern_{hlayers/100:.0f}hpa.png",
+            + f"extreme_spatial_pattern_{plev/100:.0f}hpa.png",
             dpi=300,
         )
 
@@ -352,13 +356,13 @@ class period_index:
         var_data = xr.open_dataset(data_path)[var]
         return var_data
 
-    def composite_var(self, var, mode, hlayers=50000):
+    def composite_var(self, var, mode, plev=50000):
 
         var_data = self.read_var(var)
         var_data = var_data - var_data.mean(dim="ens")  # demean ens mean
 
-        first_index = self.pc_periods[0].sel(hlayers=hlayers)
-        last_index = self.pc_periods[-1].sel(hlayers=hlayers)
+        first_index = self.pc_periods[0].sel(plev=plev)
+        last_index = self.pc_periods[-1].sel(plev=plev)
 
         first_var = composite.Tel_field_composite(first_index, var_data)
         last_var = composite.Tel_field_composite(last_index, var_data)
@@ -379,9 +383,9 @@ class period_index:
         self.return_period_scatter("EA")
         self.return_period_profile("NAO")
         self.return_period_profile("EA")
-        self.extreme_spatial_pattern(hlayers=100000)
-        self.composite_var("tsurf", "NAO", hlayers=50000)
-        self.composite_var("tsurf", "EA", hlayers=50000)
+        self.extreme_spatial_pattern(plev=100000)
+        self.composite_var("tsurf", "NAO", plev=50000)
+        self.composite_var("tsurf", "EA", plev=50000)
 
     def create_doc(self):
         create_md.doc_quick_plots(

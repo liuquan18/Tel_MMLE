@@ -17,23 +17,23 @@ def read_gph_data(dir):
         concat_dim="ens",
         join="override",
     )
-    data = data.rename({"plev": "hlayers"})
+    data = data.rename({"plev": "plev"})
     try:
         data = data.zg
     except AttributeError:
         data = data.var156
 
-    data = data.sel(hlayers=slice(100000, 20000))
+    data = data.sel(plev=slice(100000, 20000))
 
     return data
 
 
 # %%
-def spatial_pattern_change(data, periods,names):
+def spatial_pattern_change(data, periods, names):
     """
     get the spatial pattern of the data in periods
     """
-    if data.hlayers.size > 1:
+    if data.plev.size > 1:
         data = tools.standardize(data, dim="time")
 
     EOFs = []
@@ -52,7 +52,7 @@ def spatial_pattern_change(data, periods,names):
     return EOFs, FRAs
 
 
-def vertical_spatial_pattern(data, dim="hlayers"):
+def vertical_spatial_pattern(data, dim="plev"):
     """
     get the spatial pattern for all levels.
     """
@@ -134,7 +134,7 @@ def spatial_pattern_maps(eofs, fras, levels=np.arange(-1.0, 1.1, 0.2)):
     for r, mode in enumerate(eofs.mode):
         for c, period in enumerate(eofs.period):
 
-            eof = eofs.sel( mode=mode, period=period)
+            eof = eofs.sel(mode=mode, period=period)
             fra = fras.sel(mode=mode, period=period)
             map = axes[r, c].contourf(
                 eof,
@@ -158,7 +158,7 @@ def spatial_pattern_profile(eofs, levels=np.arange(-2.0, 2.1, 0.4)):
     rows mode
     cols periods
     """
-    eofs["hlayers"] = eofs["hlayers"] / 100
+    eofs["plev"] = eofs["plev"] / 100
 
     lon_NAO = spatial_stat(eofs, mode="NAO", dim="lon")
 
@@ -189,9 +189,78 @@ def spatial_pattern_profile(eofs, levels=np.arange(-2.0, 2.1, 0.4)):
         for c, period in enumerate(eofs.period):
             prof = profile.sel(period=period)
             vertmap = axes[r, c].contourf(
-                prof, x=xs[r], y="hlayers", levels=levels, extend="both", cmap="RdBu_r"
+                prof, x=xs[r], y="plev", levels=levels, extend="both", cmap="RdBu_r"
             )
     fig.colorbar(vertmap, loc="r", pad=3, title="gph/std")
 
 
 # %%
+# given a time slice called period, for example ['1851-12-31','1860-12-31'],find the middle time
+def get_middle_time(period):
+    """
+    get the middle time of a period
+    """
+    start = np.array(period.start).astype("datetime64[Y]")
+    end = np.array(period.stop).astype("datetime64[Y]")
+    middle = start + (end - start) / 2
+    return middle
+
+
+# plot the spatial pattern changes under 0K,2K,4K warming
+def spatial_pattern_change_decade(
+    periods, patterns, fras, plev=50000, levels=np.arange(-1.0, 1.1, 0.2)
+):
+    # data preapration
+    patterns = patterns.sel(plev=plev)
+    try:
+        fras = fras.sel(plev=plev)
+    except KeyError:
+        pass
+    middle_years = [get_middle_time(period) for period in periods]
+    patterns_warming = patterns.sel(decade=middle_years, method="nearest")
+
+    # plot
+    fig, axes = pplt.subplots(
+        space=0,
+        refwidth="25em",
+        wspace=3,
+        hspace=3,
+        proj="ortho",
+        proj_kw=({"lon_0": -20, "lat_0": 60}),
+        nrows=2,
+        ncols=3,
+    )
+    axes.format(
+        latlines=20,
+        lonlines=30,
+        coast=True,
+        coastlinewidth=0.5,
+        coastcolor="gray7",
+        leftlabels=("NAO", "EA"),
+        suptitle=f"spatial patterns on {plev/100:.0%}hPa",
+    )
+
+    period_names = ["0K", "2K", "4K"]
+    for r, mode in enumerate(patterns_warming.mode):
+        for c, period in enumerate(patterns_warming.decade):
+
+            eof = patterns_warming.sel(mode=mode, decade=period)
+            fra = fras.sel(mode=mode, decade=period)
+            map = axes[r, c].contourf(
+                eof,
+                x="lon",
+                y="lat",
+                levels=levels,
+                extend="both",
+                transform=ccrs.PlateCarree(),
+                cmap="RdBu_r",
+            )
+            axes[r, c].set_title(
+                period_names[c]
+                + "-"
+                + str(period.dt.year.values)
+                + f"({fra.values:.0%})"
+            )
+
+    fig.colorbar(map, loc="r", pad=3, title="gph/std")
+    return fig

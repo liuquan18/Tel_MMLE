@@ -29,7 +29,7 @@ def season_eof(
         EOF, PC and FRA
     """
     # the data should be standarize if there are more than one altitudes
-    if xarr.hlayers.size>1:
+    if xarr.plev.size>1:
         xarr = tools.standardize(xarr)
 
     # passing parameters
@@ -41,10 +41,48 @@ def season_eof(
         "standard": standard
     }
 
-    eof, pc, fra = vertical_eof.vertical_eof(xarr, **kwargs)
+    eof_result = vertical_eof.vertical_eof(xarr, **kwargs)
 
-    return eof, pc, fra
+    return eof_result
 
+def read_data(gph_dir):
+    """
+    read the gph data and do some pre-process.
+    """
+    # read MPI_onepct data
+    try:
+        zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
+        zg_data = tools.split_ens(zg_data)
+    except FileNotFoundError:
+        zg_data = xr.open_mfdataset(
+            gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
+        )
+    try:
+        zg_data = zg_data.var156
+    except AttributeError:
+        zg_data = zg_data.zg
+
+    # time to datetime
+    try:
+        zg_data["time"] = zg_data.indexes["time"].to_datetimeindex()
+    except AttributeError:
+        zg_data["time"] = pd.to_datetime(zg_data.time)
+
+    # demean
+    print(" demean the ensemble mean...")
+    zg_ens_mean = zg_data.mean(dim="ens")
+    zg_demean = zg_data - zg_ens_mean
+
+    # select trop
+    print(" select troposphere...")
+    zg_trop = zg_demean.sel(plev=slice(100000, 20000))
+    if zg_trop.plev.size == 0:
+        zg_trop = zg_demean.sel(plev=slice(20000, 100000))
+
+    # standardize seperately with the temporal mean and std
+    print(" standardize each altitudes seperately...")
+    zg_trop = (zg_trop - zg_trop.mean(dim="time")) / zg_trop.std(dim="time")
+    return zg_trop
 
 def main():
     """
@@ -60,12 +98,12 @@ def main():
     # demean ens-mean
     demean = splitens - splitens.mean(dim="ens")
     # select traposphere
-    trop = demean.sel(hlayers=slice(85000, 100000)).isel(time=slice(0, 40))
+    trop = demean.sel(plev=slice(85000, 100000)).isel(time=slice(0, 40))
 
     #     eof_sar,pc_sar,fra_sar = season_eof(ex,nmode=2,method ="rolling_eof",
     # window=10,fixed_pattern='all',return_full_eof= False,independent = True,standard=True)
 
-    eof, index, fra = season_eof(
+    eof = season_eof(
         trop.var156,
         nmode=2,
         window=10,

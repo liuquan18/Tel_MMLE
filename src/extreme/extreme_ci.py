@@ -35,23 +35,31 @@ def _neg_count(ts):
     return extreme_count(ts, -2, False)
 
 
-def bootstrap_pos_count_low(ts,cl=0.95):
-    res = bootstrap((ts,), _pos_count, random_state=0, vectorized=False,confidence_level=cl)
+def bootstrap_pos_count_low(ts, cl=0.95):
+    res = bootstrap(
+        (ts,), _pos_count, random_state=0, vectorized=False, confidence_level=cl
+    )
     return res.confidence_interval.low
 
 
-def bootstrap_pos_count_high(ts,cl=0.95):
-    res = bootstrap((ts,), _pos_count, random_state=0, vectorized=False,confidence_level=cl)
+def bootstrap_pos_count_high(ts, cl=0.95):
+    res = bootstrap(
+        (ts,), _pos_count, random_state=0, vectorized=False, confidence_level=cl
+    )
     return res.confidence_interval.high
 
 
-def bootstrap_neg_count_low(ts,cl=0.95):
-    res = bootstrap((ts,), _neg_count, random_state=0, vectorized=False,confidence_level=cl)
+def bootstrap_neg_count_low(ts, cl=0.95):
+    res = bootstrap(
+        (ts,), _neg_count, random_state=0, vectorized=False, confidence_level=cl
+    )
     return res.confidence_interval.low
 
 
-def bootstrap_neg_count_high(ts,cl=0.95):
-    res = bootstrap((ts,), _neg_count, random_state=0, vectorized=False,confidence_level=cl)
+def bootstrap_neg_count_high(ts, cl=0.95):
+    res = bootstrap(
+        (ts,), _neg_count, random_state=0, vectorized=False, confidence_level=cl
+    )
     return res.confidence_interval.high
 
 
@@ -60,7 +68,7 @@ def bootstrap_neg_count_high(ts,cl=0.95):
 def extreme_count_xr(pc, ci=True):
     """
     calculate the extreme events of the stacked pc
-    pc: xarray dataarray,with dimension ('hlayers','mode','ens','time)
+    pc: xarray dataarray,with dimension ('plev','mode','ens','time)
     ci: if True, calculate the confidence interval of extreme events
     return: xarray dataarray
     """
@@ -171,7 +179,7 @@ def plot_extreme_count(ext_count, ax=None, label=None, colored=False):
     if ax is None:
         ax = plt.gca()
 
-    y = ext_count.hlayers / 100
+    y = ext_count.plev / 100
     true = ext_count.sel(confidence="true").values
     low = ext_count.sel(confidence="low").values
     high = ext_count.sel(confidence="high").values
@@ -188,6 +196,7 @@ def extreme_count_profile(
     first_count,
     last_count,
     colored=False,
+    xlim = (-5, 45)
 ):
     """
     plot the extreme event count profile for the NAO and EA,
@@ -245,6 +254,6 @@ def extreme_count_profile(
             colored=colored,
         )
     for ax in axes:
-        ax.set_xlim(-5, 45)
+        ax.set_xlim(xlim)
     # add legend
     axes[0, 0].legend(loc="lr", ncols=1, frame=True)

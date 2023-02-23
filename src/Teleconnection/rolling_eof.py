@@ -17,7 +17,7 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
 
     **Arguments**:
 
-        *xarr*: the DataArray that is going to be decomposed by rolling_eof. [time,lat,lon,ens,height,window_dim]
+        *xarr*: the DataArray that is going to be decomposed by rolling_eof. [time,lat,lon,ens,height,decade]
         *nmode*: the number of modes reserved.
         *window*: the rolling window.
         *fixed_pattern*: string, determine how the pcs generated.
@@ -53,7 +53,7 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
     # if do the all-all decompose
     if fixed_pattern == "all":  # a little different from the following two.
         print("     using the all pattern")
-        EOF, pc, FRA = ssp.doeof(
+        eof_result = ssp.doeof(
             tools.stack_ens(xarr, withdim="time"),
             nmode=nmode,
             dim="com",
@@ -62,25 +62,39 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
         # here the pc is not directly used since the eof is multiplied by the std of pc, then if we
         # do the project-field, the resulted projectd-pc is not the same as the pc from the solver.
         # in order to make it the same  order as the following, we do project-field to get the index.
-        PC = fixed_pc(xarr, EOF, standard=standard)
-
-    elif fixed_pattern == "False":
-        print("     no fixed pattern used")
-        EOF, FRA = changing_eofs(xarr, validtime, nmode=nmode, window=window)
-        PC = changing_pc(xarr, validtime, EOF, standard=standard)
+        PC = fixed_pc(xarr, eof_result["eof"], standard=standard)
 
     elif fixed_pattern == "first":
         # only the EOF of the first10 is needed.
         print("     using the first pattern")
-        EOF, FRA = changing_eofs(xarr, validtime[0], nmode=nmode, window=window)
-        PC = fixed_pc(xarr, EOF, standard=standard)
+        eof_result = changing_eofs(xarr, validtime[0], nmode=nmode, window=window)
+        eof_result = eof_result[['eof','fra']]
+        PC = fixed_pc(xarr, eof_result["eof"], standard=standard)
 
     elif fixed_pattern == "last":
         print("     using the last pattern")
-        EOF, FRA = changing_eofs(xarr, validtime[-1], nmode=nmode, window=window)
-        PC = fixed_pc(xarr, EOF, standard=standard)
+        eof_result = changing_eofs(xarr, validtime[-1], nmode=nmode, window=window)
+        eof_result = eof_result[['eof','fra']]
+        PC = fixed_pc(xarr, eof_result["eof"], standard=standard)
 
-    return EOF, PC, FRA
+    elif fixed_pattern == "decade":
+        print("     decomposing everty ten years")
+        # select the middle year of each decade from validtime
+        decade_time = validtime[::window]
+        eof_result = changing_eofs(xarr, decade_time, nmode=nmode, window=window)
+        eof_result = eof_result[['eof','fra']]
+        eof_result = eof_result.rename({"time":"decade"}) # the time for eof is the decade time
+        PC = decadal_pc(xarr, decade_time, eof_result["eof"],window=window)
+
+    elif fixed_pattern == "False":
+        print("     no fixed pattern used")
+        eof_result = changing_eofs(xarr, validtime, nmode=nmode, window=window)
+        eof_result = eof_result[['eof','fra']]
+        PC = changing_pc(xarr, validtime, eof_result["eof"], standard=standard)
+
+    # replace the pc with the pc from projection
+    eof_result["pc"] = PC
+    return eof_result
 
 
 def changing_eofs(xarr, validtime, nmode, window):
@@ -99,37 +113,30 @@ def changing_eofs(xarr, validtime, nmode, window):
     """
 
     field = rolling(xarr, win=window)
-    field = tools.stack_ens(field, withdim="window_dim")
-    # calculate eof and fra
-    eofs = list()
-    fras = list()
+    field = field.stack(com=("ens", "decade"))
+    # select only the valid time
+    field = field.sel(time=validtime)
 
     # changing eofs (dynamic):
     if validtime.size > 1:
-        for time in tqdm(validtime):
-            tenyear_xarr = field.sel(time=time)
-            eof, _, fra = ssp.doeof(
-                tenyear_xarr, nmode=nmode, dim="com"
-            )  # the pc here is neither
-            # fixed nor non-fixed pattern.
-            eofs.append(eof)
-            fras.append(fra)
-
-        EOFs = xr.concat(eofs, dim=validtime)
-        FRA = xr.concat(fras, dim=validtime)
+        eof_result = field.groupby("time").apply(
+            lambda x: ssp.doeof(x, nmode=nmode, dim="com")
+        )
 
     # for one pattern (first,all,last) and all time step
     elif validtime.size == 1:
-        tenyear_xarr = field.sel(time=validtime)
-        EOFs, _, FRA = ssp.doeof(tenyear_xarr, nmode=nmode, dim="com")
-        
+        eof_result = ssp.doeof(field, nmode=nmode, dim="com")
+
     # drop vars
-    EOFs = EOFs.drop_vars("window_dim")
+    try:
+        eof_result = eof_result.drop_vars("decade")
+    except:
+        pass
 
-    return EOFs, FRA
+    return eof_result
 
 
-def fixed_pc(xarr, pattern, standard):
+def fixed_pc(xarr, pattern, standard, dim="time"):
     """projecting the xarr to a fixed spatial pattern.
 
     **Arguments**
@@ -142,13 +149,51 @@ def fixed_pc(xarr, pattern, standard):
         *pcx*: the coresponding temporal index
     """
     # stack
-    fieldx = tools.stack_ens(xarr, withdim="time")
+    fieldx = tools.stack_ens(xarr, withdim=dim)
     pc = ssp.project_field(fieldx, pattern, standard=standard)
     return pc
 
 
+def decadal_pc(xarr, validtime, EOF, window):
+    """decompose the xarr into decadal patterns.
+
+    **Arguments**
+
+        *xarr* : the DataArray to be composed.
+        *nmode* : how many modes to decompose.
+        *windo* : rolling window.
+
+    **Return**
+
+        eof and fra.
+    """
+
+    field = rolling(xarr, win=window)
+    PC = []
+    # select only the valid time
+    for time in validtime:
+        lowyear = pd.Timestamp(time.values) - pd.DateOffset(years = window/2)
+        highyear = pd.Timestamp(time.values) + pd.DateOffset(years = window/2)
+        time_window = pd.date_range(lowyear, highyear, freq='Y')
+
+        field_dec = field.sel(time=time)
+        pattern = EOF.sel(decade=time)  # decade rather than time
+        pc = fixed_pc(field_dec, pattern, standard=False, dim="decade")
+
+        # change 'decade' to 'time'
+        pc = pc.drop_vars("time")
+        pc = pc.rename({"decade": "time"})
+        pc['time'] = time_window
+        PC.append(pc)
+    PC = xr.concat(PC, dim='time')
+    return PC
+
+
 def changing_pc(xarr, validtime, EOF, standard):
-    """A changing pc by projecting all ensembles onto the spatial pattern in this year.
+    """projecting the xarr to a changing spatial pattern.
+    The patterns can be a
+        pattern for each year (dim = 'ens')
+        pattern for each decade (dim = 'decade')
 
     **Arguments**
 
@@ -167,7 +212,10 @@ def changing_pc(xarr, validtime, EOF, standard):
 
         # here the standard must be False since there is only one time step here.
         pc = ssp.project_field(
-            field, pattern, dim="ens", standard=False,
+            field,
+            pattern,
+            dim="ens",
+            standard=False,
         )  # project all ens onto one eof.
         PC.append(pc)
     PC = xr.concat(PC, dim=validtime)
@@ -175,7 +223,7 @@ def changing_pc(xarr, validtime, EOF, standard):
     # The real standardization is done here.
     if standard:
         PC = tools.standardize(PC)
-        
+
     return PC
 
 
@@ -195,6 +243,6 @@ def rolling(xarr, win=10):
     roller = xarr.rolling(time=win, center=True)
 
     # construct the rolling object to a DatArray
-    rolled = roller.construct("window_dim")
+    rolled = roller.construct("decade")
 
     return rolled

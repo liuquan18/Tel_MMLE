@@ -6,11 +6,12 @@ import proplot as pplt
 
 # reimport extreme
 import importlib
+
 importlib.reload(extreme)
 
 
 # %%
-def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers = None):
+def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None):
     """
     extract the extreme count and the mean surface temperature every ten years.
     **Arguments**
@@ -18,14 +19,11 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers = None)
         *temp* the -fldmean, -yearmean -ensmean surface temperauter.
     **Return**
         *ext_counts* the DataArray of extreme count, *time, *extr_type, *mode
-        *t_surf_mean* the mean t_surface,
+        *t_surf_mean* the mean t_surface (the increase of the temperature)
         the time here use the first year of the decade.
     """
-    if hlayers is not None:
-        index = index.sel(hlayers=hlayers)
-
-    # tsurf increase
-    temp = temp - temp.isel(time = 0)
+    if plev is not None:
+        index = index.sel(plev=plev)
 
     ext_counts = []
     t_surf_mean = []
@@ -48,45 +46,72 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, hlayers = None)
     t_surf_mean = xr.concat(t_surf_mean, dim=periods)
     return ext_counts, t_surf_mean
 
+
+def corr_coef(ext_count, tsurf_increase):
+    """calculate the correlation coefficient between extreme count and surface temperature increase"""
+    func = lambda x: np.corrcoef(x, tsurf_increase.values)[0][1]
+    return xr.apply_ufunc(
+        func,
+        ext_count,
+        input_core_dims=[["time"]],
+        output_core_dims=[[]],
+        vectorize=True,
+    )
+
+
 #%%
-def extCount_tsurf_scatter(ext_counts, t_surf, hlayers = None):
+def extCount_tsurf_scatter(ext_counts, t_surf, plev=None, ylim=(0, 55),xlim=(-1, 6),xlabel = 'temperature (K)'):
     """
     rows: pos/neg
     cols: NAO/EA
     scatter: extreme_count v.s surface temperature
     hue: different  dataset
     """
+    r = corr_coef(ext_counts.sel(confidence="true"), t_surf)
     fig, axes = pplt.subplots(nrows=2, ncols=2, figwidth=8, span=False, share=False)
 
     axes.format(
         abc="a",
         abcloc="ul",
-        xlim=(-1, 6),
+        xlim=xlim,
         suptitle=f"extreme counts v.s surface temperature in decadal time scale",
-        xlabel="temperature (K)",
+        xlabel=xlabel,
         ylabel="extreme count",
         grid=False,
         leftlabels=["NAO", "EA"],
         toplabels=["pos", "neg"],
         xminorticks="null",
         yminorticks="null",
-        ylim = (0,55),
+        ylim=ylim,
     )
-    if hlayers is not None:
-        ext_counts = ext_counts.sel(hlayers=hlayers)
+    if plev is not None:
+        ext_counts = ext_counts.sel(plev=plev)
+        r = r.sel(plev=plev)
 
     for j, extr_type in enumerate(ext_counts.extr_type):
         for i, mode in enumerate(ext_counts.mode):
 
             # true values
-            true = ext_counts.sel(extr_type=extr_type, mode=mode,confidence="true")
-            low =  ext_counts.sel(extr_type=extr_type, mode=mode,confidence="low")
-            high = ext_counts.sel(extr_type=extr_type, mode=mode,confidence="high")
+            true = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="true")
+            low = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="low")
+            high = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="high")
 
             axes[i, j].errorbar(
                 x=t_surf,
                 y=true,
-                yerr=[(true-low), (high-true)],
-                fmt='o', linewidth=2, capsize=6)
+                yerr=[(true - low), (high - true)],
+                fmt="o",
+                linewidth=2,
+                capsize=6,
+            )
+
+            axes[i, j].text(
+                0.8,
+                0.1,
+                f"r={r.sel(extr_type=extr_type, mode=mode).values:.2f}",
+                transform=axes[i, j].transAxes,
+                fontsize="large",
+            )
+
 
 # %%
