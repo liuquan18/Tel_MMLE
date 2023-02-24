@@ -104,7 +104,7 @@ class story_line:
         plt.savefig(self.to_plot_dir + "extreme_count_vertical_profile.png")
 
     # extreme event count vs. tsurf
-    def extrc_tsurf(self, plev=50000):
+    def extrc_tsurf(self, plev=50000,ylim = (=5,65)):
         print("ploting the extreme event count vs. tsurf")
         tsurf_mean = self.tsurf
         tsurf_increase = tsurf_mean - tsurf_mean[0]
@@ -112,21 +112,21 @@ class story_line:
             self.pc, tsurf_increase
         )
         Fig3 = extrc_tsurf.extCount_tsurf_scatter(
-            ext_counts, t_surf_mean, plev=plev, ylim=(-5, 65)
+            ext_counts, t_surf_mean, plev=plev, ylim=ylim
         )
         plt.savefig(
             self.to_plot_dir + "extreme_count_tsurf" + f"_{(plev/100):.0f}hPa" + ".png"
         )
 
     # extreme event count vs. arctic-tropical gradient
-    def extrc_atg(self, plev=50000, **kwargs):
+    def extrc_atg(self, plev=50000, ylim = (-5,65)):
         print("ploting the extreme event count vs. arctic-tropical gradient")
         atg = self.atg
         ext_counts, atg_dec = extrc_tsurf.decadal_extrc_tsurf(
             self.pc, atg
         )
         extc_atg_scatter = extrc_tsurf.extCount_tsurf_scatter(
-            ext_counts, atg_dec, plev=plev, ylim=(-5, 65), xlim = (-7,7),xlabel = 'tropic-arctic gradient' **kwargs
+            ext_counts, atg_dec, plev=plev, ylim=ylim, xlim = (-7,7),xlabel = 'tropic-arctic gradient'
         )
         plt.savefig(
             self.to_plot_dir + "extreme_count_atg" + f"_{(plev/100):.0f}hPa" + ".png")
@@ -135,9 +135,9 @@ class story_line:
     def plot_all(self):
         self.stat_overview()
         self.spatial_pattern_change()
-        self.extreme_count_profile()
-        self.extrc_tsurf()
-        self.extrc_atg()
+        self.extreme_count_profile(xlim = (20,120))
+        self.extrc_tsurf(ylim = (10,120))
+        self.extrc_atg(ylim = (10,120))
 
     def create_doc(self):
         """create md file for the plots"""
