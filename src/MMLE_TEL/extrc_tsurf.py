@@ -61,7 +61,7 @@ def corr_coef(ext_count, tsurf_increase, dim="time"):
 
 #%%
 def extCount_tsurf_scatter(
-    ext_counts, t_surf, plev=None, ylim=(0, 55), xlim=(-1, 6), xlabel="temperature (K)"
+    ext_counts, t_surf, plev=None, ylim=(0, 55), xlim=(-1, 5), xlabel="temperature (K)"
 ):
     """
     rows: pos/neg
