@@ -7,7 +7,6 @@ from pandas.tseries.offsets import DateOffset
 
 
 def read_tsurf_fldmean(dir):
-    print("reading the mean tsurf data...")
     tsurf = xr.open_dataset(dir,)  # already pre-processed
 
     try:

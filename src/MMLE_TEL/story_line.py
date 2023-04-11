@@ -59,7 +59,9 @@ class story_line:
         self.pc = self.eof_result.pc
 
         # read tsurf
+        print("reading tsurf data...")
         self.tsurf = warming_stage.read_tsurf_fldmean(self.tsurf_dir)
+        print("reading tsurf gradient data...")
         self.atg = warming_stage.read_tsurf_fldmean(self.atg_dir)
         self.warming_periods = warming_stage.temp_period(self.tsurf)
 
