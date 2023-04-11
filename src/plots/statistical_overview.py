@@ -129,6 +129,7 @@ def stat_overview(eof_result, plev=50000):
             x=mode,
             hue="compare",
             hue_order=["first10", "last10"],
+            palette=['#1f77b4', '#ff7f0e'],
             multiple="dodge",
             shrink=0.6,
             bins=np.arange(-4, 4.1, 0.5),
@@ -148,12 +149,13 @@ def stat_overview(eof_result, plev=50000):
             x=modes[i],
             hue="compare",
             kind="violin",
-            palette="pastel",
+            palette=['#1f77b4', '#ff7f0e'],
             orient="h",
             ax=violin_ax,
             split=False,
             dodge=True,
             linewidth=1,
+            alpha=0.3,
         )
         g.axes.legend().remove()
         violin_ax.format(
@@ -170,8 +172,8 @@ def stat_overview(eof_result, plev=50000):
         violin_ax.spines["top"].set_visible(False)
 
         # add legend
-        f_patch = mpatches.Patch(color="C0", label="first10")
-        l_patch = mpatches.Patch(color="C1", label="last10")
+        f_patch = mpatches.Patch(color="#1f77b4", label="first10")
+        l_patch = mpatches.Patch(color="#ff7f0e", label="last10")
 
         if i == 1:
             spatial_ax.colorbar(fmap, loc="b", title="std", ticks=0.2, pad=2)
