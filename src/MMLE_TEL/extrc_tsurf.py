@@ -88,7 +88,7 @@ def extCount_tsurf_scatter(
     if plev is not None:
         # data preparation
         ext_counts = ext_counts.sel(plev=plev)
-        r = corr_coef(ext_counts.sel(confidence="true"), t_surf).sel(plev=plev)
+        r = corr_coef(ext_counts.sel(confidence="true"), t_surf)
 
         # plot
         scatter_plot(ext_counts, t_surf, r, axes)
