@@ -138,8 +138,8 @@ class story_line:
         self.stat_overview()
         self.spatial_pattern_change()
         self.extreme_count_profile(xlim = (20,120))
-        self.extrc_tsurf(ylim = (10,120))
-        self.extrc_atg(ylim = (10,120))
+        self.extrc_tsurf(ylim = (25,130))
+        self.extrc_atg(ylim = (25,130))
 
     def create_doc(self):
         """create md file for the plots"""
