@@ -122,7 +122,7 @@ def scatter_plot(ext_counts, t_surf, r, axes):
                 t = t_surf.stack(com=("time", "plev"))
 
             except KeyError:
-                pass
+                t = t_surf
 
             axes[i, j].errorbar(
                 x=t,
