@@ -104,7 +104,7 @@ class story_line:
         plt.savefig(self.to_plot_dir + "extreme_count_vertical_profile.png")
 
     # extreme event count vs. tsurf
-    def extrc_tsurf(self, plev=50000,ylim = (=5,65)):
+    def extrc_tsurf(self, plev=50000,ylim = (5,65)):
         print("ploting the extreme event count vs. tsurf")
         tsurf_mean = self.tsurf
         tsurf_increase = tsurf_mean - tsurf_mean[0]
