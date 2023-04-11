@@ -90,13 +90,15 @@ def spatial_stat(eof, mode, dim="lon"):
         bins = np.arange(-90, 41, 5)  # lon bins
         labels = np.arange(-90, 36, 5)  # lon label
         average_dim = "lat"
+        roi = slice(40,80) # lat range, only the lower part of EA are used.
     elif dim == "lat":
         bins = np.arange(20, 81, 4)
         labels = np.arange(22, 81, 4)
         average_dim = "lon"
+        roi = slice(-90,40) # all lon used for NAO 
 
     data = eof.sel(mode=mode)
-    data_height = data.groupby_bins(dim, bins=bins, labels=labels).mean(
+    data_height = data.sel(average_dim = roi).groupby_bins(dim, bins=bins, labels=labels).mean(
         dim=average_dim, skipna=True
     )
     return data_height
@@ -159,6 +161,10 @@ def spatial_pattern_profile(eofs, levels=np.arange(-2.0, 2.1, 0.4)):
     cols periods
     """
     eofs["plev"] = eofs["plev"] / 100
+    try :
+        eofs = eofs.rename({"period": "decade"})
+    except ValueError:
+        pass
 
     lon_NAO = spatial_stat(eofs, mode="NAO", dim="lon")
 
@@ -186,8 +192,8 @@ def spatial_pattern_profile(eofs, levels=np.arange(-2.0, 2.1, 0.4)):
     xs = ["lon", "lat"]
 
     for r, profile in enumerate([lon_NAO, lat_EA]):
-        for c, period in enumerate(eofs.period):
-            prof = profile.sel(period=period)
+        for c, period in enumerate(eofs.decade):
+            prof = profile.sel(decade=period)
             vertmap = axes[r, c].contourf(
                 prof, x=xs[r], y="plev", levels=levels, extend="both", cmap="RdBu_r"
             )
