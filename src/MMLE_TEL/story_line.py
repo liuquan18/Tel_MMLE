@@ -47,11 +47,15 @@ class story_line:
         odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.eof_result_dir = odir + "EOF_result/" + self.prefix + "eof_result.nc"
         self.tsurf_dir = odir + "ts_processed/tsurf_mean.nc"
+        self.ts_fullfield_dir = (
+            odir + "ts/"
+        )  # the location for the full field temperature data
         self.atg_dir = odir + "ts_processed/tsurf_anom_gradient.nc"
         self.to_plot_dir = (
             "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/" + self.prefix
         )
         self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
+
         # read eof
         self.eof_result = self.read_eof()
         self.eof = self.eof_result.eof
@@ -81,6 +85,30 @@ class story_line:
         eof_result = xr.open_dataset(self.eof_result_dir)
         return eof_result
 
+    # read temperature data to do the composite analysis
+    def read_var(self):
+        """
+        read the tsurf or wind, precipitation for composite analysis
+        data are stored in 3rdPanel/data/
+        """
+        print("reading the var to do composite...")
+        # MPI is different format...
+        if self.model == "MPI_GE_onepct":
+            var_data = xr.open_dataset(self.ts_fullfield_dir + "all_ens_tsurf.nc").tsurf
+        elif self.model == "MPI_GE":
+            var_data = xr.open_mfdataset(
+                self.ts_fullfield_dir + "*.nc", combine="nested", concat_dim="ens"
+            ).tsurf
+        else:
+            var_data = xr.open_mfdataset(
+                self.ts_fullfield_dir + "*.nc", combine="nested", concat_dim="ens"
+            )
+            var_data = var_data.ts
+            var_data = var_data.rename({"plev": "plev"})
+            var_data["time"] = var_data.indexes["time"].to_datetimeindex()
+
+        return var_data
+
     # statistical overview
     def stat_overview(self):
         print("ploting the statistical overview")
@@ -94,7 +122,10 @@ class story_line:
             self.warming_periods, self.eof, self.fra, **kwargs
         )
         plt.savefig(
-            self.to_plot_dir + "spatial_pattern_change" + f"_{(plev/100):.0f}hPa" + ".png"
+            self.to_plot_dir
+            + "spatial_pattern_change"
+            + f"_{(plev/100):.0f}hPa"
+            + ".png"
         )
 
     # extreme event count profile
@@ -106,7 +137,7 @@ class story_line:
         plt.savefig(self.to_plot_dir + "extreme_count_vertical_profile.png")
 
     # extreme event count vs. tsurf
-    def extrc_tsurf(self, plev=50000,ylim = (5,65)):
+    def extrc_tsurf(self, plev=50000, ylim=(5, 65)):
         print("ploting the extreme event count vs. tsurf")
         tsurf_mean = self.tsurf
         tsurf_increase = tsurf_mean - tsurf_mean[0]
@@ -121,25 +152,28 @@ class story_line:
         )
 
     # extreme event count vs. arctic-tropical gradient
-    def extrc_atg(self, plev=50000, ylim = (-5,65)):
+    def extrc_atg(self, plev=50000, ylim=(-5, 65)):
         print("ploting the extreme event count vs. arctic-tropical gradient")
         atg = self.atg
-        ext_counts, atg_dec = extrc_tsurf.decadal_extrc_tsurf(
-            self.pc, atg
-        )
+        ext_counts, atg_dec = extrc_tsurf.decadal_extrc_tsurf(self.pc, atg)
         extc_atg_scatter = extrc_tsurf.extCount_tsurf_scatter(
-            ext_counts, atg_dec, plev=plev, ylim=ylim, xlim = (-7,7),xlabel = 'tropic-arctic gradient'
+            ext_counts,
+            atg_dec,
+            plev=plev,
+            ylim=ylim,
+            xlim=(-7, 7),
+            xlabel="tropic-arctic gradient",
         )
         plt.savefig(
-            self.to_plot_dir + "extreme_count_atg" + f"_{(plev/100):.0f}hPa" + ".png")
-
+            self.to_plot_dir + "extreme_count_atg" + f"_{(plev/100):.0f}hPa" + ".png"
+        )
 
     def plot_all(self):
         self.stat_overview()
         self.spatial_pattern_change()
-        self.extreme_count_profile(xlim = (20,120))
-        self.extrc_tsurf(ylim = (25,130))
-        self.extrc_atg(ylim = (25,130))
+        self.extreme_count_profile(xlim=(20, 120))
+        self.extrc_tsurf(ylim=(25, 130))
+        self.extrc_atg(ylim=(25, 130))
 
     def create_doc(self):
         """create md file for the plots"""
@@ -147,14 +181,28 @@ class story_line:
         with open(self.doc_dir + self.prefix + "story_line.md", "w") as f:
             f.write(f"# {self.prefix}Story line\n")
             f.write("## Statistical overview\n")
-            f.write(f"![stat_overview](plots/story_line/{self.prefix}stat_overview.png)\n")
+            f.write(
+                f"![stat_overview](plots/story_line/{self.prefix}stat_overview.png)\n"
+            )
             f.write("## Spatial pattern change at 0K, 2K, 4K\n")
-            f.write(f"![spatial_pattern_change](plots/story_line/{self.prefix}spatial_pattern_change_500hPa.png)\n")
+            f.write(
+                f"![spatial_pattern_change](plots/story_line/{self.prefix}spatial_pattern_change_500hPa.png)\n"
+            )
             f.write("## Extreme event count profile\n")
-            f.write(f"![extreme_count_vertical_profile](plots/story_line/{self.prefix}extreme_count_vertical_profile.png)\n")
+            f.write(
+                f"![extreme_count_vertical_profile](plots/story_line/{self.prefix}extreme_count_vertical_profile.png)\n"
+            )
             f.write("## Extreme event count vs. tsurf\n")
-            f.write(f"![extreme_count_tsurf](plots/story_line/{self.prefix}extreme_count_tsurf_500hPa.png)\n")
+            f.write(
+                f"![extreme_count_tsurf](plots/story_line/{self.prefix}extreme_count_tsurf_500hPa.png)\n"
+            )
             f.write("## Extreme event count vs. arctic-tropical gradient\n")
-            f.write(f"![extreme_count_atg](plots/story_line/{self.prefix}extreme_count_atg_500hPa.png)\n")
+            f.write(
+                f"![extreme_count_atg](plots/story_line/{self.prefix}extreme_count_atg_500hPa.png)\n"
+            )
+
 
 # %%
+mpi.model
+# %%
+first_var = composite.Tel_field_composite(first_index, var_data)
