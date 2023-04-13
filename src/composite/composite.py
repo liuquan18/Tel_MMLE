@@ -30,24 +30,33 @@ def composite(
     index: xr.DataArray, data: xr.DataArray, reduction: str = "mean", dim: str = "com"
 ):
     """
-    do composite mean or count of data given the index
+    do composite mean of data given the index
     **Argument**
         *index* the index which declears the coords to do the composite analysis
         *data* the data to be meaned or counted
         *reduction* "mean" or "count"
         *dim* along which dim to do the mean and count.
     """
-    # get the data at the  coordinates
-    sel_data = data.where(index)
 
     if reduction == "mean":
-        composite = sel_data.mean(dim=dim)
-    elif reduction == "count":
-        composite = sel_data.count(dim=dim)
-    return composite
+        # get the data at the  coordinates
+        sel_data = data.where(index)
+        composited = sel_data.mean(dim=dim)
+
+    elif reduction == "mean_first40":
+        # sel the largest 40 values from index
+        index = index.copy()
+        if index.attrs["extreme_type"] == "pos":
+            index = index.sortby(index, ascending=False)
+        elif index.attrs["extreme_type"] == "neg":
+            index = index.sortby(index, ascending=True)
+        index = index.isel(com=slice(0, 40))
+        sel_data = data.where(index)
+        composited = sel_data.mean(dim=dim)
+    return composited
 
 
-def extreme_composite(index, data, reduction="mean", dim="com",threshold = 2):
+def extreme_composite(index, data, reduction="mean", dim="com", threshold=2):
     """
     the composite mean or count of data, in terms of different extreme type.
 
@@ -63,7 +72,8 @@ def extreme_composite(index, data, reduction="mean", dim="com",threshold = 2):
     for extr_type in extreme_type.values:
 
         # get the coordinates of the extremes
-        extr_index = extreme(index, extreme_type=extr_type,threshold=threshold)
+        extr_index = extreme(index, extreme_type=extr_type, threshold=threshold)
+        extr_index.attrs["extreme_type"] = extr_type
 
         # do composite analysis based on the extreme index
         extr_composite = composite(extr_index, data, reduction=reduction, dim=dim)
