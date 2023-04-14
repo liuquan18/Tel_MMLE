@@ -1,7 +1,9 @@
 import xarray as xr
 import numpy as np
-import src.composite.composite as composite
-
+import src.composite.composite as composite_analysis
+import cartopy.crs as ccrs
+import proplot as pplt
+import src.plots.utils as utils
 
 def Tel_field_composite(
     index: xr.DataArray,
@@ -24,22 +26,82 @@ def Tel_field_composite(
     """
 
     # Select the same time period
-    data = data.sel(time=index.time, method="nearest")
+    index_c = index.copy() # make a copy of the original data
+    data_c = data.copy()
+
+    index_c['time'] = index_c.time.dt.year
+    data_c['time'] = data_c.time.dt.year
+    data_c = data_c.sel(time=index_c.time, method="nearest")
 
     # combine time and ens into one dim
-    index = index.stack(com=("time", "ens"))
-    data = data.stack(com=("time", "ens"))
+    index_c = index_c.stack(com=("time", "ens"))
+    data_c = data_c.stack(com=("time", "ens"))
 
     # since there is 'mode' dim in index, here groupby.
-    tel_composite = index.groupby("mode").apply(
-        composite.extreme_composite,
-        data=data,
+    tel_composite = index_c.groupby("mode").apply(
+        composite_analysis.extreme_composite,
+        data=data_c,
         reduction=reduction,
         dim="com",
         threshold=threshold,
     )
 
     return tel_composite
+
+
+def composite_plot( first, last, mode):
+    if mode == "NAO":
+        levels = np.arange(-3,3.5,0.5)
+    elif mode == "EA":
+        levels = np.arange(-2,2.5,0.5)
+
+    first = utils.erase_white_line(first)
+    last = utils.erase_white_line(last)
+
+    data_all = [
+        first.sel(mode=mode),
+        last.sel(mode=mode),
+        last.sel(mode=mode) - first.sel(mode=mode),
+    ]
+    extr_type = ["pos", "neg"]
+
+    fig, axes = pplt.subplots(
+        space=0,
+        refwidth="25em",
+        wspace=3,
+        hspace=3,
+        proj="ortho",
+        proj_kw=({"lon_0": -20, "lat_0": 60}),
+        nrows=2,
+        ncols=3,
+    )
+    axes.format(
+        latlines=20,
+        lonlines=30,
+        coast=True,
+        coastlinewidth=0.5,
+        coastcolor="gray7",
+        toplabels=["first10", "last10", "last10 - first10"],
+        leftlabels=("pos", "neg"),
+        suptitle=f"Change in influence of extreme {mode} on surface temperature",
+    )
+
+    extr_types = ["pos", "neg"]
+    for i, extr_type in enumerate(extr_types):
+        for j, data in enumerate(data_all):  # one row
+
+            first_m = axes[i, j].contourf(
+                data.sel(extr_type=extr_type),
+                x="lon",
+                y="lat",
+                levels=levels,
+                extend="both",
+                transform=ccrs.PlateCarree(),
+                cmap="RdBu_r",
+            )
+
+    fig.colorbar(first_m, loc="r", pad=3, title=f"tsurf/K")
+
 
 
 def field_composite(var, independent="dep", hlayer=100000):

@@ -23,6 +23,9 @@ import src.warming_stage.warming_stage as warming_stage
 # Stats overview
 import src.plots.statistical_overview as stat_overview
 
+# composite analysis
+import src.composite.field_composite as composite
+
 #%%
 importlib.reload(extreme)
 importlib.reload(sp_change)
@@ -106,6 +109,7 @@ class story_line:
             var_data = var_data.ts
             var_data = var_data.rename({"plev": "plev"})
             var_data["time"] = var_data.indexes["time"].to_datetimeindex()
+        var_data = var_data - var_data.mean(dim="ens")  # remove the ensemble mean
 
         return var_data
 
@@ -168,12 +172,36 @@ class story_line:
             self.to_plot_dir + "extreme_count_atg" + f"_{(plev/100):.0f}hPa" + ".png"
         )
 
+    # composite analysis of surface temperature in terms of different extreme events
+    def composite_analysis(self, plev=50000, **kwargs):
+        print("ploting the composite analysis of surface temperature")
+        var_data = self.read_var()
+
+        first_index = self.first_pc.sel(plev=plev)
+        last_index = self.last_pc.sel(plev=plev)
+
+        first_var = composite.Tel_field_composite(first_index, var_data,reduction='mean',threshold=1.5)
+        last_var = composite.Tel_field_composite(last_index, var_data,reduction='mean',threshold=1.5)
+
+        temp_NAO = composite.composite_plot(first_var, last_var, "NAO")
+        plt.savefig(
+            self.to_plot_dir + self.prefix + f"composite_tsurf_NAO.png",
+            dpi=300,
+        )
+
+        temp_EA = composite.composite_plot(first_var, last_var, "EA")
+        plt.savefig(
+            self.to_plot_dir + self.prefix + f"composite_tsurf_EA.png",
+            dpi=300,
+        )
+
     def plot_all(self):
         self.stat_overview()
         self.spatial_pattern_change()
         self.extreme_count_profile(xlim=(20, 120))
         self.extrc_tsurf(ylim=(25, 130))
         self.extrc_atg(ylim=(25, 130))
+        self.composite_analysis()
 
     def create_doc(self):
         """create md file for the plots"""
@@ -200,9 +228,14 @@ class story_line:
             f.write(
                 f"![extreme_count_atg](plots/story_line/{self.prefix}extreme_count_atg_500hPa.png)\n"
             )
-
-
-# %%
-mpi.model
-# %%
-first_var = composite.Tel_field_composite(first_index, var_data)
+            f.write(
+                "## Composite analysis of surface temperature in terms of different extreme events\n"
+            )
+            f.write("### NAO\n")
+            f.write(
+                f"![composite_tsurf_NAO](plots/story_line/{self.prefix}composite_tsurf_NAO.png)\n"
+            )
+            f.write("### EA\n")
+            f.write(
+                f"![composite_tsurf_EA](plots/story_line/{self.prefix}composite_tsurf_EA.png)\n"
+            )

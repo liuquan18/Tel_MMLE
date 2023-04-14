@@ -26,7 +26,7 @@ def extreme(
     return extreme
 
 
-def composite(
+def composite_reduce(
     index: xr.DataArray, data: xr.DataArray, reduction: str = "mean", dim: str = "com"
 ):
     """
@@ -46,6 +46,7 @@ def composite(
     elif reduction == "mean_first40":
         # sel the largest 40 values from index
         index = index.copy()
+        index = index.squeeze()
         if index.attrs["extreme_type"] == "pos":
             index = index.sortby(index, ascending=False)
         elif index.attrs["extreme_type"] == "neg":
@@ -76,7 +77,9 @@ def extreme_composite(index, data, reduction="mean", dim="com", threshold=2):
         extr_index.attrs["extreme_type"] = extr_type
 
         # do composite analysis based on the extreme index
-        extr_composite = composite(extr_index, data, reduction=reduction, dim=dim)
+        extr_composite = composite_reduce(
+            extr_index, data, reduction=reduction, dim=dim
+        )
         Ext_composite.append(extr_composite)
 
     # concate the positive and negative extremes together.
