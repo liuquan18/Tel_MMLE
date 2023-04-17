@@ -51,7 +51,7 @@ def read_data(gph_dir):
     """
     # read MPI_onepct data
     try:
-        zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
+        zg_data = xr.open_dataset(gph_dir + "allens.nc")
         zg_data = tools.split_ens(zg_data)
     except FileNotFoundError:
         zg_data = xr.open_mfdataset(
