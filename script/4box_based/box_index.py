@@ -40,3 +40,4 @@ EA.name = 'pc'
 
 NAO.to_netcdf('/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/BOX_result/NAO.nc')
 EA.to_netcdf('/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/BOX_result/EA.nc')
+# %%
