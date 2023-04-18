@@ -19,6 +19,7 @@ Welcome to Teleconnection-season's documentation!
    Compare_extreme_count
    ind_decade_story_line
    dep_decade_story_line
+   box_based 
 
 Indices and tables
 ==================
