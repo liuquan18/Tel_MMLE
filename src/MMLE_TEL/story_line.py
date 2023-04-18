@@ -185,13 +185,13 @@ class story_line:
 
         temp_NAO = composite.composite_plot(first_var, last_var, "NAO")
         plt.savefig(
-            self.to_plot_dir + self.prefix + f"composite_tsurf_NAO.png",
+            self.to_plot_dir + f"composite_tsurf_NAO.png",
             dpi=300,
         )
 
         temp_EA = composite.composite_plot(first_var, last_var, "EA")
         plt.savefig(
-            self.to_plot_dir + self.prefix + f"composite_tsurf_EA.png",
+            self.to_plot_dir  + f"composite_tsurf_EA.png",
             dpi=300,
         )
 
