@@ -28,9 +28,6 @@ def season_eof(
 
         EOF, PC and FRA
     """
-    # the data should be standarize if there are more than one altitudes
-    if xarr.plev.size>1:
-        xarr = tools.standardize(xarr)
 
     # passing parameters
     kwargs = {
