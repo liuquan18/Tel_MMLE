@@ -186,7 +186,7 @@ class decompose_mmle:
         """
         decompose and then standardize the index
         """
-        print("decomposing the all, first and last ...")
+        print("decomposing the all, 0K and 4K ...")
 
         all_eof = self.decompose_allPattern()
         eof_0K = self.decompose_warming_period_pattern("0K")
