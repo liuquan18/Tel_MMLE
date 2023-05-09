@@ -5,9 +5,13 @@ To generate the index by projecting the data of all the years to the fixed spati
 #%%
 import xarray as xr
 import numpy as np
+import pandas as pd
+
 import src.Teleconnection.season_eof as season_eof
 import src.Teleconnection.tools as tools
 import src.extreme.period_pattern_extreme as extreme
+import src.Teleconnection.rolling_eof as rolling_eof
+
 
 #%%
 class decompose_fixedPattern:
@@ -22,12 +26,8 @@ class decompose_fixedPattern:
         self.standard_ens_time = standard_ens_time
         self.model = model
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
-        self.zg_path = (
-            self.odir + "zg_processed/"
-        )
-        self.save_path = (
-            self.odir + "EOF_result/"
-        )
+        self.zg_path = self.odir + "zg_processed/"
+        self.save_path = self.odir + "EOF_result/"
 
         # read data
         print("reading the gph data ...")
@@ -49,14 +49,10 @@ class decompose_fixedPattern:
         )
         return eof_result
 
-
     def standard_index(self):
         print("standardizing the index ...")
         # if single pattern, standardize the index with its own mean and std (temporal and ens)
-        if (
-            self.fixed_pattern == "first"
-            or self.fixed_pattern == "last"
-        ):
+        if self.fixed_pattern == "first" or self.fixed_pattern == "last":
             self.eof_result["pc"] = (
                 self.eof_result["pc"] - self.eof_result["pc"].mean(dim=("time", "ens"))
             ) / self.eof_result["pc"].std(dim=("time", "ens"))
@@ -65,17 +61,17 @@ class decompose_fixedPattern:
         elif self.fixed_pattern == "decade" or self.fixed_pattern == "False":
             try:
                 all_index = xr.open_dataset(
-                self.odir + "EOF_result/" + self.vertical_eof + "_all_eof_result.nc"
+                    self.odir + "EOF_result/" + self.vertical_eof + "_all_eof_result.nc"
                 )
 
             except FileNotFoundError:
                 print("all index not found, generate it first")
-            
+
             self.eof_result["pc"] = (
                 self.eof_result["pc"] - all_index["pc"].mean(dim=("time", "ens"))
             ) / all_index["pc"].std(dim=("time", "ens"))
 
-        elif self.fixed_pattern == 'all':
+        elif self.fixed_pattern == "all":
             print("     no standarization for all pattern")
         return self.eof_result
 
@@ -91,6 +87,113 @@ class decompose_fixedPattern:
             + self.fixed_pattern
             + "_"
             + "eof_result.nc"
+        )
+
+
+class decompose_mmle:
+    """
+    A class for mmle decomposition
+    """
+
+    def __init__(self, model, gph=50000) -> None:
+        self.model = model
+        self.gph = gph
+        self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
+        self.zg_path = self.odir + "zg_processed/"
+        self.save_path = self.odir + "EOF_result/"
+
+        # read data
+        print("reading the gph data ...")
+        self.data = self.read_data()
+        self.all_eof = self.decompose_allPattern()
+        self.first_eof, self.last_eof = self.decompose_eof()
+        # one single altitude only
+
+    def read_data(self):
+        """
+        read data quickly
+        """
+        gph_dir = self.zg_path
+        # read MPI_onepct data
+        try:
+            zg_data = xr.open_dataset(gph_dir + "allens.nc")
+            zg_data = tools.split_ens(zg_data)
+        except FileNotFoundError:
+            zg_data = xr.open_mfdataset(
+                gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
+            )
+        try:
+            zg_data = zg_data.var156
+        except AttributeError:
+            zg_data = zg_data.zg
+
+        # time to datetime
+        try:
+            zg_data["time"] = zg_data.indexes["time"].to_datetimeindex()
+        except AttributeError:
+            zg_data["time"] = pd.to_datetime(zg_data.time)
+
+        # demean
+        print(" demean the ensemble mean...")
+        zg_ens_mean = zg_data.mean(dim="ens")
+        zg_demean = zg_data - zg_ens_mean
+
+        # select trop
+        print(" select the specific gph...")
+        zg_trop = zg_demean.sel(plev=self.gph)
+        # standardize seperately with the temporal mean and std
+        print(" standardize each altitudes seperately...")
+        zg_trop = (zg_trop - zg_trop.mean(dim="time")) / zg_trop.std(dim="time")
+        return zg_trop
+
+    def decompose_allPattern(self):
+        """
+        decompose with the all pattern
+        """
+        all_eof = rolling_eof.rolling_eof(
+            self.data, nmode=2, window=6, fixed_pattern="all"
+        )
+        return all_eof
+
+    def decompose_tenYearPattern(self):
+        first_eof = rolling_eof.rolling_eof(
+            self.data, nmode=2, window=10, fixed_pattern="first"
+        )
+        last_eof = rolling_eof.rolling_eof(
+            self.data, nmode=2, window=10, fixed_pattern="last"
+        )
+        return first_eof, last_eof
+
+    def decompose_eof(self):
+        """
+        decompose and then standardize the index
+        """
+        print("decomposing the all, first and last ...")
+
+        all_eof = self.all_eof
+        first_eof, last_eof = self.decompose_tenYearPattern()
+        # standardize the index with the mean and std of the all index
+        print("standardize the index ...")
+        first_eof["pc"] = (
+            first_eof["pc"] - all_eof["pc"].mean(dim=("time", "ens"))
+        ) / all_eof["pc"].std(dim=("time", "ens"))
+        last_eof["pc"] = (
+            last_eof["pc"] - all_eof["pc"].mean(dim=("time", "ens"))
+        ) / all_eof["pc"].std(dim=("time", "ens"))
+        return first_eof, last_eof
+
+    def save_result(self):
+        print("saving the result ...")
+        # save the result
+
+        self.all_eof.to_netcdf(
+            self.save_path + 'gph_' + self.gph + "_all_" + "eof_result.nc"
+        )
+        self.first_eof.to_netcdf(
+            self.save_path + 'gph_' + self.gph + "_first_" + "eof_result.nc"
+        )
+        self.last_eof.to_netcdf(
+            self.save_path + 'gph_' + self.gph + "_last_" + "eof_result.nc"
         )
 
 
