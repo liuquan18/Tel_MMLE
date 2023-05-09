@@ -18,7 +18,7 @@ def read_tsurf_fldmean(dir):
         tsurf = tsurf.tsurf
     except AttributeError:
         tsurf = tsurf.ts
-    except AttributeError:
+    finally:
         tsurf = tsurf.tas
 
     try:
