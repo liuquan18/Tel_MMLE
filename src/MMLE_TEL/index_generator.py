@@ -180,7 +180,7 @@ class decompose_mmle:
         eof_result = eof_result[["eof", "fra"]]
         PC = ssp.project_field(field, eof_result.eof, dim="com")
         eof_result["pc"] = PC
-        eof_result.attrs['warming_stage'] = warming_period
+        eof_result.attrs['warming_stage'] = str(warming_period)
         return eof_result
 
     def decompose_eof(self):
