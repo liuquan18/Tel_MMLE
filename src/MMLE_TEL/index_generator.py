@@ -173,7 +173,7 @@ class decompose_mmle:
         elif warming_stage == "4K":
             warming_period = self.warming_periods[-1]
 
-        print(f"decomposing the warming stage {warming_stage} ...")
+        print(f"    decomposing the warming stage {warming_stage} ...")
         field = self.data.sel(time=warming_period)
         field = field.stack(com=("ens", "time"))
         eof_result = ssp.doeof(field, nmode=2, dim="com")
