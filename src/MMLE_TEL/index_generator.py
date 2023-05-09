@@ -103,7 +103,7 @@ class decompose_mmle:
         self.gph = gph
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.zg_path = self.odir + "zg_processed/"
-        self.t_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
+        self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
 
         # read data
