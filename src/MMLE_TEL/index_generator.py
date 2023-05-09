@@ -28,21 +28,16 @@ class decompose_fixedPattern:
         self.standard_ens_time = standard_ens_time
         self.model = model
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
-        self.zg_path = self.odir + "zg_processed/"
-        self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
-        self.save_path = self.odir + "EOF_result/"
+        self.zg_path = (
+            self.odir + "zg_processed/"
+        )
+        self.save_path = (
+            self.odir + "EOF_result/"
+        )
 
         # read data
         print("reading the gph data ...")
         self.data = season_eof.read_data(self.zg_path)
-        self.ts_mean = warming_stage.read_tsurf_fldmean(self.ts_mean_path)
-
-        # warming stages
-        warming_periods = warming_stage.temp_period(self.ts_mean)
-        self.period_0K = warming_periods[0]
-        self.period_4K = warming_periods[-1]
-
-        # decompose
         self.eof_result = self.decompose()
         self.std_eof_result = self.standard_index()
         self.save_result()
@@ -117,7 +112,12 @@ class decompose_mmle:
         # read data
         print("reading the gph data ...")
         self.data = self.read_data()
-        self.t_mean = xr.open_dataset(self.t_mean_path).ts
+        self.ts_mean = warming_stage.read_tsurf_fldmean(self.ts_mean_path)
+
+        # warming stages
+        warming_periods = warming_stage.temp_period(self.ts_mean)
+        self.period_0K = warming_periods[0]
+        self.period_4K = warming_periods[-1]
 
         # decompose
         self.all_eof = self.decompose_allPattern()
@@ -170,10 +170,12 @@ class decompose_mmle:
         )
         return all_eof
 
-    def decompose_warming_period_pattern(self,warming_period):
+    def decompose_warming_period_pattern(self,warming_stage):
         """
         decompose the data in the 10 years around the 0K or 4K warming stage
         """
+        if warming_stage == '0K':
+            warming_period = self.
         print("decomposing the warming stage ...")
         field = self.data.sel(time = warming_period)
         field = field.stack(com = ('ens','time'))
@@ -191,7 +193,7 @@ class decompose_mmle:
         print("decomposing the all, first and last ...")
 
         all_eof = self.all_eof
-        first_eof, last_eof = self.decompose_tenYearPattern()
+        eof_0K = self.decompose_warming_period_pattern()
         # standardize the index with the mean and std of the all index
         print("standardize the index ...")
         first_eof["pc"] = (
