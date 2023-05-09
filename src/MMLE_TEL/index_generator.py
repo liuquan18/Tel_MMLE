@@ -11,6 +11,8 @@ import src.Teleconnection.season_eof as season_eof
 import src.Teleconnection.tools as tools
 import src.extreme.period_pattern_extreme as extreme
 import src.Teleconnection.rolling_eof as rolling_eof
+import src.warming_stage.warming_stage as warming_stage
+import src.Teleconnection.spatial_pattern as ssp
 
 
 #%%
@@ -27,11 +29,20 @@ class decompose_fixedPattern:
         self.model = model
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.zg_path = self.odir + "zg_processed/"
+        self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
 
         # read data
         print("reading the gph data ...")
         self.data = season_eof.read_data(self.zg_path)
+        self.ts_mean = warming_stage.read_tsurf_fldmean(self.ts_mean_path)
+
+        # warming stages
+        warming_periods = warming_stage.temp_period(self.ts_mean)
+        self.period_0K = warming_periods[0]
+        self.period_4K = warming_periods[-1]
+
+        # decompose
         self.eof_result = self.decompose()
         self.std_eof_result = self.standard_index()
         self.save_result()
@@ -100,11 +111,15 @@ class decompose_mmle:
         self.gph = gph
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.zg_path = self.odir + "zg_processed/"
+        self.t_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
 
         # read data
         print("reading the gph data ...")
         self.data = self.read_data()
+        self.t_mean = xr.open_dataset(self.t_mean_path).ts
+
+        # decompose
         self.all_eof = self.decompose_allPattern()
         self.first_eof, self.last_eof = self.decompose_eof()
         # one single altitude only
@@ -155,14 +170,19 @@ class decompose_mmle:
         )
         return all_eof
 
-    def decompose_tenYearPattern(self):
-        first_eof = rolling_eof.rolling_eof(
-            self.data, nmode=2, window=10, fixed_pattern="first"
-        )
-        last_eof = rolling_eof.rolling_eof(
-            self.data, nmode=2, window=10, fixed_pattern="last"
-        )
-        return first_eof, last_eof
+    def decompose_warming_period_pattern(self,warming_period):
+        """
+        decompose the data in the 10 years around the 0K or 4K warming stage
+        """
+        print("decomposing the warming stage ...")
+        field = self.data.sel(time = warming_period)
+        field = field.stack(com = ('ens','time'))
+        eof_result = ssp.doeof(field, nmode=2, dim="com")
+        eof_result = eof_result[['eof','fra']]
+        PC = ssp.project_field(field, eof_result.eof, dim="com")
+        eof_result["pc"] = PC
+        return eof_result
+
 
     def decompose_eof(self):
         """
