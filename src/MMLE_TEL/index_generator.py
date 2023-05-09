@@ -147,7 +147,7 @@ class decompose_mmle:
         zg_ens_mean = zg_data.mean(dim="ens")
         zg_demean = zg_data - zg_ens_mean
 
-        # select trop
+        # select one altitude
         print(" select the specific gph...")
         zg_trop = zg_demean.sel(plev=self.gph)
         # standardize seperately with the temporal mean and std
@@ -206,13 +206,13 @@ class decompose_mmle:
         # save the result
 
         self.all_eof.to_netcdf(
-            self.save_path + "gph_" + self.gph + "_all_" + "eof_result.nc"
+            self.save_path + "gph_" + str(self.gph) + "_all_" + "eof_result.nc"
         )
         self.eof_0K.to_netcdf(
-            self.save_path + "gph_" + self.gph + "_0K_" + "eof_result.nc"
+            self.save_path + "gph_" + str(self.gph) + "_0K_" + "eof_result.nc"
         )
         self.eof_4K.to_netcdf(
-            self.save_path + "gph_" + self.gph + "_4K_" + "eof_result.nc"
+            self.save_path + "gph_" + str(self.gph) + "_4K_" + "eof_result.nc"
         )
 
 
