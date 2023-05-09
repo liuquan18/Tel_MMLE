@@ -6,10 +6,17 @@ import pandas as pd
 import src.Teleconnection.season_eof as season_eof
 # %%
 zg = season_eof.read_data("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/zg/")
+
+#%%
+# function to change the lontitude from 0-360 to -180-180
+def change_lon_to_180(zg):
+    zg = zg.assign_coords(lon=(((zg.lon + 180) % 360) - 180)).sortby('lon')
+    return zg
+zg = change_lon_to_180(zg)
 # %%
 # NAO box -91	30	82	50 | -63	-5	49	31
 NAO_box_neg1 = zg.sel(lat=slice(82,50), lon=slice(-91, 30))
-NAO_box_pos1 = zg.sel(lat=slice(49,31), lon=slice(-63, 5))
+NAO_box_pos1 = zg.sel(lat=slice(49,31), lon=slice(-63, -5))
 # %%
 # EA box
 EA_box_neg1 = zg.sel(lat=slice(	71,59), lon=slice(63,99))
@@ -40,3 +47,4 @@ EA.name = 'pc'
 
 NAO.to_netcdf('/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/BOX_result/NAO.nc')
 EA.to_netcdf('/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/BOX_result/EA.nc')
+# %%

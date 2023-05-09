@@ -61,7 +61,7 @@ def corr_coef(ext_count, tsurf_increase, dim="time"):
 
 #%%
 def extCount_tsurf_scatter(
-    ext_counts, t_surf, plev=None, ylim=(0, 55), xlim=(-1, 6), xlabel="temperature (K)"
+    ext_counts, t_surf, plev=None, ylim=(0, 55), xlim=(-1, 5), xlabel="temperature (K)"
 ):
     """
     rows: pos/neg
@@ -88,7 +88,7 @@ def extCount_tsurf_scatter(
     if plev is not None:
         # data preparation
         ext_counts = ext_counts.sel(plev=plev)
-        r = corr_coef(ext_counts.sel(confidence="true"), t_surf).sel(plev=plev)
+        r = corr_coef(ext_counts.sel(confidence="true"), t_surf)
 
         # plot
         scatter_plot(ext_counts, t_surf, r, axes)
@@ -122,7 +122,7 @@ def scatter_plot(ext_counts, t_surf, r, axes):
                 t = t_surf.stack(com=("time", "plev"))
 
             except KeyError:
-                pass
+                t = t_surf
 
             axes[i, j].errorbar(
                 x=t,
