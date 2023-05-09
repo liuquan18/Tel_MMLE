@@ -28,12 +28,8 @@ class decompose_fixedPattern:
         self.standard_ens_time = standard_ens_time
         self.model = model
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
-        self.zg_path = (
-            self.odir + "zg_processed/"
-        )
-        self.save_path = (
-            self.odir + "EOF_result/"
-        )
+        self.zg_path = self.odir + "zg_processed/"
+        self.save_path = self.odir + "EOF_result/"
 
         # read data
         print("reading the gph data ...")
@@ -96,6 +92,7 @@ class decompose_fixedPattern:
         )
 
 
+##########################################
 class decompose_mmle:
     """
     A class for mmle decomposition
@@ -115,13 +112,10 @@ class decompose_mmle:
         self.ts_mean = warming_stage.read_tsurf_fldmean(self.ts_mean_path)
 
         # warming stages
-        warming_periods = warming_stage.temp_period(self.ts_mean)
-        self.period_0K = warming_periods[0]
-        self.period_4K = warming_periods[-1]
+        self.warming_periods = warming_stage.temp_period(self.ts_mean)
 
         # decompose
-        self.all_eof = self.decompose_allPattern()
-        self.first_eof, self.last_eof = self.decompose_eof()
+        self.all_eof, self.eof_0K, self.eof_4K = self.decompose_eof()
         # one single altitude only
 
     def read_data(self):
@@ -170,21 +164,23 @@ class decompose_mmle:
         )
         return all_eof
 
-    def decompose_warming_period_pattern(self,warming_stage):
+    def decompose_warming_period_pattern(self, warming_stage):
         """
         decompose the data in the 10 years around the 0K or 4K warming stage
         """
-        if warming_stage == '0K':
-            warming_period = self.
-        print("decomposing the warming stage ...")
-        field = self.data.sel(time = warming_period)
-        field = field.stack(com = ('ens','time'))
+        if warming_stage == "0K":
+            warming_period = self.warming_periods[0]
+        elif warming_stage == "4K":
+            warming_period = self.warming_periods[-1]
+
+        print(f"decomposing the warming stage {warming_stage} ...")
+        field = self.data.sel(time=warming_period)
+        field = field.stack(com=("ens", "time"))
         eof_result = ssp.doeof(field, nmode=2, dim="com")
-        eof_result = eof_result[['eof','fra']]
+        eof_result = eof_result[["eof", "fra"]]
         PC = ssp.project_field(field, eof_result.eof, dim="com")
         eof_result["pc"] = PC
         return eof_result
-
 
     def decompose_eof(self):
         """
@@ -192,30 +188,31 @@ class decompose_mmle:
         """
         print("decomposing the all, first and last ...")
 
-        all_eof = self.all_eof
-        eof_0K = self.decompose_warming_period_pattern()
+        all_eof = self.decompose_allPattern()
+        eof_0K = self.decompose_warming_period_pattern("0K")
+        eof_4K = self.decompose_warming_period_pattern("4K")
         # standardize the index with the mean and std of the all index
         print("standardize the index ...")
-        first_eof["pc"] = (
-            first_eof["pc"] - all_eof["pc"].mean(dim=("time", "ens"))
+        eof_0K["pc"] = (
+            eof_0K["pc"] - all_eof["pc"].mean(dim=("time", "ens"))
         ) / all_eof["pc"].std(dim=("time", "ens"))
-        last_eof["pc"] = (
-            last_eof["pc"] - all_eof["pc"].mean(dim=("time", "ens"))
+        eof_4K["pc"] = (
+            eof_4K["pc"] - all_eof["pc"].mean(dim=("time", "ens"))
         ) / all_eof["pc"].std(dim=("time", "ens"))
-        return first_eof, last_eof
+        return all_eof, eof_0K, eof_4K
 
     def save_result(self):
         print("saving the result ...")
         # save the result
 
         self.all_eof.to_netcdf(
-            self.save_path + 'gph_' + self.gph + "_all_" + "eof_result.nc"
+            self.save_path + "gph_" + self.gph + "_all_" + "eof_result.nc"
         )
-        self.first_eof.to_netcdf(
-            self.save_path + 'gph_' + self.gph + "_first_" + "eof_result.nc"
+        self.eof_0K.to_netcdf(
+            self.save_path + "gph_" + self.gph + "_0K_" + "eof_result.nc"
         )
-        self.last_eof.to_netcdf(
-            self.save_path + 'gph_' + self.gph + "_last_" + "eof_result.nc"
+        self.eof_4K.to_netcdf(
+            self.save_path + "gph_" + self.gph + "_4K_" + "eof_result.nc"
         )
 
 
