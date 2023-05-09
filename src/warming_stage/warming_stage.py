@@ -7,7 +7,9 @@ from pandas.tseries.offsets import DateOffset
 
 
 def read_tsurf_fldmean(dir):
-    tsurf = xr.open_dataset(dir,)  # already pre-processed
+    tsurf = xr.open_dataset(
+        dir,
+    )  # already pre-processed
 
     try:
         tsurf["time"] = tsurf.indexes["time"].to_datetimeindex()
@@ -17,9 +19,10 @@ def read_tsurf_fldmean(dir):
     try:
         tsurf = tsurf.tsurf
     except AttributeError:
-        tsurf = tsurf.ts
-    finally:
-        tsurf = tsurf.tas
+        try :
+            tsurf = tsurf.ts
+        except AttributeError:
+            tsurf = tsurf.tas
 
     try:
         tsurf.lon.size == 1 & tsurf.lat.size == 1
@@ -36,7 +39,9 @@ def read_tsurf_fldmean(dir):
     mean = fld_ens_mean.squeeze()
     return mean
 
+
 # %%
+
 
 def CO2_period(pc):
     """select the year from pc, 'first10' and 'last10'"""
@@ -46,12 +51,13 @@ def CO2_period(pc):
     periods = [first10, last10]
     return periods
 
+
 def temp_period(fldmean: xr.DataArray):
     """
     warming periods of 0, 2, 4 K, from tsurf fldmean.
     **Arguments**
         *fldmean* the fldmean of tsurf
-    **Return**  
+    **Return**
         *periods* a list of warming periods
     """
     if isinstance(fldmean, xr.DataArray):
@@ -67,9 +73,7 @@ def temp_period(fldmean: xr.DataArray):
     # 0 degree (1855)
     periods.append(year_to_period(anomaly[5]))
     # 2 degree
-    periods.append(
-        year_to_period(anomaly.where(anomaly >= 2, drop=True).squeeze()[0])
-    )
+    periods.append(year_to_period(anomaly.where(anomaly >= 2, drop=True).squeeze()[0]))
     # 4 degree
     try:
         periods.append(
@@ -85,6 +89,7 @@ def temp_period(fldmean: xr.DataArray):
         )
     return periods
 
+
 def year_to_period(mid_year):
     """return the ten year slice to select"""
 
@@ -93,9 +98,9 @@ def year_to_period(mid_year):
     return slice(str(start.year), str(end.year))
 
 
-def split_period(pc,compare, fldmean_tsurf = None):   
+def split_period(pc, compare, fldmean_tsurf=None):
     """
-    two ways to split the periods, 
+    two ways to split the periods,
     either into 'first10' and 'last10' (compare = 'CO2')
     or into '0', '2', '4' K warming periods (compare = 'temp')
     """
