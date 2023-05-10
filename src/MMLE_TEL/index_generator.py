@@ -9,7 +9,6 @@ import pandas as pd
 
 import src.Teleconnection.season_eof as season_eof
 import src.Teleconnection.tools as tools
-import src.extreme.period_pattern_extreme as extreme
 import src.Teleconnection.rolling_eof as rolling_eof
 import src.warming_stage.warming_stage as warming_stage
 import src.Teleconnection.spatial_pattern as ssp
@@ -98,9 +97,11 @@ class decompose_mmle:
     A class for mmle decomposition
     """
 
-    def __init__(self, model, gph=50000) -> None:
+    def __init__(self, model, fixedPattern, gph=50000) -> None:
         self.model = model
         self.gph = gph
+        self.fixedPattern = fixedPattern  # warming or decade
+
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.zg_path = self.odir + "zg_processed/"
         self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
@@ -109,13 +110,14 @@ class decompose_mmle:
         # read data
         print("reading the gph data ...")
         self.data = self.read_data()
-        self.ts_mean = warming_stage.read_tsurf_fldmean(self.ts_mean_path)
 
         # warming stages
-        self.warming_periods = warming_stage.temp_period(self.ts_mean)
+        if self.fixedPattern == "warming":
+            self.ts_mean = warming_stage.read_tsurf_fldmean(self.ts_mean_path)
+            self.warming_periods = warming_stage.temp_period(self.ts_mean)
 
-        # decompose
-        self.all_eof, self.eof_0K, self.eof_4K = self.decompose_eof()
+            # decompose
+            self.all_eof, self.eof_0K, self.eof_4K = self.decompose_warming_eof()
         # one single altitude only
 
     def read_data(self):
@@ -149,11 +151,11 @@ class decompose_mmle:
 
         # select one altitude
         print(" select the specific gph...")
-        zg_trop = zg_demean.sel(plev=self.gph)
+        zg_gph = zg_demean.sel(plev=self.gph)
         # standardize seperately with the temporal mean and std
         print(" standardize each altitudes seperately...")
-        zg_trop = (zg_trop - zg_trop.mean(dim="time")) / zg_trop.std(dim="time")
-        return zg_trop
+        zg_gph = (zg_gph - zg_gph.mean(dim="time")) / zg_gph.std(dim="time")
+        return zg_gph
 
     def decompose_allPattern(self):
         """
@@ -183,11 +185,11 @@ class decompose_mmle:
         eof_result.attrs["warming_stage"] = str(warming_period)
         return eof_result
 
-    def decompose_eof(self):
+    def decompose_warming_eof(self):
         """
         decompose and then standardize the index
         """
-        print("decomposing the all, 0K and 4K ...")
+        print("decomposing the eofs ...")
 
         all_eof = self.decompose_allPattern()
         eof_0K = self.decompose_warming_period_pattern("0K")
@@ -201,6 +203,25 @@ class decompose_mmle:
             eof_4K["pc"] - all_eof["pc"].mean(dim=("time", "ens"))
         ) / all_eof["pc"].std(dim=("time", "ens"))
         return all_eof, eof_0K, eof_4K
+
+
+    def decompose_decade_eof(self):
+        """
+        decompose the historical and ssp8.5 every ten years.
+        """
+        print("decomposing every ten years ...")
+
+        all_eof = self.decompose_allPattern()
+        decade_eof = rolling_eof.rolling_eof(
+            self.data, nmode=2, window=10, fixed_pattern="decade",standard=False
+        )
+        print("standardize the index ...")
+        decade_eof["pc"] = (
+            decade_eof["pc"] - all_eof["pc"].mean(dim=("time", "ens"))
+        ) / all_eof["pc"].std(dim=("time", "ens"))
+
+        return decade_eof
+
 
     def save_result(self):
         print("saving the result ...")
