@@ -20,11 +20,10 @@ class decompose_fixedPattern:
     A class to generate the eof and index
     """
 
-    def __init__(self, model, vertical_eof, fixed_pattern, standard_ens_time=True):
+    def __init__(self, model, vertical_eof, fixed_pattern = 'warming'):
         self.vertical_eof = vertical_eof
         self.independence = self.vertical_eof == "ind"
         self.fixed_pattern = fixed_pattern
-        self.standard_ens_time = standard_ens_time
         self.model = model
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.zg_path = self.odir + "zg_processed/"
@@ -230,10 +229,15 @@ class decompose_mmle:
         self.all_eof.to_netcdf(
             self.save_path + "gph_" + str(self.gph) + "_all_" + "eof_result.nc"
         )
-        self.eof_0K.to_netcdf(
-            self.save_path + "gph_" + str(self.gph) + "_0K_" + "eof_result.nc"
-        )
-        self.eof_4K.to_netcdf(
-            self.save_path + "gph_" + str(self.gph) + "_4K_" + "eof_result.nc"
-        )
 
+        if self.fixedPattern == 'warming':
+            self.eof_0K.to_netcdf(
+                self.save_path + "gph_" + str(self.gph) + "_0K_" + "eof_result.nc"
+            )
+            self.eof_4K.to_netcdf(
+                self.save_path + "gph_" + str(self.gph) + "_4K_" + "eof_result.nc"
+            )
+        elif self.fixedPattern == 'decade':
+            self.decade_eof.to_netcdf(
+                self.save_path + "gph_" + str(self.gph) + "_decade_" + "eof_result.nc"
+            )
