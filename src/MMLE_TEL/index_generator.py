@@ -52,13 +52,16 @@ class decompose_fixedPattern:
     def standard_index(self):
         print("standardizing the index ...")
         # if single pattern, standardize the index with its own mean and std (temporal and ens)
-        if self.fixed_pattern == "first" or self.fixed_pattern == "last":
+        if (
+            self.fixed_pattern == "first"
+            or self.fixed_pattern == "last"
+        ):
             self.eof_result["pc"] = (
                 self.eof_result["pc"] - self.eof_result["pc"].mean(dim=("time", "ens"))
             ) / self.eof_result["pc"].std(dim=("time", "ens"))
 
         # if changing pattern, standardize the index with the mean and std of all the index
-        elif self.fixed_pattern == "decade" or self.fixed_pattern == "False":
+        else:
             try:
                 all_index = xr.open_dataset(
                     self.odir + "EOF_result/" + self.vertical_eof + "_all_eof_result.nc"
@@ -71,7 +74,7 @@ class decompose_fixedPattern:
                 self.eof_result["pc"] - all_index["pc"].mean(dim=("time", "ens"))
             ) / all_index["pc"].std(dim=("time", "ens"))
 
-        elif self.fixed_pattern == "all":
+        elif self.fixed_pattern == 'all':
             print("     no standarization for all pattern")
         return self.eof_result
 
