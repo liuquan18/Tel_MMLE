@@ -117,7 +117,9 @@ class decompose_mmle:
 
             # decompose
             self.all_eof, self.eof_0K, self.eof_4K = self.decompose_warming_eof()
-        # one single altitude only
+        
+        elif self.fixedPattern == "decade":
+            self.decade_eof = self.decompose_decade_eof()
 
     def read_data(self):
         """
@@ -210,7 +212,11 @@ class decompose_mmle:
         """
         print("decomposing every ten years ...")
 
-        all_eof = self.decompose_allPattern()
+        try:
+            all_eof = xr.open_dataset(self.save_path + "gph_" + str(self.gph) + "_all_" + "eof_result.nc")
+        except FileNotFoundError:
+            all_eof = self.decompose_allPattern()
+
         decade_eof = rolling_eof.rolling_eof(
             self.data, nmode=2, window=10, fixed_pattern="decade",standard=False
         )

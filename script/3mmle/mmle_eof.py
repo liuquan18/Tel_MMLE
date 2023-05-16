@@ -20,6 +20,10 @@ canesm.save_result()
 
 #%%
 ## MPI-GE
+mpige_all = index_generate.decompose_fixedPattern("MPI_GE",v_eof, 'all')
+mpige_all.save_result()
+
+#%%
 mpige = index_generate.decompose_fixedPattern("MPI_GE",v_eof,fpattern)
 mpige.save_result()
 
