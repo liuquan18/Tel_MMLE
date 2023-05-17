@@ -79,8 +79,8 @@ def read_data(gph_dir, standardize=False):
         zg_trop = zg_demean.sel(plev=slice(20000, 100000))
 
     # standardize seperately with the temporal mean and std
-    print(" standardize each altitudes seperately...")
     if standardize:  # only standardize the data when decompose dependently.
+        print(" standardize each altitudes seperately...")
         zg_trop = (zg_trop - zg_trop.mean(dim="time")) / zg_trop.std(dim="time")
     return zg_trop
 
@@ -107,7 +107,7 @@ def main():
     eof = season_eof(
         trop.var156,
         nmode=2,
-        window=10,
+        win_size=10,
         fixed_pattern="all",
         independent=True,
         standard=True,
