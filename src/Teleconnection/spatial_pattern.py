@@ -97,55 +97,6 @@ def doeof(
     return eof_result
 
 
-def project(x, y):
-    """
-    do the projection (np.dot)
-    """
-
-    # flat
-    x_flat = x.stack(spatial=("lon", "lat"))
-    y_flat = y.stack(spatial=("lon", "lat"))
-
-    # dropnan
-    x_nonan = x_flat.where(np.logical_not(x_flat.isnull()), drop=True)
-    y_nonan = y_flat.where(np.logical_not(y_flat.isnull()), drop=True)
-
-    projed = xr.dot(x_nonan, y_nonan, dims="spatial")
-    projed.name = "pc"
-    return projed
-
-
-def project_field(fieldx, eofx, dim="com", standard=True):
-    """project original field onto eofs to get the temporal index.
-
-    Different from python eofs package, here if there are three dimensions in sptial,
-    i.e, [lat,lon,height], the projected pc is calculated independently from each height.
-
-    **Arguments:**
-
-        *field*: the DataArray field to be projected
-        *eof*: the eofs
-        *standard*: whether standardize the ppc with its std or not
-
-    **Returns:**
-
-        projected pcs
-    """
-    fieldx = fieldx.transpose(dim, ...)
-    eofx = eofx.transpose("mode", ...)
-
-    # weight
-    wgts = tools.sqrtcoslat(fieldx)
-    fieldx = fieldx * wgts
-    pc = project(fieldx, eofx)
-
-    # is 'com' exit
-    pc = pc.unstack()
-
-    if standard:
-        pc = tools.standardize(pc)
-    return pc
-
 
 def sign_coef(eof):
     """

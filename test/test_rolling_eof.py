@@ -29,19 +29,19 @@ ex = xr.DataArray(
 ex = ex.sel(plev = 1000)
 #%%
 # rolling eof on generated dataset.
-eof= rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="all")
+eof= rolling_eof.rolling_eof(ex, nmode=2, win_size=6, fixed_pattern="all")
 
 #%%
-eof = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="first")
+eof = rolling_eof.rolling_eof(ex, nmode=2, win_size=6, fixed_pattern="first")
 
 #%%
-eof = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="last")
+eof = rolling_eof.rolling_eof(ex, nmode=2, win_size=6, fixed_pattern="last")
 
 #%%
-eof = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="False")
+eof = rolling_eof.rolling_eof(ex, nmode=2, win_size=6, fixed_pattern="False")
 
 #%%
-eof = rolling_eof.rolling_eof(ex, nmode=2, window=6, fixed_pattern="decade")
+eof = rolling_eof.rolling_eof(ex, nmode=2, win_size=6, fixed_pattern="decade")
 #%%
 # test
 def test_rolling_eof():

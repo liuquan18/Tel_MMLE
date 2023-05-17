@@ -35,7 +35,7 @@ data = xr.DataArray(
 s_data = tools.stack_ens(data, withdim="time")
 
 #%%
-eof= ssp.doeof(s_data, nmode=2, dim="com", standard=True)
+eof= ssp.doeof(s_data, nmode=2, dim="com")
 
 #%%
 ppc = ssp.project_field(s_data, eof.eof, dim="com", standard=True)

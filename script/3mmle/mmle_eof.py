@@ -29,8 +29,8 @@ mpige.save_result()
 
 #%%
 ## MPI-GE_onepct
-mpige_onepct = index_generate.decompose_fixedPattern("MPI_GE_onepct",v_eof,fpattern)
-
+mpige_onepct = index_generate.decompose_fixedPattern("MPI_GE_onepct",v_eof,fpattern,standard='none')
+mpige_onepct.save_result()
 #%%
 # NCAR mode
 cesm = index_generate.decompose_fixedPattern("CESM1_CAM5",v_eof,fpattern)
@@ -62,6 +62,8 @@ mpige_qp.create_doc()
 ## MPI-GE_onepct
 mpige_onepct_qp = quick_plot.period_index("MPI_GE_onepct",v_eof,fpattern, 'CO2')
 
+#%%
+mpige_onepct_qp.extreme_count_profile('NAO')
 #%%
 # mpige_onepct_qp.plot_all()
 mpige_onepct_qp.spatial_pattern_change()

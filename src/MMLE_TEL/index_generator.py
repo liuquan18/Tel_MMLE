@@ -21,7 +21,9 @@ class decompose_fixedPattern:
     A class to generate the eof and index
     """
 
-    def __init__(self, model, vertical_eof, fixed_pattern = 'warming',standard='all') -> None:
+    def __init__(
+        self, model, vertical_eof, fixed_pattern="warming", standard="all"
+    ) -> None:
         self.vertical_eof = vertical_eof
         self.independence = self.vertical_eof == "ind"
         self.fixed_pattern = fixed_pattern
@@ -29,7 +31,7 @@ class decompose_fixedPattern:
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.zg_path = self.odir + "zg_processed/"
         self.save_path = self.odir + "EOF_result/"
-        self.standard = standard # 'own','all','none'
+        self.standard = standard  # 'own','all','none'
 
         # read data
         print("reading the gph data ...")
@@ -53,14 +55,12 @@ class decompose_fixedPattern:
 
     def standard_index(self):
         print("standardizing the index ...")
-        if self.standard == 'own':
-            self.eof_result = standardize.standard_by_own(
-                self.eof_result
-            )
-        elif self.standard == 'all':
+        if self.standard == "own":
+            self.eof_result = standardize.standard_by_own(self.eof_result)
+        elif self.standard == "all":
             try:
                 all_index = xr.open_dataset(
-                self.odir + "EOF_result/" + self.vertical_eof + "_all_eof_result.nc"
+                    self.odir + "EOF_result/" + self.vertical_eof + "_all_eof_result.nc"
                 )
 
             except FileNotFoundError:
@@ -68,14 +68,10 @@ class decompose_fixedPattern:
                 # rase error
                 raise FileNotFoundError
 
-            self.eof_result = standardize.standard_by_all(
-                all_index,
-                self.eof_result
-            )
-        elif self.standard == 'none':
+            self.eof_result = standardize.standard_by_all(all_index, self.eof_result)
+        elif self.standard == "none":
             pass
         return self.eof_result
- 
 
     # save
     def save_result(self):
@@ -88,7 +84,8 @@ class decompose_fixedPattern:
             + "_"
             + self.fixed_pattern
             + "_"
-            + "eof_result.nc"
+            + self.standard
+            + "_eof_result.nc"
         )
 
 
@@ -119,7 +116,7 @@ class decompose_mmle:
 
             # decompose
             self.all_eof, self.eof_0K, self.eof_4K = self.decompose_warming_eof()
-        
+
         elif self.fixedPattern == "decade":
             self.decade_eof = self.decompose_decade_eof()
 
@@ -165,7 +162,7 @@ class decompose_mmle:
         decompose with the all pattern
         """
         all_eof = rolling_eof.rolling_eof(
-            self.data, nmode=2, window=6, fixed_pattern="all"
+            self.data, nmode=2, window=10, fixed_pattern="all"
         )
         return all_eof
 
@@ -207,7 +204,6 @@ class decompose_mmle:
         ) / all_eof["pc"].std(dim=("time", "ens"))
         return all_eof, eof_0K, eof_4K
 
-
     def decompose_decade_eof(self):
         """
         decompose the historical and ssp8.5 every ten years.
@@ -215,12 +211,14 @@ class decompose_mmle:
         print("decomposing every ten years ...")
 
         try:
-            all_eof = xr.open_dataset(self.save_path + "gph_" + str(self.gph) + "_all_" + "eof_result.nc")
+            all_eof = xr.open_dataset(
+                self.save_path + "gph_" + str(self.gph) + "_all_" + "eof_result.nc"
+            )
         except FileNotFoundError:
             all_eof = self.decompose_allPattern()
 
         decade_eof = rolling_eof.rolling_eof(
-            self.data, nmode=2, window=10, fixed_pattern="decade",standard=False
+            self.data, nmode=2, window=10, fixed_pattern="decade", standard=False
         )
         print("standardize the index ...")
         decade_eof["pc"] = (
@@ -228,7 +226,6 @@ class decompose_mmle:
         ) / all_eof["pc"].std(dim=("time", "ens"))
 
         return decade_eof
-
 
     def save_result(self):
         print("saving the result ...")
@@ -238,14 +235,14 @@ class decompose_mmle:
             self.save_path + "gph_" + str(self.gph) + "_all_" + "eof_result.nc"
         )
 
-        if self.fixedPattern == 'warming':
+        if self.fixedPattern == "warming":
             self.eof_0K.to_netcdf(
                 self.save_path + "gph_" + str(self.gph) + "_0K_" + "eof_result.nc"
             )
             self.eof_4K.to_netcdf(
                 self.save_path + "gph_" + str(self.gph) + "_4K_" + "eof_result.nc"
             )
-        elif self.fixedPattern == 'decade':
+        elif self.fixedPattern == "decade":
             self.decade_eof.to_netcdf(
                 self.save_path + "gph_" + str(self.gph) + "_decade_" + "eof_result.nc"
             )
