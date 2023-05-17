@@ -7,7 +7,7 @@ import src.Teleconnection.spatial_pattern as ssp
 import src.Teleconnection.tools as tools
 
 
-def rolling_eof(xarr, nmode=2, win_size=10, fixed_pattern="all", standard=True):
+def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
     """do eof analysis with in a rolling window.
 
     rolling EOF is like rolling mean, here the default window is 10 years. The EOFs, PCs and
@@ -47,8 +47,8 @@ def rolling_eof(xarr, nmode=2, win_size=10, fixed_pattern="all", standard=True):
     """
 
     # the validtime period where totally ten years of data are fully avaiable.
-    gap = int(win_size / 2)
-    validtime = xarr.isel(time=slice(gap, -1 * gap)).time # valid middle time
+    gap = int(window / 2)
+    validtime = xarr.isel(time=slice(gap, -1 * gap)).time  # valid middle time
 
     # if do the all-all decompose
     if fixed_pattern == "all":  # a little different from the following two.
@@ -64,27 +64,31 @@ def rolling_eof(xarr, nmode=2, win_size=10, fixed_pattern="all", standard=True):
         print("     decomposing everty ten years")
 
         # seperate the arr into subarrays, each with win_size length.
-        decade_time = validtime[::win_size]
+        decade_time = validtime[::window]
 
         # make the decade_time as a xarray indexvariable
-        decade = xr.IndexVariable("decade", decade_time.values - pd.Timedelta(value=gap *  365.25, unit='D'),attrs= {'note':'sign of decade'}) # the starting year of the decade
+        decade = xr.IndexVariable(
+            "decade",
+            decade_time.values - pd.Timedelta(value=gap * 365.25, unit="D"),
+            attrs={"note": "sign of decade"},
+        )  # the starting year of the decade
 
         # a list for storing the subarrays
-        eofs  = []
+        eofs = []
         pcs = []
         fras = []
 
         for time in decade_time:
-            print("     decomposing the decade of {}".format(time.dt.year))
+            print("     decomposing the decade of {}".format(time.values.dt.year))
             # slice the time
-            time_slice = win_slice(time, win_size)
+            time_slice = win_slice(time, window)
 
             field = xarr.sel(time=time_slice)
             field = field.stack(com=("ens", "time"))
 
             eof_result = ssp.doeof(field, nmode=nmode, dim="com")
             eof = eof_result["eof"]
-            pc =  eof_result["pc"].copy()
+            pc = eof_result["pc"].copy()
             fra = eof_result["fra"]
 
             eofs.append(eof)
@@ -94,12 +98,13 @@ def rolling_eof(xarr, nmode=2, win_size=10, fixed_pattern="all", standard=True):
         # concat the subarrays together, and make the decade as a new dim
         EOF = xr.concat(eofs, dim=decade)
         FRA = xr.concat(fras, dim=decade)
-        PC = xr.concat(pcs, 'time')
+        PC = xr.concat(pcs, "time")
 
         # combine EOF, FRA, PC together as a dataset
         eof_result = xr.Dataset({"eof": EOF, "pc": PC, "fra": FRA})
 
     return eof_result
+
 
 def win_slice(start_year, win_size):
     """
@@ -107,6 +112,6 @@ def win_slice(start_year, win_size):
     """
     gap = int(win_size / 2)
     y, m, d = str(start_year.values).split("-")
-    start_year = np.datetime64("{}-{}-{}".format(int(y)-gap, m, d))
-    end_year =  np.datetime64("{}-{}-{}".format(int(y)+gap - 1, m, d))
+    start_year = np.datetime64("{}-{}-{}".format(int(y) - gap, m, d))
+    end_year = np.datetime64("{}-{}-{}".format(int(y) + gap - 1, m, d))
     return slice(start_year, end_year)
