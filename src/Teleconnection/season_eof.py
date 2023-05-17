@@ -42,7 +42,7 @@ def season_eof(
 
     return eof_result
 
-def read_data(gph_dir):
+def read_data(gph_dir,standardize=False):
     """
     read the gph data and do some pre-process.
     """
@@ -78,7 +78,8 @@ def read_data(gph_dir):
 
     # standardize seperately with the temporal mean and std
     print(" standardize each altitudes seperately...")
-    zg_trop = (zg_trop - zg_trop.mean(dim="time")) / zg_trop.std(dim="time")
+    if standardize:  # only standardize the data when decompose dependently.
+        zg_trop = (zg_trop - zg_trop.mean(dim="time")) / zg_trop.std(dim="time")
     return zg_trop
 
 def main():
