@@ -7,7 +7,7 @@ import src.Teleconnection.spatial_pattern as ssp
 import src.Teleconnection.tools as tools
 
 
-def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
+def rolling_eof(xarr, nmode=2, win_size=10, fixed_pattern="all", standard=True):
     """do eof analysis with in a rolling window.
 
     rolling EOF is like rolling mean, here the default window is 10 years. The EOFs, PCs and
@@ -47,8 +47,8 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
     """
 
     # the validtime period where totally ten years of data are fully avaiable.
-    gap = int(window / 2)
-    validtime = xarr.isel(time=slice(gap, -1 * gap)).time
+    gap = int(win_size / 2)
+    validtime = xarr.isel(time=slice(gap, -1 * gap)).time # valid middle time
 
     # if do the all-all decompose
     if fixed_pattern == "all":  # a little different from the following two.
@@ -59,190 +59,54 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
             dim="com",
             standard=False,
         )
-        # here the pc is not directly used since the eof is multiplied by the std of pc, then if we
-        # do the project-field, the resulted projectd-pc is not the same as the pc from the solver.
-        # in order to make it the same  order as the following, we do project-field to get the index.
-        PC = fixed_pc(xarr, eof_result["eof"], standard=standard)
-
-    elif fixed_pattern == "first":
-        # only the EOF of the first10 is needed.
-        print("     using the first pattern")
-        eof_result = changing_eofs(xarr, validtime[0], nmode=nmode, window=window)
-        eof_result = eof_result[['eof','fra']]
-        PC = fixed_pc(xarr, eof_result["eof"], standard=standard)
-
-    elif fixed_pattern == "last":
-        print("     using the last pattern")
-        eof_result = changing_eofs(xarr, validtime[-1], nmode=nmode, window=window)
-        eof_result = eof_result[['eof','fra']]
-        PC = fixed_pc(xarr, eof_result["eof"], standard=standard)
 
     elif fixed_pattern == "decade":
         print("     decomposing everty ten years")
-        # select the middle year of each decade from validtime
-        decade_time = validtime[::window]
-        eof_result = changing_eofs(xarr, decade_time, nmode=nmode, window=window)
-        eof_result = eof_result[['eof','fra']]
-        eof_result = eof_result.rename({"time":"decade"}) # the time for eof is the decade time
-        PC = decadal_pc(xarr, decade_time, eof_result["eof"],window=window)
 
-    elif fixed_pattern == "False":
-        print("     no fixed pattern used")
-        eof_result = changing_eofs(xarr, validtime, nmode=nmode, window=window)
-        eof_result = eof_result[['eof','fra']]
-        PC = changing_pc(xarr, validtime, eof_result["eof"], standard=standard)
+        # seperate the arr into subarrays, each with win_size length.
+        decade_time = validtime[::win_size]
 
-    # replace the pc with the pc from projection
-    eof_result["pc"] = PC
-    return eof_result
+        # make the decade_time as a xarray indexvariable
+        decade = xr.IndexVariable("decade", decade_time.values - pd.Timedelta(value=gap *  365.25, unit='D'),attrs= {'note':'sign of decade'}) # the starting year of the decade
 
+        # a list for storing the subarrays
+        eofs  = []
+        pcs = []
+        fras = []
 
-def changing_eofs(xarr, validtime, nmode, window):
-    """getting the rolling eofs and fras from xarr.
+        for time in decade_time:
+            print("     decomposing the decade of {}".format(time.dt.year)
+            # slice the time
+            time_slice = win_slice(time, win_size)
 
-    **Arguments**
+            field = xarr.sel(time=time_slice)
+            field = field.stack(com=("ens", "time"))
 
-        *xarr* : the DataArray to be composed.
-        *validtime*: the times who has the full 10 years periods around it.
-        *nmode* : how many modes to decompose.
-        *windo* : rolling window.
+            eof_result = ssp.doeof(field, nmode=nmode, dim="com")
+            eof = eof_result["eof"]
+            pc =  eof_result["pc"].copy()
+            fra = eof_result["fra"]
 
-    **Return**
+            eofs.append(eof)
+            pcs.append(pc)
+            fras.append(fra)
 
-        eof and fra.
-    """
+        # concat the subarrays together, and make the decade as a new dim
+        EOF = xr.concat(eofs, dim=decade)
+        FRA = xr.concat(fras, dim=decade)
+        PC = xr.concat(pcs, 'time')
 
-    field = rolling(xarr, win=window)
-    field = field.stack(com=("ens", "decade"))
-    # select only the valid time
-    field = field.sel(time=validtime)
-
-    # changing eofs (dynamic):
-    if validtime.size > 1:
-        eof_result = field.groupby("time").apply(
-            lambda x: ssp.doeof(x, nmode=nmode, dim="com")
-        )
-
-    # for one pattern (first,all,last) and all time step
-    elif validtime.size == 1:
-        eof_result = ssp.doeof(field, nmode=nmode, dim="com")
-
-    # drop vars
-    try:
-        eof_result = eof_result.drop_vars("decade")
-    except:
-        pass
+        # combine EOF, FRA, PC together as a dataset
+        eof_result = xr.Dataset({"eof": EOF, "pc": PC, "fra": FRA})
 
     return eof_result
 
-
-def fixed_pc(xarr, pattern, standard, dim="time"):
-    """projecting the xarr to a fixed spatial pattern.
-
-    **Arguments**
-
-        *xarr*: the xarr to be decomposed.
-        *pattern*: the fixed pattern to project on.
-
-    **Returns**
-
-        *pcx*: the coresponding temporal index
+def win_slice(start_year, win_size):
     """
-    # stack
-    fieldx = tools.stack_ens(xarr, withdim=dim)
-    pc = ssp.project_field(fieldx, pattern, standard=standard)
-    return pc
-
-
-def decadal_pc(xarr, validtime, EOF, window):
-    """decompose the xarr into decadal patterns.
-
-    **Arguments**
-
-        *xarr* : the DataArray to be composed.
-        *nmode* : how many modes to decompose.
-        *windo* : rolling window.
-
-    **Return**
-
-        eof and fra.
+    get the slice of the window.
     """
-
-    field = rolling(xarr, win=window)
-    PC = []
-    # select only the valid time
-    for time in validtime:
-        lowyear = pd.Timestamp(time.values) - pd.DateOffset(years = window/2)
-        highyear = pd.Timestamp(time.values) + pd.DateOffset(years = window/2)
-        time_window = pd.date_range(lowyear, highyear, freq='Y')
-
-        field_dec = field.sel(time=time)
-        pattern = EOF.sel(decade=time)  # decade rather than time
-        pc = fixed_pc(field_dec, pattern, standard=False, dim="decade")
-
-        # change 'decade' to 'time'
-        pc = pc.drop_vars("time")
-        pc = pc.rename({"decade": "time"})
-        pc['time'] = time_window
-        PC.append(pc)
-    PC = xr.concat(PC, dim='time')
-    return PC
-
-
-def changing_pc(xarr, validtime, EOF, standard):
-    """projecting the xarr to a changing spatial pattern.
-    The patterns can be a
-        pattern for each year (dim = 'ens')
-        pattern for each decade (dim = 'decade')
-
-    **Arguments**
-
-        *xarr* the array to be composed.
-        *validatime* the timeseries who has full 10 years around it.
-        *EOF* the changing EOFs.
-
-    **Return**
-
-        changing pc, whose length is time-10.
-    """
-    PC = []
-    for time in validtime:
-        field = xarr.sel(time=time)
-        pattern = EOF.sel(time=time)
-
-        # here the standard must be False since there is only one time step here.
-        pc = ssp.project_field(
-            field,
-            pattern,
-            dim="ens",
-            standard=False,
-        )  # project all ens onto one eof.
-        PC.append(pc)
-    PC = xr.concat(PC, dim=validtime)
-
-    # The real standardization is done here.
-    if standard:
-        PC = tools.standardize(PC)
-
-    return PC
-
-
-def rolling(xarr, win=10):
-    """rolling the xarr with a time window of 'win'.
-
-    **Arguments**:
-
-        xarr: DataArray to be rolled.
-        win: the window size
-
-    **Return**:
-
-        DataArray being rolled.
-    """
-    # using the rolling func in xarray.
-    roller = xarr.rolling(time=win, center=True)
-
-    # construct the rolling object to a DatArray
-    rolled = roller.construct("decade")
-
-    return rolled
+    gap = int(win_size / 2)
+    y, m, d = str(start_year.values).split("-")
+    start_year = np.datetime64("{}-{}-{}".format(int(y)-gap, m, d))
+    end_year =  np.datetime64("{}-{}-{}".format(int(y)+gap - 1, m, d))
+    return slice(start_year, end_year)
