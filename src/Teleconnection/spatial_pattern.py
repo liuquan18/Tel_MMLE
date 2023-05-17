@@ -13,7 +13,6 @@ def doeof(
     nmode: int = 2,
     dim: str = "com",
     standard: bool = True,
-    shuffle: bool = True,
 ):
     """
     do eof to seasonal data along a combined dim
@@ -42,9 +41,6 @@ def doeof(
     except ValueError:
         print("no combined dimension found. use tools.stackens() first")
 
-    # shuffle
-    if shuffle:
-        data.sel(com=np.random.permutation(data.com))
 
     # weights
     wgts = tools.sqrtcoslat(data)
@@ -74,13 +70,11 @@ def doeof(
     # deweight
     eofx = eofx / wgts.isel(com = 0)
 
-    # standardize
-    std_pc = pcx.std(dim = 'com') # std for standardization comes from the pc, not the eof.
-    eofx = eofx * std_pc
+    # standardize, here the loading gives to the pc, to make the index from different spatil pattern comparable.
+    std_eof = eofx.std(dim = ('lat','lon'))
+    eofx = eofx / std_eof
+    pcx = pcx * std_eof
 
-    # standard pc or not
-    if standard:
-        pcx = pcx / std_pc
 
     # change sign
     coef = sign_coef(eofx)
