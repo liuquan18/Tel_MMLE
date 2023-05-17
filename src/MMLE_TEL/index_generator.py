@@ -12,6 +12,7 @@ import src.Teleconnection.tools as tools
 import src.Teleconnection.rolling_eof as rolling_eof
 import src.warming_stage.warming_stage as warming_stage
 import src.Teleconnection.spatial_pattern as ssp
+import src.MMLE_TEL.standardize as standardize
 
 
 #%%
@@ -20,7 +21,7 @@ class decompose_fixedPattern:
     A class to generate the eof and index
     """
 
-    def __init__(self, model, vertical_eof, fixed_pattern = 'warming'):
+    def __init__(self, model, vertical_eof, fixed_pattern = 'warming',standard='all') -> None:
         self.vertical_eof = vertical_eof
         self.independence = self.vertical_eof == "ind"
         self.fixed_pattern = fixed_pattern
@@ -28,6 +29,7 @@ class decompose_fixedPattern:
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.zg_path = self.odir + "zg_processed/"
         self.save_path = self.odir + "EOF_result/"
+        self.standard = standard # 'own','all','none'
 
         # read data
         print("reading the gph data ...")
@@ -51,32 +53,29 @@ class decompose_fixedPattern:
 
     def standard_index(self):
         print("standardizing the index ...")
-        # if single pattern, standardize the index with its own mean and std (temporal and ens)
-        if (
-            self.fixed_pattern == "first"
-            or self.fixed_pattern == "last"
-        ):
-            self.eof_result["pc"] = (
-                self.eof_result["pc"] - self.eof_result["pc"].mean(dim=("time", "ens"))
-            ) / self.eof_result["pc"].std(dim=("time", "ens"))
-
-        # if changing pattern, standardize the index with the mean and std of all the index
-        else:
+        if self.standard == 'own':
+            self.eof_result = standardize.standard_by_own(
+                self.eof_result
+            )
+        elif self.standard == 'all':
             try:
                 all_index = xr.open_dataset(
-                    self.odir + "EOF_result/" + self.vertical_eof + "_all_eof_result.nc"
+                self.odir + "EOF_result/" + self.vertical_eof + "_all_eof_result.nc"
                 )
 
             except FileNotFoundError:
                 print("all index not found, generate it first")
+                # rase error
+                raise FileNotFoundError
 
-            self.eof_result["pc"] = (
-                self.eof_result["pc"] - all_index["pc"].mean(dim=("time", "ens"))
-            ) / all_index["pc"].std(dim=("time", "ens"))
-
-        elif self.fixed_pattern == 'all':
-            print("     no standarization for all pattern")
+            self.eof_result = standardize.standard_by_all(
+                all_index,
+                self.eof_result
+            )
+        elif self.standard == 'none':
+            pass
         return self.eof_result
+ 
 
     # save
     def save_result(self):
