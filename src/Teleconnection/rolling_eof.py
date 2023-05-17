@@ -75,7 +75,7 @@ def rolling_eof(xarr, nmode=2, win_size=10, fixed_pattern="all", standard=True):
         fras = []
 
         for time in decade_time:
-            print("     decomposing the decade of {}".format(time.dt.year)
+            print("     decomposing the decade of {}".format(time.dt.year))
             # slice the time
             time_slice = win_slice(time, win_size)
 
