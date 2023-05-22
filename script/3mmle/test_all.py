@@ -3,7 +3,7 @@
 import xarray as xr
 import numpy as np
 # %%
-all_eof = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/EOF_result/ind_all_eof_result.nc")
+all_eof = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/EOF_result/ind_all_none_eof_result.nc")
 # %%
 all_pc = all_eof.pc
 # %%
@@ -17,7 +17,7 @@ all_pc_std = (all_pc - all_pc.mean(dim = 'time'))/all_pc.std(dim = 'time')
 
 
 # %%
-change_eof = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/EOF_result/ind_decade_eof_result.nc")
+change_eof = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/EOF_result/ind_decade_none_eof_result.nc")
 # %%
 change_pc = change_eof.pc
 # %%

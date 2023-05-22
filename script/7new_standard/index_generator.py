@@ -17,3 +17,4 @@ index_gen.save_result()
 
 index_gen = index_generate.decompose_fixedPattern("MPI_GE_onepct",'ind','all',standard='none')
 index_gen.save_result()
+# %%
