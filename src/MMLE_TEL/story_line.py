@@ -48,12 +48,14 @@ class story_line:
 
         # locations
         odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
-        self.eof_result_dir = odir + "EOF_result/" + self.prefix + "eof_result.nc"
+        self.eof_result_dir = odir + "EOF_result/" + self.prefix + "own_eof_result.nc"
         self.tsurf_dir = odir + "ts_processed/tsurf_mean.nc"
         self.ts_fullfield_dir = (
             odir + "ts/"
         )  # the location for the full field temperature data
         self.atg_dir = odir + "ts_processed/tsurf_anom_gradient.nc"
+
+        ## locations to save
         self.to_plot_dir = (
             "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/" + self.prefix
         )
