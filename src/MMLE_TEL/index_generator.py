@@ -95,7 +95,7 @@ class decompose_mmle:
     A class for mmle decomposition
     """
 
-    def __init__(self, model, fixedPattern, plev=50000) -> None:
+    def __init__(self, model, fixedPattern, plev=50000, standarize = True) -> None:
         self.model = model
         self.plev = plev
         self.fixedPattern = fixedPattern  # warming or decade
@@ -105,22 +105,23 @@ class decompose_mmle:
         self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
 
-        # read data
+        # read gph data
         print("reading the gph data ...")
         self.data = self.read_data()
 
-        # warming stages
+        # read ts_mean data if needed
+        self.ts_mean = None
         if self.fixedPattern == "warming":
             self.ts_mean = warming_stage.read_tsurf_fldmean(self.ts_mean_path)
-            self.warming_periods = warming_stage.temp_period(self.ts_mean)
 
-            # decompose
-            self.all_eof, self.eof_0K, self.eof_4K = self.decompose_warming_eof()
+        # deompose
+        self.eof_result = self.decompose()
 
-        elif self.fixedPattern == "decade":
-            self.decade_eof = self.decompose_decade_eof()
+        # standardize
+        if standarize:
+            self.std_eof_result = self.standard_index()
 
-    def read_data(self,standard_altitude=False):
+    def read_data(self):
         """
         read data quickly
         """
@@ -152,81 +153,45 @@ class decompose_mmle:
         # select one altitude
         print(" select the specific plev...")
         zg_gph = zg_demean.sel(plev=self.plev)
-        # standardize seperately with the temporal mean and std
-        if standard_altitude:
-            print(" standardize each altitudes seperately...")
-            zg_gph = (zg_gph - zg_gph.mean(dim="time")) / zg_gph.std(dim="time")
+
         return zg_gph
-
-    def decompose_allPattern(self):
-        """
-        decompose with the all pattern
-        """
-        all_eof = rolling_eof.rolling_eof(
-            self.data, nmode=2, window=10, fixed_pattern="all"
-        )
-        return all_eof
-
-    def decompose_warming_period_pattern(self, warming_stage):
-        """
-        decompose the data in the 10 years around the 0K or 4K warming stage
-        """
-        if warming_stage == "0K":
-            warming_period = self.warming_periods[0]
-        elif warming_stage == "4K":
-            warming_period = self.warming_periods[-1]
-
-        print(f"    decomposing the warming stage {warming_stage} ...")
-        field = self.data.sel(time=warming_period)
-        field = field.stack(com=("ens", "time"))
-        eof_result = ssp.doeof(field, nmode=2, dim="com")
-        eof_result = eof_result[["eof", "fra"]]
-        PC = ssp.project_field(field, eof_result.eof, dim="com")
-        eof_result["pc"] = PC
-        eof_result.attrs["warming_stage"] = str(warming_period)
-        return eof_result
-
-
-    def decompose_decade_eof(self):
-        """
-        decompose the historical and ssp8.5 every ten years.
-        """
-        print("decomposing every ten years ...")
-
-        decade_eof = rolling_eof.rolling_eof(
-            self.data, nmode=2, window=10, fixed_pattern="decade"
-        )
-
-        return decade_eof
     
-
     def decompose(self):
         """
         decompose the data
         """
         print("decomposing ...")
-        if self.fixedPattern == "warming":
-            self.eof_0K = self.decompose_warming_period_pattern("0K")
-            self.eof_4K = self.decompose_warming_period_pattern("4K")
-        elif self.fixedPattern == "decade":
-            self.decade_eof = self.decompose_decade_eof()
+
+        eof_result = rolling_eof.rolling_eof(
+            self.data,fixed_pattern=self.fixedPattern,ts_mean=self.ts_mean
+        )
+        return eof_result
+
+    def standard_index(self):
+        print("standardizing the index ...")
+        # standarize the index with the tmeporal mean and std
+        eof_result['pc'] = (eof_result['pc'] - eof_result['pc'].mean(dim='time')) / eof_result['pc'].std(dim='time')
+        return eof_result
+
 
     def save_result(self):
         print("saving the result ...")
-        # save the result
-
-        self.all_eof.to_netcdf(
-            self.save_path + "gph_" + str(self.plev) + "_all_" + "eof_result.nc"
+        # save the unstandardized result
+        self.eof_result.to_netcdf(
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + "_none_eof_result.nc"
         )
-
-        if self.fixedPattern == "warming":
-            self.eof_0K.to_netcdf(
-                self.save_path + "gph_" + str(self.plev) + "_0K_" + "eof_result.nc"
-            )
-            self.eof_4K.to_netcdf(
-                self.save_path + "gph_" + str(self.plev) + "_4K_" + "eof_result.nc"
-            )
-        elif self.fixedPattern == "decade":
-            self.decade_eof.to_netcdf(
-                self.save_path + "gph_" + str(self.plev) + "_decade_" + "eof_result.nc"
-            )
+        # save the standardized result
+        self.std_eof_result.to_netcdf(
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + "_own_eof_result.nc"
+        )
+        
