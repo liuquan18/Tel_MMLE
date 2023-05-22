@@ -47,7 +47,7 @@ class index_stats:
 
         # locations to read
         odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
-        self.eof_result_dir = odir + "EOF_result/" + self.prefix + "eof_result.nc"
+        self.eof_result_dir = odir + "EOF_result/" + self.prefix + "_eof_result.nc"
         self.tsurf_dir = odir + "ts_processed/tsurf_mean.nc"
 
         # locations to save
