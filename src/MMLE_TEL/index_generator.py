@@ -95,7 +95,7 @@ class decompose_mmle:
     A class for mmle decomposition
     """
 
-    def __init__(self, model, fixedPattern, plev=50000, standarize = True) -> None:
+    def __init__(self, model, fixedPattern, plev=50000, standarize=True) -> None:
         self.model = model
         self.plev = plev
         self.fixedPattern = fixedPattern  # warming or decade
@@ -155,7 +155,7 @@ class decompose_mmle:
         zg_gph = zg_demean.sel(plev=self.plev)
 
         return zg_gph
-    
+
     def decompose(self):
         """
         decompose the data
@@ -163,16 +163,17 @@ class decompose_mmle:
         print("decomposing ...")
 
         eof_result = rolling_eof.rolling_eof(
-            self.data,fixed_pattern=self.fixedPattern,ts_mean=self.ts_mean
+            self.data, fixed_pattern=self.fixedPattern, ts_mean=self.ts_mean
         )
         return eof_result
 
     def standard_index(self):
         print("standardizing the index ...")
         # standarize the index with the tmeporal mean and std
-        eof_result['pc'] = (eof_result['pc'] - eof_result['pc'].mean(dim='time')) / eof_result['pc'].std(dim='time')
+        eof_result["pc"] = (
+            self.eof_result["pc"] - self.eof_result["pc"].mean(dim="time")
+        ) / self.eof_result["pc"].std(dim="time")
         return eof_result
-
 
     def save_result(self):
         print("saving the result ...")
@@ -194,4 +195,3 @@ class decompose_mmle:
             + self.fixedPattern
             + "_own_eof_result.nc"
         )
-        
