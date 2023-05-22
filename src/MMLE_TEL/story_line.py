@@ -57,7 +57,7 @@ class story_line:
 
         ## locations to save
         self.to_plot_dir = (
-            "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/story_line/" + self.prefix
+            "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/new_standard/" + self.prefix
         )
         self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
 
