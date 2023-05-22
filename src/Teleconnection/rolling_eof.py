@@ -8,7 +8,7 @@ import src.Teleconnection.tools as tools
 import src.warming_stage.warming_stage as warming_stage
 
 
-def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean = None):
+def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean=None):
     """do eof analysis with in a rolling window.
 
     rolling EOF is like rolling mean, here the default window is 10 years. The EOFs, PCs and
@@ -63,19 +63,19 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean = None):
 
     elif fixed_pattern == "warming":
         print("     decompose the warming period")
-        
+
         # get the periods where the glmt increases 0K and 4K
         ts_mean = ts_mean
         warming_periods = warming_stage.temp_period(ts_mean)
-        warming_index = xr.IndexVariable("warming", ['0K','1K','4K'])
+        warming_index = xr.IndexVariable("warming", ["0K", "1K", "4K"])
 
         eof_results = []
         for period in warming_periods:
             print("         decomposing the warming period of {}".format(period))
             # decomose the decade
-            eof_result_single = decompose_single_decade(xarr,period)
+            eof_result_single = decompose_single_decade(xarr, period)
             eof_results.append(eof_result_single)
-        
+
         eof_result = xr.concat(eof_results, dim=warming_index)
 
     elif fixed_pattern == "decade":
@@ -101,7 +101,7 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean = None):
             # slice the time
             time_slice = win_slice(time, window)
 
-            eof_result_single = decompose_single_decade(xarr,time_slice)
+            eof_result_single = decompose_single_decade(xarr, time_slice)
             eof = eof_result_single["eof"]
             pc = eof_result_single["pc"].copy()
             fra = eof_result_single["fra"]
@@ -120,7 +120,8 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean = None):
 
     return eof_result
 
-def decompose_single_decade(xarr,timeslice):
+
+def decompose_single_decade(xarr, timeslice, nmode=2):
     """decompose a single decade."""
     field = xarr.sel(time=timeslice)
     field = field.stack(com=("ens", "time"))
@@ -128,7 +129,6 @@ def decompose_single_decade(xarr,timeslice):
     eof_result = ssp.doeof(field, nmode=nmode, dim="com")
 
     return eof_result
-
 
 
 def win_slice(start_year, win_size):
