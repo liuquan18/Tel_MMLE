@@ -170,9 +170,10 @@ class decompose_mmle:
     def standard_index(self):
         print("standardizing the index ...")
         # standarize the index with the tmeporal mean and std
+        eof_result = self.eof_result.copy()
         eof_result["pc"] = (
-            self.eof_result["pc"] - self.eof_result["pc"].mean(dim="time")
-        ) / self.eof_result["pc"].std(dim="time")
+            eof_result["pc"] - eof_result["pc"].mean(dim="time")
+        ) / eof_result["pc"].std(dim="time")
         return eof_result
 
     def save_result(self):
