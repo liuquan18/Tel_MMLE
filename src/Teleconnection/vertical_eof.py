@@ -11,7 +11,6 @@ def vertical_eof(
     window: int = 10,  # the window size if fix_pattern = 'False' is adopted.
     fixed_pattern: str = "all",  # the fixed_pattern mode
     independent: bool = True,  # the vertical strategy.
-    standard: bool = True,  # standard pc or not
 ):
     """
     different way to do the eof vertically,
@@ -32,7 +31,6 @@ def vertical_eof(
             nmode=nmode,
             window=window,
             fixed_pattern=fixed_pattern,
-            standard=standard,
         )
     else:
         eof_result = dependent_eof(
@@ -40,7 +38,6 @@ def vertical_eof(
             nmode=nmode,
             window=window,
             fixed_pattern=fixed_pattern,
-            standard=standard,
         )
 
     return eof_result
