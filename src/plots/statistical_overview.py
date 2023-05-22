@@ -43,16 +43,16 @@ def to_dataframe(first_pc, last_pc, mode):
     return both
 
 
-def stat_overview(eof_result, plev=50000):
+def stat_overview(eof_result=None,first_eof = None, last_eof = None, first_pc = None, last_pc = None, first_fra = None, last_fra = None, plev=50000):
+    if eof_result is not None:
+        eof = eof_result.eof
+        pc = eof_result.pc
+        fra = eof_result.fra
 
-    eof = eof_result.eof
-    pc = eof_result.pc
-    fra = eof_result.fra
-
-    # split eof_result into first 10 and last 10 years
-    first_eof, last_eof, first_pc, last_pc, first_fra, last_fra = split_period(
-        eof, pc, fra
-    )
+        # split eof_result into first 10 and last 10 years
+        first_eof, last_eof, first_pc, last_pc, first_fra, last_fra = split_period(
+            eof, pc, fra
+        )
 
     # plot
     fig = pplt.figure(space=0, refwidth="25em", wspace=3, hspace=3)
