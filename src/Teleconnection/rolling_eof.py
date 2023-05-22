@@ -73,7 +73,7 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean = None):
         for period in warming_periods:
             print("         decomposing the warming period of {}".format(period))
             # decomose the decade
-            eof_result_single = decompose_single_decade(period)
+            eof_result_single = decompose_single_decade(xarr,period)
             eof_results.append(eof_result_single)
         
         eof_result = xr.concat(eof_results, dim=warming_index)
@@ -101,7 +101,7 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean = None):
             # slice the time
             time_slice = win_slice(time, window)
 
-            eof_result_single = decompose_single_decade(time_slice)
+            eof_result_single = decompose_single_decade(xarr,time_slice)
             eof = eof_result_single["eof"]
             pc = eof_result_single["pc"].copy()
             fra = eof_result_single["fra"]
@@ -120,7 +120,7 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean = None):
 
     return eof_result
 
-def decompose_single_decade(timeslice):
+def decompose_single_decade(xarr,timeslice):
     """decompose a single decade."""
     field = xarr.sel(time=timeslice)
     field = field.stack(com=("ens", "time"))
