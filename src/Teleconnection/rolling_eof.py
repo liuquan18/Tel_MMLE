@@ -5,9 +5,10 @@ from tqdm.notebook import tqdm, trange
 
 import src.Teleconnection.spatial_pattern as ssp
 import src.Teleconnection.tools as tools
+import src.warming_stage.warming_stage as warming_stage
 
 
-def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
+def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean = None):
     """do eof analysis with in a rolling window.
 
     rolling EOF is like rolling mean, here the default window is 10 years. The EOFs, PCs and
@@ -60,6 +61,23 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
             standard=False,
         )
 
+    elif fixed_pattern == "warming":
+        print("     decompose the warming period")
+        
+        # get the periods where the glmt increases 0K and 4K
+        ts_mean = ts_mean
+        warming_periods = warming_stage.temp_period(ts_mean)
+        warming_index = xr.IndexVariable("warming", ['0K','1K','4K'])
+
+        eof_results = []
+        for period in warming_periods:
+            print("         decomposing the warming period of {}".format(period))
+            # decomose the decade
+            eof_result_single = decompose_single_decade(period)
+            eof_results.append(eof_result_single)
+        
+        eof_result = xr.concat(eof_results, dim=warming_index)
+
     elif fixed_pattern == "decade":
         print("     decomposing everty ten years")
 
@@ -83,13 +101,10 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
             # slice the time
             time_slice = win_slice(time, window)
 
-            field = xarr.sel(time=time_slice)
-            field = field.stack(com=("ens", "time"))
-
-            eof_result = ssp.doeof(field, nmode=nmode, dim="com")
-            eof = eof_result["eof"]
-            pc = eof_result["pc"].copy()
-            fra = eof_result["fra"]
+            eof_result_single = decompose_single_decade(time_slice)
+            eof = eof_result_single["eof"]
+            pc = eof_result_single["pc"].copy()
+            fra = eof_result_single["fra"]
 
             eofs.append(eof)
             pcs.append(pc)
@@ -104,6 +119,16 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", standard=True):
         eof_result = xr.Dataset({"eof": EOF, "pc": PC, "fra": FRA})
 
     return eof_result
+
+def decompose_single_decade(timeslice):
+    """decompose a single decade."""
+    field = xarr.sel(time=timeslice)
+    field = field.stack(com=("ens", "time"))
+
+    eof_result = ssp.doeof(field, nmode=nmode, dim="com")
+
+    return eof_result
+
 
 
 def win_slice(start_year, win_size):
