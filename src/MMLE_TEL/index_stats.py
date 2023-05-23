@@ -11,7 +11,7 @@ import numpy as np
 
 # extremes
 import src.extreme.extreme_ci as extreme
-import src.MMLE_TEL.extrc_tsurf as extrc_tsurf
+import src.plots.extrc_tsurf_scatter as extrc_tsurf
 import src.MMLE_TEL.spatial_pattern_change as sp_change
 
 # reimport extreme
@@ -59,11 +59,11 @@ class index_stats:
 
         # read data
         self.eof_result = xr.open_dataset(self.eof_result_dir)
-        self.tsurf = xr.open_dataset(self.tsurf_dir)
+        self.tsurf = xr.open_dataset(self.tsurf_dir).tsurf
 
 #%%
     # stat overview
-    def stat_overview(self):
+    def stat_overview(self,levels = np.arange(-2,2.1,0.4)):
         print("ploting the statistical overview")
         first_eof = self.eof_result.eof.isel(decade = 0)
         last_eof = self.eof_result.eof.isel(decade = -1) 
@@ -76,7 +76,7 @@ class index_stats:
 
 
         stat_overview_fig = stat_overview.stat_overview(
-            first_eof, last_eof, first_pc, last_pc, first_fra, last_fra
+            first_eof, last_eof, first_pc, last_pc, first_fra, last_fra,levels=levels
         )
         plt.savefig(self.to_plot_dir + "stat_overview.png")
 
@@ -87,15 +87,19 @@ class index_stats:
     # extreme event count vs. tsurf
     def extrc_tsurf(self, plev=50000, ylim=(35, 110)):
         print("ploting the extreme event count vs. tsurf")
-        tsurf_mean = self.tsurf
+        tsurf_mean = self.tsurf.mean(dim = 'ens').squeeze()
         tsurf_increase = tsurf_mean - tsurf_mean[0]
+
+
         ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
-            self.pc, tsurf_increase
+            self.eof_result.pc, tsurf_increase
         )
-        Fig3 = extrc_tsurf.extCount_tsurf_scatter(
-            ext_counts, t_surf_mean, plev=plev, ylim=ylim
+        extrc_tsurf_scatter = extrc_tsurf.extCount_tsurf_scatter(
+            ext_counts, t_surf_mean, ylim=ylim
         )
         plt.savefig(
             self.to_plot_dir + "extreme_count_tsurf" + f"_{(plev/100):.0f}hPa" + ".png"
         )
+
+    
 
