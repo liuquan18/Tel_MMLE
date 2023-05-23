@@ -13,8 +13,8 @@ import src.warming_stage.warming_stage as warming_stage
 
 # no warnings
 import warnings
-warnings.filterwarnings("ignore")
 
+warnings.filterwarnings("ignore")
 
 
 # Fig 1 spatial patterns and statistics of the pcs
@@ -22,21 +22,28 @@ warnings.filterwarnings("ignore")
 # colums for 'spatial map','pc hist','violion vertical profile'.
 
 
-def split_pc(first_pc,last_pc,mode):
+def split_pc(first_pc, last_pc, mode):
     # split the pc into two parts
-    periods = xr.IndexVariable('periods',['first','last'])
+    periods = xr.IndexVariable("periods", ["first", "last"])
 
-    first_pc = first_pc.sel(mode = mode)
-    last_pc = last_pc.sel(mode = mode)
+    first_pc = first_pc.sel(mode=mode)
+    last_pc = last_pc.sel(mode=mode)
 
-    both = xr.concat([first_pc,last_pc],dim = periods)
+    both = xr.concat([first_pc, last_pc], dim=periods)
     both = both.to_dataframe().reset_index()
-    both = both[['periods','pc']]
+    both = both[["periods", "pc"]]
     return both
 
 
-
-def stat_overview(first_eof, last_eof, first_pc, last_pc, first_fra, last_fra):
+def stat_overview(
+    first_eof,
+    last_eof,
+    first_pc,
+    last_pc,
+    first_fra,
+    last_fra,
+    levels=np.arange(-2, 2.1, 0.4),
+):
 
     # plot
     fig = pplt.figure(space=0, refwidth="25em", wspace=3, hspace=3)
@@ -55,7 +62,6 @@ def stat_overview(first_eof, last_eof, first_pc, last_pc, first_fra, last_fra):
         wratios=(1, 1),
     )
     modes = ["NAO", "EA"]
-    levels = np.arange(-0.8, 0.9, 0.2)
 
     for i, mode in enumerate(modes):
         # data preparation
@@ -94,9 +100,7 @@ def stat_overview(first_eof, last_eof, first_pc, last_pc, first_fra, last_fra):
             coast=True,
             coastlinewidth=0.5,
             coastcolor="charcoal",
-            title=mode
-            + f"({first_fra_500:.0%}"
-            + f"->{last_fra_500:.0%})",
+            title=mode + f"({first_fra_500:.0%}" + f"->{last_fra_500:.0%})",
         )
 
         # plot pc hist
@@ -104,10 +108,10 @@ def stat_overview(first_eof, last_eof, first_pc, last_pc, first_fra, last_fra):
 
         hist = sns.histplot(
             data=df_500,
-            x='pc',
+            x="pc",
             hue="periods",
             hue_order=["first", "last"],
-            palette=['#1f77b4', '#ff7f0e'],
+            palette=["#1f77b4", "#ff7f0e"],
             multiple="dodge",
             shrink=0.6,
             bins=np.arange(-4, 4.1, 0.5),
@@ -118,7 +122,6 @@ def stat_overview(first_eof, last_eof, first_pc, last_pc, first_fra, last_fra):
         hist_ax.format(grid=False, yminorticks="null", xminorticks="null", title=mode)
         hist_ax.spines["right"].set_visible(False)
         hist_ax.spines["top"].set_visible(False)
-
 
         # add legend
         f_patch = mpatches.Patch(color="#1f77b4", label="first10")
