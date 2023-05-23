@@ -95,10 +95,11 @@ class decompose_mmle:
     A class for mmle decomposition
     """
 
-    def __init__(self, model, fixedPattern, plev=50000, standarize=True) -> None:
+    def __init__(self, model, fixedPattern, plev=50000, standard='temporal') -> None:
         self.model = model
         self.plev = plev
         self.fixedPattern = fixedPattern  # warming or decade
+        self.standard = standard
 
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.zg_path = self.odir + "zg_processed/"
@@ -171,9 +172,16 @@ class decompose_mmle:
         print("standardizing the index ...")
         # standarize the index with the tmeporal mean and std
         eof_result = self.eof_result.copy()
-        eof_result["pc"] = (
-            eof_result["pc"] - eof_result["pc"].mean(dim="time")
-        ) / eof_result["pc"].std(dim="time")
+        if self.standard == "temporal":
+            eof_result["pc"] = (
+                eof_result["pc"] - eof_result["pc"].mean(dim="time")
+            ) / eof_result["pc"].std(dim="time")
+
+        elif self.standard == "temproal_ens":
+            eof_result["pc"] = (
+                eof_result["pc"] - eof_result["pc"].mean(dim=("time", "ens"))
+            ) / eof_result["pc"].std(dim=("time", "ens"))
+
         return eof_result
 
     def save_result(self):
