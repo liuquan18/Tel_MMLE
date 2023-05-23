@@ -1,6 +1,5 @@
 # %%
 # import xarray, numpy, pandas, proplot
-import numpy as np
 import pandas as pd
 import proplot as pplt
 import matplotlib.pyplot as plt
@@ -8,6 +7,7 @@ import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
 import seaborn as sns
 import xarray as xr
+import numpy as np
 
 # extremes
 import src.extreme.extreme_ci as extreme
@@ -61,15 +61,28 @@ class index_stats:
         self.eof_result = xr.open_dataset(self.eof_result_dir)
         self.tsurf = xr.open_dataset(self.tsurf_dir)
 
+#%%
     # stat overview
     def stat_overview(self):
+        print("ploting the statistical overview")
+        first_eof = self.eof_result.eof.isel(decade = 0)
+        last_eof = self.eof_result.eof.isel(decade = -1) 
 
-        first_eof_result = self.eof_result.isel(decade=0)
-        last_eof_result = self.eof_result.isel(decade=-1)
+        first_pc = self.eof_result.pc.isel(time = slice(0,10))
+        last_pc = self.eof_result.pc.isel(time = slice(-10,None)) 
 
-        stat_overview_fig = stat_overview.stat_overview(self.eof_result)
+        first_fra = self.eof_result.fra.isel(decade = 0)
+        last_fra = self.eof_result.fra.isel(decade = -1)
+
+
+        stat_overview_fig = stat_overview.stat_overview(
+            first_eof, last_eof, first_pc, last_pc, first_fra, last_fra
+        )
         plt.savefig(self.to_plot_dir + "stat_overview.png")
-        plt.close()
+
+
+
+
 
     # extreme event count vs. tsurf
     def extrc_tsurf(self, plev=50000, ylim=(35, 110)):
@@ -85,3 +98,4 @@ class index_stats:
         plt.savefig(
             self.to_plot_dir + "extreme_count_tsurf" + f"_{(plev/100):.0f}hPa" + ".png"
         )
+
