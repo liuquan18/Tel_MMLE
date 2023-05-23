@@ -36,8 +36,8 @@ def split_pc(first_pc, last_pc, mode):
 
 
 def stat_overview(
-    first_eof,
-    last_eof,
+    first_eof = None,
+    last_eof = None,
     first_pc,
     last_pc,
     first_fra,
@@ -83,16 +83,16 @@ def stat_overview(
         fmap = first_eof_500.plot.contourf(
             ax=spatial_ax, levels=levels, extend="both", add_colorbar=False
         )
-
-        lmap = last_eof_500.plot.contour(
-            ax=spatial_ax,
-            colors="gray8",
-            nozero=True,
-            labels=True,
-            levels=np.delete(levels, int((len(levels) - 1) / 2)),
-            labels_kw={"weight": "bold"},
-            add_colorbar=False,
-        )
+        if last_eof is not None:
+            lmap = last_eof_500.plot.contour(
+                ax=spatial_ax,
+                colors="gray8",
+                nozero=True,
+                labels=True,
+                levels=np.delete(levels, int((len(levels) - 1) / 2)),
+                labels_kw={"weight": "bold"},
+                add_colorbar=False,
+            )
 
         spatial_ax.format(
             lonlines=20,
