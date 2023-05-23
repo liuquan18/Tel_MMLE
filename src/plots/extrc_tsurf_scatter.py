@@ -92,6 +92,10 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None):
         ext_counts.append(period_ext_count)
         t_surf_mean.append(period_mean_t)
 
+        # when i+10 is out of 149, break the loop
+        if i + 10 > index.time.size:
+            break
+
     periods = index.isel(time=np.arange(0, index.time.size, 10)).time
     ext_counts = xr.concat(ext_counts, dim=periods)
     t_surf_mean = xr.concat(t_surf_mean, dim=periods)
