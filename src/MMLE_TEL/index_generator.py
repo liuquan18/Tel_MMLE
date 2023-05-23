@@ -119,7 +119,6 @@ class decompose_mmle:
         self.eof_result = self.decompose()
 
         # standardize
-
         self.std_eof_result = self.standard_index()
 
     def read_data(self):
@@ -169,7 +168,7 @@ class decompose_mmle:
         return eof_result
 
     def standard_index(self):
-        print("standardizing the index ...")
+        print(f"standardizing the index with {self.standard} ...")
         # standarize the index with the tmeporal mean and std
         eof_result = self.eof_result.copy()
         if self.standard == "temporal":
