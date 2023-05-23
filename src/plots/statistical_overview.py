@@ -128,7 +128,7 @@ def stat_overview(
         l_patch = mpatches.Patch(color="#ff7f0e", label="last10")
 
         if i == 1:
-            spatial_ax.colorbar(fmap, loc="b", title="std", ticks=0.2, pad=2)
+            spatial_ax.colorbar(fmap, loc="b", title="std", ticks=0.3, pad=2)
             hist_ax.legend(
                 handles=[f_patch, l_patch], loc="b", title="periods", frameon=False
             )
