@@ -25,6 +25,8 @@ import src.plots.statistical_overview as stat_overview
 
 # composite analysis
 import src.composite.field_composite as composite
+import src.plots.NAO_EA_hist2d as hist2d
+
 
 #%%
 importlib.reload(extreme)
@@ -61,35 +63,39 @@ class index_stats:
         self.eof_result = xr.open_dataset(self.eof_result_dir)
         self.tsurf = xr.open_dataset(self.tsurf_dir).tsurf
 
-#%%
+    #%%
     # stat overview
-    def stat_overview(self,levels = np.arange(-2,2.1,0.4)):
+    def stat_overview(self, levels=np.arange(-2, 2.1, 0.4)):
         print("ploting the statistical overview")
-        first_eof = self.eof_result.eof.isel(decade = 0)
-        last_eof = self.eof_result.eof.isel(decade = -1) 
+        if self.fixed_pattern == 'decade':
+            first_eof = self.eof_result.eof.isel(decade=0)
+            last_eof = self.eof_result.eof.isel(decade=-1)
+        elif self.fixed_pattern == 'all':
+            first_eof = self.eof_result.eof
+            last_eof = None
 
-        first_pc = self.eof_result.pc.isel(time = slice(0,10))
-        last_pc = self.eof_result.pc.isel(time = slice(-10,None)) 
+        first_pc = self.eof_result.pc.isel(time=slice(0, 10))
+        last_pc = self.eof_result.pc.isel(time=slice(-10, None))
 
-        first_fra = self.eof_result.fra.isel(decade = 0)
-        last_fra = self.eof_result.fra.isel(decade = -1)
-
+        first_fra = self.eof_result.fra.isel(decade=0)
+        last_fra = self.eof_result.fra.isel(decade=-1)
 
         stat_overview_fig = stat_overview.stat_overview(
-            first_eof, last_eof, first_pc, last_pc, first_fra, last_fra,levels=levels
+            first_eof, last_eof, first_pc, last_pc, first_fra, last_fra, levels=levels
         )
-        plt.savefig(self.to_plot_dir + "stat_overview.png")
+        plt.savefig(self.to_plot_dir + "_stat_overview.png", dpi=300)
 
-
-
-
+    # 2d hist of NAO and EA in the first10 and last10 decades
+    def NAO_EA_hist2d(self, bins=20, levels=np.arange(0, 0.31, 0.03)):
+        print("ploting the 2d hist of NAO and EA in the first10 and last10 decades")
+        hist2d.NAO_EA_hist2d(self.eof_result.pc, bins=bins, levels=levels)
+        plt.savefig(self.to_plot_dir + "_NAO_EA_hist2d.png", dpi=300)
 
     # extreme event count vs. tsurf
-    def extrc_tsurf(self, plev=50000, ylim=(35, 110)):
+    def extrc_tsurf(self, ylim=(35, 110)):
         print("ploting the extreme event count vs. tsurf")
-        tsurf_mean = self.tsurf.mean(dim = 'ens').squeeze()
+        tsurf_mean = self.tsurf.mean(dim="ens").squeeze()
         tsurf_increase = tsurf_mean - tsurf_mean[0]
-
 
         ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
             self.eof_result.pc, tsurf_increase
@@ -97,9 +103,37 @@ class index_stats:
         extrc_tsurf_scatter = extrc_tsurf.extCount_tsurf_scatter(
             ext_counts, t_surf_mean, ylim=ylim
         )
-        plt.savefig(
-            self.to_plot_dir + "extreme_count_tsurf" + f"_{(plev/100):.0f}hPa" + ".png"
-        )
+        plt.savefig(self.to_plot_dir + "_extreme_count_tsurf.png", dpi=300)
 
-    
+    # plot all
+    def plot_all(self):
+        self.stat_overview()
+        self.NAO_EA_hist2d()
+        self.extrc_tsurf()
 
+    # write the above plots into a markdown file
+    def write_doc(self):
+        """create the md file for the plots"""
+        print("creating the markdown file for the plots")
+        with open(self.doc_dir + self.fixed_pattern + "_index_stats.md", "w") as f:
+            f.write("# Statistics of the indices\n")
+
+            f.write("This file contains the statistics of the indices\n")
+
+            f.write("## statistical overview\n")
+            f.write(
+                "The first EOF and PC of the first 10 decades and the last 10 decades are shown below\n"
+            )
+            f.write(
+                f"![statistical overview](plots/new_standard/{self.prefix}_stat_overview.png)\n"
+            )
+
+            f.write("## 2d hist of NAO and EA in the first10 and last10 decades\n")
+            f.write(
+                f"![2d hist of NAO and EA in the first10 and last10 decades](plots/new_standard/{self.prefix}_NAO_EA_hist2d.png)\n"
+            )
+
+            f.write("## extreme event count vs. tsurf\n")
+            f.write(
+                f"![extreme event count vs. tsurf](plots/new_standard/{self.prefix}_extreme_count_tsurf.png)\n"
+            )
