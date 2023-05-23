@@ -70,18 +70,21 @@ class index_stats:
         if self.fixed_pattern == 'decade':
             first_eof = self.eof_result.eof.isel(decade=0)
             last_eof = self.eof_result.eof.isel(decade=-1)
+
+            first_fra = self.eof_result.fra.isel(decade=0)
+            last_fra = self.eof_result.fra.isel(decade=-1)
         elif self.fixed_pattern == 'all':
             first_eof = self.eof_result.eof
             last_eof = None
 
+            first_fra = self.eof_result.fra
+            last_fra = None
+
         first_pc = self.eof_result.pc.isel(time=slice(0, 10))
         last_pc = self.eof_result.pc.isel(time=slice(-10, None))
 
-        first_fra = self.eof_result.fra.isel(decade=0)
-        last_fra = self.eof_result.fra.isel(decade=-1)
-
         stat_overview_fig = stat_overview.stat_overview(
-            first_eof, last_eof, first_pc, last_pc, first_fra, last_fra, levels=levels
+            first_pc, last_pc, first_fra, last_fra, first_eof, last_eof, levels=levels
         )
         plt.savefig(self.to_plot_dir + "_stat_overview.png", dpi=300)
 

@@ -36,12 +36,12 @@ def split_pc(first_pc, last_pc, mode):
 
 
 def stat_overview(
-    first_eof = None,
-    last_eof = None,
     first_pc,
     last_pc,
-    first_fra,
-    last_fra,
+    first_fra = None,
+    last_fra = None,
+    first_eof=None,
+    last_eof=None,
     levels=np.arange(-2, 2.1, 0.4),
 ):
 
@@ -65,15 +65,18 @@ def stat_overview(
 
     for i, mode in enumerate(modes):
         # data preparation
-        ## eof as xr.DataArray
-        first_eof_500 = first_eof.sel(mode=mode).squeeze()
-        last_eof_500 = last_eof.sel(mode=mode).squeeze()
-
-        first_fra_500 = first_fra.sel(mode=mode).squeeze()
-        last_fra_500 = last_fra.sel(mode=mode).squeeze()
-
         ## pc to dataframe
         df_500 = split_pc(first_pc, last_pc, mode)
+
+        ## eof as xr.DataArray
+        first_eof_500 = first_eof.sel(mode=mode).squeeze()
+        first_fra_500 = first_fra.sel(mode=mode).squeeze()
+
+        try:
+            last_eof_500 = last_eof.sel(mode=mode).squeeze()
+            last_fra_500 = last_fra.sel(mode=mode).squeeze()
+        except AttributeError:
+            pass
 
         # plot spatial map at 500hPa
         spatial_ax = fig.add_subplot(
@@ -94,15 +97,23 @@ def stat_overview(
                 add_colorbar=False,
             )
 
-        spatial_ax.format(
-            lonlines=20,
-            latlines=30,
-            coast=True,
-            coastlinewidth=0.5,
-            coastcolor="charcoal",
-            title=mode + f"({first_fra_500:.0%}" + f"->{last_fra_500:.0%})",
-        )
-
+            spatial_ax.format(
+                lonlines=20,
+                latlines=30,
+                coast=True,
+                coastlinewidth=0.5,
+                coastcolor="charcoal",
+                title=mode + f"({first_fra_500:.0%}" + f"->{last_fra_500:.0%})",
+            )
+        else:
+            spatial_ax.format(
+                lonlines=20,
+                latlines=30,
+                coast=True,
+                coastlinewidth=0.5,
+                coastcolor="charcoal",
+                title=mode + f"({first_fra_500:.0%})",
+            )
         # plot pc hist
         hist_ax = fig.add_subplot(gs[i, 1])
 
