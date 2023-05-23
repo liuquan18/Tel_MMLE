@@ -119,8 +119,8 @@ class decompose_mmle:
         self.eof_result = self.decompose()
 
         # standardize
-        if standarize:
-            self.std_eof_result = self.standard_index()
+
+        self.std_eof_result = self.standard_index()
 
     def read_data(self):
         """
