@@ -202,5 +202,7 @@ class decompose_mmle:
             + str(self.plev)
             + "_"
             + self.fixedPattern
-            + "_own_eof_result.nc"
+            + "_"
+            + self.standard
+            + "_eof_result.nc"
         )
