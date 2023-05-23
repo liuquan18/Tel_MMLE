@@ -20,6 +20,8 @@ Welcome to Teleconnection-season's documentation!
    ind_decade_story_line
    dep_decade_story_line
    box_based 
+   decade_index_stats
+   all_index-stats
 
 Indices and tables
 ==================
