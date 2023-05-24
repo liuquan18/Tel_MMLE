@@ -61,7 +61,10 @@ class index_stats:
 
         # read data
         self.eof_result = xr.open_dataset(self.eof_result_dir)
-        self.tsurf = xr.open_dataset(self.tsurf_dir).tsurf
+        if self.model == 'MPI_GE_onepct':
+            self.tsurf = xr.open_dataset(self.tsurf_dir).tsurf
+        elif self.model == 'CESM1_CAM5' or self.model == 'CanESM2':
+            self.tsurf = xr.open_dataset(odir + 'ts_processed/ens_fld_year_mean.nc').ts.squeeze()
 
     #%%
     # stat overview
@@ -97,7 +100,10 @@ class index_stats:
     # extreme event count vs. tsurf
     def extrc_tsurf(self, ylim=(35, 110)):
         print("ploting the extreme event count vs. tsurf")
-        tsurf_mean = self.tsurf.mean(dim="ens").squeeze()
+        try:
+            tsurf_mean = self.tsurf.mean(dim="ens").squeeze()
+        except ValueError:
+            tsurf_mean = self.tsurf
         tsurf_increase = tsurf_mean - tsurf_mean[0]
 
         ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
