@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import proplot as pplt
 from scipy.stats import bootstrap
 import statsmodels.api as sm
-from numba import jit
+import random
 
 
 # %%
@@ -66,7 +66,6 @@ def bootstrap_neg_count_high(ts, cl=0.95):
 
 
 #%%
-@jit(nopython=True)
 def AR1_simulations_gen(ts):
     # Fit an AR1 model to the data
     model = sm.tsa.ARIMA(ts, order=(1, 0, 0)).fit()
@@ -76,12 +75,12 @@ def AR1_simulations_gen(ts):
     simulations = np.empty((n_realizations, n_obs))
     for i in range(n_realizations):
         simulations[i, :] = model.simulate(nsimulations=n_obs)
-
     return simulations
 
 
 # function to get the confidence interval of count of extreme events using AR1 model
 def AR1_pos_count_low(ts):
+    random.seed(1)
     AR1_simulations = AR1_simulations_gen(ts)
     counts = (AR1_simulations > 1.5).sum(axis=1)
     percentiles = np.percentile(counts, 5)
@@ -90,6 +89,7 @@ def AR1_pos_count_low(ts):
 
 # same as above, but for pso_count_high
 def AR1_pos_count_high(ts):
+    random.seed(2)
     AR1_simulations = AR1_simulations_gen(ts)
     counts = (AR1_simulations > 1.5).sum(axis=1)
     percentiles = np.percentile(counts, 95)
@@ -98,6 +98,7 @@ def AR1_pos_count_high(ts):
 
 # same as above, but for neg_count_low
 def AR1_neg_count_low(ts):
+    random.seed(3)
     AR1_simulations = AR1_simulations_gen(ts)
     counts = (AR1_simulations < -1.5).sum(axis=1)
     percentiles = np.percentile(counts, 5)
@@ -106,6 +107,7 @@ def AR1_neg_count_low(ts):
 
 # same as above, but for neg_count_high
 def AR1_neg_count_high(ts):
+    random.seed(4)
     AR1_simulations = AR1_simulations_gen(ts)
     counts = (AR1_simulations < -1.5).sum(axis=1)
     percentiles = np.percentile(counts, 95)
