@@ -62,7 +62,7 @@ def scatter_plot(ext_counts, t_surf,  axes):
             )
 
 # %%
-def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None):
+def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None,ci = 'AR1'):
     """
     extract the extreme count and the mean surface temperature every ten years.
     **Arguments**
@@ -89,7 +89,7 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None):
         period_tm = temp.isel(time=period)
 
         # extreme count
-        period_ext_count = extreme.extreme_count_xr(period_pc)
+        period_ext_count = extreme.extreme_count_xr(period_pc, ci=ci)
         period_mean_t = period_tm.mean(dim="time")
 
         ext_counts.append(period_ext_count)

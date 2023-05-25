@@ -14,7 +14,7 @@ MPIGE_decade = index_stats.index_stats("MPI_GE_onepct",vertical_eof = 'ind',fixe
 # %%
 MPIGE_decade.stat_overview(levels = np.arange(-1.8,1.9,0.3))
 # %%
-MPIGE_decade.extrc_tsurf()
+MPIGE_decade.extrc_tsurf(ci = 'AR1')
 #%%
 MPIGE_decade.NAO_EA_hist2d()
 

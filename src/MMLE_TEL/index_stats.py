@@ -99,7 +99,7 @@ class index_stats:
         plt.savefig(self.to_plot_dir + "_NAO_EA_hist2d.png", dpi=300)
 
     # extreme event count vs. tsurf
-    def extrc_tsurf(self, ylim=(35, 110)):
+    def extrc_tsurf(self, ylim=(35, 110),ci = 'AR1'):
         print("ploting the extreme event count vs. tsurf")
         try:
             tsurf_mean = self.tsurf.mean(dim="ens").squeeze()
@@ -108,7 +108,7 @@ class index_stats:
         tsurf_increase = tsurf_mean - tsurf_mean[0]
 
         ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
-            self.eof_result.pc, tsurf_increase
+            self.eof_result.pc, tsurf_increase,ci = ci
         )
         extrc_tsurf_scatter = extrc_tsurf.extCount_tsurf_scatter(
             ext_counts, t_surf_mean, ylim=ylim
