@@ -17,6 +17,11 @@ MPIGE_decade.stat_overview(levels = np.arange(-1.8,1.9,0.3))
 MPIGE_decade.extrc_tsurf()
 #%%
 MPIGE_decade.NAO_EA_hist2d()
+
+#%%
+MPIGE_decade.composite_analysis(reduction = 'mean_weighted')
+# %%
+MPIGE_decade.composite_analysis(reduction = 'mean')
 #%%
 MPIGE_decade.write_doc()
 # %%
@@ -31,4 +36,16 @@ MPIGE_all.extrc_tsurf()
 MPIGE_all.NAO_EA_hist2d()
 #%%
 MPIGE_all.write_doc()
+# %%
+# same for CESM1_CAM5
+CESM_all = index_stats.index_stats("CESM1_CAM5",vertical_eof = 'ind',fixed_pattern = 'all',standard='temporal_ens')
+CESM_all.stat_overview(levels = np.arange(-1.8,1.9,0.3))
+CESM_all.extrc_tsurf(ylim = (0,60))
+# %%
+# same for CanESM2
+Can_all = index_stats.index_stats("CanESM2",vertical_eof = 'ind',fixed_pattern = 'all',standard='temporal_ens')
+# %%
+Can_all.stat_overview(levels = np.arange(-1.8,1.9,0.3))
+# %%
+Can_all.extrc_tsurf(ylim = (0,60))
 # %%

@@ -16,3 +16,12 @@ MPIGE_all = index_generate.decompose_mmle("MPI_GE_onepct",plev = 50000,fixedPatt
 # %%
 MPIGE_all.save_result()
 # %%
+CESM_all = index_generate.decompose_mmle("CESM1_CAM5",plev = 50000,fixedPattern = 'all',standard='temporal_ens')
+# %%
+CESM_all.save_result()
+
+# %%
+Can_all = index_generate.decompose_mmle("CanESM2",plev = 50000,fixedPattern = 'all',standard='temporal_ens')
+# %%
+Can_all.save_result()
+# %%
