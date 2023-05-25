@@ -51,6 +51,7 @@ class index_stats:
         odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.eof_result_dir = odir + "EOF_result/" + self.prefix + "_eof_result.nc"
         self.tsurf_dir = odir + "ts_processed/tsurf_mean.nc"
+        self.field_tsurf_dir = odir + "ts/"
 
         # locations to save
         self.to_plot_dir = (
@@ -113,7 +114,34 @@ class index_stats:
             ext_counts, t_surf_mean, ylim=ylim
         )
         plt.savefig(self.to_plot_dir + "_extreme_count_tsurf.png", dpi=300)
+    
 
+    
+    # composite analysis of surface temperature in terms of different extreme events
+    def composite_analysis(self, reduction = 'mean',**kwargs):
+        print("ploting the composite analysis of surface temperature")
+        print(" reading the tsurf data...")
+        var_data = xr.open_dataset(self.field_tsurf_dir + "all_ens_tsurf.nc").tsurf
+        var_data = var_data - var_data.mean(dim="ens") 
+
+        first_index = self.eof_result.pc.isel(time=slice(0, 10))
+        last_index = self.eof_result.pc.isel(time=slice(-10, None))
+
+        print(" compositing the tsurf data...")
+        first_var = composite.Tel_field_composite(first_index, var_data,threshold=1.5,reduction = reduction,**kwargs)
+        last_var = composite.Tel_field_composite(last_index, var_data,threshold=1.5,reduction = reduction,**kwargs)
+
+        temp_NAO = composite.composite_plot(first_var, last_var, "NAO")
+        plt.savefig(
+            self.to_plot_dir + f"composite_tsurf_NAO.png",
+            dpi=300,
+        )
+
+        temp_EA = composite.composite_plot(first_var, last_var, "EA")
+        plt.savefig(
+            self.to_plot_dir  + f"composite_tsurf_EA.png",
+            dpi=300,
+        )
     # plot all
     def plot_all(self):
         self.stat_overview()
