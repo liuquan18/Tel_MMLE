@@ -8,6 +8,8 @@ import scipy.stats as stats
 import matplotlib.pyplot as plt
 import proplot as pplt
 from scipy.stats import bootstrap
+import statsmodels.api as sm
+from numba import jit
 
 
 # %%
@@ -64,8 +66,55 @@ def bootstrap_neg_count_high(ts, cl=0.95):
 
 
 #%%
+@jit(nopython=True)
+def AR1_simulations_gen(ts):
+    # Fit an AR1 model to the data
+    model = sm.tsa.ARIMA(ts, order=(1, 0, 0)).fit()
+    # Generate 9000 realizations of model_first, each 1000 long
+    n_realizations = 5000
+    n_obs = len(ts)
+    simulations = np.empty((n_realizations, n_obs))
+    for i in range(n_realizations):
+        simulations[i, :] = model.simulate(nsimulations=n_obs)
+
+    return simulations
+
+
+# function to get the confidence interval of count of extreme events using AR1 model
+def AR1_pos_count_low(ts):
+    AR1_simulations = AR1_simulations_gen(ts)
+    counts = (AR1_simulations > 1.5).sum(axis=1)
+    percentiles = np.percentile(counts, 5)
+    return percentiles
+
+
+# same as above, but for pso_count_high
+def AR1_pos_count_high(ts):
+    AR1_simulations = AR1_simulations_gen(ts)
+    counts = (AR1_simulations > 1.5).sum(axis=1)
+    percentiles = np.percentile(counts, 95)
+    return percentiles
+
+
+# same as above, but for neg_count_low
+def AR1_neg_count_low(ts):
+    AR1_simulations = AR1_simulations_gen(ts)
+    counts = (AR1_simulations < -1.5).sum(axis=1)
+    percentiles = np.percentile(counts, 5)
+    return percentiles
+
+
+# same as above, but for neg_count_high
+def AR1_neg_count_high(ts):
+    AR1_simulations = AR1_simulations_gen(ts)
+    counts = (AR1_simulations < -1.5).sum(axis=1)
+    percentiles = np.percentile(counts, 95)
+    return percentiles
+
+
+#%%
 # apply the above functions on xarray DataArray
-def extreme_count_xr(pc, ci=True):
+def extreme_count_xr(pc, ci="bootstrap"):
     """
     calculate the extreme events of the stacked pc
     pc: xarray dataarray,with dimension ('plev','mode','ens','time)
@@ -96,7 +145,7 @@ def extreme_count_xr(pc, ci=True):
         exclude_dims=set(("stacked",)),
         output_dtypes=[int],
     )
-    if ci:
+    if ci == "bootstrap":
         pos_count_low = xr.apply_ufunc(
             bootstrap_pos_count_low,
             stacked_pc,
@@ -153,7 +202,67 @@ def extreme_count_xr(pc, ci=True):
     else:
         extr_count = xr.concat([pos_count_true, neg_count_true], dim="extr_type")
         extr_count["extr_type"] = ["pos", "neg"]
-        return extr_count
+
+    # AR1 model
+    if ci == "AR1":
+        pos_count_low = xr.apply_ufunc(
+            AR1_pos_count_low,
+            stacked_pc,
+            input_core_dims=[("stacked",)],
+            output_core_dims=[[]],
+            vectorize=True,
+            dask="parallelized",
+            exclude_dims=set(("stacked",)),
+            output_dtypes=[int],
+        )
+
+        pos_count_high = xr.apply_ufunc(
+            AR1_pos_count_high,
+            stacked_pc,
+            input_core_dims=[("stacked",)],
+            output_core_dims=[[]],
+            vectorize=True,
+            dask="parallelized",
+            exclude_dims=set(("stacked",)),
+            output_dtypes=[int],
+        )
+
+        pos_count = xr.concat(
+            [pos_count_low, pos_count_true, pos_count_high], dim="confidence"
+        )
+        pos_count["confidence"] = ["low", "true", "high"]
+
+        neg_count_low = xr.apply_ufunc(
+            AR1_neg_count_low,
+            stacked_pc,
+            input_core_dims=[("stacked",)],
+            output_core_dims=[[]],
+            vectorize=True,
+            dask="parallelized",
+            exclude_dims=set(("stacked",)),
+            output_dtypes=[int],
+        )
+
+        neg_count_high = xr.apply_ufunc(
+            AR1_neg_count_high,
+            stacked_pc,
+            input_core_dims=[("stacked",)],
+            output_core_dims=[[]],
+            vectorize=True,
+            dask="parallelized",
+            exclude_dims=set(("stacked",)),
+            output_dtypes=[int],
+        )
+
+        neg_count = xr.concat(
+            [neg_count_low, neg_count_true, neg_count_high], dim="confidence"
+        )
+        neg_count["confidence"] = ["low", "true", "high"]
+
+        extr_count = xr.concat([pos_count, neg_count], dim="extr_type")
+        extr_count["extr_type"] = ["pos", "neg"]
+
+    return extr_count
 
 
 #%%
@@ -163,18 +272,22 @@ def plot_extreme_count(ext_count, ax=None, label=None, colored=False):
     """
     plot the vertical profile of extreme event count
     """
+    color = None
+    style = None
     if colored:
         if label == "first10":
-            style = color = "#1f77b4"
+            color = "#1f77b4"
+            style = color
         elif label == "last10":
-            style = color = "#ff7f0e"
+            color = "#ff7f0e"
+            style = color
     else:
         if label == "first10":
+            color = "gray"
             style = "k-"
-            color = "gray"
         elif label == "last10":
-            style = "k--"
             color = "gray"
+            style = "k--"
 
     if ax is None:
         ax = plt.gca()
@@ -191,7 +304,7 @@ def plot_extreme_count(ext_count, ax=None, label=None, colored=False):
     return line
 
 
-# %%
+# %% 
 def extreme_count_profile(first_count, last_count, colored=False, xlim=(-5, 45)):
     """
     plot the extreme event count profile for the NAO and EA,
