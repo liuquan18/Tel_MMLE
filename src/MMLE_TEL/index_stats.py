@@ -40,7 +40,7 @@ importlib.reload(stat_overview)
 class index_stats:
     """The class to calculate and plot the statistics of the indices"""
 
-    def __init__(self, model, vertical_eof, fixed_pattern, standard="own") -> None:
+    def __init__(self, model, vertical_eof, fixed_pattern, standard="temporal_ens") -> None:
         self.model = model
         self.vertical_eof = vertical_eof
         self.fixed_pattern = fixed_pattern
@@ -48,14 +48,16 @@ class index_stats:
         self.prefix = "plev_50000_" + self.fixed_pattern + "_" + self.standard
 
         # locations to read
-        odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
-        self.eof_result_dir = odir + "EOF_result/" + self.prefix + "_eof_result.nc"
-        self.tsurf_dir = odir + "ts_processed/tsurf_mean.nc"
-        self.field_tsurf_dir = odir + "ts/"
+        self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
+        self.eof_result_dir = self.odir + "EOF_result/" + self.prefix + "_eof_result.nc"
+        self.tsurf_dir = self.odir + "ts_processed/tsurf_mean.nc"
+        self.field_tsurf_dir = self.odir + "ts/"
 
         # locations to save
         self.to_plot_dir = (
             "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/new_standard/"
+            + self.model
+            + "_"
             + self.prefix
         )
         self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
@@ -65,7 +67,7 @@ class index_stats:
         if self.model == 'MPI_GE_onepct':
             self.tsurf = xr.open_dataset(self.tsurf_dir).tsurf
         elif self.model == 'CESM1_CAM5' or self.model == 'CanESM2':
-            self.tsurf = xr.open_dataset(odir + 'ts_processed/ens_fld_year_mean.nc').ts.squeeze()
+            self.tsurf = xr.open_dataset(self.odir + 'ts_processed/ens_fld_year_mean.nc').ts.squeeze()
 
     #%%
     # stat overview
@@ -100,20 +102,34 @@ class index_stats:
 
     # plot the vertical profile of the extreme counts
     def extreme_count_profile(self, **kwargs):
+        print("reading the eof result with whole troposphere")
+        ci = kwargs.pop("ci", "AR1")
+        # read the eof result with whole troposphere
+        eof_result_trop = xr.open_dataset(
+            "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/EOF_result/"
+            + "troposphere_"
+            + self.vertical_eof
+            + "_"
+            + self.fixed_pattern
+            + "_"
+            + self.standard
+            + "_eof_result.nc"
+        )
 
         # pcs of first and last 10 decades
-        first_pc = self.eof_result.pc.isel(time=slice(0, 10))
-        last_pc = self.eof_result.pc.isel(time=slice(-10, None))
+        first_pc = eof_result_trop.pc.isel(time=slice(0, 10))
+        last_pc = eof_result_trop.pc.isel(time=slice(-10, None))
 
+        print("calculating the extreme event count")
         # extreme counts of first and last 10 decades
-        first_count = extreme.extreme_count_xr(first_pc, ci="AR1")
-        last_count = extreme.extreme_count_xr(last_pc, ci="AR1")
+        first_count = extreme.extreme_count_xr(first_pc, ci=ci)
+        last_count = extreme.extreme_count_xr(last_pc, ci=ci)
 
         print("ploting the extreme event count profile")
         extreme_profile = extreme.extreme_count_profile(
             first_count, last_count, colored=False, **kwargs
         )
-        plt.savefig(self.to_plot_dir + "extreme_count_vertical_profile.png")
+        plt.savefig(self.to_plot_dir[:-30] + f"{ci}_extreme_count_vertical_profile.png")
 
 
     # extreme event count vs. tsurf
@@ -170,7 +186,7 @@ class index_stats:
     def write_doc(self):
         """create the md file for the plots"""
         print("creating the markdown file for the plots")
-        with open(self.doc_dir + self.fixed_pattern + "_index_stats.md", "w") as f:
+        with open(self.doc_dir + self.model + '_' + self.fixed_pattern + "_index_stats.md", "w") as f:
             f.write("# Statistics of the indices\n")
 
             f.write("This file contains the statistics of the indices\n")
