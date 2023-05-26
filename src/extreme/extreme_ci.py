@@ -116,7 +116,7 @@ def AR1_neg_count_high(ts):
 
 #%%
 # apply the above functions on xarray DataArray
-def extreme_count_xr(pc, ci="bootstrap"):
+def extreme_count_xr(pc, ci="AR1"):
     """
     calculate the extreme events of the stacked pc
     pc: xarray dataarray,with dimension ('plev','mode','ens','time)
@@ -306,7 +306,7 @@ def plot_extreme_count(ext_count, ax=None, label=None, colored=False):
     return line
 
 
-# %% 
+# %%
 def extreme_count_profile(first_count, last_count, colored=False, xlim=(-5, 45)):
     """
     plot the extreme event count profile for the NAO and EA,
