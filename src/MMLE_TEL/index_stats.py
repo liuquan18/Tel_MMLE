@@ -98,6 +98,24 @@ class index_stats:
         hist2d.NAO_EA_hist2d(self.eof_result.pc, bins=bins, levels=levels)
         plt.savefig(self.to_plot_dir + "_NAO_EA_hist2d.png", dpi=300)
 
+    # plot the vertical profile of the extreme counts
+    def extreme_count_profile(self, **kwargs):
+
+        # pcs of first and last 10 decades
+        first_pc = self.eof_result.pc.isel(time=slice(0, 10))
+        last_pc = self.eof_result.pc.isel(time=slice(-10, None))
+
+        # extreme counts of first and last 10 decades
+        first_count = extreme.extreme_count_xr(first_pc, ci="AR1")
+        last_count = extreme.extreme_count_xr(last_pc, ci="AR1")
+
+        print("ploting the extreme event count profile")
+        extreme_profile = extreme.extreme_count_profile(
+            first_count, last_count, colored=False, **kwargs
+        )
+        plt.savefig(self.to_plot_dir + "extreme_count_vertical_profile.png")
+
+
     # extreme event count vs. tsurf
     def extrc_tsurf(self, ylim=(35, 110),ci = 'AR1'):
         print("ploting the extreme event count vs. tsurf")
@@ -168,6 +186,11 @@ class index_stats:
             f.write("## 2d hist of NAO and EA in the first10 and last10 decades\n")
             f.write(
                 f"![2d hist of NAO and EA in the first10 and last10 decades](plots/new_standard/{self.prefix}_NAO_EA_hist2d.png)\n"
+            )
+
+            f.write("## extreme event count profile\n")
+            f.write(
+                f"![extreme event count profile](plots/new_standard/{self.prefix}_extreme_count_vertical_profile.png)\n"
             )
 
             f.write("## extreme event count vs. tsurf\n")
