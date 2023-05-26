@@ -12,20 +12,20 @@ importlib.reload(index_generate)
 
 #%% 
 
-CESM = index_generate.decompose_mmle("CESM1_CAM5",plev = 50000)
+CESM = index_generate.decompose_plev("CESM1_CAM5",plev = 50000)
 CESM.save_result()
 # %%
-CANESM = index_generate.decompose_mmle("CanESM2",plev = 50000)
+CANESM = index_generate.decompose_plev("CanESM2",plev = 50000)
 CANESM.save_result()
 # %%
-MPIGE = index_generate.decompose_mmle("MPI_GE",plev = 50000)
+MPIGE = index_generate.decompose_plev("MPI_GE",plev = 50000)
 MPIGE.save_result()
 # %%
-MK36 = index_generate.decompose_mmle("MK36",plev = 50000)
+MK36 = index_generate.decompose_plev("MK36",plev = 50000)
 MK36.save_result()
 # %%
 
-MPIGE_decade = index_generate.decompose_mmle("MPI_GE",plev = 50000,fixedPattern = 'decade')
+MPIGE_decade = index_generate.decompose_plev("MPI_GE",plev = 50000,fixedPattern = 'decade')
 # %%
 MPIGE_decade.save_result()
 # %%
