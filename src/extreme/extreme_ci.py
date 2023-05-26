@@ -307,11 +307,14 @@ def plot_extreme_count(ext_count, ax=None, label=None, colored=False):
 
 
 # %%
-def extreme_count_profile(first_count, last_count, colored=False, xlim=(-5, 45)):
+def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
     """
     plot the extreme event count profile for the NAO and EA,
     and positive and negative extreme events
     """
+    # parameters from kwargs
+    xlim = kwargs.pop("xlim", None)
+    
     fig = pplt.figure(
         # space=0,
         refwidth="20em",
