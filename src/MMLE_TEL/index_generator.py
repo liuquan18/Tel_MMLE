@@ -22,11 +22,11 @@ class decompose_troposphere:
     """
 
     def __init__(
-        self, model, vertical_eof, fixed_pattern="decade", standard="temporal_ens"
+        self, model, vertical_eof, fixedPattern="decade", standard="temporal_ens"
     ) -> None:
         self.vertical_eof = vertical_eof
         self.independence = self.vertical_eof == "ind"
-        self.fixed_pattern = fixed_pattern
+        self.fixed_pattern = fixedPattern
         self.model = model
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.zg_path = self.odir + "zg_processed/"
