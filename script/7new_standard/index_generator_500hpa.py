@@ -27,3 +27,11 @@ MPIGE_decade_trop = index_generate.decompose_troposphere("MPI_GE_onepct",vertica
 # %%
 MPIGE_decade_trop.save_result()
 # %%
+# same for all
+MPIGE_all_trop = index_generate.decompose_troposphere("MPI_GE_onepct",vertical_eof='ind',fixedPattern = 'all',standard='temporal_ens')
+# %%
+pc = MPIGE_all_trop.eof_result['pc']
+std_pc = (pc - pc.mean(dim = ('time','ens')))/pc.std(dim = ('time','ens'))
+MPIGE_all_trop.std_eof_result['pc'] = std_pc
+MPIGE_all_trop.save_result()
+# %%
