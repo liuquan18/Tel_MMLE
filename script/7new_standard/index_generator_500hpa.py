@@ -1,37 +1,46 @@
 #%%
 #%%
 import src.MMLE_TEL.index_generator as index_generate
+import xarray as xr
 # %%
-MPIGE_decade = index_generate.decompose_plev("MPI_GE_onepct",plev = 50000,fixedPattern = 'decade',standard='temporal_ens')
+def standard(generator):
+    pc = generator.eof_result['pc']
+    std_pc = (pc - pc.mean(dim = ('time','ens')))/pc.std(dim = ('time','ens'))
+    generator.std_eof_result['pc'] = std_pc
+    return generator
 
 # %%
-MPIGE_decade.save_result()
+# function for generate the index
+def index_gen(model,fixedPattern):
+    generator = index_generate.decompose_plev(model,plev = 50000,fixedPattern = fixedPattern,standard='temporal_ens')
+    decade = standard(generator)
+    decade.save_result()
 # %%
-MPIGE_all = index_generate.decompose_plev("MPI_GE_onepct",plev = 50000,fixedPattern = 'all',standard='temporal_ens')
-
+# CanESM2
+index_gen('CanESM2','decade')
+index_gen('CanESM2','all')
 # %%
-MPIGE_all.save_result()
+# CESM1_CAM5
+index_gen('CESM1_CAM5','decade')
+index_gen('CESM1_CAM5','all')
 # %%
-CESM_all = index_generate.decompose_plev("CESM1_CAM5",plev = 50000,fixedPattern = 'all',standard='temporal_ens')
+# MK3.6
+index_gen('MK36','decade')
+index_gen('MK36','all')
 # %%
-CESM_all.save_result()
-
+def read_eof(model,fixedPattern):
+    eof_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/plev_50000_{fixedPattern}_temporal_ens_eof_result.nc"
+    eof_result = xr.open_dataset(eof_dir)
+    return eof_result
 # %%
-Can_all = index_generate.decompose_plev("CanESM2",plev = 50000,fixedPattern = 'all',standard='temporal_ens')
+Can_decade_eof = read_eof('CanESM2','decade')
+Can_all_eof = read_eof('CanESM2','all')
 # %%
-Can_all.save_result()
+# CESM1_CAM5
+CESM_decade_eof = read_eof('CESM1_CAM5','decade')
+CESM_all_eof = read_eof('CESM1_CAM5','all')
 # %%
-
-# %%
-MPIGE_decade_trop = index_generate.decompose_troposphere("MPI_GE_onepct",vertical_eof='ind',fixedPattern = 'decade',standard='temporal_ens')
-# %%
-MPIGE_decade_trop.save_result()
-# %%
-# same for all
-MPIGE_all_trop = index_generate.decompose_troposphere("MPI_GE_onepct",vertical_eof='ind',fixedPattern = 'all',standard='temporal_ens')
-# %%
-pc = MPIGE_all_trop.eof_result['pc']
-std_pc = (pc - pc.mean(dim = ('time','ens')))/pc.std(dim = ('time','ens'))
-MPIGE_all_trop.std_eof_result['pc'] = std_pc
-MPIGE_all_trop.save_result()
+# MK3.6
+MK36_decade_eof = read_eof('MK36','decade')
+MK36_all_eof = read_eof('MK36','all')
 # %%
