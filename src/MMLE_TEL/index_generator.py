@@ -60,6 +60,15 @@ class decompose_troposphere:
     def save_result(self):
         print("saving the result ...")
         # save the result
+        self.eof_result.to_netcdf(
+            self.save_path
+            + "troposphere_"
+            + self.vertical_eof
+            + "_"
+            + self.fixed_pattern
+            + "_none_eof_result.nc"
+        )
+
 
         self.std_eof_result.to_netcdf(
             self.save_path
