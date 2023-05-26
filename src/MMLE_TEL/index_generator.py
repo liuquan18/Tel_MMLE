@@ -46,7 +46,7 @@ class decompose_troposphere:
 
     def decompose(self):
         # deompose
-        print("decomposing the data ...")
+        print("decomposing the data over the whole troposhpere ...")
         eof_result = vertical_eof.vertical_eof(
             self.data,
             nmode=2,
