@@ -186,7 +186,7 @@ class index_stats:
     # write the above plots into a markdown file
     def write_doc(self):
         """create the md file for the plots"""
-        relative_plot_dir = "/plots/new_standard/" + self.model + "_plev_50000_" + self.fixed_pattern + "_" + self.standard + "_"
+        relative_plot_dir = "plots/new_standard/" + self.model + "_plev_50000_" + self.fixed_pattern + "_" + self.standard + "_"
         print("creating the markdown file for the plots")
         with open(self.doc_dir + self.model + '_' + self.fixed_pattern + "_index_stats.md", "w") as f:
             f.write("# Statistics of the indices\n")

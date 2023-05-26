@@ -14,10 +14,15 @@ MPIGE_decade = index_stats.index_stats("MPI_GE_onepct",vertical_eof = 'ind',fixe
 # %%
 MPIGE_decade.stat_overview(levels = np.arange(-1.8,1.9,0.3))
 # %%
+MPIGE_decade.extreme_count_profile(xlim = (35,110),ci = 'bootstrap')
+
+# %%
 MPIGE_decade.extrc_tsurf(ci = 'AR1')
 #%%
 MPIGE_decade.NAO_EA_hist2d()
 
+#%%
+MPIGE_decade.extrc_tsurf(ci = 'bootstrap')
 #%%
 MPIGE_decade.composite_analysis(reduction = 'mean_weighted')
 # %%
