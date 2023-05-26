@@ -129,7 +129,8 @@ class index_stats:
         extreme_profile = extreme.extreme_count_profile(
             first_count, last_count, colored=False, **kwargs
         )
-        plt.savefig(self.to_plot_dir[:-30] + f"{ci}_extreme_count_vertical_profile.png")
+        plt.savefig(self.to_plot_dir[:-44] + f"{self.model}_{ci}_extreme_count_vertical_profile.png")
+        # slightly different path for the fig. 
 
 
     # extreme event count vs. tsurf
@@ -147,7 +148,7 @@ class index_stats:
         extrc_tsurf_scatter = extrc_tsurf.extCount_tsurf_scatter(
             ext_counts, t_surf_mean, ylim=ylim
         )
-        plt.savefig(self.to_plot_dir + "_extreme_count_tsurf.png", dpi=300)
+        plt.savefig(self.to_plot_dir + f"_{ci}_extreme_count_tsurf.png", dpi=300)
     
 
     
@@ -167,13 +168,13 @@ class index_stats:
 
         temp_NAO = composite.composite_plot(first_var, last_var, "NAO")
         plt.savefig(
-            self.to_plot_dir + f"composite_tsurf_NAO.png",
+            self.to_plot_dir + f"_composite_tsurf_NAO.png",
             dpi=300,
         )
 
         temp_EA = composite.composite_plot(first_var, last_var, "EA")
         plt.savefig(
-            self.to_plot_dir  + f"composite_tsurf_EA.png",
+            self.to_plot_dir  + f"_composite_tsurf_EA.png",
             dpi=300,
         )
     # plot all
@@ -185,6 +186,7 @@ class index_stats:
     # write the above plots into a markdown file
     def write_doc(self):
         """create the md file for the plots"""
+        relative_plot_dir = "/plots/new_standard/" + self.model + "_plev_50000_" + self.fixed_pattern + "_" + self.standard + "_"
         print("creating the markdown file for the plots")
         with open(self.doc_dir + self.model + '_' + self.fixed_pattern + "_index_stats.md", "w") as f:
             f.write("# Statistics of the indices\n")
@@ -196,20 +198,37 @@ class index_stats:
                 "The first EOF and PC of the first 10 decades and the last 10 decades are shown below\n"
             )
             f.write(
-                f"![statistical overview](plots/new_standard/{self.prefix}_stat_overview.png)\n"
+                f"![statistical overview]({relative_plot_dir}stat_overview.png)\n"
             )
 
             f.write("## 2d hist of NAO and EA in the first10 and last10 decades\n")
             f.write(
-                f"![2d hist of NAO and EA in the first10 and last10 decades](plots/new_standard/{self.prefix}_NAO_EA_hist2d.png)\n"
+                f"![2d hist of NAO and EA in the first10 and last10 decades]({relative_plot_dir}NAO_EA_hist2d.png)\n"
             )
 
-            f.write("## extreme event count profile\n")
+            f.write("## extreme event count profile with AR(1)\n")
             f.write(
-                f"![extreme event count profile](plots/new_standard/{self.prefix}_extreme_count_vertical_profile.png)\n"
+                f"![extreme event count profile](plots/new_standard/{self.model}_AR1_extreme_count_vertical_profile.png)\n"
+            )
+            f.write("## extreme event count profile with bootstrap\n")
+            f.write(
+                f"![extreme event count profile](plots/new_standard/{self.model}_bootstrap_extreme_count_vertical_profile.png)\n"
             )
 
-            f.write("## extreme event count vs. tsurf\n")
+            f.write("## extreme event count AR(1) vs. tsurf\n")
             f.write(
-                f"![extreme event count vs. tsurf](plots/new_standard/{self.prefix}_extreme_count_tsurf.png)\n"
+                f"![extreme event count vs. tsurf]({relative_plot_dir}AR1_extreme_count_tsurf.png)\n"
+            )
+
+            f.write("## extreme event count bootstrap vs. tsurf\n")
+            f.write(
+                f"![extreme event count vs. tsurf]({relative_plot_dir}bootstrap_extreme_count_tsurf.png)\n"
+            )
+
+            f.write("## composite analysis of surface temperature in terms of different extreme events\n")
+            f.write(
+                f"![composite analysis of surface temperature in terms of different extreme events]({relative_plot_dir}composite_tsurf_NAO.png)\n"
+            )
+            f.write(
+                f"![composite analysis of surface temperature in terms of different extreme events]({relative_plot_dir}composite_tsurf_EA.png)\n"
             )
