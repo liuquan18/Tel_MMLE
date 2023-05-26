@@ -7,7 +7,7 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 
-import src.Teleconnection.season_eof as season_eof
+import src.Teleconnection.vertical_eof as vertical_eof
 import src.Teleconnection.tools as tools
 import src.Teleconnection.rolling_eof as rolling_eof
 import src.warming_stage.warming_stage as warming_stage
@@ -16,13 +16,13 @@ import src.MMLE_TEL.standardize as standardize
 
 
 #%%
-class decompose_fixedPattern:
+class decompose_troposphere:
     """
-    A class to generate the eof and index
+    A class to generate the eof and index of the whole troposphere
     """
 
     def __init__(
-        self, model, vertical_eof, fixed_pattern="warming", standard="all"
+        self, model, vertical_eof, fixed_pattern="decade", standard="temporal_ens"
     ) -> None:
         self.vertical_eof = vertical_eof
         self.independence = self.vertical_eof == "ind"
@@ -31,47 +31,30 @@ class decompose_fixedPattern:
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.zg_path = self.odir + "zg_processed/"
         self.save_path = self.odir + "EOF_result/"
-        self.standard = standard  # 'own','all','none'
+        self.standard = standard  # 'temporal', 'temporal_ens'
 
         # read data
         print("reading the gph data ...")
-        self.data = season_eof.read_data(self.zg_path)
+        self.data = read_data(self.zg_path)
+
+        # decompose
         self.eof_result = self.decompose()
-        self.std_eof_result = self.standard_index()
+        self.std_eof_result = standard_index(self.eof_result, self.standard)
+
+        # save
         self.save_result()
 
     def decompose(self):
         # deompose
         print("decomposing the data ...")
-        eof_result = season_eof.season_eof(
+        eof_result = vertical_eof.vertical_eof(
             self.data,
             nmode=2,
             window=10,
             fixed_pattern=self.fixed_pattern,
             independent=self.independence,
-            standard=False,  # standardization is done seperately
         )
         return eof_result
-
-    def standard_index(self):
-        print("standardizing the index ...")
-        if self.standard == "own":
-            self.eof_result = standardize.standard_by_own(self.eof_result)
-        elif self.standard == "all":
-            try:
-                all_index = xr.open_dataset(
-                    self.odir + "EOF_result/" + self.vertical_eof + "_all_eof_result.nc"
-                )
-
-            except FileNotFoundError:
-                print("all index not found, generate it first")
-                # rase error
-                raise FileNotFoundError
-
-            self.eof_result = standardize.standard_by_all(all_index, self.eof_result)
-        elif self.standard == "none":
-            pass
-        return self.eof_result
 
     # save
     def save_result(self):
@@ -80,6 +63,7 @@ class decompose_fixedPattern:
 
         self.std_eof_result.to_netcdf(
             self.save_path
+            + "troposphere_"
             + self.vertical_eof
             + "_"
             + self.fixed_pattern
@@ -90,12 +74,12 @@ class decompose_fixedPattern:
 
 
 ##########################################
-class decompose_mmle:
+class decompose_plev:
     """
-    A class for mmle decomposition
+    A class for decomposition of one single plev only.
     """
 
-    def __init__(self, model, fixedPattern, plev=50000, standard='temporal') -> None:
+    def __init__(self, model, fixedPattern, plev=50000, standard="temporal") -> None:
         self.model = model
         self.plev = plev
         self.fixedPattern = fixedPattern  # warming or decade
@@ -108,7 +92,7 @@ class decompose_mmle:
 
         # read gph data
         print("reading the gph data ...")
-        self.data = self.read_data()
+        self.data = read_data(self.zg_path, plev=self.plev)
 
         # read ts_mean data if needed
         self.ts_mean = None
@@ -119,42 +103,7 @@ class decompose_mmle:
         self.eof_result = self.decompose()
 
         # standardize
-        self.std_eof_result = self.standard_index()
-
-    def read_data(self):
-        """
-        read data quickly
-        """
-        gph_dir = self.zg_path
-        # read MPI_onepct data
-        try:
-            zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
-            zg_data = tools.split_ens(zg_data)
-        except FileNotFoundError:
-            zg_data = xr.open_mfdataset(
-                gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
-            )
-        try:
-            zg_data = zg_data.var156
-        except AttributeError:
-            zg_data = zg_data.zg
-
-        # time to datetime
-        try:
-            zg_data["time"] = zg_data.indexes["time"].to_datetimeindex()
-        except AttributeError:
-            zg_data["time"] = pd.to_datetime(zg_data.time)
-
-        # demean
-        print(" demean the ensemble mean...")
-        zg_ens_mean = zg_data.mean(dim="ens")
-        zg_demean = zg_data - zg_ens_mean
-
-        # select one altitude
-        print(" select the specific plev...")
-        zg_gph = zg_demean.sel(plev=self.plev)
-
-        return zg_gph
+        self.std_eof_result = standard_index(self.eof_result, self.standard)
 
     def decompose(self):
         """
@@ -165,22 +114,6 @@ class decompose_mmle:
         eof_result = rolling_eof.rolling_eof(
             self.data, fixed_pattern=self.fixedPattern, ts_mean=self.ts_mean
         )
-        return eof_result
-
-    def standard_index(self):
-        print(f"standardizing the index with {self.standard} ...")
-        # standarize the index with the tmeporal mean and std
-        eof_result = self.eof_result.copy()
-        if self.standard == "temporal":
-            eof_result["pc"] = (
-                eof_result["pc"] - eof_result["pc"].mean(dim="time")
-            ) / eof_result["pc"].std(dim="time")
-
-        elif self.standard == "temproal_ens":
-            eof_result["pc"] = (
-                eof_result["pc"] - eof_result["pc"].mean(dim=("time", "ens"))
-            ) / eof_result["pc"].std(dim=("time", "ens"))
-
         return eof_result
 
     def save_result(self):
@@ -205,3 +138,57 @@ class decompose_mmle:
             + self.standard
             + "_eof_result.nc"
         )
+
+
+def read_data(zg_path, plev=None):
+    """
+    read data quickly
+    """
+    gph_dir = zg_path
+    # read MPI_onepct data
+    try:
+        zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
+        zg_data = tools.split_ens(zg_data)
+    except FileNotFoundError:
+        zg_data = xr.open_mfdataset(
+            gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
+        )
+    try:
+        zg_data = zg_data.var156
+    except AttributeError:
+        zg_data = zg_data.zg
+
+    # time to datetime
+    try:
+        zg_data["time"] = zg_data.indexes["time"].to_datetimeindex()
+    except AttributeError:
+        zg_data["time"] = pd.to_datetime(zg_data.time)
+
+    # demean
+    print(" demean the ensemble mean...")
+    zg_ens_mean = zg_data.mean(dim="ens")
+    zg_demean = zg_data - zg_ens_mean
+
+    # select one altitude
+    if plev is not None:
+        print(" select the specific plev...")
+        zg_demean = zg_demean.sel(plev=plev)
+
+    return zg_demean
+
+
+def standard_index(eof_result, standard="temporal"):
+    print(f"standardizing the index with {standard} ...")
+    # standarize the index with the tmeporal mean and std
+    eof_result = eof_result.copy()
+    if standard == "temporal":
+        eof_result["pc"] = (
+            eof_result["pc"] - eof_result["pc"].mean(dim="time")
+        ) / eof_result["pc"].std(dim="time")
+
+    elif standard == "temproal_ens":
+        eof_result["pc"] = (
+            eof_result["pc"] - eof_result["pc"].mean(dim=("time", "ens"))
+        ) / eof_result["pc"].std(dim=("time", "ens"))
+
+    return eof_result
