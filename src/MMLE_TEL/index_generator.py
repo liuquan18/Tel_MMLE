@@ -11,8 +11,7 @@ import src.Teleconnection.vertical_eof as vertical_eof
 import src.Teleconnection.tools as tools
 import src.Teleconnection.rolling_eof as rolling_eof
 import src.warming_stage.warming_stage as warming_stage
-import src.Teleconnection.spatial_pattern as ssp
-import src.MMLE_TEL.standardize as standardize
+
 
 
 #%%
@@ -157,7 +156,10 @@ def read_data(zg_path, plev=None):
     # read MPI_onepct data
     try:
         zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
-        zg_data = tools.split_ens(zg_data)
+        if 'ens' in zg_data.dims:
+            pass
+        else:
+            zg_data = tools.split_ens(zg_data)
     except FileNotFoundError:
         zg_data = xr.open_mfdataset(
             gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
