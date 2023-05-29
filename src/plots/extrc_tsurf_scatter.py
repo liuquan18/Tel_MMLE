@@ -19,7 +19,7 @@ def extCount_tsurf_scatter(
     axes.format(
         abc="a",
         abcloc="ul",
-        xlim=xlim,
+        # xlim=xlim,
         suptitle=f"extreme counts v.s surface temperature in decadal time scale",
         xlabel=xlabel,
         ylabel="extreme count",
@@ -28,7 +28,7 @@ def extCount_tsurf_scatter(
         toplabels=["pos", "neg"],
         xminorticks="null",
         yminorticks="null",
-        ylim=ylim,
+        # ylim=ylim,
     )
 
     scatter_plot(ext_counts, t_surf,  axes)
