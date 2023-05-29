@@ -170,7 +170,7 @@ class decompose_plev_random_ens:
 
         # randomly select ens_size members
         random.seed(1)
-        self.data = self.data.isel(member=random.sample(range(0, 100), self.ens_size))
+        self.data = self.data.isel(ens=random.sample(range(0, 100), self.ens_size))
 
         # read ts_mean data if needed
         self.ts_mean = None
