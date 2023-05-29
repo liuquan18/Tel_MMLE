@@ -203,7 +203,7 @@ class decompose_plev_random_ens:
             + str(self.plev)
             + "_"
             + self.fixedPattern
-            + self.ens_size
+            + str(self.ens_size)
             + "_none_eof_result.nc"
         )
         # save the standardized result
@@ -215,7 +215,7 @@ class decompose_plev_random_ens:
             + self.fixedPattern
             + "_"
             + self.standard
-            + self.ens_size
+            + str(self.ens_size)
             + "_eof_result.nc"
         )
 
