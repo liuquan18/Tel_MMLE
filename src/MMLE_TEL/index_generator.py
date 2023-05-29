@@ -6,6 +6,7 @@ To generate the index by projecting the data of all the years to the fixed spati
 import xarray as xr
 import numpy as np
 import pandas as pd
+import random
 
 import src.Teleconnection.vertical_eof as vertical_eof
 import src.Teleconnection.tools as tools
@@ -148,6 +149,79 @@ class decompose_plev:
         )
 
 
+class decompose_plev_random_ens:
+
+
+    def __init__(self, fixedPattern, ens_size, plev=50000, standard="temporal") -> None:
+        self.model = 'MPI_GE_onepct_random'
+        self.plev = plev
+        self.fixedPattern = fixedPattern  # warming or decade
+        self.standard = standard
+        self.ens_size = ens_size
+
+        self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
+        self.zg_path = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/zg_processed/"
+        self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
+        self.save_path = self.odir + "EOF_result/"
+
+        # read gph data
+        print("reading the gph data ...")
+        self.data = read_data(self.zg_path, plev=self.plev)
+
+        # randomly select ens_size members
+        random.seed(1)
+        self.data = self.data.isel(member=random.sample(range(0, 100), self.ens_size))
+
+        # read ts_mean data if needed
+        self.ts_mean = None
+        if self.fixedPattern == "warming":
+            self.ts_mean = warming_stage.read_tsurf_fldmean(self.ts_mean_path)
+
+        # deompose
+        self.eof_result = self.decompose()
+
+        # standardize
+        self.std_eof_result = standard_index(self.eof_result, self.standard)
+
+    def decompose(self):
+        """
+        decompose the data
+        """
+        print("decomposing ...")
+
+        eof_result = rolling_eof.rolling_eof(
+            self.data, fixed_pattern=self.fixedPattern, ts_mean=self.ts_mean
+        )
+        return eof_result
+
+    def save_result(self):
+        print("saving the result ...")
+        # save the unstandardized result
+        self.eof_result.to_netcdf(
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + self.ens_size
+            + "_none_eof_result.nc"
+        )
+        # save the standardized result
+        self.std_eof_result.to_netcdf(
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + "_"
+            + self.standard
+            + self.ens_size
+            + "_eof_result.nc"
+        )
+
+
+
+
 def read_data(zg_path, plev=None):
     """
     read data quickly
@@ -197,9 +271,13 @@ def standard_index(eof_result, standard="temporal"):
             eof_result["pc"] - eof_result["pc"].mean(dim="time")
         ) / eof_result["pc"].std(dim="time")
 
-    elif standard == "temproal_ens":
-        eof_result["pc"] = (
-            eof_result["pc"] - eof_result["pc"].mean(dim=("time", "ens"))
-        ) / eof_result["pc"].std(dim=("time", "ens"))
-
+    # standarize the index with the temporal and ensemble mean and std
+    elif standard == "temporal_ens":
+        eof_result = eof_result.copy()
+        pc = eof_result["pc"]
+        pc_std = (
+            pc - pc.mean(dim=("time", "ens"))
+        ) / pc.std(dim=("time", "ens"))
+        eof_result["pc"] = pc_std
     return eof_result
+
