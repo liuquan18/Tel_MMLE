@@ -4,6 +4,9 @@ import src.MMLE_TEL.index_stats as index_stats
 import numpy as np
 import importlib
 import matplotlib.pyplot as plt
+#%%
+import importlib
+importlib.reload(index_stats)
 
 #%%
 # same for CanESM2
@@ -39,3 +42,7 @@ if __name__ == '__main__':
 #%%
 extr_tsurf("GFDL_CM3", 'decade', 20)
 # %%
+extr_tsurf("MPI_GE", 'decade', 100)
+
+# %%
+extr_tsurf('CanESM2', 'decade', 50)
