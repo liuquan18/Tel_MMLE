@@ -108,8 +108,8 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean=None):
             fras.append(fra)
 
         # concat the subarrays together, and make the decade as a new dim
-        EOF = xr.concat(eofs, dim=decade)
-        FRA = xr.concat(fras, dim=decade)
+        EOF = xr.concat(eofs, dim="decade")
+        FRA = xr.concat(fras, dim="decade")
         PC = xr.concat(pcs, "time")
 
         # combine EOF, FRA, PC together as a dataset
