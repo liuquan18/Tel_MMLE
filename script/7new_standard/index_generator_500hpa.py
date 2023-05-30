@@ -15,8 +15,7 @@ def standard(generator):
 # function for generate the index
 def index_gen(model,fixedPattern):
     generator = index_generate.decompose_plev(model,plev = 50000,fixedPattern = fixedPattern,standard='temporal_ens')
-    decade = standard(generator)
-    decade.save_result()
+    generator.save_result()
 # %%
 # CanESM2
 index_gen('CanESM2','decade')
@@ -34,6 +33,9 @@ index_gen('MK36','all')
 index_gen('GFDL_CM3','decade')
 index_gen('GFDL_CM3','all')
 
+#%%
+index_gen('MPI_GE','decade')
+index_gen('MPI_GE','all')
 
 # %%
 def read_eof(model,fixedPattern):
