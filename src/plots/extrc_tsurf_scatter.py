@@ -61,6 +61,8 @@ def scatter_plot(ext_counts, t_surf,  axes):
                 capsize=6,
             )
 
+            axes[i, j].set_xlim(-1, 5)
+
 # %%
 def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None,ci = 'AR1'):
     """
@@ -73,30 +75,35 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None,ci = 
         *t_surf_mean* the mean t_surface (the increase of the temperature)
         the time here use the first year of the decade.
     """
+    print("counting the occureance of extremes and signifcance interval ...")
     if plev is not None:
         index = index.sel(plev=plev)
 
     ext_counts = []
     t_surf_mean = []
-    for i in range(0, index.time.size - 10, 10): # avoid the last period which is not 10 years
+    for i in range(0, index.time.size, 10): # avoid the last period which is not 10 years
         
         period = slice(i, i + 10)
 
         period_pc = index.isel(time=period)
-        period_tm = temp.isel(time=period)
+        period_tm = temp.sel(time = period_pc.time, method = 'nearest')
+        time_tag = period_pc.time[0] # for reference 
+        print(f" time: {time_tag.dt.year.values}")
 
         # extreme count
         period_ext_count = extreme.extreme_count_xr(period_pc, ci=ci)
         period_mean_t = period_tm.mean(dim="time")
 
+        period_ext_count['time'] = time_tag
+        period_mean_t['time'] = time_tag
+
+        # set time as the new dimension
+        period_ext_count = period_ext_count.expand_dims('time')
+        period_mean_t = period_mean_t.expand_dims('time')
+
         ext_counts.append(period_ext_count)
         t_surf_mean.append(period_mean_t)
 
-        # when i+10 is out of 149, break the loop
-
-
-    # BEGIN: ed8c6549bwf9 (modified)
-    periods = index.resample(time="10AS").first().time[:-1]
-    ext_counts = xr.concat(ext_counts, dim=periods)
-    t_surf_mean = xr.concat(t_surf_mean, dim=periods)
+    ext_counts = xr.concat(ext_counts, dim='time')
+    t_surf_mean = xr.concat(t_surf_mean, dim='time')
     return ext_counts, t_surf_mean
