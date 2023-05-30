@@ -55,10 +55,13 @@ def doeof(
     fra = solver.varianceFraction(nmode)  # (mode)
 
     # eof to xarray
-    eof_cnt = data[:nmode]
-    eof_cnt = eof_cnt.rename({dim: "mode"})
-    eof_cnt = eof_cnt.drop_vars(("ens", "time"))
+    eof_cnt = data.unstack()
+    eof_cnt = eof_cnt.isel(ens = [0,1],time = [0])
+    eof_cnt = eof_cnt.rename({'ens': "mode",'time': "decade"})
+    eof_cnt = eof_cnt.transpose("mode",...)
     eof_cnt["mode"] = ["NAO", "EA"]
+
+    eof = eof[...,np.newaxis]
     eofx = eof_cnt.copy(data=eof)
 
     # pc to xarray

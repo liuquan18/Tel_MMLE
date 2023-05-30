@@ -81,27 +81,24 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean=None):
     elif fixed_pattern == "decade":
         print("     decomposing everty ten years")
 
-        # seperate the arr into subarrays, each with win_size length.
-        decade_time = validtime[::window]
+        # start time
+        time_s = xarr.time[::10]
+        # end time
+        time_e = xarr.time[9::10]
 
-        # make the decade_time as a xarray indexvariable
-        decade = xr.IndexVariable(
-            "decade",
-            decade_time.values - pd.Timedelta(value=gap * 365.25, unit="D"),
-            attrs={"note": "sign of decade"},
-        )  # the starting year of the decade
+        # create slice for each decade
+        decade_slice = [slice(s, e) for s, e in zip(time_s.values, time_e.values)]
 
         # a list for storing the subarrays
         eofs = []
         pcs = []
         fras = []
 
-        for time in decade_time:
-            print("     decomposing the decade of {}".format(time.values))
+        for time in decade_slice:
+            print(f"     decomposing the decade of {time.start} - {time.stop}")
             # slice the time
-            time_slice = win_slice(time, window)
 
-            eof_result_single = decompose_single_decade(xarr, time_slice)
+            eof_result_single = decompose_single_decade(xarr, time)
             eof = eof_result_single["eof"]
             pc = eof_result_single["pc"].copy()
             fra = eof_result_single["fra"]
