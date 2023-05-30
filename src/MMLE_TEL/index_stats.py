@@ -52,7 +52,7 @@ class index_stats:
         # locations to read
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.eof_result_dir = self.odir + "EOF_result/" + self.prefix + "_eof_result.nc"
-        self.tsurf_dir = self.odir + "ts_processed/tsurf_mean.nc"
+        self.tsurf_dir = self.odir + "ts_processed/"
         self.field_tsurf_dir = self.odir + "ts/"
 
         # locations to save
@@ -64,22 +64,33 @@ class index_stats:
         )
         self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
 
-        # read data
+        # read eof
         self.eof_result = xr.open_dataset(self.eof_result_dir)
-        if self.model == "MPI_GE_onepct":
-            self.tsurf = xr.open_dataset(self.tsurf_dir).tsurf
-        elif self.model == "MPI_GE":
-            self.tsurf = xr.open_dataset(
-                self.odir + "ts_processed/ens_fld_year_mean.nc"
-            ).tsurf.squeeze()
-        elif self.model == "CESM1_CAM5" or self.model == "CanESM2":
-            self.tsurf = xr.open_dataset(
-                self.odir + "ts_processed/ens_fld_year_mean.nc"
-            ).ts.squeeze()
+        self.tsurf = self.read_tsurf()
+
+    #%%
+    # read tsurf
+    def read_tsurf(self,local = False):
+        if local:
+            tsurf_path = self.tsurf_dir + "NA_tsurf.nc"
         else:
-            self.tsurf = xr.open_dataset(
-                self.odir + "ts_processed/ens_fld_year_mean.nc"
-            ).tas.squeeze()
+            tsurf_path = self.tsurf_dir + "ens_fld_year_mean.nc"
+        
+        tsurf = xr.open_dataset(tsurf_path)
+
+        # read the array
+        try:
+            tsurf_arr = tsurf.tsurf.squeeze()
+        except KeyError:
+            tsurf_arr = tsurf.ts.squeeze()
+        except KeyError:
+            tsurf_arr = tsurf.tas.squeeze()
+        # change the temp time into datetime64
+        try:
+            tsurf_arr["time"] = tsurf_arr.indexes["time"].to_datetimeindex()
+        except AttributeError:
+            pass
+        return tsurf_arr
 
     #%%
     # stat overview
