@@ -40,7 +40,7 @@ if __name__ == '__main__':
 #%%
 extr_tsurf("GFDL_CM3", 'decade', 20)
 # %%
-extr_tsurf("MPI_GE", 'decade', 100)
+extr_tsurf("MPI_GE_onepct", 'decade', 100)
 
 # %%
 extr_tsurf('CanESM2', 'decade', 50)
