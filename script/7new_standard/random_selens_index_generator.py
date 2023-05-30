@@ -18,7 +18,7 @@ def standard(generator):
 # %%
 # random 20 ensemble members
 def decompose_random(ens_size,fixedPattern = 'decade'):
-    index_gen= index_generate.decompose_plev_random_ens(fixedPattern =fixedPattern, ens_size=ens_size,standard='temporal_ens')
+    index_gen= index_generate.decompose_plev_random_ens(base_model= 'MPI_GE',fixedPattern =fixedPattern, ens_size=ens_size,standard='temporal_ens')
     index_gen.save_result()
 # %%
 index_20 = decompose_random(20)
