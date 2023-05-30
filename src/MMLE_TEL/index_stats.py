@@ -40,7 +40,9 @@ importlib.reload(stat_overview)
 class index_stats:
     """The class to calculate and plot the statistics of the indices"""
 
-    def __init__(self, model, vertical_eof, fixed_pattern, standard="temporal_ens") -> None:
+    def __init__(
+        self, model, vertical_eof, fixed_pattern, standard="temporal_ens"
+    ) -> None:
         self.model = model
         self.vertical_eof = vertical_eof
         self.fixed_pattern = fixed_pattern
@@ -64,24 +66,28 @@ class index_stats:
 
         # read data
         self.eof_result = xr.open_dataset(self.eof_result_dir)
-        if self.model == 'MPI_GE_onepct':
+        if self.model == "MPI_GE_onepct" or "MPI_GE":
             self.tsurf = xr.open_dataset(self.tsurf_dir).tsurf
-        elif self.model == 'CESM1_CAM5' or self.model == 'CanESM2':
-            self.tsurf = xr.open_dataset(self.odir + 'ts_processed/ens_fld_year_mean.nc').ts.squeeze()
+        elif self.model == "CESM1_CAM5" or self.model == "CanESM2":
+            self.tsurf = xr.open_dataset(
+                self.odir + "ts_processed/ens_fld_year_mean.nc"
+            ).ts.squeeze()
         else:
-            self.tsurf = xr.open_dataset(self.odir + 'ts_processed/ens_fld_year_mean.nc').tas.squeeze()
+            self.tsurf = xr.open_dataset(
+                self.odir + "ts_processed/ens_fld_year_mean.nc"
+            ).tas.squeeze()
 
     #%%
     # stat overview
     def stat_overview(self, levels=np.arange(-2, 2.1, 0.4)):
         print("ploting the statistical overview")
-        if self.fixed_pattern == 'decade':
+        if self.fixed_pattern == "decade":
             first_eof = self.eof_result.eof.isel(decade=0)
             last_eof = self.eof_result.eof.isel(decade=-1)
 
             first_fra = self.eof_result.fra.isel(decade=0)
             last_fra = self.eof_result.fra.isel(decade=-1)
-        elif self.fixed_pattern == 'all':
+        elif self.fixed_pattern == "all":
             first_eof = self.eof_result.eof
             last_eof = None
 
@@ -131,12 +137,14 @@ class index_stats:
         extreme_profile = extreme.extreme_count_profile(
             first_count, last_count, colored=False, **kwargs
         )
-        plt.savefig(self.to_plot_dir[:-44] + f"{self.model}_{ci}_extreme_count_vertical_profile.png")
-        # slightly different path for the fig. 
-
+        plt.savefig(
+            self.to_plot_dir[:-44]
+            + f"{self.model}_{ci}_extreme_count_vertical_profile.png"
+        )
+        # slightly different path for the fig.
 
     # extreme event count vs. tsurf
-    def extrc_tsurf(self, ylim=(35, 110),ci = 'AR1'):
+    def extrc_tsurf(self, ylim=(35, 110), ci="AR1"):
         print("ploting the extreme event count vs. tsurf")
         try:
             tsurf_mean = self.tsurf.mean(dim="ens").squeeze()
@@ -145,28 +153,30 @@ class index_stats:
         tsurf_increase = tsurf_mean - tsurf_mean[0]
 
         ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
-            self.eof_result.pc, tsurf_increase,ci = ci
+            self.eof_result.pc, tsurf_increase, ci=ci
         )
         extrc_tsurf_scatter = extrc_tsurf.extCount_tsurf_scatter(
             ext_counts, t_surf_mean, ylim=ylim
         )
         plt.savefig(self.to_plot_dir + f"_{ci}_extreme_count_tsurf.png", dpi=300)
-    
 
-    
     # composite analysis of surface temperature in terms of different extreme events
-    def composite_analysis(self, reduction = 'mean',**kwargs):
+    def composite_analysis(self, reduction="mean", **kwargs):
         print("ploting the composite analysis of surface temperature")
         print(" reading the tsurf data...")
         var_data = xr.open_dataset(self.field_tsurf_dir + "all_ens_tsurf.nc").tsurf
-        var_data = var_data - var_data.mean(dim="ens") 
+        var_data = var_data - var_data.mean(dim="ens")
 
         first_index = self.eof_result.pc.isel(time=slice(0, 10))
         last_index = self.eof_result.pc.isel(time=slice(-10, None))
 
         print(" compositing the tsurf data...")
-        first_var = composite.Tel_field_composite(first_index, var_data,threshold=1.5,reduction = reduction,**kwargs)
-        last_var = composite.Tel_field_composite(last_index, var_data,threshold=1.5,reduction = reduction,**kwargs)
+        first_var = composite.Tel_field_composite(
+            first_index, var_data, threshold=1.5, reduction=reduction, **kwargs
+        )
+        last_var = composite.Tel_field_composite(
+            last_index, var_data, threshold=1.5, reduction=reduction, **kwargs
+        )
 
         temp_NAO = composite.composite_plot(first_var, last_var, "NAO")
         plt.savefig(
@@ -176,9 +186,10 @@ class index_stats:
 
         temp_EA = composite.composite_plot(first_var, last_var, "EA")
         plt.savefig(
-            self.to_plot_dir  + f"_composite_tsurf_EA.png",
+            self.to_plot_dir + f"_composite_tsurf_EA.png",
             dpi=300,
         )
+
     # plot all
     def plot_all(self):
         self.stat_overview()
@@ -188,9 +199,20 @@ class index_stats:
     # write the above plots into a markdown file
     def write_doc(self):
         """create the md file for the plots"""
-        relative_plot_dir = "plots/new_standard/" + self.model + "_plev_50000_" + self.fixed_pattern + "_" + self.standard + "_"
+        relative_plot_dir = (
+            "plots/new_standard/"
+            + self.model
+            + "_plev_50000_"
+            + self.fixed_pattern
+            + "_"
+            + self.standard
+            + "_"
+        )
         print("creating the markdown file for the plots")
-        with open(self.doc_dir + self.model + '_' + self.fixed_pattern + "_index_stats.md", "w") as f:
+        with open(
+            self.doc_dir + self.model + "_" + self.fixed_pattern + "_index_stats.md",
+            "w",
+        ) as f:
             f.write("# Statistics of the indices\n")
 
             f.write("This file contains the statistics of the indices\n")
@@ -199,9 +221,7 @@ class index_stats:
             f.write(
                 "The first EOF and PC of the first 10 decades and the last 10 decades are shown below\n"
             )
-            f.write(
-                f"![statistical overview]({relative_plot_dir}stat_overview.png)\n"
-            )
+            f.write(f"![statistical overview]({relative_plot_dir}stat_overview.png)\n")
 
             f.write("## 2d hist of NAO and EA in the first10 and last10 decades\n")
             f.write(
@@ -227,7 +247,9 @@ class index_stats:
                 f"![extreme event count vs. tsurf]({relative_plot_dir}bootstrap_extreme_count_tsurf.png)\n"
             )
 
-            f.write("## composite analysis of surface temperature in terms of different extreme events\n")
+            f.write(
+                "## composite analysis of surface temperature in terms of different extreme events\n"
+            )
             f.write(
                 f"![composite analysis of surface temperature in terms of different extreme events]({relative_plot_dir}composite_tsurf_NAO.png)\n"
             )
