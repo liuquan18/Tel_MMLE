@@ -80,7 +80,10 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None,ci = 
         index = index.sel(plev=plev)
 
     # change the temp time into datetime64
-    temp["time"] = temp.indexes["time"].to_datetimeindex()
+    try:
+        temp["time"] = temp.indexes["time"].to_datetimeindex()
+    except AttributeError:
+        pass
 
     ext_counts = []
     t_surf_mean = []
