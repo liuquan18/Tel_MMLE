@@ -8,9 +8,7 @@ import matplotlib.pyplot as plt
 import importlib
 importlib.reload(index_stats)
 
-#%%
-# same for CanESM2
-# Can_decade = index_stats.index_stats("CanESM2",vertical_eof = 'ind',fixed_pattern = 'decade',standard='temporal_ens')
+
 # %%
 
 import multiprocessing as mp
@@ -26,7 +24,7 @@ def extr_tsurf(model,fixedPattern,ens_size):
 #%%
 if __name__ == '__main__':
     # create a list of arguments for the extr_tsurf function
-    args_list = [('CanESM2', 'decade', 50), ('CESM1_CAM5', 'decade', 40), ('MK36', 'decade', 50)]
+    args_list = [('CanESM2', 'decade', 50), ('CESM1_CAM5', 'decade', 40), ('MK36', 'decade', 50),("GFDL_CM3", 'decade', 20),("MPI_GE", 'decade', 100)]
     
     # create a process for each set of arguments
     processes = [mp.Process(target=extr_tsurf, args=args) for args in args_list]
