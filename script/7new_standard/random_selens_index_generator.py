@@ -8,23 +8,17 @@ import cartopy.crs as ccrs
 import importlib
 importlib.reload(index_generate)
 # %%
-def standard(generator):
-    pc = generator.eof_result['pc']
-    std_pc = (pc - pc.mean(dim = ('time','ens')))/pc.std(dim = ('time','ens'))
-    generator.std_eof_result['pc'] = std_pc
-    return generator
-
-
+import concurrent.futures
 # %%
-# random 20 ensemble members
 def decompose_random(ens_size,fixedPattern = 'decade'):
     index_gen= index_generate.decompose_plev_random_ens(base_model= 'MPI_GE',fixedPattern =fixedPattern, ens_size=ens_size,standard='temporal_ens')
     index_gen.save_result()
-# %%
-index_20 = decompose_random(20)
-# %%
-# also for ensembel size of 30, 40, 50
-index_30 = decompose_random(30)
-index_40 = decompose_random(40)
-index_50 = decompose_random(50)
+
+ens_sizes = [20, 30, 40, 50]
+
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    futures = [executor.submit(decompose_random, ens_size) for ens_size in ens_sizes]
+
+for future in concurrent.futures.as_completed(futures):
+    result = future.result()
 # %%
