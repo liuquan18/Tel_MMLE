@@ -79,6 +79,9 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None,ci = 
     if plev is not None:
         index = index.sel(plev=plev)
 
+    # change the temp time into datetime64
+    temp["time"] = temp.indexes["time"].to_datetimeindex()
+
     ext_counts = []
     t_surf_mean = []
     for i in range(0, index.time.size, 10): # avoid the last period which is not 10 years
