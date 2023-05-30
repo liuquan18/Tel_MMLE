@@ -36,13 +36,19 @@ def random_scatter(ci = 'AR1',ens_size = 20):
     plt.savefig(f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/random_ens/ens_{str(ens_size)}" + f"_{ci}_extreme_count_tsurf.png", dpi=300)
 
 # %%
-random_scatter(ens_size=20)
-# %%
-random_scatter(ens_size=50)
+import concurrent.futures
 
-# %%
-# %%
-random_scatter(ens_size=30)
-# %%
-random_scatter(ens_size=40)
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    futures = []
+    futures.append(executor.submit(random_scatter, ens_size=20))
+    futures.append(executor.submit(random_scatter, ens_size=30))
+    futures.append(executor.submit(random_scatter, ens_size=40))
+    futures.append(executor.submit(random_scatter, ens_size=50))
+
+    for future in concurrent.futures.as_completed(futures):
+        try:
+            result = future.result()
+        except Exception as exc:
+            print(f'generated an exception: {exc}')
+
 # %%
