@@ -14,7 +14,6 @@ import src.Teleconnection.rolling_eof as rolling_eof
 import src.warming_stage.warming_stage as warming_stage
 
 
-
 #%%
 class decompose_troposphere:
     """
@@ -68,7 +67,6 @@ class decompose_troposphere:
             + self.fixed_pattern
             + "_none_eof_result.nc"
         )
-
 
         self.std_eof_result.to_netcdf(
             self.save_path
@@ -150,17 +148,24 @@ class decompose_plev:
 
 
 class decompose_plev_random_ens:
-
-
-    def __init__(self, fixedPattern, ens_size, plev=50000, standard="temporal") -> None:
-        self.model = 'MPI_GE_onepct_random'
+    def __init__(
+        self,
+        fixedPattern,
+        ens_size,
+        base_model="MPI_GE",
+        plev=50000,
+        standard="temporal",
+    ) -> None:
+        self.model = base_model + "_random"
         self.plev = plev
         self.fixedPattern = fixedPattern  # warming or decade
         self.standard = standard
         self.ens_size = ens_size
 
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
-        self.zg_path = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/zg_processed/"
+        self.zg_path = (
+            "/work/mh0033/m300883/Tel_MMLE/data/" + base_model + "/zg_processed/"
+        )
         self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
 
@@ -220,8 +225,6 @@ class decompose_plev_random_ens:
         )
 
 
-
-
 def read_data(zg_path, plev=None):
     """
     read data quickly
@@ -230,7 +233,7 @@ def read_data(zg_path, plev=None):
     # read MPI_onepct data
     try:
         zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
-        if 'ens' in zg_data.dims:
+        if "ens" in zg_data.dims:
             pass
         else:
             zg_data = tools.split_ens(zg_data)
@@ -275,9 +278,6 @@ def standard_index(eof_result, standard="temporal"):
     elif standard == "temporal_ens":
         eof_result = eof_result.copy()
         pc = eof_result["pc"]
-        pc_std = (
-            pc - pc.mean(dim=("time", "ens"))
-        ) / pc.std(dim=("time", "ens"))
+        pc_std = (pc - pc.mean(dim=("time", "ens"))) / pc.std(dim=("time", "ens"))
         eof_result["pc"] = pc_std
     return eof_result
-
