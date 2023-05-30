@@ -66,8 +66,12 @@ class index_stats:
 
         # read data
         self.eof_result = xr.open_dataset(self.eof_result_dir)
-        if self.model == "MPI_GE_onepct" or "MPI_GE":
+        if self.model == "MPI_GE_onepct":
             self.tsurf = xr.open_dataset(self.tsurf_dir).tsurf
+        elif self.model == "MPI_GE":
+            self.tsurf = xr.open_dataset(
+                self.odir + "ts_processed/ens_fld_year_mean.nc"
+            ).tsurf.squeeze()
         elif self.model == "CESM1_CAM5" or self.model == "CanESM2":
             self.tsurf = xr.open_dataset(
                 self.odir + "ts_processed/ens_fld_year_mean.nc"
