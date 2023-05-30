@@ -22,6 +22,7 @@ Welcome to Teleconnection-season's documentation!
    box_based 
    decade_index_stats
    all_index_stats
+   MMLE_random_hist_RCP85
 
 Indices and tables
 ==================
