@@ -18,7 +18,7 @@ def read_data(ens_size):
     return eof_result, tsurf
 # %%
 # extreme event count vs. tsurf
-def random_scatter(ci = 'AR1',ens_size = 20):
+def random_scatter(ci = 'bootstrap',ens_size = 20):
     eof_result,tsurf = read_data(ens_size)
     print("ploting the extreme event count vs. tsurf")
     try:
