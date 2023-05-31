@@ -41,7 +41,6 @@ def doeof(
     except ValueError:
         print("no combined dimension found. use tools.stackens() first")
 
-
     # weights
     wgts = tools.sqrtcoslat(data)
 
@@ -56,12 +55,12 @@ def doeof(
 
     # eof to xarray
     eof_cnt = data.unstack()
-    eof_cnt = eof_cnt.isel(ens = [0,1],time = [0])
-    eof_cnt = eof_cnt.rename({'ens': "mode",'time': "decade"})
-    eof_cnt = eof_cnt.transpose("mode",...)
+    eof_cnt = eof_cnt.isel(ens=[0, 1], time=[0])
+    eof_cnt = eof_cnt.rename({"ens": "mode", "time": "decade"})
+    eof_cnt = eof_cnt.transpose("mode", ...)
     eof_cnt["mode"] = ["NAO", "EA"]
 
-    eof = eof[...,np.newaxis]
+    eof = eof[..., np.newaxis]
     eofx = eof_cnt.copy(data=eof)
 
     # pc to xarray
@@ -71,13 +70,13 @@ def doeof(
     frax = xr.DataArray(fra, dims=["mode"], coords={"mode": ["NAO", "EA"]})
 
     # deweight
-    eofx = eofx / wgts.isel(com = 0)
+    eofx = eofx / wgts.isel(com=0)
 
     # standardize, here the loading gives to the pc, to make the index from different spatil pattern comparable.
-    std_eof = eofx.std(dim = ('lat','lon'))
+    std_eof = eofx.std(dim=("lat", "lon"))
     eofx = eofx / std_eof
+    std_eof = std_eof.squeeze()
     pcx = pcx * std_eof
-
 
     # change sign
     coef = sign_coef(eofx)
@@ -98,7 +97,6 @@ def doeof(
     eof_result = xr.Dataset({"eof": eofx, "pc": pcx, "fra": frax})
 
     return eof_result
-
 
 
 def sign_coef(eof):
