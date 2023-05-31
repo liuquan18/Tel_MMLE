@@ -4,18 +4,21 @@ import src.MMLE_TEL.index_generator as index_generate
 import xarray as xr
 import numpy as np
 import cartopy.crs as ccrs
-# %%
-def standard(generator):
-    pc = generator.eof_result['pc']
-    std_pc = (pc - pc.mean(dim = ('time','ens')))/pc.std(dim = ('time','ens'))
-    generator.std_eof_result['pc'] = std_pc
-    return generator
+#%%
+import importlib
+importlib.reload(index_generate)
+
+
 
 # %%
 # function for generate the index
 def index_gen(model,fixedPattern):
     generator = index_generate.decompose_plev(model,plev = 50000,fixedPattern = fixedPattern,standard='temporal_ens')
     generator.save_result()
+#%%
+# MPI_GE_onepct
+index_gen('MPI_GE_onepct','decade')
+
 # %%
 # CanESM2
 index_gen('CanESM2','decade')
@@ -42,6 +45,10 @@ def read_eof(model,fixedPattern):
     eof_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/plev_50000_{fixedPattern}_temporal_ens_eof_result.nc"
     eof_result = xr.open_dataset(eof_dir)
     return eof_result
+#%%
+# MPI_GE_onepct
+MPI_GE_decade_eof = read_eof('MPI_GE_onepct','decade')
+
 # %%
 Can_decade_eof = read_eof('CanESM2','decade')
 Can_all_eof = read_eof('CanESM2','all')
