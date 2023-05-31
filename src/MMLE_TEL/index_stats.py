@@ -81,9 +81,9 @@ class index_stats:
         # read the array
         try:
             tsurf_arr = tsurf.tsurf.squeeze()
-        except KeyError:
+        except AttributeError:
             tsurf_arr = tsurf.ts.squeeze()
-        except KeyError:
+        except AttributeError:
             tsurf_arr = tsurf.tas.squeeze()
         # change the temp time into datetime64
         try:
