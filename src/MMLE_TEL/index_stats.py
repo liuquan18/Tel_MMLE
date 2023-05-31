@@ -41,7 +41,7 @@ class index_stats:
     """The class to calculate and plot the statistics of the indices"""
 
     def __init__(
-        self, model, vertical_eof, fixed_pattern, standard="temporal_ens",local = False
+        self, model, vertical_eof, fixed_pattern, standard="temporal_ens", local=False
     ) -> None:
         self.model = model
         self.vertical_eof = vertical_eof
@@ -66,16 +66,16 @@ class index_stats:
 
         # read eof
         self.eof_result = xr.open_dataset(self.eof_result_dir)
-        self.tsurf = self.read_tsurf(local = local)
+        self.tsurf = self.read_tsurf(local=local)
 
     #%%
     # read tsurf
-    def read_tsurf(self,local = False):
+    def read_tsurf(self, local=False):
         if local:
             tsurf_path = self.tsurf_dir + "NA_tsurf.nc"
         else:
             tsurf_path = self.tsurf_dir + "ens_fld_year_mean.nc"
-        
+
         tsurf = xr.open_dataset(tsurf_path)
 
         # read the array
