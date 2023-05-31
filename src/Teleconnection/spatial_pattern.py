@@ -81,6 +81,7 @@ def doeof(
     # change sign
     coef = sign_coef(eofx)
     eofx = eofx * coef
+    coef = coef.squeeze()
     pcx = pcx * coef
 
     # make sure at the loc where the data==np.nan, the eof==np.nan as well.
