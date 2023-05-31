@@ -1,3 +1,4 @@
+#%%
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -7,7 +8,7 @@ import src.Teleconnection.spatial_pattern as ssp
 import src.Teleconnection.tools as tools
 import src.warming_stage.warming_stage as warming_stage
 
-
+#%%
 def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean=None):
     """do eof analysis with in a rolling window.
 

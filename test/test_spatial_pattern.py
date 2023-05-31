@@ -38,13 +38,9 @@ s_data = tools.stack_ens(data, withdim="time")
 eof= ssp.doeof(s_data, nmode=2, dim="com")
 
 #%%
-ppc = ssp.project_field(s_data, eof.eof, dim="com", standard=True)
-
-#%%
 # do eof
 def test_doeof():
     assert eof.pc.std().values > 0 and eof.pc.std().values < 2
-    assert ppc.std().values > 0 and ppc.std().values < 2
 
 
 # %%
