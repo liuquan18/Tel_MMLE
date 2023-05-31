@@ -82,9 +82,10 @@ class index_stats:
         try:
             tsurf_arr = tsurf.tsurf.squeeze()
         except AttributeError:
-            tsurf_arr = tsurf.ts.squeeze()
-        except AttributeError:
-            tsurf_arr = tsurf.tas.squeeze()
+            try:
+                tsurf_arr = tsurf.ts.squeeze()
+            except AttributeError:
+                tsurf_arr = tsurf.tas.squeeze()
         # change the temp time into datetime64
         try:
             tsurf_arr["time"] = tsurf_arr.indexes["time"].to_datetimeindex()
