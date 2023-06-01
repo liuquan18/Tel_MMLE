@@ -25,7 +25,7 @@ Welcome to Teleconnection-season's documentation!
    MMLE_random_hist_RCP85_AR1
    MMLE_random_hist_RCP85_bootstrap
    Compare_0531
-   
+   skewness
 
 Indices and tables
 ==================

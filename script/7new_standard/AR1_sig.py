@@ -47,3 +47,20 @@ counts = (simulations > 1.5).sum(axis=1)
 # calculate the 5th and 95th percentiles of counts
 percentiles = np.percentile(counts, [5, 95])
 # %%
+import numpy as np
+import statsmodels.api as sm
+
+# Generate some sample data
+np.random.seed(123)
+nobs = 100
+x = np.random.normal(size=nobs)
+y = np.zeros(nobs)
+for i in range(3, nobs):
+    y[i] = 0.5*y[i-1] - 0.2*y[i-2] + 0.1*y[i-3] + x[i] + np.random.standard_t(3)
+
+# Fit an AR model of order 3 with t-distributed noise
+model = sm.tsa.ar_model.AutoReg(y, lags=3, trend='c', method='mle', dist='t', df=3).fit()
+
+# Print the model summary
+print(model.summary())
+# %%

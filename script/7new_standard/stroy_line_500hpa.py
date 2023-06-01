@@ -17,7 +17,7 @@ MPIGE_decade.stat_overview(levels = np.arange(-1.8,1.9,0.3))
 MPIGE_decade.extreme_count_profile(xlim = (35,110),ci = 'bootstrap')
 
 # %%
-MPIGE_decade.extrc_tsurf(ci = 'AR1')
+MPIGE_decade.extrc_tsurf(ci = 'bootstrap')
 #%%
 MPIGE_decade.NAO_EA_hist2d()
 
@@ -48,9 +48,14 @@ CESM_all.stat_overview(levels = np.arange(-1.8,1.9,0.3))
 CESM_all.extrc_tsurf(ylim = (0,60))
 # %%
 # same for CanESM2
-Can_all = index_stats.index_stats("CanESM2",vertical_eof = 'ind',fixed_pattern = 'all',standard='temporal_ens')
+Can_decade= index_stats.index_stats("CanESM2",vertical_eof = 'ind',fixed_pattern = 'decade',standard='temporal_ens')
+# %%
+Can_decade.stat_overview(levels = np.arange(-1.8,1.9,0.3))
+# %%
+Can_decade.extrc_tsurf(ylim = (0,60))
+# %%
+# CanESM2_all
+Can_all= index_stats.index_stats("CanESM2",vertical_eof = 'ind',fixed_pattern = 'all',standard='temporal_ens')
 # %%
 Can_all.stat_overview(levels = np.arange(-1.8,1.9,0.3))
-# %%
-Can_all.extrc_tsurf(ylim = (0,60))
 # %%
