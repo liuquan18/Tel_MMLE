@@ -14,9 +14,11 @@ importlib.reload(index_stats)
 import multiprocessing as mp
 import src.MMLE_TEL.index_stats as index_stats
 
-def extr_tsurf(model,fixedPattern,ens_size):
-    story = index_stats.index_stats(model,vertical_eof = 'ind',fixed_pattern = fixedPattern,standard='temporal_ens',local = True)
-    story.to_plot_dir = f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/MMLE/{model}_NA"
+def extr_tsurf(model,fixedPattern,ens_size,local = False):
+    story = index_stats.index_stats(model,vertical_eof = 'ind',fixed_pattern = fixedPattern,standard='temporal_ens',local = local)
+    story.to_plot_dir = f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/MMLE/{model}_"
+    if local:
+        story.to_plot_dir = f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/MMLE/{model}_NA"
     story.extrc_tsurf(ylim = (0,ens_size/2),ci = 'bootstrap')
     plt.xlim(-1,5)
 
@@ -43,7 +45,7 @@ extr_tsurf("GFDL_CM3", 'decade', 20)
 #%%
 extr_tsurf('MK36', 'decade', 50)
 # %%
-extr_tsurf("MPI_GE_onepct", 'decade', 100)
+extr_tsurf("MPI_GE_onepct", 'decade', 100,local=False)
 
 # %%
 extr_tsurf('CanESM2', 'decade', 50)

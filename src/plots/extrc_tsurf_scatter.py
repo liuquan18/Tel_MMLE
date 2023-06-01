@@ -87,15 +87,15 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None,ci = 
     time_e = index.time[9::10]
 
     # create slice for each decade
-    decade_slice = [slice(s, e) for s, e in zip(time_s.values, time_e.values)]
+    decade_slice = [slice(s, e) for s, e in zip(time_s, time_e)]
 
     ext_counts = []
     t_surf_mean = []
 
     for time in decade_slice:
-        print(f" extreme counting in the decade of {time.start} - {time.stop}")
+        print(f" extreme counting in the decade of {time.start.dt.year.values} - {time.stop.dt.year.values}")
 
-        period_pc = index.isel(time=time)
+        period_pc = index.sel(time=time)
         period_tm = temp.sel(time = period_pc.time, method = 'nearest')
         time_tag = period_pc.time[0] # for reference 
         # extreme count
