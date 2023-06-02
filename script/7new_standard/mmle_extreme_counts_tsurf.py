@@ -58,3 +58,7 @@ def process_model(model):
 
 with Pool() as p:
     p.map(process_model, models)
+
+#%%
+
+
