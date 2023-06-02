@@ -1,4 +1,3 @@
-# plot the extreme_count v.s tsurf for all models
 # %%
 import src.MMLE_TEL.index_stats as index_stats
 import numpy as np
