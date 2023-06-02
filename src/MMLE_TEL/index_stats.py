@@ -161,16 +161,27 @@ class index_stats:
 
     # extreme event count vs. tsurf
     def extrc_tsurf(self, ylim=(35, 110), ci="AR1"):
-        print("ploting the extreme event count vs. tsurf")
-        try:
-            tsurf_mean = self.tsurf.mean(dim="ens").squeeze()
-        except ValueError:
-            tsurf_mean = self.tsurf
-        tsurf_increase = tsurf_mean - tsurf_mean[0]
 
-        ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
-            self.eof_result.pc, tsurf_increase, ci=ci
-        )
+        # check if the file exists
+        try:
+            ds = xr.open_dataset(
+                self.odir + 'extreme_count/extre_counts_tsurf.nc'
+            )
+            ext_counts = ds.extreme_counts
+            t_surf_mean = ds.tsurf
+
+        except FileNotFoundError:
+            print("ploting the extreme event count vs. tsurf")
+            try:
+                tsurf_mean = self.tsurf.mean(dim="ens").squeeze()
+            except ValueError:
+                tsurf_mean = self.tsurf
+            tsurf_increase = tsurf_mean - tsurf_mean[0]
+
+            ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
+                self.eof_result.pc, tsurf_increase, ci=ci
+            )
+            
         extrc_tsurf_scatter = extrc_tsurf.extCount_tsurf_scatter(
             ext_counts, t_surf_mean, ylim=ylim
         )
