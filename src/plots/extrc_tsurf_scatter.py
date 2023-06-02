@@ -97,6 +97,13 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None,ci = 
 
         period_pc = index.sel(time=time)
         period_tm = temp.sel(time = period_pc.time, method = 'nearest')
+
+        # ensure that there are 10 years of data in period_pc
+        if period_pc.time.size != 10:
+            print(f" the length of the period is {len(period_pc.time)}, skip this period")
+            # rasing a warning
+            break
+
         time_tag = period_pc.time[0] # for reference 
         # extreme count
         period_ext_count = extreme.extreme_count_xr(period_pc, ci=ci)
