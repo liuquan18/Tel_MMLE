@@ -176,6 +176,9 @@ class decompose_plev_random_ens:
         # randomly select ens_size members
         random.seed(1)
         self.data = self.data.isel(ens=random.sample(range(0, 100), self.ens_size))
+        # remove the ensemble mean 
+        print("removing the ensemble mean ...")
+        self.data = self.data - self.data.mean(dim="ens")
 
         # read ts_mean data if needed
         self.ts_mean = None
@@ -225,7 +228,7 @@ class decompose_plev_random_ens:
         )
 
 
-def read_data(zg_path, plev=None):
+def read_data(zg_path, plev=None, remove_ens_mean=True):
     """
     read data quickly
     """
@@ -253,9 +256,12 @@ def read_data(zg_path, plev=None):
         zg_data["time"] = pd.to_datetime(zg_data.time)
 
     # demean
-    print(" demean the ensemble mean...")
-    zg_ens_mean = zg_data.mean(dim="ens")
-    zg_demean = zg_data - zg_ens_mean
+    if remove_ens_mean:
+        print(" demean the ensemble mean...")
+        zg_ens_mean = zg_data.mean(dim="ens")
+        zg_demean = zg_data - zg_ens_mean
+    else:
+        zg_demean = zg_data
 
     # select one altitude
     if plev is not None:
