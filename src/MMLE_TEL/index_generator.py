@@ -171,7 +171,7 @@ class decompose_plev_random_ens:
 
         # read gph data
         print("reading the gph data ...")
-        self.data = read_data(self.zg_path, plev=self.plev)
+        self.data = read_data(self.zg_path, plev=self.plev,remove_ens_mean=False)
 
         # randomly select ens_size members
         random.seed(1)
