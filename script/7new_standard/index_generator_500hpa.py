@@ -12,12 +12,29 @@ importlib.reload(index_generate)
 
 # %%
 # function for generate the index
-def index_gen(model,fixedPattern):
-    generator = index_generate.decompose_plev(model,plev = 50000,fixedPattern = fixedPattern,standard='temporal_ens')
+def index_gen(model,fixedPattern,plev = 50000):
+    generator = index_generate.decompose_plev(model,plev = plev,fixedPattern = fixedPattern,standard='temporal_ens')
     generator.save_result()
 #%%
-# MPI_GE_onepct
-index_gen('MPI_GE_onepct','decade')
+import concurrent.futures
+
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    futures = [
+        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=30000),
+        executor.submit(index_gen, 'MPI_GE', 'decade', plev=30000),
+        executor.submit(index_gen, 'CanESM2', 'decade', plev=30000),
+        executor.submit(index_gen, 'CESM1_CAM5', 'decade', plev=30000),
+        executor.submit(index_gen, 'MK36', 'decade', plev=30000),
+        executor.submit(index_gen, 'GFDL_CM3', 'decade', plev=30000)
+    ]
+    for future in concurrent.futures.as_completed(futures):
+        try:
+            result = future.result()
+        except Exception as e:
+            print(f"Exception: {e}")
+
+
+
 
 # %%
 # CanESM2
