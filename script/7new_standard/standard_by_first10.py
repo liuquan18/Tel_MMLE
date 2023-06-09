@@ -22,9 +22,12 @@ def standard_models(model):
     odir = "/work/mh0033/m300883/Tel_MMLE/data/"
     EOF_dir = Path(odir) / model / "EOF_result/"
     for eof_result_name in EOF_dir.glob("*_none_eof_result.nc"):
+        new_name = eof_result_name.name.replace("none","first")
+        # check if the new file exists
+        if (EOF_dir / new_name).exists():
+            continue
         eof = xr.open_dataset(eof_result_name)
         std_eof = standard_by_first(eof)
-        new_name = eof_result_name.name.replace("none","first")
         std_eof.to_netcdf(EOF_dir / new_name)
         print(eof_result_name.name + " is done")
 
@@ -35,7 +38,7 @@ import multiprocessing
 def process_model(model):
     standard_models(model)
 
-models = ["CanESM2","CESM2_CAM5","GFDL_CM3","MK36","MPI_GE","MPI_GE_onepct","MPI_GE_onepct_random"]
+models = ["CanESM2","CESM1_CAM5","GFDL_CM3","MK36","MPI_GE","MPI_GE_onepct","MPI_GE_onepct_random"]
 
 # Create a pool of worker processes
 pool = multiprocessing.Pool()
