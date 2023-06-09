@@ -18,12 +18,12 @@ import multiprocessing as mp
 
 
 #%%
-def extreme_counts(model, fixedPattern="decade", local=False,plev = 50000):
+def extreme_counts(model, fixedPattern="decade", standard = 'temporal_ens',local=False,plev = 50000):
     story = index_stats.index_stats(
         model,
         vertical_eof="ind",
         fixed_pattern=fixedPattern,
-        standard="temporal_ens",
+        standard=standard,
         local=local,
         plev=plev,
     )
@@ -47,15 +47,16 @@ def extreme_counts(model, fixedPattern="decade", local=False,plev = 50000):
 # %%
 from multiprocessing import Pool
 
-models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
 
 
-def process_model(model,plev = 30000):
-    ds = extreme_counts(model,plev=plev)
+def process_model(model,plev = 50000,standard = 'first'):
+    ds = extreme_counts(model,plev=plev,standard=standard)
     ds.to_netcdf(
-        f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/plev_{plev}_extre_counts_tsurf.nc"
+        f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/plev_{plev}_extre_{standard}_counts_tsurf.nc"
     )
 
+#%%
+models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
 
 with Pool() as p:
     p.map(process_model, models)
