@@ -97,7 +97,7 @@ def handle_label_models(colors,models):
 #%%
 # Create a scatter plot of the slopes for each model and extreme type
 def plot_slope(plev = 50000):
-    models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
+    models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
     ds,dsr = read_extreme_counts(plev = plev)
     fig, axs = pplt.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
 
@@ -147,8 +147,29 @@ def plot_slope(plev = 50000):
         title = 'ens size',
         # the row space
     )
-    plt.savefig(f'/work/mh0033/m300883/Tel_MMLE/docs/source/plots/MMLE/plev_{plev}_slope.png')
 
+    axs[:,0].format(
+        xlim = (-5.1,7.9),
+    )
+
+    axs[0,:].format(
+        ylim = (-5.2,10.7)
+    )
+
+    axs[:,1].format(
+        xlim = (-4.2,9.2),
+    )
+
+    axs[1,:].format(
+        ylim = (-2.4,10.4)
+    )
+
+    # plt.savefig(f'/work/mh0033/m300883/Tel_MMLE/docs/source/plots/MMLE/plev_{plev}_slope.png')
+
+
+
+# %%
+plot_slope(plev=50000)
 
 # %%
 plot_slope(plev=30000)
