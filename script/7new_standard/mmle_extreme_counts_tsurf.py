@@ -5,6 +5,7 @@ import importlib
 import matplotlib.pyplot as plt
 import src.plots.extrc_tsurf_scatter as extrc_tsurf
 import xarray as xr
+import os
 
 #%%
 import importlib
@@ -51,8 +52,16 @@ from multiprocessing import Pool
 
 def process_model(model,plev = 50000,standard = 'first'):
     ds = extreme_counts(model,plev=plev,standard=standard)
+    # delete the old file
+    try:
+        os.remove(
+            f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/plev_{plev}_extre_{standard}_counts_tsurf.nc"
+        )
+    except FileNotFoundError:
+        pass
+
     ds.to_netcdf(
-        f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/plev_{plev}_extre_{standard}_counts_tsurf.nc"
+        f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/plev_{plev}_{standard}_extre_counts_tsurf.nc"
     )
 
 #%%

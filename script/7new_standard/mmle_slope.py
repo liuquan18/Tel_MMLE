@@ -8,21 +8,21 @@ import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 
 # %%
-def read_extreme_counts(plev = 50000):
+def read_extreme_counts(plev = 50000,standard = 'first'):
     models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
     # load data
     # different models
     ds = {}
     for model in models:
         ds[model] = xr.open_dataset(
-            f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/plev_{plev}_extre_counts_tsurf.nc"
+            f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/plev_{plev}_{standard}_extre_counts_tsurf.nc"
         ).squeeze()
 
     # random sampled models
     dsr = {}
     for ens_size in np.arange(20, 101, 10):
         dsr[ens_size] = xr.open_dataset(
-            f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/plev_{plev}_extreme_counts_tsurf_{str(ens_size)}.nc"
+            f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/plev_{plev}_{standard}_extreme_counts_tsurf_{str(ens_size)}.nc"
         ).squeeze()
 
     return ds,dsr
@@ -96,9 +96,9 @@ def handle_label_models(colors,models):
 
 #%%
 # Create a scatter plot of the slopes for each model and extreme type
-def plot_slope(plev = 50000):
+def plot_slope(plev = 50000,standard = 'first'):
     models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
-    ds,dsr = read_extreme_counts(plev = plev)
+    ds,dsr = read_extreme_counts(plev = plev,standard = standard)
     fig, axs = pplt.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
 
     axs.format(
@@ -170,6 +170,10 @@ def plot_slope(plev = 50000):
 
 # %%
 plot_slope(plev=50000)
+#%%
+plot_slope(plev=50000,standard='temporal_ens')
 
 # %%
 plot_slope(plev=30000)
+
+# %%
