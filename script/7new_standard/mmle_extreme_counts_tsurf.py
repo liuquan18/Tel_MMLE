@@ -11,6 +11,7 @@ import os
 import importlib
 
 importlib.reload(index_stats)
+importlib.reload(extrc_tsurf)
 
 
 # %%
@@ -19,56 +20,78 @@ import multiprocessing as mp
 
 
 #%%
-def extreme_counts(model, fixedPattern="decade", standard = 'temporal_ens',local=False,plev = 50000):
-    story = index_stats.index_stats(
-        model,
-        vertical_eof="ind",
-        fixed_pattern=fixedPattern,
-        standard=standard,
-        local=local,
-        plev=plev,
-    )
+def extreme_counts_tsurf(model, fixed_pattern="decade", standard = 'temporal_ens',tsurf = 'ens_fld_year_mean',plev = 50000):
+    odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/"
+    prefix = f"plev_{plev}_{fixed_pattern}_{standard}_"
+    eof_dir = odir+ "EOF_result/"+ prefix + "eof_result.nc"
+    tsurf_dir = odir + "ts_processed/" + tsurf + ".nc"
 
-    # temperature
-    try:
-        tsurf_mean = story.tsurf.mean(dim="ens").squeeze()
-    except ValueError:
-        tsurf_mean = story.tsurf
-    tsurf_increase = tsurf_mean - tsurf_mean[0]
+    # to dir
+    extr_counts_dir = odir + "extreme_count/" + prefix + "extre_counts.nc"
+    t_surf_mean_dir = odir + "extreme_count/" + tsurf + ".nc"
 
+    # eof
+    eof_result = xr.open_dataset(eof_dir)
+    # tsurf
+    temperature = read_tsurf(tsurf_dir)
+    
     # extreme counts
-    ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
-        story.eof_result.pc, tsurf_increase, ci="bootstrap"
-    )
-
-    ds = xr.Dataset({"extreme_counts": ext_counts, "tsurf": t_surf_mean})
-    return ds
-
-
-# %%
-from multiprocessing import Pool
-
-
-
-def process_model(model,plev = 50000,standard = 'first'):
-    ds = extreme_counts(model,plev=plev,standard=standard)
-    # delete the old file
+    # check if the extr_counts_dir exists
     try:
-        os.remove(
-            f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/plev_{plev}_extre_{standard}_counts_tsurf.nc"
+        extrc = xr.open_dataset(extr_counts_dir).pc
+        _, tsurf_mean = extrc_tsurf.decadal_extrc_tsurf(
+            eof_result.pc,ext_counts_xr=extrc, temp = temperature, ci="bootstrap"
         )
-    except FileNotFoundError:
-        pass
 
-    ds.to_netcdf(
-        f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/plev_{plev}_{standard}_extre_counts_tsurf.nc"
-    )
+    except FileNotFoundError:
+        extrc, tsurf_mean = extrc_tsurf.decadal_extrc_tsurf(
+            eof_result.pc, temp = temperature, ci="bootstrap"
+        )
+
+    # save the result
+    try:
+        extrc.to_netcdf(extr_counts_dir)
+    except PermissionError:
+        pass
+    tsurf_mean.to_netcdf(t_surf_mean_dir)
+
+    return extrc, tsurf_mean
 
 #%%
+# read tsurf
+def read_tsurf(tsurf_dir):
+    tsurf = xr.open_dataset(tsurf_dir)
+
+    # read the array either tusrf, ts, or tas
+    try:
+        tsurf_arr = tsurf.tsurf.squeeze()
+    except AttributeError:
+        try:
+            tsurf_arr = tsurf.ts.squeeze()
+        except AttributeError:
+            tsurf_arr = tsurf.tas.squeeze()
+    # change the temp time into datetime64
+    try:
+        tsurf_arr["time"] = tsurf_arr.indexes["time"].to_datetimeindex()
+    except AttributeError:
+        pass
+    tsurf_arr = tsurf_arr - tsurf_arr[0]
+    return tsurf_arr
+
+#%%
+from multiprocessing import Pool
+
 models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
+tsurfs = ["ens_fld_year_mean", "NA_tsurf","tropical_arctic_gradient"]
+
+def run_extreme_counts_tsurf(args):
+    model, tsurf = args
+    extreme_counts_tsurf(model, tsurf=tsurf)
 
 with Pool() as p:
-    p.map(process_model, models)
+    p.map(run_extreme_counts_tsurf, [(model, tsurf) for model in models for tsurf in tsurfs])
+
+
 
 #%%
 
