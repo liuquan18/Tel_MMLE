@@ -8,7 +8,7 @@ import src.plots.utils as utils
 def Tel_field_composite(
     index: xr.DataArray,
     data: xr.DataArray,
-    threshold: int = 2,
+    threshold: float = 2,
     reduction = "mean",
     **kwargs,
 ):
