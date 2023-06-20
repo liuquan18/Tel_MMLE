@@ -98,6 +98,13 @@ class index_stats:
     # stat overview
     def stat_overview(self, levels=np.arange(-2, 2.1, 0.4)):
         print("ploting the statistical overview")
+        first_pc = self.eof_result.pc.isel(time=slice(0, 10))
+        last_pc = self.eof_result.pc.isel(time=slice(-10, None))
+        first_eof = None
+        last_eof = None
+        first_fra = None
+        last_fra = None
+
         if self.fixed_pattern == "decade":
             first_eof = self.eof_result.eof.isel(decade=0)
             last_eof = self.eof_result.eof.isel(decade=-1)
@@ -111,8 +118,7 @@ class index_stats:
             first_fra = self.eof_result.fra
             last_fra = None
 
-        first_pc = self.eof_result.pc.isel(time=slice(0, 10))
-        last_pc = self.eof_result.pc.isel(time=slice(-10, None))
+
 
         stat_overview_fig = stat_overview.stat_overview(
             first_pc, last_pc, first_fra, last_fra, first_eof, last_eof, levels=levels
