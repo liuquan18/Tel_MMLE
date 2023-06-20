@@ -120,8 +120,8 @@ def decadal_extrc_tsurf(index: xr.DataArray, ext_counts_xr = None, temp: xr.Data
             period_mean_t = period_mean_t.expand_dims('time')
             t_surf_mean.append(period_mean_t)
 
-
-    ext_counts_xr = xr.concat(ext_counts, dim='time')
+    if ext_counts_xr is None:
+        ext_counts_xr = xr.concat(ext_counts, dim='time')
     if temp is not None:
         t_surf_mean_xr = xr.concat(t_surf_mean, dim='time')
         
