@@ -64,7 +64,7 @@ def scatter_plot(ext_counts, t_surf,  axes):
             axes[i, j].set_xlim(-1, 5)
 
 # %%
-def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None,ci = 'AR1'):
+def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray = None, plev=None,ci = 'AR1'):
     """
     extract the extreme count and the mean surface temperature every ten years.
     **Arguments**
@@ -92,33 +92,39 @@ def decadal_extrc_tsurf(index: xr.DataArray, temp: xr.DataArray, plev=None,ci = 
     ext_counts = []
     t_surf_mean = []
 
+    ext_counts_xr = xr.DataArray()
+    t_surf_mean_xr = xr.DataArray()
+
+
     for time in decade_slice:
         print(f" extreme counting in the decade of {time.start.dt.year.values} - {time.stop.dt.year.values}")
 
         period_pc = index.sel(time=time)
-        period_tm = temp.sel(time = period_pc.time, method = 'nearest')
-
         # ensure that there are 10 years of data in period_pc
         if period_pc.time.size != 10:
             print(f" the length of the period is {len(period_pc.time)}, skip this period")
             # rasing a warning
             break
-
         time_tag = period_pc.time[0] # for reference 
+
         # extreme count
         period_ext_count = extreme.extreme_count_xr(period_pc, ci=ci)
-        period_mean_t = period_tm.mean(dim="time")
-
         period_ext_count['time'] = time_tag
-        period_mean_t['time'] = time_tag
-
         # set time as the new dimension
         period_ext_count = period_ext_count.expand_dims('time')
-        period_mean_t = period_mean_t.expand_dims('time')
-
         ext_counts.append(period_ext_count)
-        t_surf_mean.append(period_mean_t)
 
-    ext_counts = xr.concat(ext_counts, dim='time')
-    t_surf_mean = xr.concat(t_surf_mean, dim='time')
-    return ext_counts, t_surf_mean
+        # tsurf
+        if temp is not None:
+            period_tm = temp.sel(time = period_pc.time, method = 'nearest')
+            period_mean_t = period_tm.mean(dim="time")
+            period_mean_t['time'] = time_tag
+            period_mean_t = period_mean_t.expand_dims('time')
+            t_surf_mean.append(period_mean_t)
+
+
+    ext_counts_xr = xr.concat(ext_counts, dim='time')
+    if temp is not None:
+        t_surf_mean_xr = xr.concat(t_surf_mean, dim='time')
+        
+    return ext_counts_xr, t_surf_mean_xr
