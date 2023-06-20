@@ -41,7 +41,7 @@ class index_stats:
     """The class to calculate and plot the statistics of the indices"""
 
     def __init__(
-        self, model, vertical_eof, fixed_pattern, standard="temporal_ens", local=False,plev = 50000
+        self, model, vertical_eof, fixed_pattern, standard="temporal_ens", tsurf = 'ens_fld_year_mean', plev = 50000
     ) -> None:
         self.model = model
         self.vertical_eof = vertical_eof
@@ -54,7 +54,7 @@ class index_stats:
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.eof_result_dir = self.odir + "EOF_result/" + self.prefix + "_eof_result.nc"
         self.tsurf_dir = self.odir + "ts_processed/"
-        self.field_tsurf_dir = self.odir + "ts/"
+        self.field_tsurf_dir = self.odir + "ts/" + tsurf + ".nc"
 
         # locations to save
         self.to_plot_dir = (
@@ -67,19 +67,14 @@ class index_stats:
 
         # read eof
         self.eof_result = xr.open_dataset(self.eof_result_dir)
-        self.tsurf = self.read_tsurf(local=local)
+        self.tsurf = self.read_tsurf()
 
     #%%
     # read tsurf
-    def read_tsurf(self, local=False):
-        if local:
-            tsurf_path = self.tsurf_dir + "NA_tsurf.nc"
-        else:
-            tsurf_path = self.tsurf_dir + "ens_fld_year_mean.nc"
+    def read_tsurf(self):
+        tsurf = xr.open_dataset(self.tsurf_dir)
 
-        tsurf = xr.open_dataset(tsurf_path)
-
-        # read the array
+        # read the array either tusrf, ts, or tas
         try:
             tsurf_arr = tsurf.tsurf.squeeze()
         except AttributeError:
