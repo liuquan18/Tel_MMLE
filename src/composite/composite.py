@@ -27,7 +27,7 @@ def extreme(
 
 
 def composite_reduce(
-    index: xr.DataArray, data: xr.DataArray, reduction: str = "mean", dim: str = "com"
+    index: xr.DataArray, data: xr.DataArray, dim: str = "com",reduction = 'mean', **kwargs
 ):
     """
     do composite mean of data given the index
@@ -37,7 +37,6 @@ def composite_reduce(
         *reduction* "mean" or "count"
         *dim* along which dim to do the mean and count.
     """
-
     if reduction == "mean":
         # get the data at the  coordinates
         sel_data = data.where(index)
@@ -54,6 +53,10 @@ def composite_reduce(
         index = index.isel(com=slice(0, 40))
         sel_data = data.where(index)
         composited = sel_data.mean(dim=dim)
+    elif reduction == 'mean_weighted':
+        weights = index
+        sel_data = data.where(index)
+        composited = sel_data.weighted(weights).mean(dim=dim)
     return composited
 
 

@@ -8,8 +8,9 @@ import src.plots.utils as utils
 def Tel_field_composite(
     index: xr.DataArray,
     data: xr.DataArray,
-    reduction: str = "mean",
-    threshold: int = 2,
+    threshold: float = 2,
+    reduction = "mean",
+    **kwargs,
 ):
     """
     composite mean maps or counts of field in terms of teleconnection mode extremes.
@@ -41,9 +42,9 @@ def Tel_field_composite(
     tel_composite = index_c.groupby("mode").apply(
         composite_analysis.extreme_composite,
         data=data_c,
-        reduction=reduction,
         dim="com",
         threshold=threshold,
+        reduction=reduction,
     )
 
     return tel_composite

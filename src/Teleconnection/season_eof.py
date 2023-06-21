@@ -8,12 +8,12 @@ import src.Teleconnection.vertical_eof as vertical_eof
 
 ###### high level APIs #################
 def season_eof(
-    xarr: xr.DataArray,         # the geopotential data to be decomposed
-    nmode: int=2,               # the number of modes to generate
-    window: int=10,             # the rolling window if fixed_pattern = 'False'.
-    fixed_pattern: str="all",   # the fixed_pattern 'all','first','last','False'.
-    independent: bool=True,     # the vertical eof strategy.
-    standard: bool=True         # standard pc or not.
+    xarr: xr.DataArray,  # the geopotential data to be decomposed
+    nmode: int = 2,  # the number of modes to generate
+    window: int = 10,  # the rolling window if fixed_pattern = 'False'.
+    fixed_pattern: str = "all",  # the fixed_pattern 'all','first','last','False'.
+    independent: bool = True,  # the vertical eof strategy.
+    standard: bool = True,  # standard pc or not.
 ):
     """high_level API for seasonal data eof analysis.
 
@@ -28,9 +28,6 @@ def season_eof(
 
         EOF, PC and FRA
     """
-    # the data should be standarize if there are more than one altitudes
-    if xarr.plev.size>1:
-        xarr = tools.standardize(xarr)
 
     # passing parameters
     kwargs = {
@@ -38,25 +35,27 @@ def season_eof(
         "window": window,  # for rolling_eof
         "fixed_pattern": fixed_pattern,  # for rolling_eof
         "independent": independent,  # choose vetrical eof method.
-        "standard": standard
+        "standard": standard,
     }
 
     eof_result = vertical_eof.vertical_eof(xarr, **kwargs)
 
     return eof_result
 
-def read_data(gph_dir):
+
+def read_data(gph_dir, standardize=False):
     """
     read the gph data and do some pre-process.
     """
     # read MPI_onepct data
     try:
-        zg_data = xr.open_dataset(gph_dir + "allens.nc")
+        zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
         zg_data = tools.split_ens(zg_data)
     except FileNotFoundError:
         zg_data = xr.open_mfdataset(
             gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
         )
+        zg_data = tools.split_ens(zg_data)
     try:
         zg_data = zg_data.var156
     except AttributeError:
@@ -80,9 +79,11 @@ def read_data(gph_dir):
         zg_trop = zg_demean.sel(plev=slice(20000, 100000))
 
     # standardize seperately with the temporal mean and std
-    print(" standardize each altitudes seperately...")
-    zg_trop = (zg_trop - zg_trop.mean(dim="time")) / zg_trop.std(dim="time")
+    if standardize:  # only standardize the data when decompose dependently.
+        print(" standardize each altitudes seperately...")
+        zg_trop = (zg_trop - zg_trop.mean(dim="time")) / zg_trop.std(dim="time")
     return zg_trop
+
 
 def main():
     """
@@ -106,7 +107,7 @@ def main():
     eof = season_eof(
         trop.var156,
         nmode=2,
-        window=10,
+        win_size=10,
         fixed_pattern="all",
         independent=True,
         standard=True,

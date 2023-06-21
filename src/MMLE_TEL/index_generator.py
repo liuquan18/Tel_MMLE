@@ -5,93 +5,285 @@ To generate the index by projecting the data of all the years to the fixed spati
 #%%
 import xarray as xr
 import numpy as np
-import src.Teleconnection.season_eof as season_eof
+import pandas as pd
+import random
+
+import src.Teleconnection.vertical_eof as vertical_eof
 import src.Teleconnection.tools as tools
-import src.extreme.period_pattern_extreme as extreme
+import src.Teleconnection.rolling_eof as rolling_eof
+import src.warming_stage.warming_stage as warming_stage
+
 
 #%%
-class decompose_fixedPattern:
+class decompose_troposphere:
     """
-    A class to generate the eof and index
+    A class to generate the eof and index of the whole troposphere
     """
 
-    def __init__(self, model, vertical_eof, fixed_pattern, standard_ens_time=True):
+    def __init__(
+        self, model, vertical_eof, fixedPattern="decade", standard="temporal_ens"
+    ) -> None:
         self.vertical_eof = vertical_eof
         self.independence = self.vertical_eof == "ind"
-        self.fixed_pattern = fixed_pattern
-        self.standard_ens_time = standard_ens_time
+        self.fixed_pattern = fixedPattern
         self.model = model
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
-        self.zg_path = (
-            self.odir + "zg_processed/"
-        )
-        self.save_path = (
-            self.odir + "EOF_result/"
-        )
+        self.zg_path = self.odir + "zg_processed/"
+        self.save_path = self.odir + "EOF_result/"
+        self.standard = standard  # 'temporal', 'temporal_ens'
 
         # read data
         print("reading the gph data ...")
-        self.data = season_eof.read_data(self.zg_path)
+        self.data = read_data(self.zg_path)
+
+        # decompose
         self.eof_result = self.decompose()
-        self.std_eof_result = self.standard_index()
+        self.std_eof_result = standard_index(self.eof_result, self.standard)
+
+        # save
         self.save_result()
 
     def decompose(self):
         # deompose
-        print("decomposing the data ...")
-        eof_result = season_eof.season_eof(
+        print("decomposing the data over the whole troposhpere ...")
+        eof_result = vertical_eof.vertical_eof(
             self.data,
             nmode=2,
             window=10,
             fixed_pattern=self.fixed_pattern,
             independent=self.independence,
-            standard=False,  # standardization is done seperately
         )
         return eof_result
-
-
-    def standard_index(self):
-        print("standardizing the index ...")
-        # if single pattern, standardize the index with its own mean and std (temporal and ens)
-        if (
-            self.fixed_pattern == "first"
-            or self.fixed_pattern == "last"
-        ):
-            self.eof_result["pc"] = (
-                self.eof_result["pc"] - self.eof_result["pc"].mean(dim=("time", "ens"))
-            ) / self.eof_result["pc"].std(dim=("time", "ens"))
-
-        # if changing pattern, standardize the index with the mean and std of all the index
-        elif self.fixed_pattern == "decade" or self.fixed_pattern == "False":
-            try:
-                all_index = xr.open_dataset(
-                self.odir + "EOF_result/" + self.vertical_eof + "_all_eof_result.nc"
-                )
-
-            except FileNotFoundError:
-                print("all index not found, generate it first")
-            
-            self.eof_result["pc"] = (
-                self.eof_result["pc"] - all_index["pc"].mean(dim=("time", "ens"))
-            ) / all_index["pc"].std(dim=("time", "ens"))
-
-        elif self.fixed_pattern == 'all':
-            print("     no standarization for all pattern")
-        return self.eof_result
 
     # save
     def save_result(self):
         print("saving the result ...")
         # save the result
+        self.eof_result.to_netcdf(
+            self.save_path
+            + "troposphere_"
+            + self.vertical_eof
+            + "_"
+            + self.fixed_pattern
+            + "_none_eof_result.nc"
+        )
 
         self.std_eof_result.to_netcdf(
             self.save_path
+            + "troposphere_"
             + self.vertical_eof
             + "_"
             + self.fixed_pattern
             + "_"
-            + "eof_result.nc"
+            + self.standard
+            + "_eof_result.nc"
         )
 
 
-# %%
+##########################################
+class decompose_plev:
+    """
+    A class for decomposition of one single plev only.
+    """
+
+    def __init__(self, model, fixedPattern, plev=50000, standard="temporal") -> None:
+        self.model = model
+        self.plev = plev
+        self.fixedPattern = fixedPattern  # warming or decade
+        self.standard = standard
+
+        self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
+        self.zg_path = self.odir + "zg_processed/"
+        self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
+        self.save_path = self.odir + "EOF_result/"
+
+        # read gph data
+        print("reading the gph data ...")
+        self.data = read_data(self.zg_path, plev=self.plev)
+
+        # read ts_mean data if needed
+        self.ts_mean = None
+        if self.fixedPattern == "warming":
+            self.ts_mean = warming_stage.read_tsurf_fldmean(self.ts_mean_path)
+
+        # deompose
+        self.eof_result = self.decompose()
+
+        # standardize
+        self.std_eof_result = standard_index(self.eof_result, self.standard)
+
+    def decompose(self):
+        """
+        decompose the data
+        """
+        print("decomposing ...")
+
+        eof_result = rolling_eof.rolling_eof(
+            self.data, fixed_pattern=self.fixedPattern, ts_mean=self.ts_mean
+        )
+        return eof_result
+
+    def save_result(self):
+        print("saving the result ...")
+        # save the unstandardized result
+        self.eof_result.to_netcdf(
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + "_none_eof_result.nc"
+        )
+        # save the standardized result
+        self.std_eof_result.to_netcdf(
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + "_"
+            + self.standard
+            + "_eof_result.nc"
+        )
+
+
+class decompose_plev_random_ens:
+    def __init__(
+        self,
+        fixedPattern,
+        ens_size,
+        base_model="MPI_GE",
+        plev=50000,
+        standard="temporal",
+    ) -> None:
+        self.model = base_model + "_random"
+        self.plev = plev
+        self.fixedPattern = fixedPattern  # warming or decade
+        self.standard = standard
+        self.ens_size = ens_size
+
+        self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
+        self.zg_path = (
+            "/work/mh0033/m300883/Tel_MMLE/data/" + base_model + "/zg_processed/"
+        )
+        self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
+        self.save_path = self.odir + "EOF_result/"
+
+        # read gph data
+        print("reading the gph data ...")
+        self.data = read_data(self.zg_path, plev=self.plev,remove_ens_mean=False)
+
+        # randomly select ens_size members
+        random.seed(1)
+        self.data = self.data.isel(ens=random.sample(range(0, 100), self.ens_size))
+        # remove the ensemble mean 
+        print("removing the ensemble mean ...")
+        self.data = self.data - self.data.mean(dim="ens")
+
+        # read ts_mean data if needed
+        self.ts_mean = None
+        if self.fixedPattern == "warming":
+            self.ts_mean = warming_stage.read_tsurf_fldmean(self.ts_mean_path)
+
+        # deompose
+        self.eof_result = self.decompose()
+
+        # standardize
+        self.std_eof_result = standard_index(self.eof_result, self.standard)
+
+    def decompose(self):
+        """
+        decompose the data
+        """
+        print("decomposing ...")
+
+        eof_result = rolling_eof.rolling_eof(
+            self.data, fixed_pattern=self.fixedPattern, ts_mean=self.ts_mean
+        )
+        return eof_result
+
+    def save_result(self):
+        print("saving the result ...")
+        # save the unstandardized result
+        self.eof_result.to_netcdf(
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + str(self.ens_size)
+            + "_none_eof_result.nc"
+        )
+        # save the standardized result
+        self.std_eof_result.to_netcdf(
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + "_"
+            + self.standard
+            + str(self.ens_size)
+            + "_eof_result.nc"
+        )
+
+
+def read_data(zg_path, plev=None, remove_ens_mean=True):
+    """
+    read data quickly
+    """
+    gph_dir = zg_path
+    # read MPI_onepct data
+    try:
+        zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
+        if "ens" in zg_data.dims:
+            pass
+        else:
+            zg_data = tools.split_ens(zg_data)
+    except FileNotFoundError:
+        zg_data = xr.open_mfdataset(
+            gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
+        )
+    try:
+        zg_data = zg_data.var156
+    except AttributeError:
+        zg_data = zg_data.zg
+
+    # time to datetime
+    try:
+        zg_data["time"] = zg_data.indexes["time"].to_datetimeindex()
+    except AttributeError:
+        zg_data["time"] = pd.to_datetime(zg_data.time)
+
+    # demean
+    if remove_ens_mean:
+        print(" demean the ensemble mean...")
+        zg_ens_mean = zg_data.mean(dim="ens")
+        zg_demean = zg_data - zg_ens_mean
+    else:
+        zg_demean = zg_data
+
+    # select one altitude
+    if plev is not None:
+        print(" select the specific plev...")
+        zg_demean = zg_demean.sel(plev=plev)
+
+    return zg_demean
+
+
+def standard_index(eof_result, standard="temporal"):
+    print(f"standardizing the index with {standard} ...")
+    # standarize the index with the tmeporal mean and std
+    eof_result = eof_result.copy()
+    if standard == "temporal":
+        eof_result["pc"] = (
+            eof_result["pc"] - eof_result["pc"].mean(dim="time")
+        ) / eof_result["pc"].std(dim="time")
+
+    # standarize the index with the temporal and ensemble mean and std
+    elif standard == "temporal_ens":
+        eof_result = eof_result.copy()
+        pc = eof_result["pc"]
+        pc_std = (pc - pc.mean(dim=("time", "ens"))) / pc.std(dim=("time", "ens"))
+        eof_result["pc"] = pc_std
+    return eof_result

@@ -24,8 +24,10 @@ ex = xr.DataArray(
 
 #%%
 pc = ex
+#%%
 # test extreme.extreme_count_xr with pc
-extr_count = extreme.extreme_count_xr(pc, ci=False, threshold=2)
+extr_count = extreme.extreme_count_xr(pc, ci='bootstrap')
 # %%
-pos_low = extreme.bootstrap_pos_count_low(pc, threshold=2)
+extr_count = extreme.extreme_count_xr(pc, ci='AR1')
+
 # %%

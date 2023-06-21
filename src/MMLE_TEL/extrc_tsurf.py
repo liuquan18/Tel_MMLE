@@ -87,7 +87,10 @@ def extCount_tsurf_scatter(
     )
     if plev is not None:
         # data preparation
-        ext_counts = ext_counts.sel(plev=plev)
+        try:
+            ext_counts = ext_counts.sel(plev=plev)
+        except KeyError:
+            pass
         r = corr_coef(ext_counts.sel(confidence="true"), t_surf)
 
         # plot

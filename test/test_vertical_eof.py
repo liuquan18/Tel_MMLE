@@ -27,27 +27,12 @@ ex = xr.DataArray(
 )
 
 
-#%%
-eof = vertical_eof.vertical_eof(
-    ex, nmode=2, window=6, fixed_pattern="first", independent=False, standard=True
-)
-
-#%%
-eof = vertical_eof.vertical_eof(
-    ex, nmode=2, window=6, fixed_pattern="first", independent=True, standard=False
-)
 # %%
 eof = vertical_eof.vertical_eof(
-    ex, nmode=2, window=6, fixed_pattern="all", independent=True, standard=True
-)
-eof = vertical_eof.vertical_eof(
-    ex, nmode=2, window=6, fixed_pattern="first", independent=True, standard=True
-)
-eof = vertical_eof.vertical_eof(
-    ex, nmode=2, window=6, fixed_pattern="last", independent=True, standard=True
+    ex, nmode=2, window=6, fixed_pattern="all", independent=True
 )
 
-
+#%%
 # %%
 # test
 def test_vertical_eof():

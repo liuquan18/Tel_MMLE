@@ -20,6 +20,12 @@ Welcome to Teleconnection-season's documentation!
    ind_decade_story_line
    dep_decade_story_line
    box_based 
+   decade_index_stats
+   all_index_stats
+   MMLE_random_hist_RCP85_AR1
+   MMLE_random_hist_RCP85_bootstrap
+   Compare_0531
+   skewness
 
 Indices and tables
 ==================

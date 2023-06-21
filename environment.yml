@@ -32,4 +32,5 @@ dependencies:
         - intake-esm
         - aiohttp-requests
         - xarray[complete]
+        - dask_jobqueue
         
