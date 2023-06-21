@@ -83,13 +83,14 @@ from multiprocessing import Pool
 
 models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
 tsurfs = ["ens_fld_year_mean", "NA_tsurf","tropical_arctic_gradient"]
+standards = ["first"]
 
 def run_extreme_counts_tsurf(args):
-    model, tsurf = args
-    extreme_counts_tsurf(model, tsurf=tsurf)
+    model, tsurf, standard = args
+    extreme_counts_tsurf(model, tsurf=tsurf, standard=standard)
 
 with Pool() as p:
-    p.map(run_extreme_counts_tsurf, [(model, tsurf) for model in models for tsurf in tsurfs])
+    p.map(run_extreme_counts_tsurf, [(model, tsurf,standard) for model in models for tsurf in tsurfs for standard in standards])
 
 
 

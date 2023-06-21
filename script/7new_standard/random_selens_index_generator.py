@@ -3,7 +3,6 @@
 import src.MMLE_TEL.index_generator as index_generate
 import xarray as xr
 import numpy as np
-import cartopy.crs as ccrs
 # %%
 import importlib
 importlib.reload(index_generate)
@@ -31,5 +30,5 @@ def produce_random_index(plev = 50000):
             except Exception as exc:
                 print(f'generated an exception: {exc}')
 # %%
-produce_random_index(plev=30000)
+produce_random_index(plev=50000)
 # %%

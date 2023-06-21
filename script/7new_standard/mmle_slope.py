@@ -8,31 +8,48 @@ import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 
 # %%
-def read_extreme_counts(plev = 50000,standard = 'first'):
+def read_extreme_counts(plev = 50000,standard = 'first',tsurf = 'ens_fld_year_mean',fixed_pattern = 'decade'):
     models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
     # load data
     # different models
-    ds = {}
+    extrs = {}
+    tsurfs = {}
     for model in models:
-        ds[model] = xr.open_dataset(
-            f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/plev_{plev}_{standard}_extre_counts_tsurf.nc"
+        odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/"
+        prefix = f"plev_{plev}_{fixed_pattern}_{standard}_"
+        extrs[model] = xr.open_dataset(
+            f"{odir}{prefix}extre_counts.nc"
         ).squeeze()
+        tsurfs[model] = xr.open_dataset(
+            f"{odir}{tsurf}.nc"
+        )
+        try:
+            tsurfs[model] = tsurfs[model].tsurf
+        except AttributeError:
+            try:
+                tsurfs[model] = tsurfs[model].ts
+            except AttributeError:
+                tsurfs[model] = tsurfs[model].tas
 
     # random sampled models
-    dsr = {}
+    extrs_rand = {}
+    tsurfs_rand = {}
     for ens_size in np.arange(20, 101, 10):
-        dsr[ens_size] = xr.open_dataset(
-            f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/plev_{plev}_{standard}_extreme_counts_tsurf_{str(ens_size)}.nc"
+        odir = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/"
+        extrs_rand[ens_size] = xr.open_dataset(
+            f"{odir}plev_{plev}_{standard}_extreme_counts_{ens_size}.nc"
         ).squeeze()
+        tsurfs_rand[ens_size] = xr.open_dataset(
+            f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/{tsurf}.nc"
+        ).tsurf
 
-    return ds,dsr
+    return extrs, tsurfs, extrs_rand, tsurfs_rand 
 
 # %%
 # calcualte slope
-def calc_slope(ds, extr_type, mode):
-
-    x = ds.tsurf.values
-    y = ds.extreme_counts.sel(extr_type=extr_type, mode=mode, confidence="true").values
+def calc_slope(tsurf,extreme_counts, extr_type, mode):
+    x = tsurf.values
+    y = extreme_counts.sel(extr_type=extr_type, mode=mode, confidence="true").pc.values
 
     model = sm.OLS(y, sm.add_constant(x)).fit()
     slope = model.params[1]
@@ -41,7 +58,7 @@ def calc_slope(ds, extr_type, mode):
 
 
 # %%
-def plot_scatter(ds, models, axs, colors, ensemble_size=None,alpha = 0.7):
+def plot_scatter(extrs,tsurfs, models, axs, colors, ensemble_size=None,alpha = 0.7,time = 'all'):
     extr_types = ["pos", "neg"]
     modes = ["NAO", "EA"]
     if len(colors) != len(models):
@@ -49,10 +66,15 @@ def plot_scatter(ds, models, axs, colors, ensemble_size=None,alpha = 0.7):
 
     for i, extr_type in enumerate(extr_types):
         ax = axs[i]
-        ax.format(title=extr_type)
         for j, model in enumerate(models):
-            slope_NAO, conf_int_NAO = calc_slope(ds[model], extr_type, "NAO")
-            slope_EA, conf_int_EA = calc_slope(ds[model], extr_type, "EA")
+
+            if time != 'all' and model != 'MPI_GE_onepct':
+                time = np.datetime64(time)
+                tsurfs[model] = tsurfs[model].sel(time = slice(time,None))
+                extrs[model] = extrs[model].sel(time = slice(time,None))
+
+            slope_NAO, conf_int_NAO = calc_slope(tsurfs[model],extrs[model], extr_type, "NAO")
+            slope_EA, conf_int_EA = calc_slope(tsurfs[model],extrs[model], extr_type, "EA")
 
             yerr = np.array(
                 [[slope_NAO - conf_int_NAO[0]], [conf_int_NAO[1] - slope_NAO]]
@@ -91,14 +113,12 @@ def handle_label_models(colors,models):
     labels = models
     return lines, labels
 
-#%%
-
 
 #%%
 # Create a scatter plot of the slopes for each model and extreme type
-def plot_slope(plev = 50000,standard = 'first'):
+def plot_slope(plev = 50000,standard = 'first',tsurf = 'ens_fld_year_mean',time = 'all'):
     models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
-    ds,dsr = read_extreme_counts(plev = plev,standard = standard)
+    extrs,tsurfs,extrs_rand,tsurfs_rand = read_extreme_counts(plev = plev,standard = standard,tsurf = tsurf)
     fig, axs = pplt.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
 
     axs.format(
@@ -115,11 +135,10 @@ def plot_slope(plev = 50000,standard = 'first'):
     # Get the "autumn" colormap
     cmap = plt.get_cmap("autumn")
     # Get a list of nine evenly spaced colors from the colormap
-    colors = cmap(np.linspace(0.8, 0.3, 9))
     ens_size = np.arange(20, 101, 10)
 
-    plot_scatter(ds, models, axs[0, :], colors_model, ensemble_size=ensemble_size)
-    plot_scatter(dsr, np.arange(20, 101, 10), axs[1, :], "tab:red", ensemble_size=ens_size,alpha=0.5)
+    plot_scatter(extrs,tsurfs, models, axs[0, :], colors_model, ensemble_size=ensemble_size,time = time)
+    plot_scatter(extrs_rand,tsurfs_rand, np.arange(20, 101, 10), axs[1, :], "tab:red", ensemble_size=ens_size,alpha=0.5)
     # legend 
     # Add the legend with the custom handler
     handles_color, labels_model = handle_label_models(colors_model,models)
@@ -164,12 +183,88 @@ def plot_slope(plev = 50000,standard = 'first'):
         ylim = (-2.4,10.4)
     )
 
-    # plt.savefig(f'/work/mh0033/m300883/Tel_MMLE/docs/source/plots/MMLE/plev_{plev}_slope.png')
+    if tsurf == 'tropical_arctic_gradient':
+        axs[:,0].format(
+            xlim = (-5.1,2.1),
+        )
+
+        axs[0,:].format(
+            ylim = (-5.2,2.7)
+        )
+
+        axs[:,1].format(
+            xlim = (-5.1,2.1),
+        )
+
+        axs[1,:].format(
+            ylim = (-5.2,2.7)
+        )
+
+    plt.savefig(f'/work/mh0033/m300883/Tel_MMLE/docs/source/plots/MMLE/plev_{plev}_extrc_{tsurf}_{time}_slope.png')
+
+#%%
+def slope_diff_tsurf(plev = 50000,standard = 'first',tsurf = 'ens_fld_year_mean',time = 'all'):
+    extrs,tsurf_gmst,_,_ = read_extreme_counts(plev = plev,standard = standard,tsurf = 'ens_fld_year_mean')
+    extrs,NA_tsurf,_,_ = read_extreme_counts(plev = plev,standard = standard,tsurf = 'NA_tsurf')
+    extrs,tropical_arctic_gradient,_,_ = read_extreme_counts(plev = plev,standard = standard,tsurf = 'tropical_arctic_gradient')
+
+    fig, axs = pplt.subplots(nrows=3, ncols=2, sharex=False, sharey=True)
+    axs.format(
+        suptitle="Slopes of extreme counts vs. temperature",
+        abc=True,
+        grid=False,
+        xtickminor=False,
+        ytickminor=False,
+        leftlabels = ['GMST','NA','Tropical-Arctic'],
+        toplabels = ['pos','neg'],
+    )
+
+    models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
+    tsurfs = ['ens_fld_year_mean','NA_tsurf','tropical_arctic_gradient']
+
+    colors_model = ["tab:red", "C1", "tab:blue", "tab:purple", "C4", "tab:cyan"]
+    ensemble_size = [100, 100, 45, 40, 30, 20]
+
+    plot_scatter(extrs,tsurf_gmst, models, axs[0, :], colors_model, ensemble_size=ensemble_size,time = time)
+    plot_scatter(extrs,NA_tsurf, models, axs[1, :], colors_model, ensemble_size=ensemble_size,time = time)
+    plot_scatter(extrs,tropical_arctic_gradient, models, axs[2, :], colors_model, ensemble_size=ensemble_size,time = time)
+
+    handles_color, labels_model = handle_label_models(colors_model,models)
+
+    fig.legend(
+        handles_color,
+        labels_model,
+        loc="b",
+        ncols=3,
+        frame=False,
+        facecolor="none",
+        # bbox_to_anchor=(-0.1, 0.6),
+        # space from the plot
+        columnspacing=5,
+
+    )
+    plt.savefig(f'/work/mh0033/m300883/Tel_MMLE/docs/source/plots/MMLE/plev_{plev}_extrc_tsurf_all_{time}_slope.png')
+
+#%%
+
 
 
 
 # %%
-plot_slope(plev=50000)
+plot_slope(plev=50000,tsurf='ens_fld_year_mean',standard='first')
+#%%
+plot_slope(plev=50000,tsurf='NA_tsurf',standard='first')
+#%%
+plot_slope(plev=50000,tsurf='tropical_arctic_gradient',standard='first')
+
+#%%
+plot_slope(plev=50000,tsurf='ens_fld_year_mean',standard='first',time = '1950-01-01')
+#%%
+plot_slope(plev=50000,tsurf='NA_tsurf',standard='first',time = '1950-01-01')
+#%%
+plot_slope(plev=50000,tsurf='tropical_arctic_gradient',standard='first',time = '1950-01-01')
+#%%
+
 #%%
 plot_slope(plev=50000,standard='temporal_ens')
 
