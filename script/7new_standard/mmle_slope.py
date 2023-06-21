@@ -243,6 +243,14 @@ def slope_diff_tsurf(plev = 50000,standard = 'first',tsurf = 'ens_fld_year_mean'
         columnspacing=5,
 
     )
+
+    axs[2,:].format(
+        # reverse the x and y axis
+        xlim = (1.9,-3),
+        ylim = (1.9,-3.5)
+    )
+
+
     plt.savefig(f'/work/mh0033/m300883/Tel_MMLE/docs/source/plots/MMLE/plev_{plev}_extrc_tsurf_all_{time}_slope.png')
 
 #%%
@@ -271,4 +279,24 @@ plot_slope(plev=50000,standard='temporal_ens')
 # %%
 plot_slope(plev=30000)
 
+# %%
+# write the slope plots into a md file
+def create_doc():
+    print("creating the doc")
+    with open(
+        "/work/mh0033/m300883/Tel_MMLE/docs/source/MMLE_slope.md", "w"
+    ) as f:
+        f.write("# Slopes of extreme counts vs. temperature\n")
+
+        f.write("## GMST with all the time\n")
+        f.write("![GMST with all the time](plots/MMLE/plev_50000_extrc_ens_fld_year_mean_all_slope.png)\n")
+
+        f.write("## GMST with time after 1950\n")
+        f.write("![GMST with time after 1950](plots/MMLE/plev_50000_extrc_ens_fld_year_mean_1950-01-01_slope.png)\n")
+
+        f.write("## all the time with different tsurf\n")
+        f.write("![all the time with different tsurf](plots/MMLE/plev_50000_extrc_tsurf_all_all_slope.png)\n")
+
+        f.write("## time after 1950 with different tsurf\n")
+        f.write("![time after 1950 with different tsurf](plots/MMLE/plev_50000_extrc_tsurf_all_1950-01-01_slope.png)\n")
 # %%
