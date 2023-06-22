@@ -80,6 +80,7 @@ class decompose_troposphere:
             + self.fixed_pattern
             + "_"
             + self.standard
+            + self.season
             + "_eof_result.nc"
         )
 
