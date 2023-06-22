@@ -91,16 +91,19 @@ class decompose_plev:
     A class for decomposition of one single plev only.
     """
 
-    def __init__(self, model, fixedPattern, plev=50000, standard="temporal") -> None:
+    def __init__(self, model, fixedPattern, plev=50000, standard="temporal",season = 'DJFM') -> None:
         self.model = model
         self.plev = plev
         self.fixedPattern = fixedPattern  # warming or decade
         self.standard = standard
 
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
-        self.zg_path = self.odir + "zg_processed/"
         self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
+        if season == "DJFM":
+            self.zg_path = self.odir + "zg_processed/"
+        elif season == "MJJA":
+            self.zg_path = self.odir + "zg_summer/"
 
         # read gph data
         print("reading the gph data ...")
@@ -160,6 +163,7 @@ class decompose_plev_random_ens:
         base_model="MPI_GE",
         plev=50000,
         standard="temporal",
+        season="DJFM",
     ) -> None:
         self.model = base_model + "_random"
         self.plev = plev
@@ -173,6 +177,14 @@ class decompose_plev_random_ens:
         )
         self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
+        if season == "DJFM":
+            self.zg_path = (
+                "/work/mh0033/m300883/Tel_MMLE/data/" + base_model + "/zg_processed/"
+            )
+        elif season == "MJJA":
+            self.zg_path = (
+                "/work/mh0033/m300883/Tel_MMLE/data/" + base_model + "/zg_summer/"
+            )
 
         # read gph data
         print("reading the gph data ...")
