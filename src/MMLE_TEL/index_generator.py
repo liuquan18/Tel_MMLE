@@ -21,16 +21,20 @@ class decompose_troposphere:
     """
 
     def __init__(
-        self, model, vertical_eof, fixedPattern="decade", standard="temporal_ens"
+        self, model, vertical_eof, fixedPattern="decade", standard="temporal_ens",season = "DJFM"
     ) -> None:
         self.vertical_eof = vertical_eof
         self.independence = self.vertical_eof == "ind"
         self.fixed_pattern = fixedPattern
         self.model = model
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
-        self.zg_path = self.odir + "zg_processed/"
         self.save_path = self.odir + "EOF_result/"
         self.standard = standard  # 'temporal', 'temporal_ens'
+        if season == "DJFM":
+            self.zg_path = self.odir + "zg_processed/"
+        elif season == "MJJA":
+            self.zg_path = self.odir + "zg_summer/"
+
 
         # read data
         print("reading the gph data ...")
@@ -228,7 +232,7 @@ class decompose_plev_random_ens:
         )
 
 
-def read_data(zg_path, plev=None, remove_ens_mean=True):
+def read_data(zg_path, plev=None, remove_ens_mean=True,):
     """
     read data quickly
     """
