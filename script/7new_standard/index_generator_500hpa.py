@@ -40,6 +40,9 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
             print(f"Exception: {e}")
 
 
+#%%
+# MPI_GE_onepct
+index_gen('MPI_GE_onepct', 'decade', plev=50000,season = 'MJJA')
 
 
 # %%
