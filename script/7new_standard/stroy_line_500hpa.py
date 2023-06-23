@@ -10,7 +10,7 @@ import importlib
 importlib.reload(index_stats)
 importlib.reload(hist2d)
 # %%
-MPIGE_decade = index_stats.index_stats("MPI_GE_onepct",vertical_eof = 'ind',fixed_pattern = 'decade',standard = 'temporal_ens')
+MPIGE_decade = index_stats.index_stats("MPI_GE_onepct",vertical_eof = 'ind',fixed_pattern = 'decade',standard = 'temporal_ens',season = 'MJJA',tsurf='ens_fld_year_mean')
 # %%
 MPIGE_decade.stat_overview(levels = np.arange(-1.8,1.9,0.3))
 # %%
