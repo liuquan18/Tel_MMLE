@@ -55,7 +55,7 @@ class index_stats:
         # locations to read
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.eof_result_dir = self.odir + "EOF_result/" + self.prefix + "_eof_result.nc"
-        self.tsurf_dir = self.odir + "ts_processed/"
+        self.tsurf_dir = self.odir + "ts_processed/" + tsurf + ".nc"
         self.field_tsurf_dir = self.odir + "ts/" + tsurf + ".nc"
 
         # locations to save
@@ -183,7 +183,7 @@ class index_stats:
             tsurf_increase = tsurf_mean - tsurf_mean[0]
 
             ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
-                self.eof_result.pc, tsurf_increase, ci=ci
+                self.eof_result.pc, temp = tsurf_increase, ci=ci
             )
             
         extrc_tsurf_scatter = extrc_tsurf.extCount_tsurf_scatter(
