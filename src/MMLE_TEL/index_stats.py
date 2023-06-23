@@ -41,14 +41,16 @@ class index_stats:
     """The class to calculate and plot the statistics of the indices"""
 
     def __init__(
-        self, model, vertical_eof, fixed_pattern, standard="temporal_ens", tsurf = 'ens_fld_year_mean', plev = 50000
+        self, model, vertical_eof, fixed_pattern, standard="temporal_ens", tsurf = 'ens_fld_year_mean', plev = 50000,season = 'DJFM'
     ) -> None:
         self.model = model
         self.vertical_eof = vertical_eof
         self.fixed_pattern = fixed_pattern
         self.standard = standard
         self.plev = plev
-        self.prefix = f"plev_{self.plev}_" + self.fixed_pattern + "_" + self.standard
+        self.season = season
+        self.prefix = f"plev_{self.plev}_" + self.fixed_pattern + "_" + self.standard + "_" + self.season
+
 
         # locations to read
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
