@@ -4,28 +4,34 @@ import src.MMLE_TEL.index_generator as index_generate
 import xarray as xr
 import numpy as np
 import cartopy.crs as ccrs
+import src.compute.slurm_cluster as scluster
 #%%
 import importlib
 importlib.reload(index_generate)
+importlib.reload(scluster)
 
+#%%
 
 
 # %%
 # function for generate the index
-def index_gen(model,fixedPattern,plev = 50000):
-    generator = index_generate.decompose_plev(model,plev = plev,fixedPattern = fixedPattern,standard='temporal_ens')
+def index_gen(model,fixedPattern,plev = 50000,season = 'MJJA'):
+    generator = index_generate.decompose_plev(model,plev = plev,fixedPattern = fixedPattern,standard='temporal_ens',season = season)
     generator.save_result()
+#%%
+
+
 #%%
 import concurrent.futures
 
 with concurrent.futures.ProcessPoolExecutor() as executor:
     futures = [
-        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=30000),
-        executor.submit(index_gen, 'MPI_GE', 'decade', plev=30000),
-        executor.submit(index_gen, 'CanESM2', 'decade', plev=30000),
-        executor.submit(index_gen, 'CESM1_CAM5', 'decade', plev=30000),
-        executor.submit(index_gen, 'MK36', 'decade', plev=30000),
-        executor.submit(index_gen, 'GFDL_CM3', 'decade', plev=30000)
+        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000),
+        executor.submit(index_gen, 'MPI_GE', 'decade', plev=50000),
+        executor.submit(index_gen, 'CanESM2', 'decade', plev=50000),
+        executor.submit(index_gen, 'CESM1_CAM5', 'decade', plev=50000),
+        executor.submit(index_gen, 'MK36', 'decade', plev=50000),
+        executor.submit(index_gen, 'GFDL_CM3', 'decade', plev=50000)
     ]
     for future in concurrent.futures.as_completed(futures):
         try:
@@ -38,7 +44,9 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
 
 # %%
 # CanESM2
-index_gen('CanESM2','decade')
+index_gen('CanESM2', 'decade', plev=50000)
+
+#%%
 index_gen('CanESM2','all')
 # %%
 # CESM1_CAM5

@@ -82,7 +82,7 @@ def read_tsurf(tsurf_dir):
 from multiprocessing import Pool
 
 models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
-tsurfs = ["ens_fld_year_mean", "NA_tsurf","tropical_arctic_gradient"]
+tsurfs = ["ens_fld_year_ocean_mean"] #,"ens_fld_year_mean", "NA_tsurf","tropical_arctic_gradient"]
 standards = ["first"]
 
 def run_extreme_counts_tsurf(args):

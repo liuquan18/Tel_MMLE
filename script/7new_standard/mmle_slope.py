@@ -259,7 +259,7 @@ def slope_diff_tsurf(plev = 50000,standard = 'first',tsurf = 'ens_fld_year_mean'
 
 
 # %%
-plot_slope(plev=50000,tsurf='ens_fld_year_mean',standard='first')
+plot_slope(plev=50000,tsurf='ens_fld_year_ocean_mean',standard='first')
 #%%
 plot_slope(plev=50000,tsurf='NA_tsurf',standard='first')
 #%%
