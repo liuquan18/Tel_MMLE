@@ -30,14 +30,15 @@ class decompose_troposphere:
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.save_path = self.odir + "EOF_result/"
         self.standard = standard  # 'temporal', 'temporal_ens'
-        if season == "DJFM":
+        self.season = season
+        if self.season == "DJFM":
             self.zg_path = self.odir + "zg_processed/"
-        elif season == "MJJA":
+        elif self.season == "MJJA":
             self.zg_path = self.odir + "zg_summer/"
 
 
         # read data
-        print("reading the gph data ...")
+        print(f"reading the gph data of {self.season} ...")
         self.data = read_data(self.zg_path)
 
         # decompose
@@ -69,6 +70,8 @@ class decompose_troposphere:
             + self.vertical_eof
             + "_"
             + self.fixed_pattern
+            + "_"
+            + self.season
             + "_none_eof_result.nc"
         )
 
@@ -80,6 +83,7 @@ class decompose_troposphere:
             + self.fixed_pattern
             + "_"
             + self.standard
+            + "_"
             + self.season
             + "_eof_result.nc"
         )
@@ -96,13 +100,14 @@ class decompose_plev:
         self.plev = plev
         self.fixedPattern = fixedPattern  # warming or decade
         self.standard = standard
+        self.season = season
 
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
-        if season == "DJFM":
+        if self.season == "DJFM":
             self.zg_path = self.odir + "zg_processed/"
-        elif season == "MJJA":
+        elif self.season == "MJJA":
             self.zg_path = self.odir + "zg_summer/"
 
         # read gph data
@@ -140,6 +145,8 @@ class decompose_plev:
             + str(self.plev)
             + "_"
             + self.fixedPattern
+            + "_"
+            + self.season
             + "_none_eof_result.nc"
         )
         # save the standardized result
@@ -151,6 +158,8 @@ class decompose_plev:
             + self.fixedPattern
             + "_"
             + self.standard
+            + "_"
+            + self.season
             + "_eof_result.nc"
         )
 
@@ -170,18 +179,17 @@ class decompose_plev_random_ens:
         self.fixedPattern = fixedPattern  # warming or decade
         self.standard = standard
         self.ens_size = ens_size
+        self.season = season
 
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
-        self.zg_path = (
-            "/work/mh0033/m300883/Tel_MMLE/data/" + base_model + "/zg_processed/"
-        )
+
         self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
-        if season == "DJFM":
+        if self.season == "DJFM":
             self.zg_path = (
                 "/work/mh0033/m300883/Tel_MMLE/data/" + base_model + "/zg_processed/"
             )
-        elif season == "MJJA":
+        elif self.season == "MJJA":
             self.zg_path = (
                 "/work/mh0033/m300883/Tel_MMLE/data/" + base_model + "/zg_summer/"
             )
@@ -229,6 +237,8 @@ class decompose_plev_random_ens:
             + "_"
             + self.fixedPattern
             + str(self.ens_size)
+            + "_"
+            + self.season
             + "_none_eof_result.nc"
         )
         # save the standardized result
@@ -240,6 +250,7 @@ class decompose_plev_random_ens:
             + self.fixedPattern
             + "_"
             + self.standard
+            + "_"
             + str(self.ens_size)
             + "_eof_result.nc"
         )
