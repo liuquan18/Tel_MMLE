@@ -21,7 +21,12 @@ class decompose_troposphere:
     """
 
     def __init__(
-        self, model, vertical_eof, fixedPattern="decade", standard="temporal_ens",season = "DJFM"
+        self,
+        model,
+        vertical_eof,
+        fixedPattern="decade",
+        standard="temporal_ens",
+        season="DJFM",
     ) -> None:
         self.vertical_eof = vertical_eof
         self.independence = self.vertical_eof == "ind"
@@ -35,7 +40,6 @@ class decompose_troposphere:
             self.zg_path = self.odir + "zg_processed/"
         elif self.season == "MJJA":
             self.zg_path = self.odir + "zg_summer/"
-
 
         # read data
         print(f"reading the gph data of {self.season} ...")
@@ -95,7 +99,9 @@ class decompose_plev:
     A class for decomposition of one single plev only.
     """
 
-    def __init__(self, model, fixedPattern, plev=50000, standard="temporal",season = 'DJFM') -> None:
+    def __init__(
+        self, model, fixedPattern, plev=50000, standard="temporal", season="DJFM"
+    ) -> None:
         self.model = model
         self.plev = plev
         self.fixedPattern = fixedPattern  # warming or decade
@@ -111,7 +117,7 @@ class decompose_plev:
             self.zg_path = self.odir + "zg_summer/"
 
         # read gph data
-        print("reading the gph data ...")
+        print(f"reading the gph data of {self.season} ...")
         self.data = read_data(self.zg_path, plev=self.plev)
 
         # read ts_mean data if needed
@@ -195,13 +201,13 @@ class decompose_plev_random_ens:
             )
 
         # read gph data
-        print("reading the gph data ...")
-        self.data = read_data(self.zg_path, plev=self.plev,remove_ens_mean=False)
+        print(f"reading the gph data of {self.season} ...")
+        self.data = read_data(self.zg_path, plev=self.plev, remove_ens_mean=False)
 
         # randomly select ens_size members
         random.seed(1)
         self.data = self.data.isel(ens=random.sample(range(0, 100), self.ens_size))
-        # remove the ensemble mean 
+        # remove the ensemble mean
         print("removing the ensemble mean ...")
         self.data = self.data - self.data.mean(dim="ens")
 
@@ -256,7 +262,11 @@ class decompose_plev_random_ens:
         )
 
 
-def read_data(zg_path, plev=None, remove_ens_mean=True,):
+def read_data(
+    zg_path,
+    plev=None,
+    remove_ens_mean=True,
+):
     """
     read data quickly
     """
