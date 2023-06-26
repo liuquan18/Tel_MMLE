@@ -252,7 +252,7 @@ class story_line:
 
             f.write("## extreme event count profile\n")
             f.write(
-                f"![extreme event count profile](plots/Winter_Summer/{self.model}extreme_count_vertical_profile.png)\n"
+                f"![extreme event count profile](plots/Winter_Summer/{self.model}_extreme_count_vertical_profile.png)\n"
             )
 
             f.write("## extreme event count  vs. tsurf\n")
