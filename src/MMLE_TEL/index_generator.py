@@ -300,13 +300,15 @@ def read_data(
     # select one altitude
     if plev is not None:
         print(" select the specific plev...")
-        zg_demean = zg_demean.sel(plev=plev)
-    elif plev is None:
+        zg_plev = zg_demean.sel(plev=plev)
+    else:
         # select the 1000hPa - 200hPa
         print(" select the 1000hPa - 200hPa...")
-        zg_demean = zg_demean.sel(plev=slice(100000, 20000))
+        zg_plev = zg_demean.sel(plev=slice(100000, 20000))
+        if zg_plev.plev.size == 0:
+            zg_plev = zg_demean.sel(plev = slice(20000, 100000))
 
-    return zg_demean
+    return zg_plev
 
 
 def standard_index(eof_result, standard="first"):
