@@ -27,6 +27,7 @@ class decompose_troposphere:
         fixedPattern="decade",
         standard="temporal_ens",
         season="DJFM",
+        all_years = False,
     ) -> None:
         self.vertical_eof = vertical_eof
         self.independence = self.vertical_eof == "ind"
@@ -41,9 +42,12 @@ class decompose_troposphere:
         # read data
         print(f"reading the gph data of {self.season} ...")
         data = read_data(self.zg_path)
-        data_first = data.isel(time=slice(0, 10))
-        data_last = data.isel(time=slice(-10, None))
-        self.data = xr.concat([data_first, data_last], dim="time")
+        if all_years:
+            self.data = data
+        else:
+            data_first = data.isel(time=slice(0, 10))
+            data_last = data.isel(time=slice(-10, None))
+            self.data = xr.concat([data_first, data_last], dim="time")
 
         # decompose
         self.eof_result = self.decompose()
