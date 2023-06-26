@@ -27,7 +27,7 @@ class decompose_troposphere:
         fixedPattern="decade",
         standard="temporal_ens",
         season="DJFM",
-        all_years = False,
+        all_years=False,
     ) -> None:
         self.vertical_eof = vertical_eof
         self.independence = self.vertical_eof == "ind"
@@ -310,16 +310,16 @@ def read_data(
         print(" select the 1000hPa - 200hPa...")
         zg_plev = zg_demean.sel(plev=slice(100000, 20000))
         if zg_plev.plev.size == 0:
-            zg_plev = zg_demean.sel(plev = slice(20000, 100000))
+            zg_plev = zg_demean.sel(plev=slice(20000, 100000))
 
     return zg_plev
 
 
 def standard_index(eof_result, standard="first"):
-    print(f"standardizing the index with {standard} ...")
     # standarize the index with the tmeporal mean and std
     eof_result = eof_result.copy()
     if standard == "first":
+        print(" standardizing the index with the first 10 years ...")
         ref = eof_result["pc"].isel(time=slice(0, 10))
         eof_result["pc"] = (eof_result["pc"] - ref.mean(dim=("time", "ens"))) / ref.std(
             dim=("time", "ens")
@@ -327,8 +327,11 @@ def standard_index(eof_result, standard="first"):
 
     # standarize the index with the temporal and ensemble mean and std
     elif standard == "temporal_ens":
+        print(" standardizing the index with temporal and ensemble mean and std ...")
         eof_result = eof_result.copy()
         ref = eof_result["pc"]
-        pc_std = (eof_result["pc"] - ref.mean(dim=("time", "ens"))) / ref.std(dim=("time", "ens"))
+        pc_std = (eof_result["pc"] - ref.mean(dim=("time", "ens"))) / ref.std(
+            dim=("time", "ens")
+        )
         eof_result["pc"] = pc_std
     return eof_result
