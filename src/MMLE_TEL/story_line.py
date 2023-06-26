@@ -166,8 +166,8 @@ class story_line:
             self.extre_counts_trop_first, self.extre_counts_trop_last, colored=False, **kwargs
         )
         plt.savefig(
-            self.to_plot_dir[:-44]
-            + f"{self.model}_extreme_count_vertical_profile.png"
+            self.to_plot_dir.replace(self.prefix,"")
+            + "extreme_count_vertical_profile.png"
         )
         # slightly different path for the fig.
 
@@ -220,12 +220,14 @@ class story_line:
     def write_doc(self):
         """create the md file for the plots"""
         relative_plot_dir = (
-            "plots/new_standard/"
+            "plots/Winter_Summer/"
             + self.model
             + "_plev_50000_"
             + self.fixed_pattern
             + "_"
             + self.standard
+            + "_"
+            + self.season
             + "_"
         )
         print("creating the markdown file for the plots")
@@ -250,12 +252,12 @@ class story_line:
 
             f.write("## extreme event count profile\n")
             f.write(
-                f"![extreme event count profile](plots/new_standard/{self.model}_extreme_count_vertical_profile.png)\n"
+                f"![extreme event count profile](plots/Winter_Summer/{self.model}extreme_count_vertical_profile.png)\n"
             )
 
             f.write("## extreme event count  vs. tsurf\n")
             f.write(
-                f"![extreme event count vs. tsurf]({relative_plot_dir}_extreme_count_tsurf.png)\n"
+                f"![extreme event count vs. tsurf]({relative_plot_dir}extreme_count_tsurf.png)\n"
             )
 
 
