@@ -321,9 +321,10 @@ def standard_index(eof_result, standard="first"):
     if standard == "first":
         print(" standardizing the index with the first 10 years ...")
         ref = eof_result["pc"].isel(time=slice(0, 10))
-        eof_result["pc"] = (eof_result["pc"] - ref.mean(dim=("time", "ens"))) / ref.std(
+        pc_std = (eof_result["pc"] - ref.mean(dim=("time", "ens"))) / ref.std(
             dim=("time", "ens")
         )
+        eof_result["pc"] = pc_std
 
     # standarize the index with the temporal and ensemble mean and std
     elif standard == "temporal_ens":
