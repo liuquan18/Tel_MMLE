@@ -82,7 +82,7 @@ class story_line:
             self.odir
             + f"extreme_count/troposphere_ind_decade_{self.standard}_{self.season}_last_count.nc"
         )
-        self.tsurf_dir = self.odir + f"ts_processed/{self.tsurf}.nc"
+        self.tsurf_dir = self.odir + f"extreme_count/{self.tsurf}.nc"
         self.field_tsurf_dir = self.odir + f"ts/{self.tsurf}.nc"
 
         # locations to save
