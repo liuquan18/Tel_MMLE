@@ -94,15 +94,26 @@ class story_line:
         self.doc_dir = "/work/mh0033/m300883/Tel_MMLE/docs/source/"
 
         # read eof
-        self.eof_result = xr.open_dataset(self.eof_result_dir)
-        self.extre_counts_500hpa = xr.open_dataset(self.extre_counts_500hpa_dir).pc
-        self.extre_counts_trop_first = xr.open_dataset(
-            self.extre_counts_trop_first_dir
-        ).pc
-        self.extre_counts_trop_last = xr.open_dataset(
-            self.extre_counts_trop_last_dir
-        ).pc
-        self.tsurf = self.read_tsurf()
+        try:
+            self.eof_result = xr.open_dataset(self.eof_result_dir)
+        except FileNotFoundError:
+            print("EOF result file not found.")
+        try:
+            self.extre_counts_500hpa = xr.open_dataset(self.extre_counts_500hpa_dir).pc
+        except FileNotFoundError:
+            print("500hpa extreme counts file not found.")
+        try:
+            self.extre_counts_trop_first = xr.open_dataset(self.extre_counts_trop_first_dir).pc
+        except FileNotFoundError:
+            print("Troposphere first extreme counts file not found.")
+        try:
+            self.extre_counts_trop_last = xr.open_dataset(self.extre_counts_trop_last_dir).pc
+        except FileNotFoundError:
+            print("Troposphere last extreme counts file not found.")
+        try:
+            self.tsurf = self.read_tsurf()
+        except FileNotFoundError:
+            print("tsurf file not found.")
 
     #%%
     # read tsurf
