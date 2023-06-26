@@ -1,5 +1,5 @@
 # %%
-import src.MMLE_TEL.index_stats as index_stats
+import src.MMLE_TEL.story_line as story_line
 import numpy as np
 import importlib
 import matplotlib.pyplot as plt
@@ -9,7 +9,7 @@ import xarray as xr
 #%%
 import importlib
 
-importlib.reload(index_stats)
+importlib.reload(story_line)
 
 
 # %%
