@@ -100,7 +100,7 @@ class decompose_plev:
     """
 
     def __init__(
-        self, model, fixedPattern, plev=50000, standard="temporal", season="DJFM"
+        self, model, fixedPattern, plev=50000, standard="first", season="DJFM"
     ) -> None:
         self.model = model
         self.plev = plev
