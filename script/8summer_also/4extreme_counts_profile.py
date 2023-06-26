@@ -23,3 +23,4 @@ index_stats.extreme_counts_profile(
     standard    = "first",
     season      = "DJFM",
     )
+# %%

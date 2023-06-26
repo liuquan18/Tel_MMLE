@@ -10,22 +10,42 @@ import importlib
 importlib.reload(story_line)
 importlib.reload(hist2d)
 # %%
-MPI_GE_onepct = story_line.story_line(
+MPI_GE_onepct_MJJA = story_line.story_line(
     model            =  "MPI_GE_onepct",
     vertical_eof     =  'ind',
     fixed_pattern    =  'decade',
     standard         =  'first',
     season           =   'MJJA',
     tsurf            =  'ens_fld_year_mean')
-
 #%%
 
-MPI_GE_onepct.plot_all()
+MPI_GE_onepct_MJJA.stat_overview(levels = np.arange(-1.8,1.9,0.3))
+#%%
+MPI_GE_onepct_MJJA.extreme_count_profile(xlim = (40,140))
+#%%
+MPI_GE_onepct_MJJA.extrc_tsurf()
+#%%
+MPI_GE_onepct_MJJA.write_doc()
 
 #%%
-MPI_GE_onepct.stat_overview(levels = np.arange(-1.8,1.9,0.3))
+MPI_GE_onepct_DJFM = story_line.story_line(
+    model            =  "MPI_GE_onepct",
+    vertical_eof     =  'ind',
+    fixed_pattern    =  'decade',
+    standard         =  'first',
+    season           =   'DJFM',
+    tsurf            =  'ens_fld_year_mean')
 
-
+#%%
+MPI_GE_onepct_DJFM.stat_overview(levels = np.arange(-1.8,1.9,0.3))
+#%%
+MPI_GE_onepct_DJFM.extreme_count_profile(xlim = (40,140))
+#%%
+MPI_GE_onepct_DJFM.extrc_tsurf()
+#%%
+MPI_GE_onepct_DJFM.NAO_EA_hist2d()
+#%%
+MPI_GE_onepct_DJFM.write_doc()
 
 
 # %%

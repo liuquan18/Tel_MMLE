@@ -55,7 +55,20 @@ index_gen(
     plev          = 50000,
     season        = 'DJFM',
     standard      = 'first')
+#%%
+index_gen(
+    model         = 'MPI_GE_onepct', 
+    fixedPattern  = 'decade', 
+    plev          = 50000,
+    season        = 'MJJA',
+    standard      = 'temporal_ens')
 
+index_gen(
+    model         = 'MPI_GE_onepct', 
+    fixedPattern  = 'decade', 
+    plev          = 50000,
+    season        = 'DJFM',
+    standard      = 'temporal_ens')
 
 
 # %%

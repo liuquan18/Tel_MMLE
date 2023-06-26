@@ -28,4 +28,17 @@ index_gen(
     standard    = 'first',
     season      = 'DJFM')
 
+
+#%%
+index_gen(
+    model       = 'MPI_GE_onepct',
+    standard    = 'temporal_ens',
+    season      = 'MJJA')
+
+
+# %%
+index_gen(
+    model       = 'MPI_GE_onepct',
+    standard    = 'temporal_ens',
+    season      = 'DJFM')
 # %%
