@@ -42,9 +42,19 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
 
 #%%
 # MPI_GE_onepct
-index_gen('MPI_GE_onepct', 'decade', plev=50000,season = 'MJJA',standard = 'first')
+index_gen(
+    model         = 'MPI_GE_onepct', 
+    fixedPattern  = 'decade', 
+    plev          = 50000,
+    season        = 'MJJA',
+    standard      = 'first')
 #%%
-index_gen('MPI_GE_onepct', 'decade', plev=50000,season = 'DJFM',standard = 'first')
+index_gen(
+    model         = 'MPI_GE_onepct', 
+    fixedPattern  = 'decade', 
+    plev          = 50000,
+    season        = 'DJFM',
+    standard      = 'first')
 
 
 
