@@ -9,7 +9,7 @@ import src.Teleconnection.tools as tools
 import src.warming_stage.warming_stage as warming_stage
 
 #%%
-def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean=None):
+def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="decade", ts_mean=None,**kwargs):
     """do eof analysis with in a rolling window.
 
     rolling EOF is like rolling mean, here the default window is 10 years. The EOFs, PCs and
@@ -47,6 +47,7 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean=None):
                      if fixed_pattern=False, the pcs should be [ens,time-10, mode]
         FRA: the explained variances, the shape should be [time-10,mode]
     """
+
 
 
     # if do the all-all decompose
