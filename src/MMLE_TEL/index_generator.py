@@ -328,7 +328,7 @@ def standard_index(eof_result, standard="first"):
     # standarize the index with the temporal and ensemble mean and std
     elif standard == "temporal_ens":
         eof_result = eof_result.copy()
-        ref = eof_result["pc"].isel(time=slice(0, 10))
+        ref = eof_result["pc"]
         pc_std = (eof_result["pc"] - ref.mean(dim=("time", "ens"))) / ref.std(dim=("time", "ens"))
         eof_result["pc"] = pc_std
     return eof_result
