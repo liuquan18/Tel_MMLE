@@ -48,9 +48,6 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean=None):
         FRA: the explained variances, the shape should be [time-10,mode]
     """
 
-    # the validtime period where totally ten years of data are fully avaiable.
-    gap = int(window / 2)
-    validtime = xarr.isel(time=slice(gap, -1 * gap)).time  # valid middle time
 
     # if do the all-all decompose
     if fixed_pattern == "all":  # a little different from the following two.
@@ -83,9 +80,9 @@ def rolling_eof(xarr, nmode=2, window=10, fixed_pattern="all", ts_mean=None):
         print("     decomposing everty ten years")
 
         # start time
-        time_s = xarr.time[::10]
+        time_s = xarr.time[::window]
         # end time
-        time_e = xarr.time[9::10]
+        time_e = xarr.time[window-1::window]
 
         # create slice for each decade
         decade_slice = [slice(s, e) for s, e in zip(time_s.values, time_e.values)]
