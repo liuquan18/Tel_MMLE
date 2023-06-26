@@ -15,8 +15,8 @@ importlib.reload(scluster)
 
 # %%
 # function for generate the index
-def index_gen(model,fixedPattern,plev = 50000,season = 'MJJA'):
-    generator = index_generate.decompose_plev(model,plev = plev,fixedPattern = fixedPattern,standard='temporal_ens',season = season)
+def index_gen(model,fixedPattern,plev = 50000,season = 'MJJA',standard = 'first'):
+    generator = index_generate.decompose_plev(model,plev = plev,fixedPattern = fixedPattern,standard=standard,season = season)
     generator.save_result()
 #%%
 
@@ -42,7 +42,7 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
 
 #%%
 # MPI_GE_onepct
-index_gen('MPI_GE_onepct', 'decade', plev=50000,season = 'MJJA')
+index_gen('MPI_GE_onepct', 'decade', plev=50000,season = 'MJJA',standard = 'first')
 
 
 # %%
