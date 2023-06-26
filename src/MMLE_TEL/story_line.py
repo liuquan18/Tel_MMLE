@@ -167,6 +167,8 @@ class story_line:
         )
         plt.savefig(
             self.to_plot_dir.replace(self.prefix,"")
+            + self.season
+            + "_"
             + "extreme_count_vertical_profile.png"
         )
         # slightly different path for the fig.
