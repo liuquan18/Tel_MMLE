@@ -16,10 +16,16 @@ def index_gen(model,standard = 'first', season = 'MJJA'):
     generator = index_generate.decompose_troposphere(model,standard=standard,season = season)
     generator.save_result()
 #%%
-index_gen('MPI_GE_onepct',standard = 'first',season = 'MJJA')
+index_gen(
+    model       = 'MPI_GE_onepct',
+    standard    = 'first',
+    season      = 'MJJA')
 
 
 # %%
-index_gen('MPI_GE_onepct',standard = 'first',season = 'DJFM')
+index_gen(
+    model       = 'MPI_GE_onepct',
+    standard    = 'first',
+    season      = 'DJFM')
 
 # %%
