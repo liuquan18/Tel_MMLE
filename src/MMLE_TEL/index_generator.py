@@ -23,7 +23,7 @@ class decompose_troposphere:
     def __init__(
         self,
         model,
-        vertical_eof,
+        vertical_eof = 'ind',
         fixedPattern="decade",
         standard="temporal_ens",
         season="DJFM",
