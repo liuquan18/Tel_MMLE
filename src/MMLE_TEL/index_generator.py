@@ -43,7 +43,7 @@ class decompose_troposphere:
         data = read_data(self.zg_path)
         data_first = data.isel(time = slice(0,10))
         data_last = data.isel(time = slice(-10,None))
-        self.data = xr.concat([data_last, data, data_first], dim="time")
+        self.data = xr.concat([data_first,data_last], dim="time")
         
 
         # decompose
@@ -298,6 +298,10 @@ def read_data(
     if plev is not None:
         print(" select the specific plev...")
         zg_demean = zg_demean.sel(plev=plev)
+    elif plev is None:
+        # select the 1000hPa - 200hPa
+        print(" select the 1000hPa - 200hPa...")
+        zg_demean = zg_demean.sel(plev=slice(100000, 20000))
 
     return zg_demean
 
