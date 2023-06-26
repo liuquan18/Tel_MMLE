@@ -40,7 +40,11 @@ class decompose_troposphere:
 
         # read data
         print(f"reading the gph data of {self.season} ...")
-        self.data = read_data(self.zg_path)
+        data = read_data(self.zg_path)
+        data_first = data.isel(time = slice(0,10))
+        data_last = data.isel(time = slice(-10,None))
+        self.data = xr.concat([data_last, data, data_first], dim="time")
+        
 
         # decompose
         self.eof_result = self.decompose()
