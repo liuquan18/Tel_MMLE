@@ -23,7 +23,7 @@ class decompose_troposphere:
     def __init__(
         self,
         model,
-        vertical_eof = 'ind',
+        vertical_eof="ind",
         fixedPattern="decade",
         standard="temporal_ens",
         season="DJFM",
@@ -41,10 +41,9 @@ class decompose_troposphere:
         # read data
         print(f"reading the gph data of {self.season} ...")
         data = read_data(self.zg_path)
-        data_first = data.isel(time = slice(0,10))
-        data_last = data.isel(time = slice(-10,None))
-        self.data = xr.concat([data_first,data_last], dim="time")
-        
+        data_first = data.isel(time=slice(0, 10))
+        data_last = data.isel(time=slice(-10, None))
+        self.data = xr.concat([data_first, data_last], dim="time")
 
         # decompose
         self.eof_result = self.decompose()
@@ -113,7 +112,6 @@ class decompose_plev:
         self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
         self.zg_path = self.odir + "zg_" + self.season + "/"
-
 
         # read gph data
         print(f"reading the gph data of {self.season} ...")
@@ -190,8 +188,13 @@ class decompose_plev_random_ens:
 
         self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
-        self.zg_path = "/work/mh0033/m300883/Tel_MMLE/data/" + base_model + "/zg_" + self.season + "/"
-
+        self.zg_path = (
+            "/work/mh0033/m300883/Tel_MMLE/data/"
+            + base_model
+            + "/zg_"
+            + self.season
+            + "/"
+        )
 
         # read gph data
         print(f"reading the gph data of {self.season} ...")
@@ -306,19 +309,20 @@ def read_data(
     return zg_demean
 
 
-def standard_index(eof_result, standard="temporal"):
+def standard_index(eof_result, standard="first"):
     print(f"standardizing the index with {standard} ...")
     # standarize the index with the tmeporal mean and std
     eof_result = eof_result.copy()
-    if standard == "temporal":
-        eof_result["pc"] = (
-            eof_result["pc"] - eof_result["pc"].mean(dim="time")
-        ) / eof_result["pc"].std(dim="time")
+    if standard == "first":
+        ref = eof_result["pc"].isel(time=slice(0, 10))
+        eof_result["pc"] = (eof_result["pc"] - ref.mean(dim=("time", "ens"))) / ref.std(
+            dim=("time", "ens")
+        )
 
     # standarize the index with the temporal and ensemble mean and std
     elif standard == "temporal_ens":
         eof_result = eof_result.copy()
-        pc = eof_result["pc"]
-        pc_std = (pc - pc.mean(dim=("time", "ens"))) / pc.std(dim=("time", "ens"))
+        ref = eof_result["pc"].isel(time=slice(0, 10))
+        pc_std = (eof_result["pc"] - ref.mean(dim=("time", "ens"))) / ref.std(dim=("time", "ens"))
         eof_result["pc"] = pc_std
     return eof_result
