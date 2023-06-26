@@ -56,6 +56,9 @@ class index_stats:
         self.standard = standard
         self.plev = plev
         self.season = season
+        self.tsurf = tsurf
+
+
         self.prefix = (
             f"plev_{self.plev}_"
             + self.fixed_pattern
