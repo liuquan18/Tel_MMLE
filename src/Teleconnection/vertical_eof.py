@@ -56,7 +56,7 @@ def independent_eof(xarr, **kwargs):
 
     print("     indenpendtly decomposing...")
 
-    eof_result = xarr.groupby("plev").apply(
+    eof_result = xarr.groupby("plev").map(
         rolling_eof.rolling_eof, **kwargs
     )
 
