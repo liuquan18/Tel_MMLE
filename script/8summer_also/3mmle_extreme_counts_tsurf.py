@@ -14,13 +14,13 @@ import importlib
 importlib.reload(story_line)
 importlib.reload(extrc_tsurf)
 
-
-#%%
-# for MPI_GE_onepct only
-
+# %%
+import multiprocessing as mp
+from multiprocessing import Pool
 
 #%%
 # MPI_GE_onepct
+# MPI_GE_onepct summer
 index_stats.extreme_counts_tsurf(
     model        =  "MPI_GE_onepct", 
     tsurf        =  "ens_fld_year_ocean_mean", 
@@ -29,23 +29,17 @@ index_stats.extreme_counts_tsurf(
 
 
 # %%
+# MPI_GE_onepct winter
 index_stats.extreme_counts_tsurf(
     model        = "MPI_GE_onepct", 
     tsurf        = "ens_fld_year_ocean_mean", 
     standard     = "first",
     season       = 'DJFM')
 
-# %%
 
-
-
-# %%
-
-import multiprocessing as mp
 
 #%%
-from multiprocessing import Pool
-
+# MMLEA
 models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
 tsurfs = ["ens_fld_year_ocean_mean"] #,"ens_fld_year_mean", "NA_tsurf","tropical_arctic_gradient"]
 standards = ["first"]
