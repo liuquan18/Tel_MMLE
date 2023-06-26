@@ -58,7 +58,6 @@ class story_line:
         self.season = season
         self.tsurf = tsurf
 
-
         self.prefix = (
             f"plev_{self.plev}_"
             + self.fixed_pattern
@@ -97,8 +96,12 @@ class story_line:
         # read eof
         self.eof_result = xr.open_dataset(self.eof_result_dir)
         self.extre_counts_500hpa = xr.open_dataset(self.extre_counts_500hpa_dir).pc
-        self.extre_counts_trop_first = xr.open_dataset(self.extre_counts_trop_first_dir).pc
-        self.extre_counts_trop_last = xr.open_dataset(self.extre_counts_trop_last_dir).pc
+        self.extre_counts_trop_first = xr.open_dataset(
+            self.extre_counts_trop_first_dir
+        ).pc
+        self.extre_counts_trop_last = xr.open_dataset(
+            self.extre_counts_trop_last_dir
+        ).pc
         self.tsurf = self.read_tsurf()
 
     #%%
@@ -163,10 +166,13 @@ class story_line:
 
         print("ploting the extreme event count profile")
         extreme_profile = extreme.extreme_count_profile(
-            self.extre_counts_trop_first, self.extre_counts_trop_last, colored=False, **kwargs
+            self.extre_counts_trop_first,
+            self.extre_counts_trop_last,
+            colored=False,
+            **kwargs,
         )
         plt.savefig(
-            self.to_plot_dir.replace(self.prefix,"")
+            self.to_plot_dir.replace(self.prefix, "")
             + self.season
             + "_"
             + "extreme_count_vertical_profile.png"
@@ -234,10 +240,16 @@ class story_line:
         )
         print("creating the markdown file for the plots")
         with open(
-            self.doc_dir + self.model + "_" + self.fixed_pattern + '_' + self.season + "_index_stats.md",
+            self.doc_dir
+            + self.model
+            + "_"
+            + self.fixed_pattern
+            + "_"
+            + self.season
+            + "_index_stats.md",
             "w",
         ) as f:
-            f.write("# Statistics of the indices\n")
+            f.write(f"# Statistics of the indices in {self.season}\n")
 
             f.write("This file contains the statistics of the indices\n")
 
@@ -254,14 +266,13 @@ class story_line:
 
             f.write("## extreme event count profile\n")
             f.write(
-                f"![extreme event count profile](plots/Winter_Summer/{self.model}_extreme_count_vertical_profile.png)\n"
+                f"![extreme event count profile](plots/Winter_Summer/{self.model}_{self.season}_extreme_count_vertical_profile.png)\n"
             )
 
             f.write("## extreme event count  vs. tsurf\n")
             f.write(
                 f"![extreme event count vs. tsurf]({relative_plot_dir}extreme_count_tsurf.png)\n"
             )
-
 
             f.write(
                 "## composite analysis of surface temperature in terms of different extreme events\n"
