@@ -13,6 +13,7 @@ import importlib
 importlib.reload(story_line)
 importlib.reload(extrc_tsurf)
 
+# %%
 
 #%%
 def extreme_counts_tsurf(model, fixed_pattern="decade", standard = 'temporal_ens',tsurf = 'ens_fld_year_mean',plev = 50000,season = 'MJJA'):
@@ -93,4 +94,9 @@ def extreme_counts_profile(model,standard = 'first',season = 'MJJA'):
     first_count = extreme.extreme_count_xr(first_pc, ci='bootstrap')
     last_count = extreme.extreme_count_xr(last_pc, ci='bootstrap')
 
-    return first_count, last_count
+    # save the result
+    odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/"
+    prefix = f"troposphere_ind_decade_{standard}_{season}_"
+    first_count.to_netcdf(odir + prefix + "first_count.nc")
+    last_count.to_netcdf(odir + prefix + "last_count.nc")
+
