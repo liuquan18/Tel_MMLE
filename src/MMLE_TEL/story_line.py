@@ -230,7 +230,7 @@ class story_line:
         )
         print("creating the markdown file for the plots")
         with open(
-            self.doc_dir + self.model + "_" + self.fixed_pattern + "_index_stats.md",
+            self.doc_dir + self.model + "_" + self.fixed_pattern + self.season + "_index_stats.md",
             "w",
         ) as f:
             f.write("# Statistics of the indices\n")
