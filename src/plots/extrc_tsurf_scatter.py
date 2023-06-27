@@ -3,6 +3,7 @@ import xarray as xr
 import numpy as np
 import src.extreme.extreme_ci as extreme
 import proplot as pplt
+import warnings
 
 #%%
 def extCount_tsurf_scatter(
@@ -101,6 +102,7 @@ def decadal_extrc_tsurf(index: xr.DataArray, ext_counts_xr = None, temp: xr.Data
         if period_pc.time.size != 10:
             print(f" the length of the period is {len(period_pc.time)}, skip this period")
             # rasing a warning
+            warnings.warn(f" the length of the period is {len(period_pc.time)}")
             break
         time_tag = period_pc.time[0] # for reference 
 
