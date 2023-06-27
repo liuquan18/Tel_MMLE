@@ -89,6 +89,9 @@ def extreme_counts_profile(model,standard = 'first',season = 'MJJA'):
     first_pc = eof_result.pc.isel(time = slice(0,10))
     last_pc = eof_result.pc.isel(time = slice(-10,None))
 
+    if first_pc.time.size != 10 or last_pc.time.size != 10:
+        raise ValueError("the time size is not 10")
+
     print("calculating the extreme event count")
     # extreme counts of first and last 10 decades
     first_count = extreme.extreme_count_xr(first_pc, ci='bootstrap')
