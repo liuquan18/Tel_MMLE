@@ -20,7 +20,7 @@ def index_gen(model,fixedPattern,plev = 50000,season = 'MJJA',standard = 'first'
     generator.save_result()
 #%%
 
-
+# for different models
 #%%
 import concurrent.futures
 
@@ -39,27 +39,14 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
         except Exception as e:
             print(f"Exception: {e}")
 
-
-#%%
-# MPI_GE_onepct
-index_gen(
-    model         = 'MPI_GE_onepct', 
-    fixedPattern  = 'decade', 
-    plev          = 50000,
-    season        = 'MJJA',
-    standard      = 'first')
-#%%
-index_gen(
-    model         = 'MPI_GE_onepct', 
-    fixedPattern  = 'decade', 
-    plev          = 50000,
-    season        = 'DJFM',
-    standard      = 'first')
+# for different seasons and standards, only for MPI_GE_onepct
 #%%
 import concurrent.futures
 
 with concurrent.futures.ProcessPoolExecutor() as executor:
     futures = [
+        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='MJJA', standard='first'),
+        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='DJFM', standard='first'),
         executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='MJJA', standard='temporal_ens'),
         executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='DJFM', standard='temporal_ens')
     ]
@@ -68,6 +55,7 @@ with concurrent.futures.ProcessPoolExecutor() as executor:
             result = future.result()
         except Exception as e:
             print(f"Exception: {e}")
+
 
 
 # %%

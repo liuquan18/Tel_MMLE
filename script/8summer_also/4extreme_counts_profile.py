@@ -23,4 +23,17 @@ index_stats.extreme_counts_profile(
     standard    = "first",
     season      = "DJFM",
     )
+#%%
+index_stats.extreme_counts_profile(
+    model       = "MPI_GE_onepct",
+    standard    = "temporal_ens",
+    season      = "MJJA",
+    )
+
+# %%
+index_stats.extreme_counts_profile(
+    model       = "MPI_GE_onepct",
+    standard    = "temporal_ens",
+    season      = "DJFM",
+    )
 # %%
