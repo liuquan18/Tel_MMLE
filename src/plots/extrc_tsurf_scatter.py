@@ -36,8 +36,8 @@ def extCount_tsurf_scatter(
 
 
 def scatter_plot(ext_counts, t_surf,  axes):
-    for j, extr_type in enumerate(ext_counts.extr_type):
-        for i, mode in enumerate(ext_counts.mode):
+    for i, mode in enumerate(ext_counts.mode):
+        for j, extr_type in enumerate(ext_counts.extr_type):
             # data preparation
             true = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="true")
             low = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="low")
