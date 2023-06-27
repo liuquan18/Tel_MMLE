@@ -315,7 +315,7 @@ def read_data(
     return zg_plev
 
 
-def standard_index(eof_result, standard="first"):
+def standard_index(eof_result, standard):
     # standarize the index with the tmeporal mean and std
     eof_result = eof_result.copy()
     if standard == "first":

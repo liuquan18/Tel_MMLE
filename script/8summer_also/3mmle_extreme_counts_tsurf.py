@@ -36,6 +36,24 @@ index_stats.extreme_counts_tsurf(
     standard     = "first",
     season       = 'DJFM')
 
+#%%
+index_stats.extreme_counts_tsurf(
+    model        =  "MPI_GE_onepct", 
+    tsurf        =  "ens_fld_year_ocean_mean", 
+    standard     =  "temporal_ens",
+    season       =  'MJJA')
+
+
+#%%
+index_stats.extreme_counts_tsurf(
+    model        = "MPI_GE_onepct", 
+    tsurf        = "ens_fld_year_ocean_mean", 
+    standard     = "temporal_ens",
+    season       = 'DJFM')
+
+
+
+
 
 
 #%%

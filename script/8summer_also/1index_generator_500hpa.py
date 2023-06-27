@@ -56,19 +56,18 @@ index_gen(
     season        = 'DJFM',
     standard      = 'first')
 #%%
-index_gen(
-    model         = 'MPI_GE_onepct', 
-    fixedPattern  = 'decade', 
-    plev          = 50000,
-    season        = 'MJJA',
-    standard      = 'temporal_ens')
+import concurrent.futures
 
-index_gen(
-    model         = 'MPI_GE_onepct', 
-    fixedPattern  = 'decade', 
-    plev          = 50000,
-    season        = 'DJFM',
-    standard      = 'temporal_ens')
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    futures = [
+        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='MJJA', standard='temporal_ens'),
+        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='DJFM', standard='temporal_ens')
+    ]
+    for future in concurrent.futures.as_completed(futures):
+        try:
+            result = future.result()
+        except Exception as e:
+            print(f"Exception: {e}")
 
 
 # %%

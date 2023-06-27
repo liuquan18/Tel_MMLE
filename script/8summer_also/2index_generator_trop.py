@@ -12,8 +12,8 @@ importlib.reload(scluster)
 
 # %%
 # function for generate the index
-def index_gen(model,standard = 'first', season = 'MJJA'):
-    generator = index_generate.decompose_troposphere(model,standard=standard,season = season)
+def index_gen(model,standard = 'first', season = 'MJJA',all_years = False):
+    generator = index_generate.decompose_troposphere(model,standard=standard,season = season,all_years = all_years)
     generator.save_result()
 #%%
 index_gen(
@@ -30,15 +30,14 @@ index_gen(
 
 
 #%%
-index_gen(
-    model       = 'MPI_GE_onepct',
-    standard    = 'temporal_ens',
-    season      = 'MJJA')
+from dask.distributed import Client
+client = Client()
 
 
-# %%
-index_gen(
-    model       = 'MPI_GE_onepct',
-    standard    = 'temporal_ens',
-    season      = 'DJFM')
+futures = []
+for season in ['MJJA', 'DJFM']:
+    future = client.submit(index_gen, 'MPI_GE_onepct', 'temporal_ens', True, season)
+    futures.append(future)
+
+results = client.gather(futures)
 # %%
