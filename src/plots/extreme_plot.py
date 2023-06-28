@@ -246,12 +246,11 @@ def handle_label_models(colors,models):
 
 #%%
 # Create a scatter plot of the slopes for each model and extreme type
-def mmle_slope_scatter(plev = 50000,standard = 'first',tsurf = 'ens_fld_year_mean',time = 'all'):
+def mmle_slope_scatter(extrs,tsurfs,extrs_rand,tsurfs_rand,tsurf = 'ens_fld_year_mean',time = 'all'):
     """
     plot the slope of extreme event count profile for multiple models
     """
     models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
-    extrs,tsurfs,extrs_rand,tsurfs_rand = read_extreme_counts(plev = plev,standard = standard,tsurf = tsurf)
     fig, axs = pplt.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
 
     axs.format(
@@ -271,7 +270,7 @@ def mmle_slope_scatter(plev = 50000,standard = 'first',tsurf = 'ens_fld_year_mea
     ens_size = np.arange(20, 101, 10)
 
     _slope_single(extrs,tsurfs, models, axs[0, :], colors_model, ensemble_size=ensemble_size,time = time)
-    _slope_single(extrs_rand,tsurfs_rand, np.arange(20, 101, 10), axs[1, :], "tab:red", ensemble_size=ens_size,alpha=0.5)
+    _slope_single(extrs_rand,tsurfs_rand, np.arange(20, 101, 10), axs[1, :], "tab:grey", ensemble_size=ens_size,alpha=0.5)
     # legend 
     # Add the legend with the custom handler
     handles_color, labels_model = handle_label_models(colors_model,models)
