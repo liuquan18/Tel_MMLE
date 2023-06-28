@@ -1,0 +1,6 @@
+
+		begin
+      f = addfile("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/zg_time/onepct0015_echam6_ATM_mm.nc","r")
+      print(f)
+		end
+    
