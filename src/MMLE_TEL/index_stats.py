@@ -2,7 +2,6 @@
 import src.MMLE_TEL.story_line as story_line
 import importlib
 import matplotlib.pyplot as plt
-import src.plots.extreme_plot as extrc_tsurf
 import xarray as xr
 import os
 import src.extreme.extreme_ci as extreme
@@ -11,7 +10,6 @@ import src.extreme.extreme_ci as extreme
 import importlib
 
 importlib.reload(story_line)
-importlib.reload(extrc_tsurf)
 
 # %%
 
