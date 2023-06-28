@@ -310,7 +310,7 @@ def decadal_extrc_tsurf(index: xr.DataArray, ext_counts_xr = None, temp: xr.Data
 
         # extreme count
         if ext_counts_xr is None:
-            period_ext_count = extreme.extreme_count_xr(period_pc, ci=ci)
+            period_ext_count = extreme_count_xr(period_pc, ci=ci)
             period_ext_count['time'] = time_tag
             # set time as the new dimension
             period_ext_count = period_ext_count.expand_dims('time')
