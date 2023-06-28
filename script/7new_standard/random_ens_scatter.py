@@ -4,7 +4,7 @@ import numpy as np
 import xarray as xr
 import importlib
 import matplotlib.pyplot as plt
-import src.plots.extrc_tsurf_scatter as extrc_tsurf
+import src.plots.extreme_plot as extrc_tsurf
 
 # %%
 # %%

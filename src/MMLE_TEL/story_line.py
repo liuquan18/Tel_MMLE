@@ -11,7 +11,7 @@ import numpy as np
 
 # extremes
 import src.extreme.extreme_ci as extreme
-import src.plots.extrc_tsurf_scatter as extrc_tsurf
+import src.plots.extreme_plot as extrc_tsurf
 import src.MMLE_TEL.spatial_pattern_change as sp_change
 
 # reimport extreme

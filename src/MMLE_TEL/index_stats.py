@@ -2,7 +2,7 @@
 import src.MMLE_TEL.story_line as story_line
 import importlib
 import matplotlib.pyplot as plt
-import src.plots.extrc_tsurf_scatter as extrc_tsurf
+import src.plots.extreme_plot as extrc_tsurf
 import xarray as xr
 import os
 import src.extreme.extreme_ci as extreme
@@ -35,12 +35,12 @@ def extreme_counts_tsurf(model, fixed_pattern="decade", standard = 'temporal_ens
     # check if the extr_counts_dir exists
     try:
         extrc = xr.open_dataset(extr_counts_dir).pc
-        _, tsurf_mean = extrc_tsurf.decadal_extrc_tsurf(
+        _, tsurf_mean = extreme.decadal_extrc_tsurf(
             eof_result.pc,ext_counts_xr=extrc, temp = temperature, ci="bootstrap"
         )
 
     except FileNotFoundError:
-        extrc, tsurf_mean = extrc_tsurf.decadal_extrc_tsurf(
+        extrc, tsurf_mean = extreme.decadal_extrc_tsurf(
             eof_result.pc, temp = temperature, ci="bootstrap"
         )
 

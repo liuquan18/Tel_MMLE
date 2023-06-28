@@ -3,7 +3,7 @@ import src.MMLE_TEL.story_line as story_line
 import numpy as np
 import importlib
 import matplotlib.pyplot as plt
-import src.plots.extrc_tsurf_scatter as extrc_tsurf
+import src.plots.extreme_plot as extrc_tsurf
 import xarray as xr
 
 #%%
