@@ -4,6 +4,8 @@ import xarray as xr
 import numpy as npa
 import cartopy.crs as ccrs
 import src.compute.slurm_cluster as scluster
+import concurrent.futures
+
 #%%
 import importlib
 importlib.reload(index_generate)
@@ -16,28 +18,18 @@ def index_gen(model,standard = 'first', season = 'MJJA',all_years = False):
     generator = index_generate.decompose_troposphere(model,standard=standard,season = season,all_years = all_years)
     generator.save_result()
 #%%
-index_gen(
-    model       = 'MPI_GE_onepct',
-    standard    = 'first',
-    season      = 'MJJA')
+def index_gen_trop():
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        futures = []
+        futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'first', 'MJJA'))
+        futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'first', 'DJFM'))
+        futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'temporal_ens', True, 'MJJA'))
+        futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'temporal_ens', True, 'DJFM'))
 
-
-# %%
-index_gen(
-    model       = 'MPI_GE_onepct',
-    standard    = 'first',
-    season      = 'DJFM')
-
+        for future in concurrent.futures.as_completed(futures):
+            result = future.result()
 
 #%%
-from dask.distributed import Client
-client = Client()
-
-
-futures = []
-for season in ['MJJA', 'DJFM']:
-    future = client.submit(index_gen, 'MPI_GE_onepct', 'temporal_ens', True, season)
-    futures.append(future)
-
-results = client.gather(futures)
-# %%
+def main():
+    index_gen_trop()
+    
