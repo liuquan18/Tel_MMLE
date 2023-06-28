@@ -21,10 +21,10 @@ def index_gen(model,standard = 'first', season = 'MJJA',all_years = False):
 def index_gen_trop():
     with concurrent.futures.ProcessPoolExecutor() as executor:
         futures = []
-        futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'first', 'MJJA'))
-        futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'first', 'DJFM'))
-        futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'temporal_ens', True, 'MJJA'))
-        futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'temporal_ens', True, 'DJFM'))
+        futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'first', 'JJAS'))
+        futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'first', 'MAM'))
+        # futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'temporal_ens', True, 'JJAS'))
+        # futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'temporal_ens', True, 'MAM'))
 
         for future in concurrent.futures.as_completed(futures):
             result = future.result()
@@ -33,3 +33,4 @@ def index_gen_trop():
 def main():
     index_gen_trop()
     
+# %%

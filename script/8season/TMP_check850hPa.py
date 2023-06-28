@@ -1,9 +1,9 @@
 #%%
 import xarray as xr
 import src.MMLE_TEL.story_line as story_line
-import src.plots.extrc_tsurf_scatter as extrc_tsurf
+import src.plots.extreme_plot as extrc_tsurf
 import src.MMLE_TEL.index_stats as index_stats
-import src.plots.extrc_tsurf_scatter as extrc_tsurf
+import src.plots.extreme_plot as extrc_tsurf
 
 # %%
 MJJA_first = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct/EOF_result/troposphere_ind_decade_first_MJJA_eof_result.nc")

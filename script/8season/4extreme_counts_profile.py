@@ -1,7 +1,7 @@
 # %%
 import src.MMLE_TEL.story_line as story_line
 import importlib
-import src.plots.extrc_tsurf_scatter as extrc_tsurf
+import src.plots.extreme_plot as extrc_tsurf
 import xarray as xr
 import src.MMLE_TEL.index_stats as index_stats
 #%%
@@ -15,7 +15,7 @@ importlib.reload(index_stats)
 index_stats.extreme_counts_profile(
     model       = "MPI_GE_onepct",
     standard    = "first",
-    season      = "MJJA",
+    season      = "JJAS",
     )
 # %%
 index_stats.extreme_counts_profile(
@@ -27,7 +27,7 @@ index_stats.extreme_counts_profile(
 index_stats.extreme_counts_profile(
     model       = "MPI_GE_onepct",
     standard    = "temporal_ens",
-    season      = "MJJA",
+    season      = "JJAS",
     )
 
 # %%
@@ -35,5 +35,12 @@ index_stats.extreme_counts_profile(
     model       = "MPI_GE_onepct",
     standard    = "temporal_ens",
     season      = "DJFM",
+    )
+# %%
+# for season 'MAM'
+index_stats.extreme_counts_profile(
+    model       = "MPI_GE_onepct",
+    standard    = "first",
+    season      = "MAM",
     )
 # %%

@@ -3,7 +3,7 @@ import src.MMLE_TEL.story_line as story_line
 import numpy as np
 import importlib
 import matplotlib.pyplot as plt
-import src.plots.extrc_tsurf_scatter as extrc_tsurf
+import src.plots.extreme_plot as extrc_tsurf
 import src.MMLE_TEL.index_stats as index_stats
 import xarray as xr
 import os
@@ -25,7 +25,7 @@ index_stats.extreme_counts_tsurf(
     model        =  "MPI_GE_onepct", 
     tsurf        =  "ens_fld_year_ocean_mean", 
     standard     =  "first",
-    season       =  'MJJA')
+    season       =  'JJAS')
 
 
 # %%
@@ -41,7 +41,7 @@ index_stats.extreme_counts_tsurf(
     model        =  "MPI_GE_onepct", 
     tsurf        =  "ens_fld_year_ocean_mean", 
     standard     =  "temporal_ens",
-    season       =  'MJJA')
+    season       =  'JJAS')
 
 
 #%%
@@ -51,9 +51,22 @@ index_stats.extreme_counts_tsurf(
     standard     = "temporal_ens",
     season       = 'DJFM')
 
+#%%
+# season = 'MAM'
+index_stats.extreme_counts_tsurf(
+    model        = "MPI_GE_onepct",
+    tsurf        = "ens_fld_year_ocean_mean",
+    standard     = "first",
+    season       = 'MAM')
 
-
-
+#%%
+# try fixed_pattern = 'all'
+index_stats.extreme_counts_tsurf(
+    model        = "MPI_GE_onepct",
+    tsurf        = "ens_fld_year_ocean_mean",
+    fixed_pattern= 'all',
+    standard     = "first",
+    season       = 'JJAS')
 
 
 #%%

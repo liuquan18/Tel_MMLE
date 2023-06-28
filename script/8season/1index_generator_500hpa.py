@@ -24,18 +24,20 @@ def index_gen(model,fixedPattern,plev = 50000,season = 'MJJA',standard = 'first'
 def index_gen_models():
     with concurrent.futures.ProcessPoolExecutor() as executor:
         futures = [
-            executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000),
-            executor.submit(index_gen, 'MPI_GE', 'decade', plev=50000),
-            executor.submit(index_gen, 'CanESM2', 'decade', plev=50000),
-            executor.submit(index_gen, 'CESM1_CAM5', 'decade', plev=50000),
-            executor.submit(index_gen, 'MK36', 'decade', plev=50000),
-            executor.submit(index_gen, 'GFDL_CM3', 'decade', plev=50000)
+            # executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000),
+            executor.submit(index_gen, 'MPI_GE', 'decade', plev=50000,season = 'MAM',standard = 'first'),
+            executor.submit(index_gen, 'CanESM2', 'decade', plev=50000,season = 'MAM',standard = 'first'),
+            executor.submit(index_gen, 'CESM1_CAM5', 'decade', plev=50000,season = 'MAM',standard = 'first'),
+            executor.submit(index_gen, 'MK36', 'decade', plev=50000,season = 'MAM',standard = 'first'),
+            executor.submit(index_gen, 'GFDL_CM3', 'decade', plev=50000,season = 'MAM',standard = 'first'),
         ]
         for future in concurrent.futures.as_completed(futures):
             try:
                 result = future.result()
             except Exception as e:
                 print(f"Exception: {e}")
+
+
 
 # for different seasons and standards, only for MPI_GE_onepct
 #%%
@@ -45,9 +47,9 @@ def index_gen_seasons():
             executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='JJAS', standard='first'),
             executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='MAM', standard='first'),
             # executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='DJFM', standard='first'),
-            executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='JJAS', standard='temporal_ens'),
-            # executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='DJFM', standard='temporal_ens')
-            executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='MAM', standard='temporal_ens')
+            # executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='JJAS', standard='temporal_ens'),
+            # # executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='DJFM', standard='temporal_ens')
+            # executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='MAM', standard='temporal_ens')
         ]
         for future in concurrent.futures.as_completed(futures):
             try:
@@ -61,3 +63,7 @@ def main():
     index_gen_seasons()
     # index_gen_models()
     
+# %%
+def try_all_JJAS():
+    index_gen('MPI_GE_onepct', 'all', plev=50000, season='JJAS', standard='first')
+# %%
