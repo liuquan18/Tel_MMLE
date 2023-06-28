@@ -11,7 +11,7 @@ import numpy as np
 
 # extremes
 import src.extreme.extreme_ci as extreme
-import src.plots.extreme_plot as extrc_tsurf
+import src.plots.extreme_plot as extreme_plot
 import src.MMLE_TEL.spatial_pattern_change as sp_change
 
 # reimport extreme
@@ -31,7 +31,7 @@ import src.plots.NAO_EA_hist2d as hist2d
 #%%
 importlib.reload(extreme)
 importlib.reload(sp_change)
-importlib.reload(extrc_tsurf)
+importlib.reload(extreme_plot)
 importlib.reload(warming_stage)
 importlib.reload(stat_overview)
 
@@ -176,7 +176,7 @@ class story_line:
         # extreme counts of first and last 10 decades
 
         print("ploting the extreme event count profile")
-        extreme_profile = extreme.extreme_count_profile(
+        extreme_profile = extreme_plot.extreme_count_profile(
             self.extre_counts_trop_first,
             self.extre_counts_trop_last,
             colored=False,
@@ -193,7 +193,7 @@ class story_line:
     # extreme event count vs. tsurf
     def extrc_tsurf(self, ylim=(35, 110)):
 
-        extrc_tsurf_scatter = extrc_tsurf.extCount_tsurf_scatter(
+        extrc_tsurf_scatter = extreme_plot.extCount_tsurf_scatter(
             self.extre_counts_500hpa, self.tsurf, ylim=ylim
         )
         plt.savefig(self.to_plot_dir + f"_extreme_count_tsurf.png", dpi=300)
