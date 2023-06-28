@@ -45,10 +45,12 @@ import concurrent.futures
 
 with concurrent.futures.ProcessPoolExecutor() as executor:
     futures = [
-        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='MJJA', standard='first'),
-        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='DJFM', standard='first'),
-        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='MJJA', standard='temporal_ens'),
-        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='DJFM', standard='temporal_ens')
+        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='JJAS', standard='first'),
+        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='MAM', standard='first'),
+        # executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='DJFM', standard='first'),
+        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='JJAS', standard='temporal_ens'),
+        # executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='DJFM', standard='temporal_ens')
+        executor.submit(index_gen, 'MPI_GE_onepct', 'decade', plev=50000, season='MAM', standard='temporal_ens')
     ]
     for future in concurrent.futures.as_completed(futures):
         try:
