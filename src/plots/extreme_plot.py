@@ -250,7 +250,6 @@ def mmle_slope_scatter(extrs,tsurfs,extrs_rand,tsurfs_rand,tsurf = 'ens_fld_year
     """
     plot the slope of extreme event count profile for multiple models
     """
-    models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
     fig, axs = pplt.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
 
     axs.format(
@@ -260,7 +259,7 @@ def mmle_slope_scatter(extrs,tsurfs,extrs_rand,tsurfs_rand,tsurf = 'ens_fld_year
         xtickminor=False,
         ytickminor=False,
     )
-
+    models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
     colors_model = ["tab:red", "C1", "tab:blue", "tab:purple", "C4", "tab:cyan"]
     ensemble_size = [100, 100, 45, 40, 30, 20]
 
@@ -334,14 +333,10 @@ def mmle_slope_scatter(extrs,tsurfs,extrs_rand,tsurfs_rand,tsurf = 'ens_fld_year
 
 
 #%%
-def slope_diff_tsurf(plev = 50000,standard = 'first',tsurf = 'ens_fld_year_mean',time = 'all'):
+def slope_diff_tsurf(extrs,tsurf_gmst,NA_tsurf,tropical_arctic_gradient,time = 'all'):
     """
     plot the slope of extreme event count profile for multiple models, and different tsurf as the x axis
     """
-    extrs,tsurf_gmst,_,_ = read_extreme_counts(plev = plev,standard = standard,tsurf = 'ens_fld_year_mean')
-    extrs,NA_tsurf,_,_ = read_extreme_counts(plev = plev,standard = standard,tsurf = 'NA_tsurf')
-    extrs,tropical_arctic_gradient,_,_ = read_extreme_counts(plev = plev,standard = standard,tsurf = 'tropical_arctic_gradient')
-
     fig, axs = pplt.subplots(nrows=3, ncols=2, sharex=False, sharey=True)
     axs.format(
         suptitle="Slopes of extreme counts vs. temperature",
@@ -354,8 +349,6 @@ def slope_diff_tsurf(plev = 50000,standard = 'first',tsurf = 'ens_fld_year_mean'
     )
 
     models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
-    tsurfs = ['ens_fld_year_mean','NA_tsurf','tropical_arctic_gradient']
-
     colors_model = ["tab:red", "C1", "tab:blue", "tab:purple", "C4", "tab:cyan"]
     ensemble_size = [100, 100, 45, 40, 30, 20]
 
