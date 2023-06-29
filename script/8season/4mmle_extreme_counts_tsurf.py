@@ -71,15 +71,38 @@ index_stats.extreme_counts_tsurf(
 
 #%%
 # MMLEA
-models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
-tsurfs = ["ens_fld_year_ocean_mean"] #,"ens_fld_year_mean", "NA_tsurf","tropical_arctic_gradient"]
-standards = ["first"]
-
 def run_extreme_counts_tsurf(args):
-    model, tsurf, standard = args
-    index_stats.extreme_counts_tsurf(model, tsurf=tsurf, standard=standard)
+    model, tsurf, standard, season = args
+    index_stats.extreme_counts_tsurf(model, tsurf=tsurf, standard=standard, season=season)
 
-with Pool() as p:
-    p.map(run_extreme_counts_tsurf, [(model, tsurf,standard) for model in models for tsurf in tsurfs for standard in standards])
+def mmle_extreme_counts_tsurf(season):
+    models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
+    tsurfs = ["ens_fld_year_ocean_mean"] #,"ens_fld_year_mean", "NA_tsurf","tropical_arctic_gradient"]
+    standards = ["first"]
+    seasons = [season]
+
+    with Pool() as p:
+        p.map(run_extreme_counts_tsurf, [(model, tsurf, standard, season) for model in models for tsurf in tsurfs for standard in standards for season in seasons])
 
 
+# %%
+mmle_extreme_counts_tsurf('MAM')
+# %%
+index_stats.extreme_counts_tsurf(
+    model        = "CanESM2",
+    tsurf        = "ens_fld_year_mean",
+    standard     = "first",
+    season       = 'JJAS')
+# %%
+index_stats.extreme_counts_tsurf(
+    model        = "CESM1_CAM5",
+    tsurf        = "ens_fld_year_mean",
+    standard     = "first",
+    season       = 'JJAS')
+# %%
+index_stats.extreme_counts_tsurf(
+    model        = "mk36",
+    tsurf        = "ens_fld_year_mean",
+    standard     = "first",
+    season       = 'JJAS')
+# %%

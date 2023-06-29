@@ -10,6 +10,31 @@ import importlib
 importlib.reload(story_line)
 importlib.reload(hist2d)
 
+#%%
+def model_first(model,season):
+    return story_line.story_line(
+        model            =  model,
+        vertical_eof     =  'ind',
+        fixed_pattern    =  'decade',
+        standard         =  'first',
+        season           =   season,
+        tsurf            =  'ens_fld_year_mean')
+#%%
+MPI_GE_onepct_MAM = model_first('MPI_GE_onepct','MAM')
+MPI_GE_onepct_MAM.extrc_tsurf()
+#%%
+CanESM2_MAM = model_first('CanESM2','MAM')
+CanESM2_MAM.extrc_tsurf()
+
+#%%
+CESM1_CAM5_MAM = model_first('CESM1_CAM5','MAM')
+CESM1_CAM5_MAM.extrc_tsurf()
+#%%
+# MK36
+MK36_MAM = model_first('MK36','MAM')
+MK36_MAM.extrc_tsurf()
+
+
 #************************************
 # %%
 MPI_GE_onepct_JJAS_first = story_line.story_line(
