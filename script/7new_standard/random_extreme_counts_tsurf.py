@@ -4,6 +4,7 @@ import numpy as np
 import importlib
 import matplotlib.pyplot as plt
 import src.plots.extreme_plot as extrc_tsurf
+import src.extreme.extreme_ci as extreme
 import xarray as xr
 
 #%%
@@ -42,11 +43,11 @@ def extreme_counts(eof_result, tsurf, extrc=None):
 
     tsurf_increase = tsurf - tsurf[0]
     if extrc is None:
-        ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
+        ext_counts, t_surf_mean = extreme.decadal_extrc_tsurf(
             eof_result.pc, temp=tsurf_increase, ci="bootstrap"
         )
     else:
-        ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
+        ext_counts, t_surf_mean = extreme.decadal_extrc_tsurf(
             eof_result.pc, ext_counts_xr=extrc, temp=tsurf_increase, ci="bootstrap"
         )
     return ext_counts, t_surf_mean
