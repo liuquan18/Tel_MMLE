@@ -242,9 +242,10 @@ class decompose_plev_random_ens:
             + str(self.plev)
             + "_"
             + self.fixedPattern
-            + str(self.ens_size)
             + "_"
             + self.season
+            + "_"
+            + str(self.ens_size)
             + "_none_eof_result.nc"
         )
         # save the standardized result
@@ -254,6 +255,8 @@ class decompose_plev_random_ens:
             + str(self.plev)
             + "_"
             + self.fixedPattern
+            + "_"
+            + self.season
             + "_"
             + self.standard
             + "_"
