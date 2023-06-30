@@ -179,7 +179,7 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
 # %%
 # calcualte slope
 def calc_slope(tsurf,extreme_counts, extr_type, mode):
-    x = tsurf.values
+    x = tsurf.squeeze().values
     y = extreme_counts.sel(extr_type=extr_type, mode=mode, confidence="true").pc.values
 
     model = sm.OLS(y, sm.add_constant(x)).fit()
