@@ -76,7 +76,7 @@ def run_extreme_counts_tsurf(args):
     index_stats.extreme_counts_tsurf(model, tsurf=tsurf, standard=standard, season=season)
 
 def mmle_extreme_counts_tsurf(season):
-    models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
+    models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36"]
     tsurfs = ["ens_fld_year_ocean_mean"] #,"ens_fld_year_mean", "NA_tsurf","tropical_arctic_gradient"]
     standards = ["first"]
     seasons = [season]
@@ -105,4 +105,23 @@ index_stats.extreme_counts_tsurf(
     tsurf        = "ens_fld_year_mean",
     standard     = "first",
     season       = 'JJAS')
+# %%
+index_stats.extreme_counts_tsurf(
+    model        = "MK36",
+    tsurf        = "ens_fld_year_mean",
+    standard     = "first",
+    season       = 'MAM')
+# %%
+# %%
+index_stats.extreme_counts_tsurf(
+    model        = "MPI_GE",
+    tsurf        = "ens_fld_year_mean",
+    standard     = "first",
+    season       = 'MAM')
+# %%
+index_stats.extreme_counts_tsurf(
+    model        = "GFDL_CM3",
+    tsurf        = "ens_fld_year_mean",
+    standard     = "first",
+    season       = 'MAM')
 # %%

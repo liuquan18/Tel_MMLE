@@ -20,8 +20,10 @@ def read_data(
     plev=50000,
     standard="first",
     tsurf="ens_fld_year_mean",
+    season = 'MAM',
+    fixedPattern = "decade",
 ):
-    eof_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}_random/EOF_result/plev_{plev}_decade{str(ens_size)}_{standard}_eof_result.nc"
+    eof_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}_random/EOF_result/plev_{plev}_{fixedPattern}_{season}_{standard}_{str(ens_size)}_eof_result.nc"
     eof_result = xr.open_dataset(eof_dir)
 
     tsurf_dir = (
@@ -29,7 +31,7 @@ def read_data(
     )
     tsurf = xr.open_dataset(tsurf_dir).tsurf
 
-    extrc_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}_random/extreme_count/plev_{plev}_decade{str(ens_size)}_{standard}_extre_counts.nc"
+    extrc_dir = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/plev_{plev}_{fixedPattern}_{season}_{standard}_{str(ens_size)}_extre_counts.nc"
     try:
         extrc = xr.open_dataset(extrc_dir).pc
     except FileNotFoundError:
@@ -57,19 +59,22 @@ def extreme_counts(eof_result, tsurf, extrc=None):
 from multiprocessing import Pool
 
 ens_sizes = np.arange(20, 101, 10)
-tsurfs = ["ens_fld_year_mean", "NA_tsurf", "tropical_arctic_gradient"]
-standards = ["first", "temporal_ens"]
+tsurfs = ["ens_fld_year_mean"]#, "NA_tsurf", "tropical_arctic_gradient"]
+standards = ["first"]#, "temporal_ens"]
 
 
-def process_data(ens_size, tsurf, standard):
-    eof_result, temperature, extrc = read_data(ens_size, tsurf=tsurf, standard=standard)
+def process_data(ens_size, tsurf, standard,season):
+    plev = 50000
+    fixed_pattern = "decade"
+    season = "MAM"
+    eof_result, temperature, extrc = read_data(ens_size, tsurf=tsurf, season = 'MAM')
     # close the files red
     temperature.close()
 
     extr_counts, tsurf_mean = extreme_counts(eof_result, temperature, extrc=extrc)
     try:
         extr_counts.to_netcdf(
-            f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/plev_50000_first_extreme_counts_{str(ens_size)}_{tsurf}.nc"
+            f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/plev_{plev}_{fixed_pattern}_{season}_{standard}_{str(ens_size)}_extre_counts.nc"
         )
     except PermissionError:
         pass
@@ -86,10 +91,11 @@ if __name__ == "__main__":
         p.starmap(
             process_data,
             [
-                (ens_size, tsurf, standard)
+                (ens_size, tsurf, standard,season)
                 for ens_size in ens_sizes
                 for tsurf in tsurfs
                 for standard in standards
+                for season in ['MAM']
             ],
         )
 

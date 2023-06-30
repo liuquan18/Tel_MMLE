@@ -6,6 +6,7 @@ import numpy as np
 import cartopy.crs as ccrs
 import src.compute.slurm_cluster as scluster
 import concurrent.futures
+import sys
 
 # %%
 import importlib
@@ -16,12 +17,24 @@ importlib.reload(scluster)
 
 # %%
 # function for generate the index
-def index_gen(model, fixedPattern, plev=50000, season="MJJA", standard="first"):
+def index_gen(model, fixedPattern = 'decade', plev=50000, season="MJJA", standard="first"):
     generator = index_generate.decompose_plev(
         model, plev=plev, fixedPattern=fixedPattern, standard=standard, season=season
     )
     generator.save_result()
 
+
+def main():
+    model = sys.argv[1]
+    index_gen(model = model)
+
+    
+if __name__ == "__main__":
+    main()
+
+
+
+"""
 
 # %%
 
@@ -112,11 +125,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-# %%
-
-# for model in ['MPI_GE','CanESM2','CESM1_CAM5','MK36']:
-#     print("***************")
-#     print(model)
-#     index_gen(model,'decade',plev = 50000,season = 'MAM',standard = 'first')
-# # %%
+"""

@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 
 #%%
 import src.plots.extreme_plot as ext_plot
@@ -42,7 +43,7 @@ def read_extreme_counts(**kwargs):
     tsurfs_rand = {}
     for ens_size in np.arange(20, 101, 10):
         odir = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/"
-        extrs_rand[ens_size] = xr.open_dataset(
+        extrs_rand[ens_size] = xr.open_dataset(odir + 
             f"plev_{plev}_{fixed_pattern}_{season}_{standard}_{str(ens_size)}_extre_counts.nc"
         ).squeeze()
         tsurfs_rand[ens_size] = xr.open_dataset(
@@ -92,3 +93,5 @@ def slope_diff_tsurf(**kwargs):
 mmle_slope(
     plev=50000, standard="first", tsurf="ens_fld_year_mean", time="all", season="MAM"
 )
+#%%
+mmle_slope(season = 'MAM')
