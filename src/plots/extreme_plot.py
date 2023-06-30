@@ -4,6 +4,9 @@ import numpy as np
 import src.extreme.extreme_ci as extreme
 import proplot as pplt
 import warnings
+import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
+
 
 #%%
 def extCount_tsurf_scatter(
