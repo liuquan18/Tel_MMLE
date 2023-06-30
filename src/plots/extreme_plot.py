@@ -6,6 +6,7 @@ import proplot as pplt
 import warnings
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+import statsmodels.api as sm
 
 
 #%%
