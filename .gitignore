@@ -139,3 +139,9 @@ plots/*
 # all nc data
 *.nc
 docs/source/index.rst
+script/8season/indexgen.o5808116
+script/8season/indexgen.o5808134
+script/8season/indexgen.o5808154
+script/8season/indexgen.o5808181
+script/8season/indexgen.o5808186
+script/8season/seasonmean.o5808103
