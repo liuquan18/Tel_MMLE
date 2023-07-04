@@ -53,11 +53,11 @@ def composite_plot( first, last, mode,level_bound = 2):
     if mode == "NAO":
         bound_l = -1*level_bound -1
         bound_u = level_bound +1 + 0.1
-        interval = 0.5
+        interval = level_bound/4
     elif mode == "EA":
         bound_l = -1*level_bound
         bound_u = level_bound + 0.1
-        interval = level_bound/4
+        interval = level_bound/5
     levels = np.arange(bound_l,bound_u,interval)
 
     first = utils.erase_white_line(first)
