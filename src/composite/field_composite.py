@@ -10,7 +10,6 @@ def Tel_field_composite(
     data: xr.DataArray,
     threshold: float = 2,
     reduction = "mean",
-    **kwargs,
 ):
     """
     composite mean maps or counts of field in terms of teleconnection mode extremes.
