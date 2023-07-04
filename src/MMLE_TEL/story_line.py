@@ -49,6 +49,7 @@ class story_line:
         tsurf="ens_fld_year_mean",
         plev=50000,
         season="DJFM",
+        tfield = "DJFM",
     ) -> None:
         self.model = model
         self.vertical_eof = vertical_eof
@@ -82,7 +83,6 @@ class story_line:
             + f"extreme_count/troposphere_ind_decade_{self.standard}_{self.season}_last_count.nc"
         )
         self.tsurf_dir = self.odir + f"extreme_count/{self.tsurf}.nc"
-        self.field_tsurf_dir = self.odir + f"ts/{self.tsurf}.nc"
 
         # locations to save
         self.to_plot_dir = (
@@ -199,10 +199,15 @@ class story_line:
         plt.savefig(self.to_plot_dir + f"_extreme_count_tsurf.png", dpi=300)
 
     # composite analysis of surface temperature in terms of different extreme events
-    def composite_analysis(self, reduction="mean", **kwargs):
+    def composite_analysis(self, reduction="mean", season = 'DJF' **kwargs):
+        field_tsurf_dir = self.odir + f"ts_{tfield}/"
+
         print("ploting the composite analysis of surface temperature")
-        print(" reading the tsurf data...")
-        var_data = xr.open_dataset(self.field_tsurf_dir + "all_ens_tsurf.nc").tsurf
+        print(f" reading the tsurf data of {season}")
+        try:
+            var_data = xr.open_dataset(field_tsurf_dir + "all_ens_tsurf.nc").tsurf
+        except FileNotFoundError:
+            var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc").tsurf
         var_data = var_data - var_data.mean(dim="ens")
 
         first_index = self.eof_result.pc.isel(time=slice(0, 10))
@@ -210,10 +215,10 @@ class story_line:
 
         print(" compositing the tsurf data...")
         first_var = composite.Tel_field_composite(
-            first_index, var_data, threshold=1.5, reduction=reduction, **kwargs
+            first_index, var_data, threshold=1.5, reduction=reduction
         )
         last_var = composite.Tel_field_composite(
-            last_index, var_data, threshold=1.5, reduction=reduction, **kwargs
+            last_index, var_data, threshold=1.5, reduction=reduction
         )
 
         temp_NAO = composite.composite_plot(first_var, last_var, "NAO")
