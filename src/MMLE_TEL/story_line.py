@@ -49,7 +49,7 @@ class story_line:
         tsurf="ens_fld_year_mean",
         plev=50000,
         season="DJFM",
-        tfield = "DJFM",
+        tfield="DJFM",
     ) -> None:
         self.model = model
         self.vertical_eof = vertical_eof
@@ -103,11 +103,15 @@ class story_line:
         except FileNotFoundError:
             print("500hpa extreme counts file not found.")
         try:
-            self.extre_counts_trop_first = xr.open_dataset(self.extre_counts_trop_first_dir).pc
+            self.extre_counts_trop_first = xr.open_dataset(
+                self.extre_counts_trop_first_dir
+            ).pc
         except FileNotFoundError:
             print("Troposphere first extreme counts file not found.")
         try:
-            self.extre_counts_trop_last = xr.open_dataset(self.extre_counts_trop_last_dir).pc
+            self.extre_counts_trop_last = xr.open_dataset(
+                self.extre_counts_trop_last_dir
+            ).pc
         except FileNotFoundError:
             print("Troposphere last extreme counts file not found.")
         try:
@@ -199,8 +203,8 @@ class story_line:
         plt.savefig(self.to_plot_dir + f"_extreme_count_tsurf.png", dpi=300)
 
     # composite analysis of surface temperature in terms of different extreme events
-    def composite_analysis(self, reduction="mean", season = 'DJF'):
-        field_tsurf_dir = self.odir + f"ts_{tfield}/"
+    def composite_analysis(self, reduction="mean", season="DJF"):
+        field_tsurf_dir = self.odir + f"ts_{season}/"
 
         print("ploting the composite analysis of surface temperature")
         print(f" reading the tsurf data of {season}")
