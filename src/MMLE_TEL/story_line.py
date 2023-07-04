@@ -203,18 +203,38 @@ class story_line:
         plt.savefig(self.to_plot_dir + f"_extreme_count_tsurf.png", dpi=300)
 
     # composite analysis of surface temperature in terms of different extreme events
-    def composite_analysis(self, reduction="mean", season="DJF"):
-        field_tsurf_dir = self.odir + f"ts_{season}/"
+    def composite_analysis(self, reduction="mean", tfield = 'same'):
+        """
+        tfield can be 'same' or 'next'
+        """
+        if tfield == 'same':
+            season_field_dir = self.season
+            field_tsurf_dir = self.odir + f"ts_{season_field_dir}/"
+        elif tfield == 'next':
+            if len(self.season) == 4: # DJFM and JJAS
+                seasons = ['DJFM','MAM','JJAS','SON']
+            elif len(self.season) == 3: # DJF and JJA
+                seasons = ['DJF','MAM','JJA','SON']
+                index = seasons.index(self.season)
+                next_index = (index + 1)% len(seasons)
+                next_season = seasons[next_index]
+            season_field_dir = next_season
+            field_tsurf_dir = self.odir + f"ts_{season_field_dir}/"
+
 
         print("ploting the composite analysis of surface temperature")
-        print(f" reading the tsurf data of {season}")
+        print(f" reading the tsurf data of {season_field_dir}")
         try:
             var_data = xr.open_dataset(field_tsurf_dir + "all_ens_tsurf.nc").tsurf
         except FileNotFoundError:
             try:
                 var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens').tsurf
             except ValueError:
-                var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens',decode_times = False).tsurf
+                var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens').tsurf
+        try:
+            var_data['time'] = var_data['time'].astype('datetime64[ns]')
+        except TypeError:
+            pass
         var_data = var_data - var_data.mean(dim="ens")
 
         first_index = self.eof_result.pc.isel(time=slice(0, 10))
