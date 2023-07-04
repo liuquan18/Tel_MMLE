@@ -7,6 +7,7 @@ import cartopy.crs as ccrs
 import src.compute.slurm_cluster as scluster
 import concurrent.futures
 import sys
+from mpi4py import MPI
 
 # %%
 import importlib
@@ -25,9 +26,38 @@ def index_gen(model, fixedPattern = 'decade', plev=50000, season="MJJA", standar
 
 
 def main():
-    model = sys.argv[1]
-    index_gen(model = model)
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
 
+    models = {
+        0: "MPI_GE",
+        1: "CanESM2",
+        2: "CESM1_CAM5",
+        3: "MK36",
+        4: "GFDL_CM3",
+        # 5: "MPI_GE_onepct"
+    }
+
+    seasons = {
+        0: "DJFM",
+        1: "JJAS",
+        2: "DJF",
+        3: "MAM",
+        4: "JJA",
+        5: "SON",
+    }
+
+    print(f"rank {rank} of {size}")
+    modelidx = rank // 6
+    seasonidx = rank % 6
+
+    model = models[modelidx]
+    season = seasons[seasonidx]
+    index_gen(model, season=season)
+    print(f"rank {rank} finished")
+    comm.Barrier()
+#%%
     
 if __name__ == "__main__":
     main()

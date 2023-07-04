@@ -66,7 +66,7 @@ index_stats.extreme_counts_tsurf(
     tsurf        = "ens_fld_year_ocean_mean",
     fixed_pattern= 'all',
     standard     = "first",
-    season       = 'JJAS')
+    season       = 'JJA')
 
 
 #%%
