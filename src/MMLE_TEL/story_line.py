@@ -215,6 +215,8 @@ class story_line:
 
             season_field_dir = next_season
             field_tsurf_dir = self.odir + f"ts_{season_field_dir}/"
+        elif tfield == 'DJF' or tfield == 'JJA' or tfield == 'SON' or tfield == 'MAM' or tfield == 'JJAS' or tfield == 'DJFM':
+            field_tsurf_dir = self.odir + f"ts_{tfield}/"
 
 
         print("ploting the composite analysis of surface temperature")
