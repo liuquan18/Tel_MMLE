@@ -211,15 +211,8 @@ class story_line:
             season_field_dir = self.season
             field_tsurf_dir = self.odir + f"ts_{season_field_dir}/"
         elif tfield == 'next':
-            if len(self.season) == 4: # DJFM and JJAS
-                seasons = ['DJFM','MAM','JJAS','SON']
-            elif len(self.season) == 3: # DJF and JJA
-                seasons = ['DJF','MAM','JJA','SON']
+            next_season = self.get_next_season()
 
-            index = seasons.index(self.season)
-            next_index = (index + 1)% len(seasons)
-            next_season = seasons[next_index]
-            
             season_field_dir = next_season
             field_tsurf_dir = self.odir + f"ts_{season_field_dir}/"
 
@@ -259,6 +252,17 @@ class story_line:
             dpi=300,
         )
 
+    def get_next_season(self):
+        if len(self.season) == 4: # DJFM and JJAS
+            seasons = ['DJFM','MAM','JJAS','SON']
+        elif len(self.season) == 3: # DJF and JJA
+            seasons = ['DJF','MAM','JJA','SON']
+
+        index = seasons.index(self.season)
+        next_index = (index + 1)% len(seasons)
+        next_season = seasons[next_index]
+        return next_season
+
     # plot all
     def plot_all(self):
         self.stat_overview()
@@ -281,6 +285,9 @@ class story_line:
             + "_"
         )
         print("creating the markdown file for the plots")
+
+        next_season = self.get_next_season()
+
         with open(
             self.doc_dir
             + self.model
@@ -320,8 +327,16 @@ class story_line:
                 "## composite analysis of surface temperature in terms of different extreme events\n"
             )
             f.write(
-                f"![composite analysis of surface temperature in terms of different extreme events]({relative_plot_dir}composite_tsurf_NAO.png)\n"
+                f"![composite analysis of surface temperature in terms of different extreme events]({relative_plot_dir}{self.season}_composite_tsurf_NAO.png)\n"
             )
             f.write(
-                f"![composite analysis of surface temperature in terms of different extreme events]({relative_plot_dir}composite_tsurf_EA.png)\n"
+                f"![composite analysis of surface temperature in terms of different extreme events]({relative_plot_dir}{self.season}_composite_tsurf_EA.png)\n"
             )
+
+            f.write(
+                f"![composite analysis of surface temperature in next season]({relative_plot_dir}{next_season}_composite_tsurf_NAO.png)\n"
+            )
+            f.write(
+                f"![composite analysis of surface temperature in next season]({relative_plot_dir}{next_season}_composite_tsurf_EA.png)\n"
+            )
+
