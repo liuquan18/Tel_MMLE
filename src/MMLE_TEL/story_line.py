@@ -211,7 +211,10 @@ class story_line:
         try:
             var_data = xr.open_dataset(field_tsurf_dir + "all_ens_tsurf.nc").tsurf
         except FileNotFoundError:
-            var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc").tsurf
+            try:
+                var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens').tsurf
+            except ValueError:
+                var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens',decode_times = False).tsurf
         var_data = var_data - var_data.mean(dim="ens")
 
         first_index = self.eof_result.pc.isel(time=slice(0, 10))
