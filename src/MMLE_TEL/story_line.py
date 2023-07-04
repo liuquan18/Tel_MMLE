@@ -210,15 +210,15 @@ class story_line:
         if tfield == 'same':
             season_field_dir = self.season
             field_tsurf_dir = self.odir + f"ts_{season_field_dir}/"
-        elif tfield == 'next':
-            next_season = self.get_next_season()
-
+        else:
+            if tfield == 'next':
+                next_season = self.get_next_season()
+            elif tfield == 'DJF' or tfield == 'JJA' or tfield == 'SON' or tfield == 'MAM' or tfield == 'JJAS' or tfield == 'DJFM':
+                next_season = tfield
             season_field_dir = next_season
             field_tsurf_dir = self.odir + f"ts_{season_field_dir}/"
-        elif tfield == 'DJF' or tfield == 'JJA' or tfield == 'SON' or tfield == 'MAM' or tfield == 'JJAS' or tfield == 'DJFM':
-            season_field_dir = tfield
-            field_tsurf_dir = self.odir + f"ts_{tfield}/"
-
+        else:
+            print("wrong tfield input")
 
         print("ploting the composite analysis of surface temperature")
         print(f" reading the tsurf data of {season_field_dir}")
@@ -245,13 +245,13 @@ class story_line:
 
         temp_NAO = composite.composite_plot(first_var, last_var, "NAO",level_bound = level_bound,levels=levels_NAO)
         plt.savefig(
-            self.to_plot_dir + f"_{tfield}_composite_tsurf_NAO.png",
+            self.to_plot_dir + f"_{season_field_dir}_composite_tsurf_NAO.png",
             dpi=300,
         )
 
         temp_EA = composite.composite_plot(first_var, last_var, "EA",level_bound = level_bound,levels=levels_EA)
         plt.savefig(
-            self.to_plot_dir + f"_{tfield}_composite_tsurf_EA.png",
+            self.to_plot_dir + f"_{season_field_dir}_composite_tsurf_EA.png",
             dpi=300,
         )
 
