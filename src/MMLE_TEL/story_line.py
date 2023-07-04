@@ -215,9 +215,11 @@ class story_line:
                 seasons = ['DJFM','MAM','JJAS','SON']
             elif len(self.season) == 3: # DJF and JJA
                 seasons = ['DJF','MAM','JJA','SON']
-                index = seasons.index(self.season)
-                next_index = (index + 1)% len(seasons)
-                next_season = seasons[next_index]
+
+            index = seasons.index(self.season)
+            next_index = (index + 1)% len(seasons)
+            next_season = seasons[next_index]
+            
             season_field_dir = next_season
             field_tsurf_dir = self.odir + f"ts_{season_field_dir}/"
 
