@@ -203,7 +203,7 @@ class story_line:
         plt.savefig(self.to_plot_dir + f"_extreme_count_tsurf.png", dpi=300)
 
     # composite analysis of surface temperature in terms of different extreme events
-    def composite_analysis(self, reduction="mean", tfield = 'same'):
+    def composite_analysis(self, reduction="mean", tfield = 'same',levels = np.arange(-2,2.1,0.4)):
         """
         tfield can be 'same' or 'next'
         """
@@ -240,13 +240,13 @@ class story_line:
             last_index, var_data, threshold=1.5, reduction=reduction
         )
 
-        temp_NAO = composite.composite_plot(first_var, last_var, "NAO")
+        temp_NAO = composite.composite_plot(first_var, last_var, "NAO",level_bound = 2)
         plt.savefig(
             self.to_plot_dir + f"_{tfield}_composite_tsurf_NAO.png",
             dpi=300,
         )
 
-        temp_EA = composite.composite_plot(first_var, last_var, "EA")
+        temp_EA = composite.composite_plot(first_var, last_var, "EA",level_bound = level_bound)
         plt.savefig(
             self.to_plot_dir + f"_{tfield}_composite_tsurf_EA.png",
             dpi=300,
