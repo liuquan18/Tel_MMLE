@@ -217,8 +217,6 @@ class story_line:
                 next_season = tfield
             season_field_dir = next_season
             field_tsurf_dir = self.odir + f"ts_{season_field_dir}/"
-        else:
-            print("wrong tfield input")
 
         print("ploting the composite analysis of surface temperature")
         print(f" reading the tsurf data of {season_field_dir}")
