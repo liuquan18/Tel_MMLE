@@ -49,11 +49,14 @@ def Tel_field_composite(
     return tel_composite
 
 
-def composite_plot( first, last, mode):
+def composite_plot( first, last, mode,level_bound = 2):
     if mode == "NAO":
-        levels = np.arange(-3,3.5,0.5)
+        bound_l = -1*level_bound -1
+        bound_u = level_bound +1 + 0.1
     elif mode == "EA":
-        levels = np.arange(-2,2.5,0.5)
+        bound_l = -1*level_bound
+        bound_u = level_bound + 0.1
+    levels = np.arange(bound_l,bound_u,0.5)
 
     first = utils.erase_white_line(first)
     last = utils.erase_white_line(last)
