@@ -199,7 +199,7 @@ class story_line:
         plt.savefig(self.to_plot_dir + f"_extreme_count_tsurf.png", dpi=300)
 
     # composite analysis of surface temperature in terms of different extreme events
-    def composite_analysis(self, reduction="mean", season = 'DJF' **kwargs):
+    def composite_analysis(self, reduction="mean", season = 'DJF'):
         field_tsurf_dir = self.odir + f"ts_{tfield}/"
 
         print("ploting the composite analysis of surface temperature")
