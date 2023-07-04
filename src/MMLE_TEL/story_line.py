@@ -227,10 +227,7 @@ class story_line:
         try:
             var_data = xr.open_dataset(field_tsurf_dir + "all_ens_tsurf.nc").tsurf
         except FileNotFoundError:
-            try:
-                var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens').tsurf
-            except ValueError:
-                var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens').tsurf
+            var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens').tsurf
         try:
             var_data['time'] = var_data['time'].astype('datetime64[ns]')
         except TypeError:
