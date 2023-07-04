@@ -56,6 +56,7 @@ def composite_plot( first, last, mode,level_bound = 2):
     elif mode == "EA":
         bound_l = -1*level_bound
         bound_u = level_bound + 0.1
+    interval = level_bound/4
     levels = np.arange(bound_l,bound_u,0.5)
 
     first = utils.erase_white_line(first)
