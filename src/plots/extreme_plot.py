@@ -244,10 +244,10 @@ def slope_models(extrs,tsurfs, models, axs, colors, ensemble_size=None,alpha = 0
                 # no edge color
                 markeredgecolor="none",
             )
-        ax.set_xlabel(f"Slope ({modes[0]})")
-        ax.set_ylabel(f"Slope ({modes[1]})")
-        ax.axhline(y=0, color="k", linewidth=0.5)
-        ax.axvline(x=0, color="k", linewidth=0.5)
+            ax.set_xlabel(f"Slope ({modes[0]})")
+            ax.set_ylabel(f"Slope ({modes[1]})")
+            ax.axhline(y=0, color="k", linewidth=0.5)
+            ax.axvline(x=0, color="k", linewidth=0.5)
     return axs
 
 
@@ -264,7 +264,7 @@ def mmle_slope_scatter(extrs,tsurfs,extrs_rand,tsurfs_rand,tsurf = 'ens_fld_year
     """
     plot the slope of extreme event count profile for multiple models
     """
-    fig, axs = pplt.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
+    fig, axs = pplt.subplots(nrows=2, ncols=2, sharex=False, sharey=False)
 
     axs.format(
         suptitle="Slopes of extreme counts vs. temperature",
