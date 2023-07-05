@@ -7,6 +7,7 @@ import warnings
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import statsmodels.api as sm
+#%%
 
 
 #%%
@@ -178,48 +179,55 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
 
 # %%
 # calcualte slope
-def calc_slope(tsurf,extreme_counts, extr_type, mode):
+def calc_slope(tsurf,extreme_count):
     x = tsurf.squeeze().values
-    y = extreme_counts.sel(extr_type=extr_type, mode=mode, confidence="true").pc.values
+    y = extreme_count.sel(confidence="true").pc.values
 
     model = sm.OLS(y, sm.add_constant(x)).fit()
     slope = model.params[1]
     conf_int = model.conf_int()[1]
     return slope, conf_int
 
+def slope_err(extr, tsurf):
+
+    slope_NAO, conf_int_NAO = calc_slope(tsurf,extr.sel(mode = 'NAO'))
+    slope_EA, conf_int_EA = calc_slope(tsurf,extr.sel(mode = 'EA'))
+
+    yerr = np.array(
+                [[slope_NAO - conf_int_NAO[0]], [conf_int_NAO[1] - slope_NAO]]
+            )
+    xerr = np.array([[slope_EA - conf_int_EA[0]], [conf_int_EA[1] - slope_EA]])
+    return slope_NAO,slope_EA,yerr,xerr
 
 # %%
-def _slope_single(extrs,tsurfs, models, axs, colors, ensemble_size=None,alpha = 0.7,time = 'all'):
+def slope_models(extrs,tsurfs, models, axs, colors, ensemble_size=None,alpha = 0.7,time = 'all'):
     """
-    plot the slope of extreme event count profile for a single model
+    plot the slope of extreme event count profile for all models
     """
     extr_types = ["pos", "neg"]
     modes = ["NAO", "EA"]
     if len(colors) != len(models):
         colors = [colors] * len(models)
 
-    for i, extr_type in enumerate(extr_types):
-        ax = axs[i]
-        for j, model in enumerate(models):
+    for i, model in enumerate(models):
+        for j, extr_type in enumerate(extr_types):
+            ax = axs[j]
+            extr = extrs[model].sel(extr_type=extr_type)
+            tsurf = tsurfs[model]
 
+            # select time if needed
             if time != 'all' and model != 'MPI_GE_onepct':
                 time = np.datetime64(time)
-                tsurfs[model] = tsurfs[model].sel(time = slice(time,None))
-                extrs[model] = extrs[model].sel(time = slice(time,None))
+                extr = extr.sel(time = slice(time,None))
+                tsurf = tsurf.sel(time = extr.time,method = 'nearest')
 
-            slope_NAO, conf_int_NAO = calc_slope(tsurfs[model],extrs[model], extr_type, "NAO")
-            slope_EA, conf_int_EA = calc_slope(tsurfs[model],extrs[model], extr_type, "EA")
-
-            yerr = np.array(
-                [[slope_NAO - conf_int_NAO[0]], [conf_int_NAO[1] - slope_NAO]]
-            )
-            xerr = np.array([[slope_EA - conf_int_EA[0]], [conf_int_EA[1] - slope_EA]])
+            slope_NAO, slope_EA, yerr, xerr = slope_err(extr, tsurf)
 
             # calculate size of circle based on ensemble size
             if ensemble_size is None:
                 size = 7
             else:
-                size = ensemble_size[j] / 4
+                size = ensemble_size[i] / 4
 
             scatter = ax.errorbar(
                 slope_NAO,
@@ -229,7 +237,7 @@ def _slope_single(extrs,tsurfs, models, axs, colors, ensemble_size=None,alpha = 
                 fmt="o",
                 capsize=3,
                 label=model,
-                color=colors[j],
+                color=colors[i],
                 markersize=size,
                 alpha=alpha,
                 markeredgewidth=0.5,
@@ -241,6 +249,8 @@ def _slope_single(extrs,tsurfs, models, axs, colors, ensemble_size=None,alpha = 
         ax.axhline(y=0, color="k", linewidth=0.5)
         ax.axvline(x=0, color="k", linewidth=0.5)
     return axs
+
+
 # %%
 def handle_label_models(colors,models):
     lines = [mlines.Line2D([], [], color=c, marker="o", markersize=5)for c in colors]
@@ -272,8 +282,8 @@ def mmle_slope_scatter(extrs,tsurfs,extrs_rand,tsurfs_rand,tsurf = 'ens_fld_year
     # Get a list of nine evenly spaced colors from the colormap
     ens_size = np.arange(20, 101, 10)
 
-    _slope_single(extrs,tsurfs, models, axs[0, :], colors_model, ensemble_size=ensemble_size,time = time)
-    _slope_single(extrs_rand,tsurfs_rand, np.arange(20, 101, 10), axs[1, :], "tab:grey", ensemble_size=ens_size,alpha=0.5)
+    slope_models(extrs,tsurfs, models, axs[0, :], colors_model, ensemble_size=ensemble_size,time = time)
+    slope_models(extrs_rand,tsurfs_rand, np.arange(20, 101, 10), axs[1, :], "tab:grey", ensemble_size=ens_size,alpha=0.5)
     # legend 
     # Add the legend with the custom handler
     handles_color, labels_model = handle_label_models(colors_model,models)
@@ -356,9 +366,9 @@ def slope_diff_tsurf(extrs,tsurf_gmst,NA_tsurf,tropical_arctic_gradient,time = '
     colors_model = ["tab:red", "C1", "tab:blue", "tab:purple", "C4", "tab:cyan"]
     ensemble_size = [100, 100, 45, 40, 30, 20]
 
-    _slope_single(extrs,tsurf_gmst, models, axs[0, :], colors_model, ensemble_size=ensemble_size,time = time)
-    _slope_single(extrs,NA_tsurf, models, axs[1, :], colors_model, ensemble_size=ensemble_size,time = time)
-    _slope_single(extrs,tropical_arctic_gradient, models, axs[2, :], colors_model, ensemble_size=ensemble_size,time = time)
+    slope_models(extrs,tsurf_gmst, models, axs[0, :], colors_model, ensemble_size=ensemble_size,time = time)
+    slope_models(extrs,NA_tsurf, models, axs[1, :], colors_model, ensemble_size=ensemble_size,time = time)
+    slope_models(extrs,tropical_arctic_gradient, models, axs[2, :], colors_model, ensemble_size=ensemble_size,time = time)
 
     handles_color, labels_model = handle_label_models(colors_model,models)
 
