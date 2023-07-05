@@ -21,11 +21,39 @@ def model_first(model,season):
         tsurf            =  'ens_fld_year_mean')
 #%%
 MPI_GE_onepct_DJFM = model_first('MPI_GE_onepct','DJFM')
-MPI_GE_onepct_DJFM.extrc_tsurf()
 #%%
-MPI_GE_onepct_DJFM.composite_analysis()
+MPI_GE_onepct_DJFM.composite_analysis(tfield='same')
+#%%
+MPI_GE_onepct_DJFM.write_doc()
+#%%
+MPI_GE_onepct_MAM = model_first('MPI_GE_onepct','MAM')
+#%%
+MPI_GE_onepct_MAM.composite_analysis(tfield='same')
+#%%
+MPI_GE_onepct_MAM.composite_analysis(tfield='JJAS',levels_NAO=np.arange(-1,1.1,0.2),levels_EA=np.arange(-1,1.1,0.2))
+#%%
+MPI_GE_onepct_MAM.plot_all()
+#%%
+MPI_GE_onepct_MAM.extreme_count_profile(xlim = (40,140))
+#%%
+MPI_GE_onepct_MAM.write_doc()
+#%%
+MPI_GE_onepct_JJAS = model_first('MPI_GE_onepct','JJAS')
 
+#%%
+MPI_GE_onepct_JJAS.plot_all()
+#%%
+MPI_GE_onepct_JJAS.extreme_count_profile(xlim = (40,140))
+#%%
+MPI_GE_onepct_JJAS.composite_analysis(tfield='same',levels_NAO = np.arange(-1,1.1,0.2),levels_EA = np.arange(-1,1.1,0.2))
 
+#%%
+MPI_GE_onepct_JJAS.write_doc()
+
+#%%
+
+MPI_GE_onepct_SON = model_first('MPI_GE_onepct','SON')
+MPI_GE_onepct_SON.plot_all()
 
 
 

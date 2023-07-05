@@ -28,7 +28,9 @@ Welcome to Teleconnection-season's documentation!
    MPI_GE_onepct_decade_index_stats
    MMLE_slope
    MPI_GE_onepct_decade_DJFM_index_stats
-   MPI_GE_onepct_decade_MJJA_index_stats
+   MPI_GE_onepct_decade_JJAS_index_stats
+   MPI_GE_onepct_decade_MAM_index_stats
+   gr_0407
 
 Indices and tables
 ==================
