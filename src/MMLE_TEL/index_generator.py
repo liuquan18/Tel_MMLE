@@ -96,7 +96,7 @@ class decompose_troposphere:
             + "_eof_result.nc"
         )
 
-
+#%%
 ##########################################
 class decompose_plev:
     """
@@ -170,7 +170,8 @@ class decompose_plev:
             + "_eof_result.nc"
         )
 
-
+#%%
+##########################################
 class decompose_plev_random_ens:
     def __init__(
         self,
