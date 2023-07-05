@@ -30,5 +30,9 @@ def produce_random_index(plev = 50000,season = 'MAM'):
             except Exception as exc:
                 print(f'generated an exception: {exc}')
 # %%
-produce_random_index(plev=50000,season='MAM')
+produce_random_index(plev=50000,season='DJFM')
+# %%
+produce_random_index(plev=50000,season='JJAS')
+
+# %%
 # %%

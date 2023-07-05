@@ -19,6 +19,18 @@ def model_first(model,season):
         standard         =  'first',
         season           =   season,
         tsurf            =  'ens_fld_year_mean')
+
+
+#%%
+model_first('MPI_GE','JJAS').extrc_tsurf()
+#%%
+model_first('CanESM2','JJAS').extrc_tsurf()
+#%%
+model_first('CESM1_CAM5','JJAS').extrc_tsurf()
+#%%
+model_first('GFDL_CM3','JJAS').extrc_tsurf()
+#%%
+model_first('MK36','JJAS').extrc_tsurf()
 #%%
 MPI_GE_onepct_DJFM = model_first('MPI_GE_onepct','DJFM')
 #%%

@@ -23,6 +23,7 @@ def read_data(
     season = 'MAM',
     fixedPattern = "decade",
 ):
+    print(f"read data of {model} {tsurf} {season} {standard} {str(ens_size)}")
     eof_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}_random/EOF_result/plev_{plev}_{fixedPattern}_{season}_{standard}_{str(ens_size)}_eof_result.nc"
     eof_result = xr.open_dataset(eof_dir)
 
@@ -66,8 +67,8 @@ standards = ["first"]#, "temporal_ens"]
 def process_data(ens_size, tsurf, standard,season):
     plev = 50000
     fixed_pattern = "decade"
-    season = "MAM"
-    eof_result, temperature, extrc = read_data(ens_size, tsurf=tsurf, season = 'MAM')
+    season = season
+    eof_result, temperature, extrc = read_data(ens_size, tsurf=tsurf, season = season)
     # close the files red
     temperature.close()
 
@@ -84,7 +85,7 @@ def process_data(ens_size, tsurf, standard,season):
         )
     except PermissionError:
         pass
-
+#%%
 
 if __name__ == "__main__":
     with Pool() as p:
@@ -95,7 +96,7 @@ if __name__ == "__main__":
                 for ens_size in ens_sizes
                 for tsurf in tsurfs
                 for standard in standards
-                for season in ['MAM']
+                for season in ['JJAS']
             ],
         )
 

@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 
 #%%
 import src.plots.extreme_plot as ext_plot
+import importlib
+importlib.reload(ext_plot)
 
 
 # %%
@@ -91,7 +93,16 @@ def slope_diff_tsurf(**kwargs):
 
 #%%
 mmle_slope(
-    plev=50000, standard="first", tsurf="ens_fld_year_mean", time="all", season="MAM"
+    plev=50000, standard="first", tsurf="ens_fld_year_mean", time='1960-01-01', season="DJFM"
 )
+
 #%%
-mmle_slope(season = 'MAM')
+mmle_slope(
+    plev=50000, standard="first", tsurf="ens_fld_year_mean", time='1960-01-01', season="JJAS"
+)
+
+#%%
+mmle_slope(
+    plev=50000, standard="first", tsurf="ens_fld_year_mean", time='1960-01-01', season="MAM"
+)
+# %%
