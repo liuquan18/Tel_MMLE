@@ -10,7 +10,7 @@ import proplot as pplt
 from scipy.stats import bootstrap
 import statsmodels.api as sm
 import random
-
+import warnings
 
 # %%
 # functions to do bootstrap on numpy array
@@ -38,31 +38,57 @@ def _neg_count(ts):
 
 
 def bootstrap_pos_count_low(ts, cl=0.95):
-    res = bootstrap(
-        (ts,), _pos_count, random_state=0, vectorized=False, confidence_level=cl
-    )
-    return res.confidence_interval.low
+    with warnings.catch_warnings():
+        warnings.filterwarnings('error')
+        try: # in case of count=0, the bootstrap will give a warning
+            res = bootstrap(
+                (ts,), _pos_count, random_state=0, vectorized=False, confidence_level=cl
+            )
+            low = res.confidence_interval.low
+        except Warning:
+            low = 0
+    return low
 
 
 def bootstrap_pos_count_high(ts, cl=0.95):
-    res = bootstrap(
-        (ts,), _pos_count, random_state=0, vectorized=False, confidence_level=cl
-    )
-    return res.confidence_interval.high
+    with warnings.catch_warnings():
+        warnings.filterwarnings('error')
+        try:
+            res = bootstrap(
+                (ts,), _pos_count, random_state=0, vectorized=False, confidence_level=cl
+            )
+            high = res.confidence_interval.high
+        except Warning:
+            high = 0
+    return high
 
 
 def bootstrap_neg_count_low(ts, cl=0.95):
-    res = bootstrap(
-        (ts,), _neg_count, random_state=0, vectorized=False, confidence_level=cl
-    )
-    return res.confidence_interval.low
+    with warnings.catch_warnings():
+        warnings.filterwarnings('error')
+        try:
+            res = bootstrap(
+                (ts,), _neg_count, random_state=0, vectorized=False, confidence_level=cl
+            )
+            low = res.confidence_interval.low
+        except Warning:
+            low = 0
+    return low
+
 
 
 def bootstrap_neg_count_high(ts, cl=0.95):
-    res = bootstrap(
-        (ts,), _neg_count, random_state=0, vectorized=False, confidence_level=cl
-    )
-    return res.confidence_interval.high
+    with warnings.catch_warnings():
+        warnings.filterwarnings('error')
+        try:
+            res = bootstrap(
+                (ts,), _neg_count, random_state=0, vectorized=False, confidence_level=cl
+            )
+            high = res.confidence_interval.high
+        except Warning:
+            high = 0
+    return high
+
 
 
 #%%
