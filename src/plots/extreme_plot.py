@@ -42,6 +42,7 @@ def extCount_tsurf_scatter(
 
 
 def _scatter_extrcVStsurf(ext_counts, t_surf,  axes):
+    t_surf = t_surf.sel(time = ext_counts.time,method = 'nearest')
     for i, mode in enumerate(ext_counts.mode):
         for j, extr_type in enumerate(ext_counts.extr_type):
             # data preparation
