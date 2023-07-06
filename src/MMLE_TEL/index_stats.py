@@ -67,7 +67,7 @@ def read_tsurf(tsurf_dir):
         tsurf_arr["time"] = tsurf_arr.indexes["time"].to_datetimeindex()
     except AttributeError:
         pass
-    tsurf_arr = tsurf_arr - tsurf_arr[0]
+
     return tsurf_arr
 
 # %%
