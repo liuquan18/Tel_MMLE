@@ -217,26 +217,30 @@ class story_line:
             else:
                 print("wrong input of tfield")
                 tsurf_season = None
-        field_tsurf_dir = f"{self.odir}composite/{self.prefix}_{tsurf_season}_first_composite.nc"
+        first_com_tsurf_dir = f"{self.odir}composite/{self.prefix}_{tsurf_season}_first_composite.nc"
+        last_com_tsurf_dir = f"{self.odir}composite/{self.prefix}_{tsurf_season}_last_composite.nc"
 
         print("ploting the composite analysis of surface temperature")
         print(f" reading the composite data of {self.prefix}_{tsurf_season}")
 
-        try:
-            first_var = xr.open_dataset(field_tsurf_dir).tsurf.squeeze()
-        except AttributeError:
-            try:
-                first_var = xr.open_dataset(field_tsurf_dir).ts.squeeze()
-            except AttributeError:
-                first_var = xr.open_dataset(field_tsurf_dir).tas.squeeze()
+        first_var = xr.open_dataset(first_com_tsurf_dir)
+        last_var = xr.open_dataset(last_com_tsurf_dir)
 
         try:
-            last_var = xr.open_dataset(field_tsurf_dir.replace("first", "last")).tsurf.squeeze()
+            first_var = first_var.tsurf.squeeze()
         except AttributeError:
             try:
-                last_var = xr.open_dataset(field_tsurf_dir.replace("first", "last")).ts.squeeze()
+                first_var = first_var.ts.squeeze()
             except AttributeError:
-                last_var = xr.open_dataset(field_tsurf_dir.replace("first", "last")).tas.squeeze()
+                first_var = first_var.tas.squeeze()
+
+        try:
+            last_var = last_var.tsurf.squeeze()
+        except AttributeError:
+            try:
+                last_var = last_var.ts.squeeze()
+            except AttributeError:
+                last_var = last_var.tas.squeeze()
 
         temp_NAO = composite.composite_plot(first_var, last_var, "NAO",level_bound = level_bound,levels=levels_NAO)
         plt.savefig(
