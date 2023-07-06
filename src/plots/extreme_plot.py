@@ -200,20 +200,40 @@ def slope_err(extr, tsurf):
     return slope_NAO,slope_EA,yerr,xerr
 
 
-def slope_models(extrs,tsurfs, models, axs, colors, ensemble_size=None,alpha = 0.7):
+def slope_models(extrs,tsurfs, models, axs, colors, ensemble_size=None,alpha = 0.7,time = 'all'):
     """
     plot the slope of extreme event count profile for all models
     """
+
     extr_types = ["pos", "neg"]
     modes = ["NAO", "EA"]
     if len(colors) != len(models):
         colors = [colors] * len(models)
 
     for i, model in enumerate(models):
+
+        if time != 'all' and model != 'MPI_GE_onepct':
+            time = np.datetime64(time)
+            extrs = [extr.sel(time = slice(time,None)) for extr in extrs]
+            tsurfs = [tsurf.sel(time = extr.time,method = 'nearest') for tsurf in tsurfs]
+        else:
+            pass
+
+        # calculate tsurf increase
+        tsurfs = [tsurf - tsurf[0] for tsurf in tsurfs]
+
         for j, extr_type in enumerate(extr_types):
             ax = axs[j]
-            extr = extrs[model].sel(extr_type=extr_type)
-            tsurf = tsurfs[model]
+
+            # select time period
+            if time != 'all' and model != 'MPI_GE_onepct':
+                time = np.datetime64(time)
+                extr = extrs[model].sel(extr_type=extr_type,time = slice(time,None))
+                tsurf = tsurfs[model].sel(time = extr.time,method = 'nearest')
+            else:
+                extr = extrs[model].sel(extr_type=extr_type)
+                tsurf = tsurfs[model]
+            tsurf = tsurf - tsurf[0] # increase
 
             slope_NAO, slope_EA, yerr, xerr = slope_err(extr, tsurf)
 
@@ -255,18 +275,6 @@ def mmle_slope_scatter(extrs,tsurfs,extrs_rand,tsurfs_rand,tsurf = 'ens_fld_year
     """
     plot the slope of extreme event count profile for multiple models
     """
-    # data preparation
-    # select time if needed
-    if time != 'all' and model != 'MPI_GE_onepct':
-        time = np.datetime64(time)
-        extrs = [extr.sel(time = slice(time,None)) for extr in extrs]
-        tsurfs = [tsurf.sel(time = extr.time,method = 'nearest') for tsurf in tsurfs]
-    else:
-        pass
-
-    # calculate tsurf increase
-    tsurfs = [tsurf - tsurf[0] for tsurf in tsurfs]
-
 
     fig, axs = pplt.subplots(nrows=2, ncols=2, sharex=False, sharey=False)
 
@@ -285,7 +293,7 @@ def mmle_slope_scatter(extrs,tsurfs,extrs_rand,tsurfs_rand,tsurf = 'ens_fld_year
     # Get a list of nine evenly spaced colors from the colormap
     ens_size = np.arange(20, 101, 10)
 
-    slope_models(extrs,tsurfs, models, axs[0, :], colors_model, ensemble_size=ensemble_size)
+    slope_models(extrs,tsurfs, models, axs[0, :], colors_model, ensemble_size=ensemble_size,time = time)
     slope_models(extrs_rand,tsurfs_rand, np.arange(20, 101, 10), axs[1, :], "tab:grey", ensemble_size=ens_size,alpha=0.5)
     # legend 
     # Add the legend with the custom handler
@@ -397,4 +405,4 @@ def slope_diff_tsurf(extrs,tsurf_gmst,NA_tsurf,tropical_arctic_gradient,time = '
 
 ############################### MMLE line plot #########################################
 #%%
-def mmle_line_plot(extrs,tsurfs,extrs_rand,tsurfs_rand,tsurf = 'ens_fld_year_mean',time = 'all'):
+# def mmle_line_plot(extrs,tsurfs,extrs_rand,tsurfs_rand,tsurf = 'ens_fld_year_mean',time = 'all'):
