@@ -22,6 +22,25 @@ def model_first(model,season):
 
 
 #%%
+def extrc_tsurf_season(season):
+    model_first('MPI_GE_onepct',season).extrc_tsurf()
+    model_first('MPI_GE',season).extrc_tsurf()
+    model_first('CanESM2',season).extrc_tsurf()
+    model_first('CESM1_CAM5',season).extrc_tsurf()
+    model_first('GFDL_CM3',season).extrc_tsurf()
+    model_first('MK36',season).extrc_tsurf()
+
+#%%
+extrc_tsurf_season('DJFM')
+
+#%%
+extrc_tsurf_season('MAM')
+
+
+
+#%%
+model_first('MPI_GE_onepct','JJAS').extrc_tsurf()
+#%%
 model_first('MPI_GE','JJAS').extrc_tsurf()
 #%%
 model_first('CanESM2','JJAS').extrc_tsurf()
@@ -31,6 +50,10 @@ model_first('CESM1_CAM5','JJAS').extrc_tsurf()
 model_first('GFDL_CM3','JJAS').extrc_tsurf()
 #%%
 model_first('MK36','JJAS').extrc_tsurf()
+
+#%%
+
+
 #%%
 MPI_GE_onepct_DJFM = model_first('MPI_GE_onepct','DJFM')
 #%%
