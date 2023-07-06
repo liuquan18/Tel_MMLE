@@ -128,7 +128,7 @@ def composite_analysis(
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/"
     prefix = f"plev_{plev}_{fixed_pattern}_{standard}_{index_season}_"
     eof_dir = odir + "EOF_result/" + prefix + "eof_result.nc"
-    field_tsurf_dir = odir + f"ts_{tsurf_season}/*.nc"
+    field_tsurf_dir = odir + f"ts_{tsurf_season}/"
 
     # to dir
     first_composite_dir = odir + "composite/{prefix}{tsurf_season}_first_composite.nc"
@@ -160,7 +160,7 @@ def composite_analysis(
 
     # select the first and last 10 decades
     first_index = index.isel(time=slice(0, 10))
-    last_index = index.pc.isel(time=slice(-10, None))
+    last_index = index.isel(time=slice(-10, None))
 
     print(" compositing the tsurf data...")
     first_var = composite.Tel_field_composite(
