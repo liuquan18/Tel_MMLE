@@ -217,7 +217,7 @@ class story_line:
             else:
                 print("wrong input of tfield")
                 tsurf_season = None
-        field_tsurf_dir = f"{self.odir}{composite}/{self.prefix}_{tsurf_season}_first_composite.nc"
+        field_tsurf_dir = f"{self.odir}composite/{self.prefix}_{tsurf_season}_first_composite.nc"
 
         print("ploting the composite analysis of surface temperature")
         print(f" reading the composite data of {self.prefix}_{tsurf_season}")
