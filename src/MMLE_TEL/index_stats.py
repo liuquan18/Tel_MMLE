@@ -121,7 +121,8 @@ def composite_analysis(
         plev=50000,
         index_season="MJJA",
         tsurf_season="MJJA",
-        reduction="mean"):
+        reduction="mean",
+        threshold=1.5,):
     """
     tfield can be 'same' or 'next'
     """
@@ -131,8 +132,8 @@ def composite_analysis(
     field_tsurf_dir = odir + f"ts_{tsurf_season}/"
 
     # to dir
-    first_composite_dir = odir + "composite/{prefix}{tsurf_season}_first_composite.nc"
-    last_composite_dir = odir + "composite/{prefix}{tsurf_season}_last_composite.nc"
+    first_composite_dir = f"{odir}composite/{prefix}{tsurf_season}_first_composite.nc"
+    last_composite_dir = f"{odir}composite/{prefix}{tsurf_season}_last_composite.nc"
 
     print(" reading the tsurf field data...")
     try:
@@ -164,10 +165,10 @@ def composite_analysis(
 
     print(" compositing the tsurf data...")
     first_var = composite.Tel_field_composite(
-        first_index, var_data, threshold=1.5, reduction=reduction
+        first_index, var_data, threshold=threshold, reduction=reduction
     )
     last_var = composite.Tel_field_composite(
-        last_index, var_data, threshold=1.5, reduction=reduction
+        last_index, var_data, threshold=threshold, reduction=reduction
     )
 
 
