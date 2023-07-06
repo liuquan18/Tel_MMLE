@@ -118,7 +118,6 @@ def composite_analysis(
         model,
         fixed_pattern="decade",
         standard="first",
-        tsurf="ens_fld_year_mean",
         plev=50000,
         index_season="MJJA",
         tsurf_season="MJJA",
