@@ -14,10 +14,17 @@ importlib.reload(story_line)
 # %%
 
 #%%
-def extreme_counts_tsurf(model, fixed_pattern="decade", standard = 'temporal_ens',tsurf = 'ens_fld_year_mean',plev = 50000,season = 'MJJA'):
+def extreme_counts_tsurf(
+    model,
+    fixed_pattern="decade",
+    standard="temporal_ens",
+    tsurf="ens_fld_year_mean",
+    plev=50000,
+    season="MJJA",
+):
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/"
     prefix = f"plev_{plev}_{fixed_pattern}_{standard}_{season}_"
-    eof_dir = odir+ "EOF_result/"+ prefix + "eof_result.nc"
+    eof_dir = odir + "EOF_result/" + prefix + "eof_result.nc"
     tsurf_dir = odir + "ts_processed/" + tsurf + ".nc"
 
     # to dir
@@ -28,17 +35,17 @@ def extreme_counts_tsurf(model, fixed_pattern="decade", standard = 'temporal_ens
     eof_result = xr.open_dataset(eof_dir)
     # tsurf
     temperature = read_tsurf(tsurf_dir)
-    
+
     # extreme counts
     # check if the extr_counts_dir exists
     try:
         extrc = xr.open_dataset(extr_counts_dir).pc
 
     except FileNotFoundError:
-        extrc = extreme.decadal_extrc(eof_result.pc,ci = 'bootstrap')
-        
+        extrc = extreme.decadal_extrc(eof_result.pc, ci="bootstrap")
+
     # tsurf mean
-    tsurf_mean = extreme.decade_tsurf(extrc,temperature)
+    tsurf_mean = extreme.decade_tsurf(extrc, temperature)
 
     # save the result
     try:
@@ -48,6 +55,7 @@ def extreme_counts_tsurf(model, fixed_pattern="decade", standard = 'temporal_ens
     tsurf_mean.to_netcdf(t_surf_mean_dir)
 
     return extrc, tsurf_mean
+
 
 #%%
 # read tsurf
@@ -70,32 +78,34 @@ def read_tsurf(tsurf_dir):
 
     return tsurf_arr
 
+
 # %%
-def extreme_counts_profile(model,standard = 'first',season = 'MJJA'):
-    eof_dir = (f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/"            
-            + "troposphere_ind_decade_"
-            + standard
-            + "_"
-            + season
-            + "_eof_result.nc")
-    
+def extreme_counts_profile(model, standard="first", season="MJJA"):
+    eof_dir = (
+        f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/"
+        + "troposphere_ind_decade_"
+        + standard
+        + "_"
+        + season
+        + "_eof_result.nc"
+    )
+
     eof_result = xr.open_dataset(eof_dir)
 
     # PCS of the first and last decade
-    first_pc = eof_result.pc.isel(time = slice(0,10))
-    last_pc = eof_result.pc.isel(time = slice(-10,None))
+    first_pc = eof_result.pc.isel(time=slice(0, 10))
+    last_pc = eof_result.pc.isel(time=slice(-10, None))
 
     if first_pc.time.size != 10 or last_pc.time.size != 10:
         raise ValueError("the time size is not 10")
 
     print("calculating the extreme event count")
     # extreme counts of first and last 10 decades
-    first_count = extreme.extreme_count_xr(first_pc, ci='bootstrap')
-    last_count = extreme.extreme_count_xr(last_pc, ci='bootstrap')
+    first_count = extreme.extreme_count_xr(first_pc, ci="bootstrap")
+    last_count = extreme.extreme_count_xr(last_pc, ci="bootstrap")
 
     # save the result
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/"
     prefix = f"troposphere_ind_decade_{standard}_{season}_"
     first_count.to_netcdf(odir + prefix + "first_count.nc")
     last_count.to_netcdf(odir + prefix + "last_count.nc")
-
