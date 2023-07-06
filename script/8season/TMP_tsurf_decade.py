@@ -27,5 +27,16 @@ def decade_tsurf(extrc, tsurf, time = 'all'):
     tsurf.sel(time=decade_slice).mean(dim="time") for decade_slice in decade_slices
     ]
     tsurf_dec_mean = xr.concat(tsurf_dec_mean, dim=extrc.time)
+    return tsurf_dec_mean.squeeze()
 
+# %%
+import src.extreme.extreme_ci as extreme
+# %%
+index = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CanESM2/EOF_result/plev_50000_decade_first_JJAS_eof_result.nc")
+# %%
+index = index.pc
+# %%
+extrc = extreme.decadal_extrc(index,ci = 'bootstrap')
+# %%
+tsurf_dec_mean = decade_tsurf(extrc, tsurf, time = 'all')
 # %%
