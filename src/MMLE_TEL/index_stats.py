@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import xarray as xr
 import os
 import src.extreme.extreme_ci as extreme
+import src.composite.field_composite as composite
+
 
 #%%
 import importlib
@@ -109,3 +111,67 @@ def extreme_counts_profile(model, standard="first", season="MJJA"):
     prefix = f"troposphere_ind_decade_{standard}_{season}_"
     first_count.to_netcdf(odir + prefix + "first_count.nc")
     last_count.to_netcdf(odir + prefix + "last_count.nc")
+
+#%%
+# composite analysis of surface temperature in terms of different extreme events
+def composite_analysis(
+        model,
+        fixed_pattern="decade",
+        standard="first",
+        tsurf="ens_fld_year_mean",
+        plev=50000,
+        index_season="MJJA",
+        tsurf_season="MJJA",
+        reduction="mean"):
+    """
+    tfield can be 'same' or 'next'
+    """
+    odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/"
+    prefix = f"plev_{plev}_{fixed_pattern}_{standard}_{index_season}_"
+    eof_dir = odir + "EOF_result/" + prefix + "eof_result.nc"
+    field_tsurf_dir = odir + f"ts_{tsurf_season}/*.nc"
+
+    # to dir
+    first_composite_dir = odir + "composite/{prefix}{tsurf_season}_first_composite.nc"
+    last_composite_dir = odir + "composite/{prefix}{tsurf_season}_last_composite.nc"
+
+    print(" reading the tsurf field data...")
+    try:
+        var_data = xr.open_dataset(field_tsurf_dir + "all_ens_tsurf.nc")
+    except FileNotFoundError:
+        var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens')
+
+    try:
+        var_data = var_data.tsurf
+    except AttributeError:
+        try:
+            var_data = var_data.ts
+        except AttributeError:
+            var_data = var_data.tas
+    try:
+        var_data['time'] = var_data['time'].astype('datetime64[ns]')
+    except TypeError:
+        pass
+    var_data = var_data - var_data.mean(dim="ens")
+
+
+    # eof
+    eof_result = xr.open_dataset(eof_dir)
+    index = eof_result.pc
+
+    # select the first and last 10 decades
+    first_index = index.isel(time=slice(0, 10))
+    last_index = index.pc.isel(time=slice(-10, None))
+
+    print(" compositing the tsurf data...")
+    first_var = composite.Tel_field_composite(
+        first_index, var_data, threshold=1.5, reduction=reduction
+    )
+    last_var = composite.Tel_field_composite(
+        last_index, var_data, threshold=1.5, reduction=reduction
+    )
+
+
+    # save the result
+    first_var.to_netcdf(first_composite_dir)
+    last_var.to_netcdf(last_composite_dir)
