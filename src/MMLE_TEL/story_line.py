@@ -217,10 +217,10 @@ class story_line:
             else:
                 print("wrong input of tfield")
                 tsurf_season = None
-        field_tsurf_dir = f"{self.odir}{composite}/{self.prefix}{tsurf_season}_first_composite.nc"
+        field_tsurf_dir = f"{self.odir}{composite}/{self.prefix}_{tsurf_season}_first_composite.nc"
 
         print("ploting the composite analysis of surface temperature")
-        print(f" reading the composite data of {self.prefix}{tsurf_season}")
+        print(f" reading the composite data of {self.prefix}_{tsurf_season}")
 
         try:
             first_var = xr.open_dataset(field_tsurf_dir).tsurf.squeeze()
@@ -240,7 +240,7 @@ class story_line:
 
         temp_NAO = composite.composite_plot(first_var, last_var, "NAO",level_bound = level_bound,levels=levels_NAO)
         plt.savefig(
-            self.to_plot_dir + f"_{self.prefix}{tsurf_season}_composite_tsurf_NAO.png",
+            self.to_plot_dir + f"_{self.prefix}_{tsurf_season}_composite_tsurf_NAO.png",
             dpi=300,
         )
 
