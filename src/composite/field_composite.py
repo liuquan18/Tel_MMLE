@@ -101,7 +101,7 @@ def composite_plot( first, last, mode,level_bound = None,levels = None):
         latlines=20,
         lonlines=30,
         coast=True,
-        coastlinewidth=0.5,
+        coastlinewidth=1,
         coastcolor="gray7",
         toplabels=["first10", "last10", "last10 - first10"],
         toplabelcolor="w",
