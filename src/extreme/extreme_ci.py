@@ -293,7 +293,7 @@ def extreme_count_xr(pc, ci="AR1"):
     return extr_count
 
 # %%
-def decadal_extrc_tsurf(index: xr.DataArray, ext_counts_xr = None, temp: xr.DataArray = None, plev=None,ci = 'AR1'):
+def decadal_extrc(index: xr.DataArray, plev=None,ci = 'bootstrap'):
     """
     extract the extreme count and the mean surface temperature every ten years.
     **Arguments**
@@ -308,8 +308,6 @@ def decadal_extrc_tsurf(index: xr.DataArray, ext_counts_xr = None, temp: xr.Data
     if plev is not None:
         index = index.sel(plev=plev)
 
-
-
     # start time
     time_s = index.time[::10]
     # end time
@@ -319,9 +317,6 @@ def decadal_extrc_tsurf(index: xr.DataArray, ext_counts_xr = None, temp: xr.Data
     decade_slice = [slice(s, e) for s, e in zip(time_s, time_e)]
 
     ext_counts = []
-    t_surf_mean = []
-
-
     for time in decade_slice:
         print(f" extreme counting in the decade of {time.start.dt.year.values} - {time.stop.dt.year.values}")
 
@@ -335,24 +330,26 @@ def decadal_extrc_tsurf(index: xr.DataArray, ext_counts_xr = None, temp: xr.Data
         time_tag = period_pc.time[0] # for reference 
 
         # extreme count
-        if ext_counts_xr is None:
-            period_ext_count = extreme_count_xr(period_pc, ci=ci)
-            period_ext_count['time'] = time_tag
-            # set time as the new dimension
-            period_ext_count = period_ext_count.expand_dims('time')
-            ext_counts.append(period_ext_count)
-
-        # tsurf
-        if temp is not None:
-            period_tm = temp.sel(time = period_pc.time, method = 'nearest')
-            period_mean_t = period_tm.mean(dim="time")
-            period_mean_t['time'] = time_tag
-            period_mean_t = period_mean_t.expand_dims('time')
-            t_surf_mean.append(period_mean_t)
-
-    if ext_counts_xr is None:
+        period_ext_count = extreme_count_xr(period_pc, ci=ci)
+        period_ext_count['time'] = time_tag
+        # set time as the new dimension
+        period_ext_count = period_ext_count.expand_dims('time')
+        ext_counts.append(period_ext_count)
         ext_counts_xr = xr.concat(ext_counts, dim='time')
-    if temp is not None:
-        t_surf_mean_xr = xr.concat(t_surf_mean, dim='time')
         
-    return ext_counts_xr, t_surf_mean_xr
+    return ext_counts_xr
+
+#%%
+def decade_tsurf(extrc, tsurf):
+
+    time_s = extrc.time.dt.year.values
+    time_e = extrc.time[1:].dt.year.values - 1
+    time_e = np.append(time_e,2100)
+
+    decade_slices = [slice(str(s), str(e)) for s, e in zip(time_s, time_e)]
+
+    tsurf_dec_mean = [
+    tsurf.sel(time=decade_slice).mean(dim="time") for decade_slice in decade_slices
+    ]
+    tsurf_dec_mean = xr.concat(tsurf_dec_mean, dim=extrc.time)
+    return tsurf_dec_mean.squeeze()
