@@ -208,50 +208,47 @@ class story_line:
         tfield can be 'same' or 'next'
         """
         if tfield == 'same':
-            season_field_dir = self.season
-            field_tsurf_dir = self.odir + f"ts_{season_field_dir}/"
+            tsurf_season = self.season
         else:
             if tfield == 'next':
-                next_season = self.get_next_season()
+                tsurf_season = self.get_next_season()
             elif tfield == 'DJF' or tfield == 'JJA' or tfield == 'SON' or tfield == 'MAM' or tfield == 'JJAS' or tfield == 'DJFM':
-                next_season = tfield
-            season_field_dir = next_season
-            field_tsurf_dir = self.odir + f"ts_{season_field_dir}/"
+                tsurf_season = tfield
+            else:
+                print("wrong input of tfield")
+                tsurf_season = None
+        field_tsurf_dir = f"{self.odir}{composite}/{self.prefix}{tsurf_season}_first_composite.nc"
 
         print("ploting the composite analysis of surface temperature")
-        print(f" reading the tsurf data of {season_field_dir}")
-        try:
-            var_data = xr.open_dataset(field_tsurf_dir + "all_ens_tsurf.nc").tsurf
-        except FileNotFoundError:
-            var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens').tsurf
-        try:
-            var_data['time'] = var_data['time'].astype('datetime64[ns]')
-        except TypeError:
-            pass
-        var_data = var_data - var_data.mean(dim="ens")
+        print(f" reading the composite data of {self.prefix}{tsurf_season}")
 
-        first_index = self.eof_result.pc.isel(time=slice(0, 10))
-        last_index = self.eof_result.pc.isel(time=slice(-10, None))
+        try:
+            first_var = xr.open_dataset(field_tsurf_dir).tsurf.squeeze()
+        except AttributeError:
+            try:
+                first_var = xr.open_dataset(field_tsurf_dir).ts.squeeze()
+            except AttributeError:
+                first_var = xr.open_dataset(field_tsurf_dir).tas.squeeze()
 
-        print(" compositing the tsurf data...")
-        first_var = composite.Tel_field_composite(
-            first_index, var_data, threshold=1.5, reduction=reduction
-        )
-        last_var = composite.Tel_field_composite(
-            last_index, var_data, threshold=1.5, reduction=reduction
-        )
+        try:
+            last_var = xr.open_dataset(field_tsurf_dir.replace("first", "last")).tsurf.squeeze()
+        except AttributeError:
+            try:
+                last_var = xr.open_dataset(field_tsurf_dir.replace("first", "last")).ts.squeeze()
+            except AttributeError:
+                last_var = xr.open_dataset(field_tsurf_dir.replace("first", "last")).tas.squeeze()
 
         temp_NAO = composite.composite_plot(first_var, last_var, "NAO",level_bound = level_bound,levels=levels_NAO)
         plt.savefig(
-            self.to_plot_dir + f"_{season_field_dir}_composite_tsurf_NAO.png",
+            self.to_plot_dir + f"_{self.prefix}{tsurf_season}_composite_tsurf_NAO.png",
             dpi=300,
         )
 
-        temp_EA = composite.composite_plot(first_var, last_var, "EA",level_bound = level_bound,levels=levels_EA)
-        plt.savefig(
-            self.to_plot_dir + f"_{season_field_dir}_composite_tsurf_EA.png",
-            dpi=300,
-        )
+        # temp_EA = composite.composite_plot(first_var, last_var, "EA",level_bound = level_bound,levels=levels_EA)
+        # plt.savefig(
+        #     self.to_plot_dir + f"_{season_field_dir}_composite_tsurf_EA.png",
+        #     dpi=300,
+        # )
 
     def get_next_season(self):
         if len(self.season) == 4: # DJFM and JJAS
