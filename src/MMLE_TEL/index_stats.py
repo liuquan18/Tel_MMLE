@@ -33,14 +33,12 @@ def extreme_counts_tsurf(model, fixed_pattern="decade", standard = 'temporal_ens
     # check if the extr_counts_dir exists
     try:
         extrc = xr.open_dataset(extr_counts_dir).pc
-        _, tsurf_mean = extreme.decadal_extrc_tsurf(
-            eof_result.pc,ext_counts_xr=extrc, temp = temperature, ci="bootstrap"
-        )
 
     except FileNotFoundError:
-        extrc, tsurf_mean = extreme.decadal_extrc_tsurf(
-            eof_result.pc, temp = temperature, ci="bootstrap"
-        )
+        extrc = extreme.decadal_extrc(eof_result.pc,ci = 'bootstrap')
+        
+    # tsurf mean
+    tsurf_mean = extreme.decade_tsurf(extrc,temperature)
 
     # save the result
     try:
