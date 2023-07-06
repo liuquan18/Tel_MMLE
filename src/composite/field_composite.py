@@ -49,7 +49,7 @@ def Tel_field_composite(
     return tel_composite
 
 
-def composite_plot( first, last, mode,level_bound = 2,levels = None):
+def composite_plot( first, last, mode,level_bound = None,levels = None):
     if levels is None:
         if mode == "NAO":
             bound_l = -1*level_bound -1
