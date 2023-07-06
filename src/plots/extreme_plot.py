@@ -212,16 +212,6 @@ def slope_models(extrs,tsurfs, models, axs, colors, ensemble_size=None,alpha = 0
 
     for i, model in enumerate(models):
 
-        if time != 'all' and model != 'MPI_GE_onepct':
-            time = np.datetime64(time)
-            extrs = [extr.sel(time = slice(time,None)) for extr in extrs]
-            tsurfs = [tsurf.sel(time = extr.time,method = 'nearest') for tsurf in tsurfs]
-        else:
-            pass
-
-        # calculate tsurf increase
-        tsurfs = [tsurf - tsurf[0] for tsurf in tsurfs]
-
         for j, extr_type in enumerate(extr_types):
             ax = axs[j]
 
