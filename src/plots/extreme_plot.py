@@ -39,11 +39,8 @@ def extCount_tsurf_scatter(
         # ylim=ylim,
     )
 
-    _scatter_extrcVStsurf(ext_counts, t_surf, axes)
-
-
-def _scatter_extrcVStsurf(ext_counts, t_surf, axes):
     t_surf = t_surf.sel(time=ext_counts.time, method="nearest")
+    t_surf = t_surf - t_surf[0]
     for i, mode in enumerate(ext_counts.mode):
         for j, extr_type in enumerate(ext_counts.extr_type):
             # data preparation
@@ -52,14 +49,8 @@ def _scatter_extrcVStsurf(ext_counts, t_surf, axes):
             high = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="high")
 
             # for the data with plev
-            try:
-                true = true.stack(com=("time", "plev"))
-                low = low.stack(com=("time", "plev"))
-                high = high.stack(com=("time", "plev"))
-                t = t_surf.stack(com=("time", "plev"))
 
-            except KeyError:
-                t = t_surf
+            t = t_surf
 
             axes[i, j].errorbar(
                 x=t,
@@ -124,8 +115,9 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
     fig = pplt.figure(
         # space=0,
         refwidth="20em",
+        facecolor="black",
     )
-    axes = fig.subplots(nrows=2, ncols=2)
+    axes = fig.subplots(nrows=1, ncols=2)
     axes.format(
         abc=True,
         abcloc="ul",
@@ -138,7 +130,7 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
         yminorticks="null",
         grid=False,
         toplabels=("pos", "neg"),
-        leftlabels=("NAO", "EA"),
+        # leftlabels=("NAO", "EA"),
         xlocator=20,
     )
 
@@ -160,18 +152,18 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
             colored=colored,
         )
 
-        _plot_extreme_count(
-            extreme_count.sel(mode="EA", extr_type="pos"),
-            axes[1, 0],
-            label=labels[i],
-            colored=colored,
-        )
-        _plot_extreme_count(
-            extreme_count.sel(mode="EA", extr_type="neg"),
-            axes[1, 1],
-            label=labels[i],
-            colored=colored,
-        )
+        # _plot_extreme_count(
+        #     extreme_count.sel(mode="EA", extr_type="pos"),
+        #     axes[1, 0],
+        #     label=labels[i],
+        #     colored=colored,
+        # )
+        # _plot_extreme_count(
+        #     extreme_count.sel(mode="EA", extr_type="neg"),
+        #     axes[1, 1],
+        #     label=labels[i],
+        #     colored=colored,
+        # )
     for ax in axes:
         ax.set_xlim(xlim)
     # add legend
