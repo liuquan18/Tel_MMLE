@@ -1,11 +1,7 @@
 # %%
-import proplot as pplt
 import xarray as xr
 import numpy as np
 import matplotlib.pyplot as plt
-import statsmodels.api as sm
-import matplotlib.lines as mlines
-import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 
 #%%
@@ -105,4 +101,15 @@ mmle_slope(
 mmle_slope(
     plev=50000, standard="first", tsurf="ens_fld_year_mean", time='1960-01-01', season="MAM"
 )
+# %%
+
+
+#%%
+extrs, tsurfs, extrs_rand, tsurfs_rand = read_extreme_counts(
+    plev=50000, standard="first", tsurf="ens_fld_year_mean", season="DJFM"
+)
+# %%
+importlib.reload(ext_plot)
+ext_plot.mmle_line_plot(extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean",time = '1960-01-01')
+
 # %%

@@ -4,39 +4,48 @@ import pandas as pd
 import numpy as np
 # %%
 extrc = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CanESM2/extreme_count/plev_50000_decade_first_JJAS_extre_counts.nc")
-# %%
-tsurf = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CanESM2/ts_processed/ens_fld_year_mean.nc")
+tsurf = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CanESM2/extreme_count/ens_fld_year_mean.nc")
+extrc_rands = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/plev_50000_decade_JJAS_first_50_extre_counts.nc")
+tsurf_rands = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/ens_fld_year_mean.nc")
+
 
 # %%
-def decade_tsurf(extrc, tsurf, time = 'all'):
-
-    # select time
-    if time == 'all':
-        pass
-    else:
-        extrc = extrc.sel(time = slice(time,None))
-        tsurf = tsurf.sel(time = slice(time,None))
-
-    time_s = extrc.time.dt.year.values
-    time_e = extrc.time[1:].dt.year.values - 1
-    time_e = np.append(time_e,2100)
-
-    decade_slices = [slice(str(s), str(e)) for s, e in zip(time_s, time_e)]
-
-    tsurf_dec_mean = [
-    tsurf.sel(time=decade_slice).mean(dim="time") for decade_slice in decade_slices
-    ]
-    tsurf_dec_mean = xr.concat(tsurf_dec_mean, dim=extrc.time)
-    return tsurf_dec_mean.squeeze()
-
+mode = 'NAO'
+extr_type = 'pos'
 # %%
-import src.extreme.extreme_ci as extreme
-# %%
-index = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CanESM2/EOF_result/plev_50000_decade_first_JJAS_eof_result.nc")
-# %%
-index = index.pc
-# %%
-extrc = extreme.decadal_extrc(index,ci = 'bootstrap')
-# %%
-tsurf_dec_mean = decade_tsurf(extrc, tsurf, time = 'all')
+import matplotlib.pyplot as plt
+import proplot as pplt
+
+
+#%%
+
+ens_size = 50
+
+def line_single(extrc, tsurf, extrc_rand, tsurf_rand, ens_size, ax, color = 'k'):
+    tsurf = tsurf.values
+    tsurf = tsurf - tsurf[0]
+    extr = extrc.sel(confidence = 'true').pc.squeeze().values / ens_size
+
+    tsurf_rand = tsurf_rand.values
+    tsurf_rand = tsurf_rand - tsurf_rand[0]
+    extr_rand = extrc_rand.sel(confidence = 'true').pc.squeeze().values / ens_size
+
+    ax.line(x = tsurf,y = extr, marker = 'o', color = color,markersize = 3)
+    ax.line(x = tsurf_rand,y = extr_rand, marker = 'o', color = color, alpha = 0.5,markersize = 3)
+    ax.set_xlim(-1,5.6)
+
+#%%
+
+
+extrc = extrc.sel(mode = mode, extr_type = extr_type)
+tsurf = tsurf.ts
+
+
+extrc_rand = extrc_rands.sel(mode = mode, extr_type = extr_type)
+tsurf_rands = tsurf_rands.tsurf
+#%%
+
+fig = pplt.figure()
+ax = fig.subplots()
+line_single(extrc, tsurf,extrc_rand,tsurf_rands,  ens_size = 50, ax = ax)
 # %%

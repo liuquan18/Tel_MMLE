@@ -20,6 +20,19 @@ def model_first(model,season):
         season           =   season,
         tsurf            =  'ens_fld_year_mean')
 
+################
+#%%
+MPI_GE_onepct_JJAS = model_first('MPI_GE_onepct','JJAS')
+
+#%%
+MPI_GE_onepct_JJAS.composite_analysis(tfield='same',levels_NAO = np.arange(-1,1.1,0.2),levels_EA = np.arange(-1,1.1,0.2))
+
+#%%
+MPI_GE_onepct_JJAS.extreme_count_profile(xlim = (40,140))
+#%%
+###############
+
+
 
 #%%
 def extrc_tsurf_season(season):

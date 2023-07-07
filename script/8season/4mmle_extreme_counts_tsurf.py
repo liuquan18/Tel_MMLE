@@ -23,7 +23,7 @@ from multiprocessing import Pool
 # MPI_GE_onepct summer
 index_stats.extreme_counts_tsurf(
     model        =  "MPI_GE_onepct", 
-    tsurf        =  "ens_fld_year_ocean_mean", 
+    tsurf        =  "ens_fld_year_mean", 
     standard     =  "first",
     season       =  'JJAS')
 
