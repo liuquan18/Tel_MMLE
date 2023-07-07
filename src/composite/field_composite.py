@@ -1,3 +1,4 @@
+#%%
 import xarray as xr
 import numpy as np
 import src.composite.composite as composite_analysis
@@ -83,9 +84,12 @@ def composite_plot( first, last, mode,level_bound = None,levels = None):
         "fontsize": 25,
         "figure.facecolor": "black",
         "axes.facecolor": "black",
+        "grid.linewidth": 1.5,
+        "grid.color": "black",
     }
 
     pplt.rc.update(params)
+    pplt.rc
 
     fig, axes = pplt.subplots(
         space=0,
@@ -100,9 +104,10 @@ def composite_plot( first, last, mode,level_bound = None,levels = None):
     axes.format(
         latlines=20,
         lonlines=30,
+        color = 'grey7',
         coast=True,
         coastlinewidth=1,
-        coastcolor="gray7",
+        coastcolor="grey9",
         toplabels=["first10", "last10", "last10 - first10"],
         toplabelcolor="w",
         toplabels_kw = {"fontsize": 50},
@@ -110,11 +115,7 @@ def composite_plot( first, last, mode,level_bound = None,levels = None):
         leftlabelcolor="w",
         leftlabels_kw = {"fontsize": 50},
         suptitle=f"Change in influence of extreme {mode} on surface temperature",
-        # set the fontsize of labels to 25
-
-
-
-        
+        # set the fontsize of labels to 25        
     )
 
     extr_types = ["pos", "neg"]
@@ -130,6 +131,8 @@ def composite_plot( first, last, mode,level_bound = None,levels = None):
                 transform=ccrs.PlateCarree(),
                 cmap="RdBu_r",
             )
-
+            axes[i,j].grid(color = 'grey7',linewidth = 1.5)
     fig.colorbar(first_m, loc="r", pad=3, title=f"tsurf/K")
 
+
+# %%
