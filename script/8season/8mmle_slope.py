@@ -106,10 +106,10 @@ mmle_slope(
 
 #%%
 extrs, tsurfs, extrs_rand, tsurfs_rand = read_extreme_counts(
-    plev=50000, standard="first", tsurf="ens_fld_year_mean", season="DJFM"
+    plev=50000, standard="first", tsurf="ens_fld_year_mean", season="JJAS"
 )
 # %%
 importlib.reload(ext_plot)
-ext_plot.mmle_line_plot(extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean",time = '1960-01-01')
-
+fig = ext_plot.mmle_line_plot(extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean",time = '1960-01-01')
+fig.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/slides_IUGG/mmle_line_plot_GFDL_CM3.png', facecolor=fig.get_facecolor(), edgecolor='none')
 # %%

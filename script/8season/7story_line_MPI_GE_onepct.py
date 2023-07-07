@@ -4,11 +4,14 @@ import numpy as np
 
 import src.MMLE_TEL.story_line as story_line
 import src.plots.NAO_EA_hist2d as hist2d
+import src.composite.field_composite as composite
+
 
 #%%
 import importlib
 importlib.reload(story_line)
 importlib.reload(hist2d)
+importlib.reload(composite)
 
 #%%
 def model_first(model,season):
@@ -26,6 +29,9 @@ MPI_GE_onepct_JJAS = model_first('MPI_GE_onepct','JJAS')
 
 #%%
 MPI_GE_onepct_JJAS.composite_analysis(tfield='same',levels_NAO = np.arange(-1,1.1,0.2),levels_EA = np.arange(-1,1.1,0.2))
+#%%
+
+
 
 #%%
 MPI_GE_onepct_JJAS.extreme_count_profile(xlim = (40,140))
