@@ -44,7 +44,16 @@ def stat_overview(
     last_eof=None,
     levels=np.arange(-2, 2.1, 0.4),
 ):
-
+    params = {
+        "figure.facecolor": "black",
+        "axes.facecolor": "white",
+        "ytick.color": "w",
+        "xtick.color": "w",
+        "axes.labelcolor": "w",
+        "axes.edgecolor": "w",
+        "tick.labelcolor": "w",
+        "text.color": "w",}
+    pplt.rc.update(params)
     # plot
     fig = pplt.figure(space=0, refwidth="25em", wspace=3, hspace=3)
     fig.format(
@@ -61,7 +70,7 @@ def stat_overview(
         wspace=2,
         wratios=(1, 1),
     )
-    modes = ["NAO", "EA"]
+    modes = ["NAO",]# "EA"]
 
     for i, mode in enumerate(modes):
         # data preparation
@@ -130,7 +139,7 @@ def stat_overview(
             ax=hist_ax,
         )
 
-        hist_ax.format(grid=False, yminorticks="null", xminorticks="null", title=mode)
+        hist_ax.format(grid=False, yminorticks="null", xminorticks="null", title=mode,facecolor="black")
         hist_ax.spines["right"].set_visible(False)
         hist_ax.spines["top"].set_visible(False)
 
