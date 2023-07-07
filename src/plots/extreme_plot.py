@@ -454,7 +454,7 @@ def mmle_line_plot(
         "axes.edgecolor": "w",
         "tick.labelcolor": "w",
         "text.color": "w",
-        "font.size": 15,
+        "font.size": 20,
     }
 
     pplt.rc.update(params)
@@ -464,13 +464,14 @@ def mmle_line_plot(
         ncols=2,
         sharex=True,
         sharey=False,
-        figsize=(12, 12),
+        figsize=(18, 12),
         facecolor="k",
-        wspace=5,
+        wspace=8,
+        # dpi = 300,
     )
 
     axs.format(
-        suptitle="extreme counts vs. global mean temperature",
+        # suptitle="extreme event occurence vs. global mean temperature increase",
         abc=True,
         grid=False,
         xtickminor=False,
@@ -479,6 +480,7 @@ def mmle_line_plot(
         fontsize=25,
         toplabels=["pos", "neg"],
         facecolor="k",
+        suptitle_kw = dict(color='w')
     )
     models = [
         "MPI_GE_onepct",
@@ -522,10 +524,8 @@ def mmle_line_plot(
                     tsurf,
                     ensemble_size[i],
                     axs[r, c],
-                    # extrc_rand=extrc_rand,
-                    # tsurf_rand=tsurf_rand,
                     color=colors_model[i],
-                    label=f"{model}({str(ens_size)})",
+                    label=f"{model} ({str(ens_size)})",
                 )
     axs[0].format(
         ylabel="extreme occurence",
@@ -538,18 +538,21 @@ def mmle_line_plot(
         ylocator=20,
     )
     axs[1].legend(
-        loc="b",
-        ncols=3,
-        bbox_to_anchor=(-0.4, 0.0, 0.6, 0.2),
-        fontsize="20",
-        columnspacing=1,
+        loc="r",
+        ncols=1,
+        fontsize=40,
+        columnspacing=2,
+        labelspacing=4,
         facecolor='none',
         frame=False,
+        borderaxespad=5,
+        bbox_to_anchor=(1.1, 0.5),
     )
 
     for ax in axs:
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
+    return fig
 
 
 def line_single(
@@ -567,9 +570,9 @@ def line_single(
         y=extrc,
         marker="o",
         color=color,
-        markersize=4,
-        linewidth=3,
+        markersize=6,
         label=label,
+        linewidth=4,
     )
 
     if extrc_rand is not None:
@@ -577,15 +580,14 @@ def line_single(
         tsurf_rand = tsurf_rand - tsurf_rand[0]
         extr_rand = extrc_rand.sel(confidence="true").pc.squeeze().values
 
-        ax.line(
+        ax.plot(
             x=tsurf_rand,
             y=extr_rand,
             marker="o",
             color=color,
             alpha=0.5,
-            markersize=4,
+            markersize=6,
             linestyle="--",
-            linewidth=3,
         )
     else:
         pass
