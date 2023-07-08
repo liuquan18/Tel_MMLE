@@ -22,7 +22,18 @@ def extCount_tsurf_scatter(
     scatter: extreme_count v.s surface temperature
     hue: different  dataset
     """
-    fig, axes = pplt.subplots(nrows=2, ncols=2, figwidth=8, span=False, share=False)
+    params = {
+        "ytick.color": "w",
+        "xtick.color": "w",
+        "axes.labelcolor": "w",
+        "axes.edgecolor": "w",
+        "tick.labelcolor": "w",
+        "text.color": "w",
+    }
+
+    pplt.rc.update(params)
+
+    fig, axes = pplt.subplots(nrows=1, ncols=2, figwidth=8, span=False, sharey = True, sharex = True,facecolor="black")
 
     axes.format(
         abc="a",
@@ -32,16 +43,17 @@ def extCount_tsurf_scatter(
         xlabel=xlabel,
         ylabel="extreme count",
         grid=False,
-        leftlabels=["NAO", "EA"],
+        # leftlabels=["NAO", "EA"],
         toplabels=["pos", "neg"],
         xminorticks="null",
         yminorticks="null",
+        facecolor="black",
         # ylim=ylim,
     )
 
     t_surf = t_surf.sel(time=ext_counts.time, method="nearest")
     t_surf = t_surf - t_surf[0]
-    for i, mode in enumerate(ext_counts.mode):
+    for i, mode in enumerate(['NAO']):
         for j, extr_type in enumerate(ext_counts.extr_type):
             # data preparation
             true = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="true")
@@ -59,10 +71,14 @@ def extCount_tsurf_scatter(
                 fmt="o",
                 linewidth=2,
                 capsize=6,
+                color = 'white',
             )
 
             axes[i, j].set_xlim(-1, 5)
 
+    for ax in axes:
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
 
 #################### extreme event count profile ####################
 #%%

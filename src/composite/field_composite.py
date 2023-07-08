@@ -89,7 +89,6 @@ def composite_plot( first, last, mode,level_bound = None,levels = None):
     }
 
     pplt.rc.update(params)
-    pplt.rc
 
     fig, axes = pplt.subplots(
         space=0,
