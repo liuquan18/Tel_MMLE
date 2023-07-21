@@ -49,7 +49,7 @@ class decompose_troposphere:
             data_last = data.isel(
                 time=slice(-20, -10)
             )  # since the last 10 years is not complete (no data in 2100 in MPI_GE, no data in 2000 in MPI_GE_onepct)
-               # also to keep the time range the same as the decompose_plev
+            # also to keep the time range the same as the decompose_plev
             self.data = xr.concat([data_first, data_last], dim="time")
 
         # decompose
