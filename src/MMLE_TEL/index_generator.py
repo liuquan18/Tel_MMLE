@@ -46,7 +46,9 @@ class decompose_troposphere:
             self.data = data
         else:
             data_first = data.isel(time=slice(0, 10))
-            data_last = data.isel(time=slice(-10, None))
+            data_last = data.isel(
+                time=slice(-20, -10)
+            )  # since the last 10 years is not complete (no data in 2100 in MPI_GE, no data in 2000 in MPI_GE_onepct)
             self.data = xr.concat([data_first, data_last], dim="time")
 
         # decompose
@@ -95,6 +97,7 @@ class decompose_troposphere:
             + self.season
             + "_eof_result.nc"
         )
+
 
 #%%
 ##########################################
@@ -169,6 +172,7 @@ class decompose_plev:
             + self.season
             + "_eof_result.nc"
         )
+
 
 #%%
 ##########################################
@@ -264,6 +268,92 @@ class decompose_plev_random_ens:
             + str(self.ens_size)
             + "_eof_result.nc"
         )
+
+
+#%%%%
+##########################################
+class decompose_monthly:
+    """
+    A class for decomposition of one single plev only.
+    """
+
+    def __init__(
+        self, model, fixedPattern, plev=50000, standard="first", all_years=False
+    ) -> None:
+        self.model = model
+        self.plev = plev
+        self.fixedPattern = fixedPattern  # warming or decade
+        self.standard = standard
+
+        self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
+        self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
+        self.save_path = self.odir + "EOF_result/"
+        self.zg_path = self.odir + "zg/"
+
+        # read gph data
+        print(f"reading the gph data of all months...")
+        data = read_data(self.zg_path, plev=self.plev)
+        if all_years:
+            self.data = data
+        else:
+            data_first = data.isel(time=slice(0, 10))
+            data_last = data.isel(time=slice(-10, None))
+            self.data = xr.concat([data_first, data_last], dim="time")
+        # read ts_mean data if needed
+        self.ts_mean = None
+        if self.fixedPattern == "warming":
+            self.ts_mean = warming_stage.read_tsurf_fldmean(self.ts_mean_path)
+
+        # deompose
+        self.eof_result = self.decompose()
+
+        # standardize
+        self.std_eof_result = standard_index(self.eof_result, self.standard)
+
+    def decompose(self):
+        """
+        decompose the data
+        """
+        print("decomposing ...")
+
+        eof_result = self.data.groupby("time.month").apply(
+            rolling_eof.rolling_eof,
+            fixed_pattern=self.fixedPattern,
+            ts_mean=self.ts_mean,
+        )
+
+        return eof_result
+
+    def save_result(self):
+        print("saving the result ...")
+        # save the unstandardized result
+        self.eof_result.to_netcdf(
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + "_"
+            + "monthly"
+            + "_none_eof_result.nc"
+        )
+        # save the standardized result
+        self.std_eof_result.to_netcdf(
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + "_"
+            + self.standard
+            + "_"
+            + "monthly"
+            + "_eof_result.nc"
+        )
+
+
+#%%
+##########################################
 
 
 def read_data(
