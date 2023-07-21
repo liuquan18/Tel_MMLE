@@ -51,7 +51,7 @@ def rolling_eof(xarr, **kwargs):
         # get the periods where the glmt increases 0K and 4K
         ts_mean = ts_mean
         warming_periods = warming_stage.temp_period(ts_mean)
-        warming_index = xr.IndexVariable("warming", ["0K", "1K", "4K"])
+        warming_index = xr.IndexVariable("warming", ["0K", "2K", "4K"])
 
         eof_results = []
         for period in warming_periods:
