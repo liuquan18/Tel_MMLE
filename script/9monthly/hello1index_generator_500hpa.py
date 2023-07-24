@@ -3,32 +3,56 @@
 import src.MMLE_TEL.index_generator as index_generate
 import xarray as xr
 import numpy as np
-import cartopy.crs as ccrs
-import src.compute.slurm_cluster as scluster
-import concurrent.futures
 import sys
-from mpi4py import MPI
+import time as pytime
+import pandas as pd
 
 # %%
 import importlib
 
 importlib.reload(index_generate)
-importlib.reload(scluster)
+
+#%%
+num = int(sys.argv[1])
+t1 = int(sys.argv[2])
+t2 = int(sys.argv[3])
+#%%
+months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
+# the steps that need to be run on this node
+steps_global = np.arange(len(months))
+steps = steps_global[t1:t2]
+
+#%%
+# === mpi4py ===
+try:
+  from mpi4py import MPI
+  comm = MPI.COMM_WORLD
+  rank = comm.Get_rank()
+  npro = comm.Get_size()
+except:
+  print('::: Warning: Proceeding without mpi4py! :::')
+  rank = 0
+  npro = 1
+
+
+list_all_pros = [0]*npro
+for nn in range(npro):
+  list_all_pros[nn] = steps[nn::npro]
+steps = list_all_pros[rank]
 
 
 # %%
 # function for generate the index
-def index_gen(model, fixedPattern = 'decade', plev=50000, standard="first"):
-    generator = index_generate.decompose_monthly(
-        model, plev=plev, fixedPattern=fixedPattern, standard=standard
+def index_gen(season):
+    generator = index_generate.decompose_plev(
+        model = 'MPI_GE_onepct', plev=50000, fixedPattern='decade', standard='first', season=season
     )
     generator.save_result()
 
-
-# %%
-index_gen("MPI_GE_onepct", "decade", 50000, "first")
-# %%
-
-eof_result = rolling_eof.rolling_eof(
-    g
-)
+#%%
+# use mpi4py
+for kk, step in enumerate(steps):
+    print("**========**")
+    print(f'node: {num}: kk = {kk+1}/{steps.size}, month = {months[step]}')
+    index_gen(months[step])

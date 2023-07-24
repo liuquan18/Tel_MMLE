@@ -1,0 +1,176 @@
+**========**
+node: 1: kk = 1/1, month = Mar
+reading the gph data of Mar ...
+**========**
+node: 1: kk = 1/1, month = Apr
+reading the gph data of Apr ...
+**========**
+node: 1: kk = 1/2, month = Jan
+reading the gph data of Jan ...
+**========**
+node: 1: kk = 1/2, month = Feb
+reading the gph data of Feb ...
+ demean the ensemble mean...
+ select the specific plev...
+decomposing ...
+     decomposing everty ten years
+     decomposing the decade of 1850-04-30T23:52:00.000000000 - 1859-04-30T23:52:00.000000000
+ demean the ensemble mean...
+ select the specific plev...
+decomposing ...
+     decomposing everty ten years
+     decomposing the decade of 1850-02-28T23:52:00.000000000 - 1859-02-28T23:52:00.000000000
+ demean the ensemble mean...
+ select the specific plev...
+decomposing ...
+     decomposing everty ten years
+     decomposing the decade of 1850-01-31T23:52:00.000000000 - 1859-01-31T23:52:00.000000000
+ demean the ensemble mean...
+ select the specific plev...
+decomposing ...
+     decomposing everty ten years
+     decomposing the decade of 1850-03-31T23:52:00.000000000 - 1859-03-31T23:52:00.000000000
+     decomposing the decade of 1860-04-30T23:52:00.000000000 - 1869-04-30T23:52:00.000000000
+     decomposing the decade of 1860-02-29T23:52:00.000000000 - 1869-02-28T23:52:00.000000000
+     decomposing the decade of 1860-01-31T23:52:00.000000000 - 1869-01-31T23:52:00.000000000
+     decomposing the decade of 1860-03-31T23:52:00.000000000 - 1869-03-31T23:52:00.000000000
+     decomposing the decade of 1870-04-30T23:52:00.000000000 - 1879-04-30T23:52:00.000000000
+     decomposing the decade of 1870-02-28T23:52:00.000000000 - 1879-02-28T23:52:00.000000000
+     decomposing the decade of 1870-01-31T23:52:00.000000000 - 1879-01-31T23:52:00.000000000
+     decomposing the decade of 1870-03-31T23:52:00.000000000 - 1879-03-31T23:52:00.000000000
+     decomposing the decade of 1880-04-30T23:52:00.000000000 - 1889-04-30T23:52:00.000000000
+     decomposing the decade of 1880-02-29T23:52:00.000000000 - 1889-02-28T23:52:00.000000000
+     decomposing the decade of 1880-01-31T23:52:00.000000000 - 1889-01-31T23:52:00.000000000
+     decomposing the decade of 1880-03-31T23:52:00.000000000 - 1889-03-31T23:52:00.000000000
+     decomposing the decade of 1890-04-30T23:52:00.000000000 - 1899-04-30T23:52:00.000000000
+     decomposing the decade of 1890-02-28T23:52:00.000000000 - 1899-02-28T23:52:00.000000000
+     decomposing the decade of 1890-01-31T23:52:00.000000000 - 1899-01-31T23:52:00.000000000
+     decomposing the decade of 1890-03-31T23:52:00.000000000 - 1899-03-31T23:52:00.000000000
+     decomposing the decade of 1900-04-30T23:52:00.000000000 - 1909-04-30T23:52:00.000000000
+     decomposing the decade of 1900-01-31T23:52:00.000000000 - 1909-01-31T23:52:00.000000000
+     decomposing the decade of 1900-02-28T23:52:00.000000000 - 1909-02-28T23:52:00.000000000
+     decomposing the decade of 1900-03-31T23:52:00.000000000 - 1909-03-31T23:52:00.000000000
+     decomposing the decade of 1910-04-30T23:52:00.000000000 - 1919-04-30T23:52:00.000000000
+     decomposing the decade of 1910-02-28T23:52:00.000000000 - 1919-02-28T23:52:00.000000000
+     decomposing the decade of 1910-01-31T23:52:00.000000000 - 1919-01-31T23:52:00.000000000
+     decomposing the decade of 1910-03-31T23:52:00.000000000 - 1919-03-31T23:52:00.000000000
+     decomposing the decade of 1920-04-30T23:52:00.000000000 - 1929-04-30T23:52:00.000000000
+     decomposing the decade of 1920-02-29T23:52:00.000000000 - 1929-02-28T23:52:00.000000000
+     decomposing the decade of 1920-01-31T23:52:00.000000000 - 1929-01-31T23:52:00.000000000
+     decomposing the decade of 1920-03-31T23:52:00.000000000 - 1929-03-31T23:52:00.000000000
+     decomposing the decade of 1930-04-30T23:52:00.000000000 - 1939-04-30T23:52:00.000000000
+     decomposing the decade of 1930-02-28T23:52:00.000000000 - 1939-02-28T23:52:00.000000000
+     decomposing the decade of 1930-01-31T23:52:00.000000000 - 1939-01-31T23:52:00.000000000
+     decomposing the decade of 1930-03-31T23:52:00.000000000 - 1939-03-31T23:52:00.000000000
+     decomposing the decade of 1940-04-30T23:51:59.999999488 - 1949-04-30T23:51:59.999999488
+     decomposing the decade of 1940-02-29T23:51:59.999999488 - 1949-02-28T23:51:59.999999488
+     decomposing the decade of 1940-01-31T23:51:59.999999488 - 1949-01-31T23:51:59.999999488
+     decomposing the decade of 1940-03-31T23:51:59.999999488 - 1949-03-31T23:51:59.999999488
+     decomposing the decade of 1950-04-30T23:51:59.999999488 - 1959-04-30T23:51:59.999999488
+     decomposing the decade of 1950-02-28T23:51:59.999999488 - 1959-02-28T23:51:59.999999488
+     decomposing the decade of 1950-01-31T23:51:59.999999488 - 1959-01-31T23:51:59.999999488
+     decomposing the decade of 1950-03-31T23:51:59.999999488 - 1959-03-31T23:51:59.999999488
+     decomposing the decade of 1960-02-29T23:51:59.999999488 - 1969-02-28T23:51:59.999999488
+     decomposing the decade of 1960-04-30T23:51:59.999999488 - 1969-04-30T23:51:59.999999488
+     decomposing the decade of 1960-01-31T23:51:59.999999488 - 1969-01-31T23:51:59.999999488
+     decomposing the decade of 1960-03-31T23:51:59.999999488 - 1969-03-31T23:51:59.999999488
+     decomposing the decade of 1970-02-28T23:51:59.999999488 - 1979-02-28T23:51:59.999999488
+     decomposing the decade of 1970-04-30T23:51:59.999999488 - 1979-04-30T23:51:59.999999488
+     decomposing the decade of 1970-01-31T23:51:59.999999488 - 1979-01-31T23:51:59.999999488
+     decomposing the decade of 1970-03-31T23:51:59.999999488 - 1979-03-31T23:51:59.999999488
+     decomposing the decade of 1980-02-29T23:51:59.999999488 - 1989-02-28T23:51:59.999999488
+     decomposing the decade of 1980-01-31T23:51:59.999999488 - 1989-01-31T23:51:59.999999488
+     decomposing the decade of 1980-04-30T23:51:59.999999488 - 1989-04-30T23:51:59.999999488
+     decomposing the decade of 1980-03-31T23:51:59.999999488 - 1989-03-31T23:51:59.999999488
+     decomposing the decade of 1990-02-28T23:51:59.999999488 - 1999-02-28T23:52:00.000000000
+     decomposing the decade of 1990-01-31T23:51:59.999999488 - 1999-01-31T23:52:00.000000000
+     decomposing the decade of 1990-04-30T23:51:59.999999488 - 1999-04-30T23:52:00.000000000
+     decomposing the decade of 1990-03-31T23:51:59.999999488 - 1999-03-31T23:52:00.000000000
+ standardizing the index with the first 10 years ...
+saving the result ...
+ standardizing the index with the first 10 years ...
+saving the result ...
+ standardizing the index with the first 10 years ...
+saving the result ...
+ standardizing the index with the first 10 years ...
+saving the result ...
+**========**
+node: 1: kk = 2/2, month = Jun
+reading the gph data of Jun ...
+**========**
+node: 1: kk = 2/2, month = May
+reading the gph data of May ...
+ demean the ensemble mean...
+ select the specific plev...
+decomposing ...
+     decomposing everty ten years
+     decomposing the decade of 1850-05-31T23:52:00.000000000 - 1859-05-31T23:52:00.000000000
+ demean the ensemble mean...
+ select the specific plev...
+decomposing ...
+     decomposing everty ten years
+     decomposing the decade of 1850-06-30T23:52:00.000000000 - 1859-06-30T23:52:00.000000000
+     decomposing the decade of 1860-05-31T23:52:00.000000000 - 1869-05-31T23:52:00.000000000
+     decomposing the decade of 1860-06-30T23:52:00.000000000 - 1869-06-30T23:52:00.000000000
+     decomposing the decade of 1870-05-31T23:52:00.000000000 - 1879-05-31T23:52:00.000000000
+     decomposing the decade of 1870-06-30T23:52:00.000000000 - 1879-06-30T23:52:00.000000000
+     decomposing the decade of 1880-05-31T23:52:00.000000000 - 1889-05-31T23:52:00.000000000
+     decomposing the decade of 1880-06-30T23:52:00.000000000 - 1889-06-30T23:52:00.000000000
+     decomposing the decade of 1890-05-31T23:52:00.000000000 - 1899-05-31T23:52:00.000000000
+     decomposing the decade of 1890-06-30T23:52:00.000000000 - 1899-06-30T23:52:00.000000000
+     decomposing the decade of 1900-05-31T23:52:00.000000000 - 1909-05-31T23:52:00.000000000
+     decomposing the decade of 1900-06-30T23:52:00.000000000 - 1909-06-30T23:52:00.000000000
+     decomposing the decade of 1910-05-31T23:52:00.000000000 - 1919-05-31T23:52:00.000000000
+     decomposing the decade of 1910-06-30T23:52:00.000000000 - 1919-06-30T23:52:00.000000000
+     decomposing the decade of 1920-05-31T23:52:00.000000000 - 1929-05-31T23:52:00.000000000
+     decomposing the decade of 1920-06-30T23:52:00.000000000 - 1929-06-30T23:52:00.000000000
+     decomposing the decade of 1930-05-31T23:52:00.000000000 - 1939-05-31T23:52:00.000000000
+     decomposing the decade of 1930-06-30T23:52:00.000000000 - 1939-06-30T23:52:00.000000000
+     decomposing the decade of 1940-05-31T23:51:59.999999488 - 1949-05-31T23:51:59.999999488
+     decomposing the decade of 1940-06-30T23:51:59.999999488 - 1949-06-30T23:51:59.999999488
+     decomposing the decade of 1950-05-31T23:51:59.999999488 - 1959-05-31T23:51:59.999999488
+     decomposing the decade of 1950-06-30T23:51:59.999999488 - 1959-06-30T23:51:59.999999488
+     decomposing the decade of 1960-05-31T23:51:59.999999488 - 1969-05-31T23:51:59.999999488
+     decomposing the decade of 1960-06-30T23:51:59.999999488 - 1969-06-30T23:51:59.999999488
+     decomposing the decade of 1970-05-31T23:51:59.999999488 - 1979-05-31T23:51:59.999999488
+     decomposing the decade of 1970-06-30T23:51:59.999999488 - 1979-06-30T23:51:59.999999488
+     decomposing the decade of 1980-05-31T23:51:59.999999488 - 1989-05-31T23:51:59.999999488
+     decomposing the decade of 1980-06-30T23:51:59.999999488 - 1989-06-30T23:51:59.999999488
+     decomposing the decade of 1990-05-31T23:51:59.999999488 - 1999-05-31T23:52:00.000000000
+     decomposing the decade of 1990-06-30T23:51:59.999999488 - 1999-06-30T23:52:00.000000000
+ standardizing the index with the first 10 years ...
+saving the result ...
+ standardizing the index with the first 10 years ...
+saving the result ...
+
+********************************************************************************
+*                                                                              *
+*  This is the automated job summary provided by DKRZ.                         *
+*  If you encounter problems, need assistance or have any suggestion, please   *
+*  write an email to                                                           *
+*                                                                              *
+*  --  support@dkrz.de --                                                      *
+*                                                                              *
+*                       We hope you enjoyed the DKRZ supercomputer LEVANTE ... *
+*
+* JobID            : 6175042
+* JobName          : parallel                                          
+* Account          : mh0033
+* User             : m300883 (40046), mpioes (2100)                    
+* Partition        : compute
+* QOS              : normal
+* Nodelist         : l[30144-30145] (2)                                        
+* Submit date      : 2023-07-24T15:08:47
+* Start time       : 2023-07-24T15:09:16
+* End time         : 2023-07-24T15:24:57
+* Elapsed time     : 00:15:41 (Timelimit=02:00:00)                     
+* Command          : ./submit_python_mpi4py.sh 1 0 6
+* WorkDir          : /work/mh0033/m300883/Tel_MMLE/script/9monthly
+*
+* StepID | JobName      NodeHours    MaxRSS [Byte] (@task)
+* ------------------------------------------------------------------------------
+* batch  | batch             0.52
+* extern | extern            0.52                2492K (0)
+* 0      | hydra_pmi_pr      0.52             8421656K (0)
+* ------------------------------------------------------------------------------
+
