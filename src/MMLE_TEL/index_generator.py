@@ -297,8 +297,8 @@ class decompose_monthly:
         if all_years:
             self.data = data
         else:
-            data_first = data.isel(time=slice(0, 10*12, 12))
-            data_last = data.isel(time=slice(-20*12, -10*12, 12))
+            data_first = data.isel(time=slice(0, 10*12))
+            data_last = data.isel(time=slice(-20*12, -10*12))
             self.data = xr.concat([data_first, data_last], dim="time")
         # read ts_mean data if needed
         self.ts_mean = None
