@@ -23,7 +23,7 @@ def index_gen_trop():
         futures = []
         futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'first', 'JJAS'))
         futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'first', 'MAM'))
-        # futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'temporal_ens', True, 'JJAS'))
+        futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'first', 'DJFM'))
         # futures.append(executor.submit(index_gen, 'MPI_GE_onepct', 'temporal_ens', True, 'MAM'))
 
         for future in concurrent.futures.as_completed(futures):
