@@ -53,8 +53,15 @@ def extreme_counts_tsurf(
     try:
         extrc.to_netcdf(extr_counts_dir)
     except PermissionError:
+        # remove the file
+        os.remove(extr_counts_dir)
+        extrc.to_netcdf(extr_counts_dir)
+
+    try:
+        tsurf_mean.to_netcdf(t_surf_mean_dir)
+    except PermissionError:
         pass
-    tsurf_mean.to_netcdf(t_surf_mean_dir)
+
 
     return extrc, tsurf_mean
 
