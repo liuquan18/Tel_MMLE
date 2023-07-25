@@ -18,10 +18,13 @@ t1 = int(sys.argv[2])
 t2 = int(sys.argv[3])
 #%%
 months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-
+# models = ["MPI_GE"]#["MPI_GE","CanESM2","CESM1_CAM5","GFDL_CM3","MK36"] #,"GFDL_CM3"
 # the steps that need to be run on this node
 steps_global = np.arange(len(months))
 steps = steps_global[t1:t2]
+# model = models[num-1]
+model = "MPI_GE"
+
 
 #%%
 # === mpi4py ===
@@ -44,9 +47,9 @@ steps = list_all_pros[rank]
 
 # %%
 # function for generate the index
-def index_gen(season):
+def index_gen(season,model=model):
     generator = index_generate.decompose_plev(
-        model = 'MPI_GE_onepct', plev=50000, fixedPattern='decade', standard='first', season=season
+        model =model, plev=50000, fixedPattern='decade', standard='first', season=season
     )
     generator.save_result()
 
@@ -54,5 +57,7 @@ def index_gen(season):
 # use mpi4py
 for kk, step in enumerate(steps):
     print("**========**")
-    print(f'node: {num}: kk = {kk+1}/{steps.size}, month = {months[step]}')
+    print(f'node: {num}: kk = {kk+1}/{steps.size}, model = {model}, month = {months[step]}')
     index_gen(months[step])
+
+# %%
