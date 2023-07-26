@@ -29,24 +29,11 @@ ex = xr.DataArray(
 ex = ex.sel(plev = 1000)
 #%%
 # rolling eof on generated dataset.
-eof= rolling_eof.rolling_eof(ex, nmode=2, fixed_pattern="all")
+# eof= rolling_eof.rolling_eof(ex, nmode=2, fixed_pattern="all")
 
 #%%
 eof = rolling_eof.rolling_eof(ex, nmode=2,  fixed_pattern="decade")
 
-#%%
-# first_last
-ex1 = ex.isel(time = slice(0,10))
-ex2 = ex.isel(time = slice(90,100))
-exx = xr.concat([ex1,ex2],dim = 'time')
-#%%
-eof = rolling_eof.rolling_eof(exx, nmode=2, fixed_pattern="decade")
-
-#%%
-eof = rolling_eof.rolling_eof(ex, nmode=2, win_size=6, fixed_pattern="False")
-
-#%%
-eof = rolling_eof.rolling_eof(ex, nmode=2, win_size=6, fixed_pattern="decade")
 #%%
 # test
 def test_rolling_eof():

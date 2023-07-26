@@ -7,6 +7,7 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 import random
+import os
 
 import src.Teleconnection.vertical_eof as vertical_eof
 import src.Teleconnection.tools as tools
@@ -150,30 +151,37 @@ class decompose_plev:
     def save_result(self):
         print("saving the result ...")
         # save the unstandardized result
-        self.eof_result.to_netcdf(
-            self.save_path
-            + "plev_"
-            + str(self.plev)
-            + "_"
-            + self.fixedPattern
-            + "_"
-            + self.season
-            + "_none_eof_result.nc"
-        )
-        # save the standardized result
-        self.std_eof_result.to_netcdf(
-            self.save_path
-            + "plev_"
-            + str(self.plev)
-            + "_"
-            + self.fixedPattern
-            + "_"
-            + self.standard
-            + "_"
-            + self.season
-            + "_eof_result.nc"
-        )
-
+        nondir = (
+                self.save_path
+                + "plev_"
+                + str(self.plev)
+                + "_"
+                + self.fixedPattern
+                + "_"
+                + self.season
+                + "_none_eof_result.nc")
+        stddir = (
+                self.save_path
+                + "plev_"
+                + str(self.plev)
+                + "_"
+                + self.fixedPattern
+                + "_"
+                + self.standard
+                + "_"
+                + self.season
+                + "_eof_result.nc"
+            )
+        try:
+            self.eof_result.to_netcdf(nondir)
+        except PermissionError:
+            os.remove(nondir)
+            self.eof_result.to_netcdf(nondir)
+        try:
+            self.std_eof_result.to_netcdf(stddir)
+        except PermissionError:
+            os.remove(stddir)
+            self.std_eof_result.to_netcdf(stddir)
 
 #%%
 ##########################################
