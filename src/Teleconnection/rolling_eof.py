@@ -4,6 +4,7 @@ import pandas as pd
 import xarray as xr
 from tqdm.notebook import tqdm, trange
 
+import datetime
 import src.Teleconnection.spatial_pattern as ssp
 import src.Teleconnection.tools as tools
 import src.warming_stage.warming_stage as warming_stage
@@ -84,7 +85,7 @@ def decompose_decade(xarr, window):
     fras = []
 
     for time in decade_slice:
-        print(f"     decomposing the decade of {time.start} - {time.stop}")
+        print(f"     decomposing the decade of {time.start.astype(datetime[Y])} - {time.stop.astype(datetime[Y])}")
         # slice the time
 
         eof_result_single = decompose_single_decade(xarr, time)
