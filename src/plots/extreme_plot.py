@@ -181,8 +181,11 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
 ########################## MMLEA slope ################################
 # %%
 # calcualte slope
-def calc_slope(tsurf, extreme_count):
-    x = tsurf.squeeze().values
+def calc_slope( extreme_count,tsurf):
+    if tsurf is not None:
+        x = tsurf.squeeze().values
+    else:
+        x = np.arange(len(extreme_count.time))
     y = extreme_count.sel(confidence="true").pc.values
 
     model = sm.OLS(y, sm.add_constant(x)).fit()
@@ -193,8 +196,8 @@ def calc_slope(tsurf, extreme_count):
 
 def slope_err(extr, tsurf):
 
-    slope_NAO, conf_int_NAO = calc_slope(tsurf, extr.sel(mode="NAO"))
-    slope_EA, conf_int_EA = calc_slope(tsurf, extr.sel(mode="EA"))
+    slope_NAO, conf_int_NAO = calc_slope(extr.sel(mode="NAO"), tsurf)
+    slope_EA, conf_int_EA = calc_slope(extr.sel(mode="EA"), tsurf)
 
     yerr = np.array([[slope_NAO - conf_int_NAO[0]], [conf_int_NAO[1] - slope_NAO]])
     xerr = np.array([[slope_EA - conf_int_EA[0]], [conf_int_EA[1] - slope_EA]])
