@@ -20,8 +20,8 @@ num = int(sys.argv[1])
 t1 = int(sys.argv[2])
 t2 = int(sys.argv[3])
 #%%
-months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-models = ["MPI_GE"]#["MPI_GE","CanESM2","CESM1_CAM5","MK36","GFDL_CM3"]
+months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+models = ["MK36"]#["MPI_GE","CanESM2","CESM1_CAM5","MK36","GFDL_CM3"]
 # the steps that need to be run on this node
 steps_global = np.arange(len(months))
 steps = steps_global[t1:t2]

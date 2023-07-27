@@ -196,8 +196,8 @@ def calc_slope( extreme_count,tsurf):
 
 def slope_err(extr, tsurf):
 
-    slope_NAO, conf_int_NAO = calc_slope(extr.sel(mode="NAO"), tsurf)
-    slope_EA, conf_int_EA = calc_slope(extr.sel(mode="EA"), tsurf)
+    slope_NAO, conf_int_NAO = calc_slope(extr.sel(mode="NAO"), tsurf = None)
+    slope_EA, conf_int_EA = calc_slope(extr.sel(mode="EA"), tsurf = None)
 
     yerr = np.array([[slope_NAO - conf_int_NAO[0]], [conf_int_NAO[1] - slope_NAO]])
     xerr = np.array([[slope_EA - conf_int_EA[0]], [conf_int_EA[1] - slope_EA]])

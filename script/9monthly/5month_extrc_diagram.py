@@ -7,29 +7,33 @@ import proplot as pplt
 def read_extrc(month,model='MPI_GE_onepct'):
     dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/"
     filename = f"plev_50000_decade_first_{month}_extre_counts.nc"
-    ds = xr.open_dataset(dir+filename)
-    ds = ds.isel(time = [0,-1]).sel(confidence = 'true') # first and last decade
-    ds['time'] = ['first','last']
+    ds = xr.open_dataset(dir+filename).sel(confidence = 'true')
+    ds['time'] = ds.time.dt.year
     return ds.pc
 
-# %%
-months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-mon_idx = xr.IndexVariable('month',months)
-# %%
+def read_extrc_month(model='MPI_GE_onepct'):
+    months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    mon_idx = xr.IndexVariable('month',months)
+    ds = [read_extrc(month,model) for month in months]
+    ds = xr.concat(ds,dim=mon_idx)
+    return ds
+
+#%%
 # MPI_GE_onepct
-MPI_GE_onepct = [read_extrc(month) for month in months]
-MPI_GE_onepct = xr.concat(MPI_GE_onepct,dim=mon_idx)
+MPI_GE_onepct = read_extrc_month('MPI_GE_onepct')
+MPI_GE_onepct_diff = MPI_GE_onepct.isel(time = -1) - MPI_GE_onepct.isel(time = 0)
 
 # %%
 # MMLEA
-MMLEA_diff = []
-for model in ['CanESM2','CESM1_CAM5','MK36','GFDL_CM3']:
-    for month in months:
-        first_last = read_extrc(month,model)
-        MMLEA_diff.append(first_last.sel(time='last') - first_last.sel(time='first'))
+models = ["MPI_GE","CanESM2","CESM1_CAM5","MK36","GFDL_CM3"]
+MMLEA = [read_extrc_month(model) for model in models]
+#%%
+# Calculate the difference between the first and last decade
+MMLEA_diff = [ds.isel(time = -1) - ds.isel(time = 0) for ds in MMLEA]
 
-# %%
-# count how many of the 5 models, the last - first is positive
+#%%
+# Calculate the slope of the linear regression along the 'time' dimension
+MMLEA_slope = [ds.polyfit(dim='time',deg=1) for ds in MMLEA]
 
 
 

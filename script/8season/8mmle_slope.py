@@ -63,9 +63,9 @@ def mmle_slope(**kwargs):
     ext_plot.mmle_slope_scatter(
         extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf=tsurf, time=time
     )
-    plt.savefig(
-        f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/Winter_Summer/plev_{plev}_extrc_{tsurf}_{time}_{season}_slope.png"
-    )
+    # plt.savefig(
+    #     f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/Winter_Summer/plev_{plev}_extrc_{tsurf}_{time}_{season}_slope.png"
+    # )
 
 
 #%%
@@ -111,5 +111,5 @@ extrs, tsurfs, extrs_rand, tsurfs_rand = read_extreme_counts(
 # %%
 importlib.reload(ext_plot)
 fig = ext_plot.mmle_line_plot(extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean",time = '1960-01-01')
-fig.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/slides_IUGG/mmle_line_plot_GFDL_CM3.png', facecolor=fig.get_facecolor(), edgecolor='none')
+# fig.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/slides_IUGG/mmle_line_plot_GFDL_CM3.png', facecolor=fig.get_facecolor(), edgecolor='none')
 # %%
