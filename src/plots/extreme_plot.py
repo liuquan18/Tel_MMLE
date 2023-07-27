@@ -7,6 +7,7 @@ import warnings
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import statsmodels.api as sm
+import pandas as pd
 
 #%%
 
@@ -195,8 +196,11 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
 ########################## MMLEA slope ################################
 # %%
 # calcualte slope
-def calc_slope(tsurf, extreme_count):
-    x = tsurf.squeeze().values
+def calc_slope(extreme_count,tsurf):
+    if tsurf is not None:
+        x = tsurf.squeeze().values
+    else:
+        x = np.arange(0, extreme_count.time.size)
     y = extreme_count.sel(confidence="true").pc.values
 
     model = sm.OLS(y, sm.add_constant(x)).fit()
@@ -207,8 +211,8 @@ def calc_slope(tsurf, extreme_count):
 
 def slope_err(extr, tsurf):
 
-    slope_NAO, conf_int_NAO = calc_slope(tsurf, extr.sel(mode="NAO"))
-    slope_EA, conf_int_EA = calc_slope(tsurf, extr.sel(mode="EA"))
+    slope_NAO, conf_int_NAO = calc_slope(extr.sel(mode="NAO"),tsurf)
+    slope_EA, conf_int_EA = calc_slope(extr.sel(mode="EA"),tsurf)
 
     yerr = np.array([[slope_NAO - conf_int_NAO[0]], [conf_int_NAO[1] - slope_NAO]])
     xerr = np.array([[slope_EA - conf_int_EA[0]], [conf_int_EA[1] - slope_EA]])
@@ -459,7 +463,7 @@ def slope_diff_tsurf(extrs, tsurf_gmst, NA_tsurf, tropical_arctic_gradient, time
 ############################### MMLE line plot #########################################
 #%%
 def mmle_line_plot(
-    extrs, tsurfs, extrs_rands, tsurfs_rands, tsurf="ens_fld_year_mean", time="all"
+    extrs, tsurfs, extrs_rands, tsurfs_rands, tsurf="ens_fld_year_mean", time="all",x_var = 'tsurf'
 ):
     params = {
         "ytick.color": "w",
@@ -524,6 +528,10 @@ def mmle_line_plot(
                         mode=mode, extr_type=extr_type, time=slice(time, '2091-01-01')
                     )
                     tsurf = tsurfs[model].sel(time=extrc.time, method="nearest")
+                elif model == "MPI_GE_onepct":
+                    extrc = extrs[model].sel(mode=mode, extr_type=extr_type)
+                    tsurf = tsurfs[model].sel(time=extrc.time, method="nearest")
+                    tsurf['time'] = pd.date_range(time, freq='10Y',periods = 14)
                 else:
                     extrc = extrs[model].sel(mode=mode, extr_type=extr_type)
                     tsurf = tsurfs[model].sel(time=extrc.time, method="nearest")
@@ -541,6 +549,7 @@ def mmle_line_plot(
                     axs[r, c],
                     color=colors_model[i],
                     label=f"{model} ({str(ens_size)})",
+                    x_var=x_var,
                 )
     axs[0].format(
         ylabel="extreme occurence",
@@ -552,7 +561,7 @@ def mmle_line_plot(
         ylim=(0, 110),
         # yticks every 20
         ylocator=20,
-        xlocator=1,
+        # xlocator=1,
     )
     axs[1].legend(
         loc="r",
@@ -574,17 +583,21 @@ def mmle_line_plot(
 
 
 def line_single(
-    extrc, tsurf, ens_size, ax, extrc_rand=None, tsurf_rand=None, color="k", label=None
+    extrc, tsurf, ens_size, ax, extrc_rand=None, tsurf_rand=None, color="k", label=None,x_var = 'tsurf'
 ):
     """
     line for just one dataset.
     """
-    tsurf = tsurf.values
+    tsurf = tsurf
     tsurf = tsurf - tsurf[0]
     extrc = extrc.sel(confidence="true").pc.squeeze().values
 
+    if x_var == 'tsurf':
+        x = tsurf.values
+    elif x_var == 'time':
+        x = tsurf.time.dt.year.values
     ax.line(
-        x=tsurf,
+        x = x,
         y=extrc,
         marker="o",
         color=color,
@@ -609,7 +622,7 @@ def line_single(
         )
     else:
         pass
-    ax.set_xlim(-1, 5.6)
+    # ax.set_xlim(-1, 16)
 
 
 #%%
@@ -832,6 +845,6 @@ def slope_err(extr, tsurf):
     tsurf = tsurf
     tsurf = tsurf - tsurf[0]
 
-    slope, conf_int = calc_slope(tsurf, extr)
+    slope, conf_int = calc_slope(extr,tsurf= None)
     yerr = np.array([slope - conf_int[0], conf_int[1] - slope])
     return slope, yerr
