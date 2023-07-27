@@ -10,7 +10,7 @@ import proplot as pplt
 from scipy.stats import bootstrap
 import statsmodels.api as sm
 import random
-
+import warnings
 
 # %%
 # functions to do bootstrap on numpy array
@@ -38,31 +38,57 @@ def _neg_count(ts):
 
 
 def bootstrap_pos_count_low(ts, cl=0.95):
-    res = bootstrap(
-        (ts,), _pos_count, random_state=0, vectorized=False, confidence_level=cl
-    )
-    return res.confidence_interval.low
+    with warnings.catch_warnings():
+        warnings.filterwarnings('error')
+        try: # in case of count=0, the bootstrap will give a warning
+            res = bootstrap(
+                (ts,), _pos_count, random_state=0, vectorized=False, confidence_level=cl
+            )
+            low = res.confidence_interval.low
+        except Warning:
+            low = 0
+    return low
 
 
 def bootstrap_pos_count_high(ts, cl=0.95):
-    res = bootstrap(
-        (ts,), _pos_count, random_state=0, vectorized=False, confidence_level=cl
-    )
-    return res.confidence_interval.high
+    with warnings.catch_warnings():
+        warnings.filterwarnings('error')
+        try:
+            res = bootstrap(
+                (ts,), _pos_count, random_state=0, vectorized=False, confidence_level=cl
+            )
+            high = res.confidence_interval.high
+        except Warning:
+            high = 0
+    return high
 
 
 def bootstrap_neg_count_low(ts, cl=0.95):
-    res = bootstrap(
-        (ts,), _neg_count, random_state=0, vectorized=False, confidence_level=cl
-    )
-    return res.confidence_interval.low
+    with warnings.catch_warnings():
+        warnings.filterwarnings('error')
+        try:
+            res = bootstrap(
+                (ts,), _neg_count, random_state=0, vectorized=False, confidence_level=cl
+            )
+            low = res.confidence_interval.low
+        except Warning:
+            low = 0
+    return low
+
 
 
 def bootstrap_neg_count_high(ts, cl=0.95):
-    res = bootstrap(
-        (ts,), _neg_count, random_state=0, vectorized=False, confidence_level=cl
-    )
-    return res.confidence_interval.high
+    with warnings.catch_warnings():
+        warnings.filterwarnings('error')
+        try:
+            res = bootstrap(
+                (ts,), _neg_count, random_state=0, vectorized=False, confidence_level=cl
+            )
+            high = res.confidence_interval.high
+        except Warning:
+            high = 0
+    return high
+
 
 
 #%%
@@ -266,107 +292,64 @@ def extreme_count_xr(pc, ci="AR1"):
 
     return extr_count
 
+# %%
+def decadal_extrc(index: xr.DataArray, plev=None,ci = 'bootstrap'):
+    """
+    extract the extreme count and the mean surface temperature every ten years.
+    **Arguments**
+        *index* the DataArray of pc index
+        *temp* the -fldmean, -yearmean -ensmean surface temperauter.
+    **Return**
+        *ext_counts* the DataArray of extreme count, *time, *extr_type, *mode
+        *t_surf_mean* the mean t_surface (the increase of the temperature)
+        the time here use the first year of the decade.
+    """
+    print("counting the occureance of extremes and signifcance interval ...")
+    if plev is not None:
+        index = index.sel(plev=plev)
+
+    # start time
+    time_s = index.time[::10]
+    # end time
+    time_e = index.time[9::10]
+
+    # create slice for each decade
+    decade_slice = [slice(s, e) for s, e in zip(time_s, time_e)]
+
+    ext_counts = []
+    for time in decade_slice:
+        print(f" extreme counting in the decade of {time.start.dt.year.values} - {time.stop.dt.year.values}")
+
+        period_pc = index.sel(time=time)
+        # ensure that there are 10 years of data in period_pc
+        if period_pc.time.size != 10:
+            print(f" the length of the period is {len(period_pc.time)}, skip this period")
+            # rasing a warning
+            warnings.warn(f" the length of the period is {len(period_pc.time)}")
+            break
+        time_tag = period_pc.time[0] # for reference 
+
+        # extreme count
+        period_ext_count = extreme_count_xr(period_pc, ci=ci)
+        period_ext_count['time'] = time_tag
+        # set time as the new dimension
+        period_ext_count = period_ext_count.expand_dims('time')
+        ext_counts.append(period_ext_count)
+        ext_counts_xr = xr.concat(ext_counts, dim='time')
+        
+    return ext_counts_xr
 
 #%%
-# plot function, x-axis is the extreme events count, y-axis is the pressure level
-# vertical line, and fill_betweenx the confidence interval
-def plot_extreme_count(ext_count, ax=None, label=None, colored=False):
-    """
-    plot the vertical profile of extreme event count
-    """
-    color = None
-    style = None
-    if colored:
-        if label == "first10":
-            color = "#1f77b4"
-            style = color
-        elif label == "last10":
-            color = "#ff7f0e"
-            style = color
-    else:
-        if label == "first10":
-            color = "gray"
-            style = "k-"
-        elif label == "last10":
-            color = "gray"
-            style = "k--"
+def decade_tsurf(extrc, tsurf):
 
-    if ax is None:
-        ax = plt.gca()
+    time_s = extrc.time.dt.year.values
+    time_e = extrc.time[1:].dt.year.values - 1
+    time_e = np.append(time_e,2100)
 
-    y = ext_count.plev / 100
-    true = ext_count.sel(confidence="true").values
-    low = ext_count.sel(confidence="low").values
-    high = ext_count.sel(confidence="high").values
+    decade_slices = [slice(str(s), str(e)) for s, e in zip(time_s, time_e)]
 
-    # plot the confidence interval
-    ax.fill_betweenx(y, low, high, color=color, alpha=0.3)
-    # plot the true value
-    line = ax.plot(true, y, style, linewidth=1, label=label)
-    return line
-
-
-# %%
-def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
-    """
-    plot the extreme event count profile for the NAO and EA,
-    and positive and negative extreme events
-    """
-    # parameters from kwargs
-    xlim = kwargs.pop("xlim", None)
-    
-    fig = pplt.figure(
-        # space=0,
-        refwidth="20em",
-    )
-    axes = fig.subplots(nrows=2, ncols=2)
-    axes.format(
-        abc=True,
-        abcloc="ul",
-        abcstyle="a",
-        xlabel="Extreme event count",
-        ylabel="Pressure level (hPa)",
-        suptitle="Extreme event count profile",
-        ylim=(1000, 200),
-        xminorticks="null",
-        yminorticks="null",
-        grid=False,
-        toplabels=("pos", "neg"),
-        leftlabels=("NAO", "EA"),
-        xlocator=20,
-    )
-
-    # plot the extreme event count profile
-    labels = ["first10", "last10"]
-    # the default color of matplotlib
-
-    for i, extreme_count in enumerate([first_count, last_count]):
-        plot_extreme_count(
-            extreme_count.sel(mode="NAO", extr_type="pos"),
-            axes[0, 0],
-            label=labels[i],
-            colored=colored,
-        )
-        plot_extreme_count(
-            extreme_count.sel(mode="NAO", extr_type="neg"),
-            axes[0, 1],
-            label=labels[i],
-            colored=colored,
-        )
-
-        plot_extreme_count(
-            extreme_count.sel(mode="EA", extr_type="pos"),
-            axes[1, 0],
-            label=labels[i],
-            colored=colored,
-        )
-        plot_extreme_count(
-            extreme_count.sel(mode="EA", extr_type="neg"),
-            axes[1, 1],
-            label=labels[i],
-            colored=colored,
-        )
-    for ax in axes:
-        ax.set_xlim(xlim)
-    # add legend
-    axes[0, 0].legend(loc="lr", ncols=1, frame=True)
+    tsurf_dec_mean = [
+    tsurf.sel(time=decade_slice).mean(dim="time") for decade_slice in decade_slices
+    ]
+    tsurf_dec_mean = xr.concat(tsurf_dec_mean, dim=extrc.time)
+    return tsurf_dec_mean.squeeze()

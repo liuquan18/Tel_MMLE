@@ -1,16 +1,16 @@
 # %%
-import src.MMLE_TEL.index_stats as index_stats
+import src.MMLE_TEL.story_line as story_line
 import numpy as np
 import importlib
 import matplotlib.pyplot as plt
-import src.plots.extrc_tsurf_scatter as extrc_tsurf
+import src.plots.extreme_plot as extrc_tsurf
 import xarray as xr
 import os
 
 #%%
 import importlib
 
-importlib.reload(index_stats)
+importlib.reload(story_line)
 importlib.reload(extrc_tsurf)
 
 
@@ -82,7 +82,7 @@ def read_tsurf(tsurf_dir):
 from multiprocessing import Pool
 
 models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
-tsurfs = ["ens_fld_year_mean", "NA_tsurf","tropical_arctic_gradient"]
+tsurfs = ["ens_fld_year_ocean_mean"] #,"ens_fld_year_mean", "NA_tsurf","tropical_arctic_gradient"]
 standards = ["first"]
 
 def run_extreme_counts_tsurf(args):

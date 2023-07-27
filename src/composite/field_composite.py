@@ -1,3 +1,4 @@
+#%%
 import xarray as xr
 import numpy as np
 import src.composite.composite as composite_analysis
@@ -8,9 +9,8 @@ import src.plots.utils as utils
 def Tel_field_composite(
     index: xr.DataArray,
     data: xr.DataArray,
-    threshold: float = 2,
+    threshold: float = 1.5,
     reduction = "mean",
-    **kwargs,
 ):
     """
     composite mean maps or counts of field in terms of teleconnection mode extremes.
@@ -50,11 +50,19 @@ def Tel_field_composite(
     return tel_composite
 
 
-def composite_plot( first, last, mode):
-    if mode == "NAO":
-        levels = np.arange(-3,3.5,0.5)
-    elif mode == "EA":
-        levels = np.arange(-2,2.5,0.5)
+def composite_plot( first, last, mode,level_bound = None,levels = None):
+    if levels is None:
+        if mode == "NAO":
+            bound_l = -1*level_bound -1
+            bound_u = level_bound +1 + 0.1
+            interval = level_bound/4
+        elif mode == "EA":
+            bound_l = -1*level_bound
+            bound_u = level_bound + 0.1
+            interval = level_bound/5
+        levels = np.arange(bound_l,bound_u,interval)
+    else:
+        levels = levels
 
     first = utils.erase_white_line(first)
     last = utils.erase_white_line(last)
@@ -66,9 +74,25 @@ def composite_plot( first, last, mode):
     ]
     extr_type = ["pos", "neg"]
 
+    params = {
+        "ytick.color": "w",
+        "xtick.color": "w",
+        "axes.labelcolor": "w",
+        "axes.edgecolor": "w",
+        "tick.labelcolor": "w",
+        "text.color": "w",
+        "fontsize": 25,
+        "figure.facecolor": "black",
+        "axes.facecolor": "black",
+        "grid.linewidth": 1.5,
+        "grid.color": "black",
+    }
+
+    pplt.rc.update(params)
+
     fig, axes = pplt.subplots(
         space=0,
-        refwidth="25em",
+        refwidth="35em",
         wspace=3,
         hspace=3,
         proj="ortho",
@@ -79,12 +103,18 @@ def composite_plot( first, last, mode):
     axes.format(
         latlines=20,
         lonlines=30,
+        color = 'grey7',
         coast=True,
-        coastlinewidth=0.5,
-        coastcolor="gray7",
+        coastlinewidth=1,
+        coastcolor="grey9",
         toplabels=["first10", "last10", "last10 - first10"],
+        toplabelcolor="w",
+        toplabels_kw = {"fontsize": 50},
         leftlabels=("pos", "neg"),
+        leftlabelcolor="w",
+        leftlabels_kw = {"fontsize": 50},
         suptitle=f"Change in influence of extreme {mode} on surface temperature",
+        # set the fontsize of labels to 25        
     )
 
     extr_types = ["pos", "neg"]
@@ -100,60 +130,8 @@ def composite_plot( first, last, mode):
                 transform=ccrs.PlateCarree(),
                 cmap="RdBu_r",
             )
-
+            axes[i,j].grid(color = 'grey7',linewidth = 1.5)
     fig.colorbar(first_m, loc="r", pad=3, title=f"tsurf/K")
 
 
-
-def field_composite(var, independent="dep", hlayer=100000):
-    """
-    function to get the first and last composite mean field
-    """
-    dataname = (
-        "/work/mh0033/m300883/3rdPanel/data/influence/"
-        + var
-        + "/"
-        + "onepct_1850-1999_ens_1-100."
-        + var
-        + ".nc"
-    )
-
-    indexname = (
-        "/work/mh0033/m300883/3rdPanel/data/allPattern/"
-        + independent
-        + "_index_nonstd.nc"
-    )
-
-    changing_name = (
-        "/work/mh0033/m300883/3rdPanel/data/changingPattern/"
-        + independent
-        + "_index_nonstd.nc"
-    )
-
-    # Data
-    file = xr.open_dataset(dataname)
-    fdata = file[var]
-    # demean (ens-mean)
-    demean = fdata - fdata.mean(dim="ens")
-
-    # index
-    all_all_dep = xr.open_dataset(indexname).pc
-    changing_dep = xr.open_dataset(changing_name).pc
-    all_all_dep = all_all_dep.transpose("time", "ens", "mode", "plev")
-
-    mean_dep = all_all_dep.mean(dim="time")
-    std_dep = all_all_dep.std(dim="time")
-    dep_std = (changing_dep - mean_dep) / std_dep
-    index = dep_std.sel(plev=hlayer)
-
-    # change time
-    index["time"] = index.time.dt.year
-    demean["time"] = demean.time.dt.year
-
-    ComFirst = composite(
-        index=index, data=demean, dim="mode", reduction="mean", period="first10"
-    )
-    ComLast = composite(
-        index=index, data=demean, dim="mode", reduction="mean", period="last10"
-    )
-    return ComFirst, ComLast, ComLast - ComFirst
+# %%

@@ -44,9 +44,18 @@ def stat_overview(
     last_eof=None,
     levels=np.arange(-2, 2.1, 0.4),
 ):
-
+    params = {
+        "figure.facecolor": "black",
+        "axes.facecolor": "white",
+        "ytick.color": "w",
+        "xtick.color": "w",
+        "axes.labelcolor": "w",
+        "axes.edgecolor": "w",
+        "tick.labelcolor": "w",
+        "text.color": "w",}
+    pplt.rc.update(params)
     # plot
-    fig = pplt.figure(space=0, refwidth="25em", wspace=3, hspace=3)
+    fig = pplt.figure(space=0, refwidth="25em", wspace=5, hspace=3)
     fig.format(
         abc=True,
         abcloc="ul",
@@ -57,11 +66,11 @@ def stat_overview(
 
     gs = pplt.GridSpec(
         ncols=2,
-        nrows=2,
+        nrows=1,
         wspace=2,
         wratios=(1, 1),
     )
-    modes = ["NAO", "EA"]
+    modes = ["NAO",]# "EA"]
 
     for i, mode in enumerate(modes):
         # data preparation
@@ -122,7 +131,7 @@ def stat_overview(
             x="pc",
             hue="periods",
             hue_order=["first", "last"],
-            palette=["#1f77b4", "#ff7f0e"],
+            palette=["white", "red"],
             multiple="dodge",
             shrink=0.6,
             bins=np.arange(-4, 4.1, 0.5),
@@ -130,9 +139,10 @@ def stat_overview(
             ax=hist_ax,
         )
 
-        hist_ax.format(grid=False, yminorticks="null", xminorticks="null", title=mode)
+        hist_ax.format(grid=False, yminorticks="null", xminorticks="null", title=mode,facecolor="black",ylabel = 'count',xlabel = 'NAO')
         hist_ax.spines["right"].set_visible(False)
         hist_ax.spines["top"].set_visible(False)
+        hist_ax.set_xticks([-1.5, 0, 1.5])
 
         # add legend
         f_patch = mpatches.Patch(color="#1f77b4", label="first10")

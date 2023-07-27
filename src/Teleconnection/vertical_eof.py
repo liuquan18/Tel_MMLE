@@ -9,7 +9,7 @@ def vertical_eof(
     xarr: xr.DataArray,  # the data to be decomposed
     nmode: int = 2,  # the number of mode to be generated
     window: int = 10,  # the window size if fix_pattern = 'False' is adopted.
-    fixed_pattern: str = "all",  # the fixed_pattern mode
+    fixed_pattern: str = "decade",  # the fixed_pattern mode
     independent: bool = True,  # the vertical strategy.
 ):
     """
@@ -56,7 +56,7 @@ def independent_eof(xarr, **kwargs):
 
     print("     indenpendtly decomposing...")
 
-    eof_result = xarr.groupby("plev").apply(
+    eof_result = xarr.groupby("plev").map(
         rolling_eof.rolling_eof, **kwargs
     )
 

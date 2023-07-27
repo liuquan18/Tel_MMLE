@@ -64,7 +64,7 @@ if __name__ == "__main__":
     tsurf_increase = tsurf - tsurf.isel(time = 0)
 
     # %%
-    import src.plots.extrc_tsurf_scatter as extrc_tsurf
+    import src.plots.extreme_plot as extrc_tsurf
 
     # %%
     ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(

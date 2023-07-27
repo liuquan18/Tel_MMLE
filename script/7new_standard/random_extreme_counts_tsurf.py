@@ -1,15 +1,16 @@
 # %%
-import src.MMLE_TEL.index_stats as index_stats
+import src.MMLE_TEL.story_line as story_line
 import numpy as np
 import importlib
 import matplotlib.pyplot as plt
-import src.plots.extrc_tsurf_scatter as extrc_tsurf
+import src.plots.extreme_plot as extrc_tsurf
+import src.extreme.extreme_ci as extreme
 import xarray as xr
 
 #%%
 import importlib
 
-importlib.reload(index_stats)
+importlib.reload(story_line)
 
 
 # %%
@@ -19,8 +20,10 @@ def read_data(
     plev=50000,
     standard="first",
     tsurf="ens_fld_year_mean",
+    season = 'MAM',
+    fixedPattern = "decade",
 ):
-    eof_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}_random/EOF_result/plev_{plev}_decade{str(ens_size)}_{standard}_eof_result.nc"
+    eof_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}_random/EOF_result/plev_{plev}_{fixedPattern}_{season}_{standard}_{str(ens_size)}_eof_result.nc"
     eof_result = xr.open_dataset(eof_dir)
 
     tsurf_dir = (
@@ -28,7 +31,7 @@ def read_data(
     )
     tsurf = xr.open_dataset(tsurf_dir).tsurf
 
-    extrc_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}_random/extreme_count/plev_{plev}_decade{str(ens_size)}_{standard}_extre_counts.nc"
+    extrc_dir = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/plev_{plev}_{fixedPattern}_{season}_{standard}_{str(ens_size)}_extre_counts.nc"
     try:
         extrc = xr.open_dataset(extrc_dir).pc
     except FileNotFoundError:
@@ -42,11 +45,11 @@ def extreme_counts(eof_result, tsurf, extrc=None):
 
     tsurf_increase = tsurf - tsurf[0]
     if extrc is None:
-        ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
+        ext_counts, t_surf_mean = extreme.decadal_extrc_tsurf(
             eof_result.pc, temp=tsurf_increase, ci="bootstrap"
         )
     else:
-        ext_counts, t_surf_mean = extrc_tsurf.decadal_extrc_tsurf(
+        ext_counts, t_surf_mean = extreme.decadal_extrc_tsurf(
             eof_result.pc, ext_counts_xr=extrc, temp=tsurf_increase, ci="bootstrap"
         )
     return ext_counts, t_surf_mean
@@ -56,19 +59,22 @@ def extreme_counts(eof_result, tsurf, extrc=None):
 from multiprocessing import Pool
 
 ens_sizes = np.arange(20, 101, 10)
-tsurfs = ["ens_fld_year_mean", "NA_tsurf", "tropical_arctic_gradient"]
-standards = ["first", "temporal_ens"]
+tsurfs = ["ens_fld_year_mean"]#, "NA_tsurf", "tropical_arctic_gradient"]
+standards = ["first"]#, "temporal_ens"]
 
 
-def process_data(ens_size, tsurf, standard):
-    eof_result, temperature, extrc = read_data(ens_size, tsurf=tsurf, standard=standard)
+def process_data(ens_size, tsurf, standard,season):
+    plev = 50000,
+    fixed_pattern = "random"
+    season = "MAM"
+    eof_result, temperature, extrc = read_data(ens_size, tsurf=tsurf, season = 'MAM')
     # close the files red
     temperature.close()
 
     extr_counts, tsurf_mean = extreme_counts(eof_result, temperature, extrc=extrc)
     try:
         extr_counts.to_netcdf(
-            f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/plev_50000_first_extreme_counts_{str(ens_size)}_{tsurf}.nc"
+            f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/plev_{plev}_{fixed_pattern}_{season}_{standard}_{str(ens_size)}_extre_counts.nc"
         )
     except PermissionError:
         pass
@@ -85,10 +91,11 @@ if __name__ == "__main__":
         p.starmap(
             process_data,
             [
-                (ens_size, tsurf, standard)
+                (ens_size, tsurf, standard,season)
                 for ens_size in ens_sizes
                 for tsurf in tsurfs
                 for standard in standards
+                for season in ['MAM']
             ],
         )
 

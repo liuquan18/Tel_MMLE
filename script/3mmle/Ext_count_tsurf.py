@@ -8,13 +8,13 @@ import proplot as pplt
 import matplotlib.pyplot as plt
 
 import src.MMLE_TEL.extrc_tsurf as extrc_tsurf
-import src.plots.extrc_tsurf_scatter as extrc_tsurf_scatter
+import src.plots.extreme_plot as extreme_plot
 
 #%%
 import importlib
 
 importlib.reload(extrc_tsurf)
-importlib.reload(extrc_tsurf_scatter)
+importlib.reload(extreme_plot)
 
 # %%
 class extr_counts_tsurf:
@@ -81,7 +81,7 @@ class extr_counts_tsurf:
         return extr_counts, ts_means
 
     def plot_scatter(self):
-        scatter = extrc_tsurf_scatter.extCount_tsurf_scatter(
+        scatter = extreme_plot.extCount_tsurf_scatter(
             self.extr_ts_pairs, labels=self.models
         )
 

@@ -23,7 +23,7 @@ def init_dask_slurm_cluster(scale = 2, processes = 16, walltime="00:30:00", memo
     )
 
     scluster = SLURMCluster(
-        queue           = "shared",
+        queue           = "compute",
         walltime        = walltime,
         memory          = memory,
         cores           = processes,

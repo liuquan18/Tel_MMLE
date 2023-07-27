@@ -14,12 +14,12 @@ importlib.reload(rolling_eof)
 
 #%%
 # genrate random data
-time = pd.date_range("2000-10-01", "2020-10-01", freq="Y")
+time = pd.date_range("2000-10-01", "2100-10-01", freq="Y")
 lon = np.linspace(-180, 180, 10)
 lat = np.linspace(-90, 90, 10)
 ens = np.arange(3)
 plev = np.linspace(1000, 100, 2)
-values = np.random.random((20, 10, 10, 3, 2))  # time, lon, lat, ens, plev
+values = np.random.random((100, 10, 10, 3, 2))  # time, lon, lat, ens, plev
 
 ex = xr.DataArray(
     values,
@@ -29,13 +29,18 @@ ex = xr.DataArray(
 ex = ex.sel(plev = 1000)
 #%%
 # rolling eof on generated dataset.
-eof= rolling_eof.rolling_eof(ex, nmode=2, win_size=6, fixed_pattern="all")
+eof= rolling_eof.rolling_eof(ex, nmode=2, fixed_pattern="all")
 
 #%%
-eof = rolling_eof.rolling_eof(ex, nmode=2, win_size=6, fixed_pattern="first")
+eof = rolling_eof.rolling_eof(ex, nmode=2,  fixed_pattern="decade")
 
 #%%
-eof = rolling_eof.rolling_eof(ex, nmode=2, win_size=6, fixed_pattern="last")
+# first_last
+ex1 = ex.isel(time = slice(0,10))
+ex2 = ex.isel(time = slice(90,100))
+exx = xr.concat([ex1,ex2],dim = 'time')
+#%%
+eof = rolling_eof.rolling_eof(exx, nmode=2, fixed_pattern="decade")
 
 #%%
 eof = rolling_eof.rolling_eof(ex, nmode=2, win_size=6, fixed_pattern="False")

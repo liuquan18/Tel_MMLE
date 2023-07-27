@@ -60,7 +60,7 @@ def composite_reduce(
     return composited
 
 
-def extreme_composite(index, data, reduction="mean", dim="com", threshold=2):
+def extreme_composite(index, data, reduction="mean", dim="com", threshold=1.5):
     """
     the composite mean or count of data, in terms of different extreme type.
 

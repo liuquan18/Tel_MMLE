@@ -12,8 +12,8 @@ importlib.reload(extreme)
 time = pd.date_range("2010-10-01", "2021-10-01", freq="Y")
 ens = np.arange(10)
 plev = np.linspace(1000, 100, 10)
-values = np.array([[np.arange(-5, 6, 1)] * 10] * 10).reshape(
-    11, 10, 10
+values = np.array([[np.arange(-1, 1.1, 0.2)] * 10] * 10).reshape(
+    -1, 10, 10
 )  # time,  ens, plev
 
 ex = xr.DataArray(
