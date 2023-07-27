@@ -85,7 +85,7 @@ def decompose_decade(xarr, window):
     fras = []
 
     for time in decade_slice:
-        print(f"     decomposing the decade of {time.start.astype(datetime[Y])} - {time.stop.astype(datetime[Y])}")
+        print(f"     decomposing the decade of {time.start.astype(datetime64[Y])} - {time.stop.astype(datetime64[Y])}")
         # slice the time
 
         eof_result_single = decompose_single_decade(xarr, time)
