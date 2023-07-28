@@ -91,6 +91,7 @@ def bar_hatch(MMLEA_slope, xlim=(-0.4, 0.6)):
         )
     )
     fig.legend(patchs, ncols=3, loc="b", frame=False)
+    return fig
 
 
 # %%
@@ -161,3 +162,4 @@ def bar_side(MMLEA_slope, xlim=(-0.3, 0.3)):
         )
     )
     fig.legend(patchs, ncols=3, loc="b", frame=False)
+    return fig
