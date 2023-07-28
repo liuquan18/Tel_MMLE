@@ -279,6 +279,94 @@ class decompose_plev_random_ens:
         )
 
 
+
+#%%
+##########################################
+class decompose_plev_JJA:
+    """
+    A class for decomposition of one single plev only.
+    """
+
+    def __init__(
+        self, model, fixedPattern = 'decade', plev=50000, standard="first",
+    ) -> None:
+        self.model = model
+        self.plev = plev
+        self.fixedPattern = fixedPattern  # warming or decade
+        self.standard = standard
+        self.season = "JJA"
+
+        self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
+        self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
+        self.save_path = self.odir + "EOF_result/"
+        
+
+        # read gph data
+        data_JJA = []
+        for month in ["Jun", "Jul", "Aug"]:
+            print(f"reading the gph data of {month} ...")
+            zg_path = self.odir + "zg_" + month + "/"
+            data_JJA.append(read_data(zg_path, plev=self.plev))
+        self.data = xr.concat(data_JJA, dim="time")
+
+        # read ts_mean data if needed
+        self.ts_mean = None
+        if self.fixedPattern == "warming":
+            self.ts_mean = warming_stage.read_tsurf_fldmean(self.ts_mean_path)
+
+        # deompose
+        self.eof_result = self.decompose()
+
+        # standardize
+        self.std_eof_result = standard_index(self.eof_result, self.standard)
+
+    def decompose(self):
+        """
+        decompose the data
+        """
+        print("decomposing ...")
+
+        eof_result = rolling_eof.rolling_eof(
+            self.data, fixed_pattern=self.fixedPattern, ts_mean=self.ts_mean
+        )
+        return eof_result
+
+    def save_result(self):
+        print("saving the result ...")
+        # save the unstandardized result
+        nondir = (
+                self.save_path
+                + "plev_"
+                + str(self.plev)
+                + "_"
+                + self.fixedPattern
+                + "_"
+                + self.season
+                + "_none_eof_result.nc")
+        stddir = (
+                self.save_path
+                + "plev_"
+                + str(self.plev)
+                + "_"
+                + self.fixedPattern
+                + "_"
+                + self.standard
+                + "_"
+                + self.season
+                + "_eof_result.nc"
+            )
+        try:
+            self.eof_result.to_netcdf(nondir)
+        except PermissionError:
+            os.remove(nondir)
+            self.eof_result.to_netcdf(nondir)
+        try:
+            self.std_eof_result.to_netcdf(stddir)
+        except PermissionError:
+            os.remove(stddir)
+            self.std_eof_result.to_netcdf(stddir)
+
+
 #%%
 ##########################################
 
