@@ -92,7 +92,7 @@ def decompose_decade(xarr, window):
     fras = []
 
     for time in decade_slice:
-        print(f"     decomposing the decade of {time.start.astype(datetime64[Y])} - {time.stop.astype(datetime64[Y])}")
+        print(f"     decomposing the decade of {time.start.astype('datetime64[Y]')} - {time.stop.astype('datetime64[Y]')}")
         # slice the time
 
         eof_result_single = decompose_single_decade(xarr, time)
@@ -125,7 +125,7 @@ def decompose_single_decade(xarr, timeslice, nmode=2):
 
 
 
-def decompose_decade_mpi4py(xarr, window):
+def decompose_decade_mpi(xarr, window):
     """decompose the data every ten years."""
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -149,7 +149,7 @@ def decompose_decade_mpi4py(xarr, window):
     fras = []
 
     for time in local_decade_slice:
-        print(f"     decomposing the decade of {time.start.astype(datetime64[Y])} - {time.stop.astype(datetime64[Y])}")
+        print(f"     decomposing the decade of {time.start.astype('datetime64[Y]')} - {time.stop.astype('datetime64[Y]')}")
         # slice the time
 
         eof_result_single = decompose_single_decade(xarr, time)
