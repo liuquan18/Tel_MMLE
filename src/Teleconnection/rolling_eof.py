@@ -116,6 +116,7 @@ def decompose_decade(xarr, window):
 
 def decompose_single_decade(xarr, timeslice, nmode=2):
     """decompose a single decade."""
+    field = field.sortby("time") # sort the time
     field = xarr.sel(time=timeslice)
     field = field.stack(com=("ens", "time"))
 
