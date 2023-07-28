@@ -8,6 +8,7 @@ import datetime
 import src.Teleconnection.spatial_pattern as ssp
 import src.Teleconnection.tools as tools
 import src.warming_stage.warming_stage as warming_stage
+import datetime
 
 #%%
 def rolling_eof(xarr, **kwargs):
@@ -72,12 +73,13 @@ def rolling_eof(xarr, **kwargs):
 def decompose_decade(xarr, window):
     """decompose the data every ten years."""
     # start time
-    time_s = xarr.time[::window]
+    years = np.unique(xarr.time.dt.year).astype('str')
+    time_s = years[::window]
     # end time
-    time_e = xarr.time[window-1::window]
+    time_e = years[window-1::window]
 
     # create slice for each decade
-    decade_slice = [slice(s, e) for s, e in zip(time_s.values, time_e.values)]
+    decade_slice = [slice(s, e) for s, e in zip(time_s, time_e)]
 
     # a list for storing the subarrays
     eofs = []
