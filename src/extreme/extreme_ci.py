@@ -293,7 +293,7 @@ def extreme_count_xr(pc, ci="AR1"):
     return extr_count
 
 # %%
-def decadal_extrc(index: xr.DataArray, plev=None,ci = 'bootstrap'):
+def decadal_extrc(index: xr.DataArray, plev=None,ci = 'bootstrap',window = 10):
     """
     extract the extreme count and the mean surface temperature every ten years.
     **Arguments**
@@ -308,17 +308,19 @@ def decadal_extrc(index: xr.DataArray, plev=None,ci = 'bootstrap'):
     if plev is not None:
         index = index.sel(plev=plev)
 
+
     # start time
-    time_s = index.time[::10]
+    years = np.unique(index.time.dt.year).astype('str')
+    time_s = years[::window]
     # end time
-    time_e = index.time[9::10]
+    time_e = years[window-1::window]
 
     # create slice for each decade
     decade_slice = [slice(s, e) for s, e in zip(time_s, time_e)]
 
     ext_counts = []
     for time in decade_slice:
-        print(f" extreme counting in the decade of {time.start.dt.year.values} - {time.stop.dt.year.values}")
+        print(f" extreme counting in the decade of {time.start} - {time.stop}")
 
         period_pc = index.sel(time=time)
         # ensure that there are 10 years of data in period_pc
