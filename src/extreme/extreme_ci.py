@@ -324,7 +324,7 @@ def decadal_extrc(index: xr.DataArray, plev=None,ci = 'bootstrap',window = 10):
 
         period_pc = index.sel(time=time)
         # ensure that there are 10 years of data in period_pc
-        if period_pc.time.size != 10:
+        if len(np.unique(period_pc.time.dt.year)) != 10:
             print(f" the length of the period is {len(period_pc.time)}, skip this period")
             # rasing a warning
             warnings.warn(f" the length of the period is {len(period_pc.time)}")
