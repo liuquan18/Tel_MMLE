@@ -4,8 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import proplot as pplt
 import matplotlib.patches as mpatches
+
 # %%
-def bar_hatch(xlim=(-0.4, 0.6)):
+def bar_hatch(MMLEA_slope, xlim=(-0.4, 0.6)):
 
     gs = pplt.GridSpec(nrows=1, ncols=2)
     fig = pplt.figure(refwidth=2.2, span=False, share="labels")
@@ -91,13 +92,9 @@ def bar_hatch(xlim=(-0.4, 0.6)):
     )
     fig.legend(patchs, ncols=3, loc="b", frame=False)
 
-    fig.savefig(
-        "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/monthly/month_extrc_diagram_patch.png"
-    )
-
 
 # %%
-def bar_side(xlim=(-0.3, 0.3)):
+def bar_side(MMLEA_slope, xlim=(-0.3, 0.3)):
     gs = pplt.GridSpec(nrows=1, ncols=2)
     fig = pplt.figure(refheight=4.2, refwidth=2.2, span=False, share="labels")
     # the right order of the models
@@ -164,6 +161,3 @@ def bar_side(xlim=(-0.3, 0.3)):
         )
     )
     fig.legend(patchs, ncols=3, loc="b", frame=False)
-    fig.savefig(
-        "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/monthly/month_extrc_diagram_patch_side.png"
-    )
