@@ -117,7 +117,7 @@ def decompose_decade(xarr, window):
 def decompose_single_decade(xarr, timeslice, nmode=2):
     """decompose a single decade."""
     field = xarr.sortby("time") # sort the time
-    field = xarr.sel(time=timeslice)
+    field = field.sel(time=timeslice)
     field = field.stack(com=("ens", "time"))
 
     eof_result = ssp.doeof(field, nmode=nmode, dim="com")
@@ -128,9 +128,14 @@ def decompose_single_decade(xarr, timeslice, nmode=2):
 
 def decompose_decade_mpi(xarr, window):
     """decompose the data every ten years."""
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-    size = comm.Get_size()
+    try:
+        comm = MPI.COMM_WORLD
+        rank = comm.Get_rank()
+        size = comm.Get_size()
+    except:
+        print("     mpi4py is not installed, using the serial version")
+        rank = 0
+        size = 1
 
     # start time
     years = np.unique(xarr.time.dt.year).astype('str')
@@ -167,16 +172,19 @@ def decompose_decade_mpi(xarr, window):
     pcs = comm.gather(pcs, root=0)
     fras = comm.gather(fras, root=0)
 
-    if rank == 0:
-        # concat the subarrays together, and make the decade as a new dim
-        EOF = xr.concat(np.concatenate(eofs), dim="decade")
-        FRA = xr.concat(np.concatenate(fras), dim="decade")
-        PC = xr.concat(np.concatenate(pcs), "time")
+    # flat the lists of eofs, pcs, fras
+    eofs = [item for sublist in eofs for item in sublist]
+    pcs = [item for sublist in pcs for item in sublist]
+    fras = [item for sublist in fras for item in sublist]
+    
 
-        # combine EOF, FRA, PC together as a dataset
-        eof_result = xr.Dataset({"eof": EOF, "pc": PC, "fra": FRA})
-        return eof_result
-    else:
-        return None
 
+    # concat the subarrays together, and make the decade as a new dim
+    EOF = xr.concat(eofs, dim="decade")
+    FRA = xr.concat(fras, dim="decade")
+    PC = xr.concat(pcs, "time")
+
+    # combine EOF, FRA, PC together as a dataset
+    eof_result = xr.Dataset({"eof": EOF, "pc": PC, "fra": FRA})
+    return eof_result
 
