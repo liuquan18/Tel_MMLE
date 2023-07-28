@@ -9,6 +9,7 @@ import src.Teleconnection.spatial_pattern as ssp
 import src.Teleconnection.tools as tools
 import src.warming_stage.warming_stage as warming_stage
 import datetime
+import mpi4py.MPI as MPI
 
 #%%
 def rolling_eof(xarr, **kwargs):
@@ -68,6 +69,10 @@ def rolling_eof(xarr, **kwargs):
         print("     decomposing everty ten years")
         eof_result = decompose_decade(xarr, window)
 
+    elif fixed_pattern == 'decade_mpi': # using mpi4py to speed up
+        print("     decomposing everty ten years in parallel")
+        eof_result = decompose_decade_mpi(xarr, window)
+
     return eof_result
 
 def decompose_decade(xarr, window):
@@ -117,5 +122,60 @@ def decompose_single_decade(xarr, timeslice, nmode=2):
     eof_result = ssp.doeof(field, nmode=nmode, dim="com")
 
     return eof_result
+
+
+
+def decompose_decade_mpi4py(xarr, window):
+    """decompose the data every ten years."""
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+
+    # start time
+    years = np.unique(xarr.time.dt.year).astype('str')
+    time_s = years[::window]
+    # end time
+    time_e = years[window-1::window]
+
+    # create slice for each decade
+    decade_slice = [slice(s, e) for s, e in zip(time_s, time_e)]
+
+    # split the decade slices across different processes
+    local_decade_slice = np.array_split(decade_slice, size)[rank]
+
+    # a list for storing the subarrays
+    eofs = []
+    pcs = []
+    fras = []
+
+    for time in local_decade_slice:
+        print(f"     decomposing the decade of {time.start.astype(datetime64[Y])} - {time.stop.astype(datetime64[Y])}")
+        # slice the time
+
+        eof_result_single = decompose_single_decade(xarr, time)
+        eof = eof_result_single["eof"]
+        pc = eof_result_single["pc"].copy()
+        fra = eof_result_single["fra"]
+
+        eofs.append(eof)
+        pcs.append(pc)
+        fras.append(fra)
+
+    # gather the subarrays from all processes
+    eofs = comm.gather(eofs, root=0)
+    pcs = comm.gather(pcs, root=0)
+    fras = comm.gather(fras, root=0)
+
+    if rank == 0:
+        # concat the subarrays together, and make the decade as a new dim
+        EOF = xr.concat(np.concatenate(eofs), dim="decade")
+        FRA = xr.concat(np.concatenate(fras), dim="decade")
+        PC = xr.concat(np.concatenate(pcs), "time")
+
+        # combine EOF, FRA, PC together as a dataset
+        eof_result = xr.Dataset({"eof": EOF, "pc": PC, "fra": FRA})
+        return eof_result
+    else:
+        return None
 
 
