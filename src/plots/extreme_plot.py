@@ -660,3 +660,54 @@ def mmle_line_sum_plot(
                 # tsurf_rand=tsurf_rand,
                 color=colors_model[i],
             )
+
+#%%
+
+def extrc_time_line(extrcs):
+    gs = pplt.GridSpec(nrows=1, ncols=2)
+    fig = pplt.figure(refwidth=2.2, refheight = 5.2, span=False, share="labels")
+    # the right order of the models
+    models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+    models_legend = [
+    "MPI-GE (100)",
+    "CanESM2 (50)",
+    "CESM1-CAM5 (40)",
+    "MK3.6 (30)",
+    "GFDL-CM3 (20)",
+]
+    colors_model = ["C1", "tab:purple", "tab:blue", "tab:green", "C4"]
+    model_color = dict(zip(models, colors_model))
+
+    lines = []
+    for r, mode in enumerate(['NAO']):
+        for c, extr_type in enumerate(['pos','neg']):
+            ax = fig.subplot(gs[r, c])
+            for model in models:
+                extrc = extrcs[models.index(model)]
+                line = extrc.sel(mode=mode,extr_type=extr_type).plot(
+                ax=ax, 
+                label=model_color[model],
+                x = 'time',
+                color = model_color[model],
+                linewidth = 2,)
+                lines.append(line)
+            
+            ax.format(
+            ylim=(20, 280),
+            ylabel="Extreme counts",
+            xlabel="Year",
+            title=f"{mode} {extr_type}",
+            suptitle="",
+            titleloc="uc",
+            ylocator=20,
+            yminorlocator="null",
+            grid=False,
+        )
+    fig.legend(
+    lines,
+    labels=models_legend,
+    ncols=3,
+    loc="b",
+)
+
+    return fig
