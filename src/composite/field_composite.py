@@ -31,7 +31,7 @@ def Tel_field_composite(
     data_c = data.copy()
 
     # select the same time period
-    index_c['time'] = index_c['time.year'] # just the year and the month
+    data_c = data_c.sortby("time")
     data_c = data_c.sel(time=index_c.time, method="nearest")
 
     # combine time and ens into one dim
@@ -87,9 +87,6 @@ def composite_plot( first, last, mode,level_bound = None,levels = None):
         "grid.linewidth": 1.5,
         "grid.color": "black",
     }
-
-    pplt.rc.update(params)
-    pplt.rc
 
     fig, axes = pplt.subplots(
         space=0,
