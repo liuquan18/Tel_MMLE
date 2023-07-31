@@ -396,6 +396,7 @@ def read_data(
         zg_data = xr.open_mfdataset(
             all_ens_lists, combine="nested", concat_dim="ens", join="override"
         )
+        zg_data['ens'] = np.arange(zg_data.ens.size)
     try:
         zg_data = zg_data.var156
     except AttributeError:
