@@ -173,9 +173,9 @@ def decompose_decade_mpi(xarr, window):
     fras = comm.gather(fras, root=0)
 
     # flat the lists of eofs, pcs, fras
-    eofs = [item for sublist in eofs for item in sublist]
-    pcs = [item for sublist in pcs for item in sublist]
-    fras = [item for sublist in fras for item in sublist]
+    eofs = [*eofs]
+    pcs = [*pcs]
+    fras = [*fras]
     
 
 
