@@ -168,29 +168,23 @@ def decompose_decade_mpi(xarr, window):
         pcs.append(pc)
         fras.append(fra)
 
-        # drop the None from the list
-        eofs = [i for i in eofs if i is not None]
-        pcs = [i for i in pcs if i is not None]
-        fras = [i for i in fras if i is not None]
-
     # gather the subarrays from all processes
     eofs = comm.gather(eofs, root=0)
     pcs = comm.gather(pcs, root=0)
     fras = comm.gather(fras, root=0)
 
-    # flat the lists of eofs, pcs, fras
-    eofs = [item for sublist in eofs for item in sublist]
-    pcs = [item for sublist in pcs for item in sublist]
-    fras = [item for sublist in fras for item in sublist]
-    
+    if rank == 0:
+        # flat the lists of eofs, pcs, fras
+        eofs = [item for sublist in eofs for item in sublist]
+        pcs = [item for sublist in pcs for item in sublist]
+        fras = [item for sublist in fras for item in sublist]
 
+        # concat the subarrays together, and make the decade as a new dim
+        EOF = xr.concat(eofs, dim="decade")
+        FRA = xr.concat(fras, dim="decade")
+        PC = xr.concat(pcs, "time")
 
-    # concat the subarrays together, and make the decade as a new dim
-    EOF = xr.concat(eofs, dim="decade")
-    FRA = xr.concat(fras, dim="decade")
-    PC = xr.concat(pcs, "time")
-
-    # combine EOF, FRA, PC together as a dataset
-    eof_result = xr.Dataset({"eof": EOF, "pc": PC, "fra": FRA})
+        # combine EOF, FRA, PC together as a dataset
+        eof_result = xr.Dataset({"eof": EOF, "pc": PC, "fra": FRA})
     return eof_result
 
