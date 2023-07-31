@@ -186,5 +186,7 @@ def decompose_decade_mpi(xarr, window):
 
         # combine EOF, FRA, PC together as a dataset
         eof_result = xr.Dataset({"eof": EOF, "pc": PC, "fra": FRA})
+    else:
+        eof_result = None
     return eof_result
 
