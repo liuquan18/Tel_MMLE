@@ -30,8 +30,8 @@ def Tel_field_composite(
     index_c = index.copy() # make a copy of the original data
     data_c = data.copy()
 
-    index_c['time'] = index_c.time.dt.year
-    data_c['time'] = data_c.time.dt.year
+    # select the same time period
+    index_c['time'] = index_c['time.year'] # just the year and the month
     data_c = data_c.sel(time=index_c.time, method="nearest")
 
     # combine time and ens into one dim
