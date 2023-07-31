@@ -6,7 +6,7 @@ import xarray as xr
 import os
 import src.extreme.extreme_ci as extreme
 import src.composite.field_composite as composite
-
+import numpy as np
 
 #%%
 import importlib
@@ -36,7 +36,7 @@ def extreme_counts_tsurf(
     # eof
     eof_result = xr.open_dataset(eof_dir)
     # tsurf
-    temperature = read_tsurf(tsurf_dir)
+    temperature = read_spmean_tsurf(tsurf_dir)
 
     # extreme counts
     # check if the extr_counts_dir exists
@@ -68,7 +68,7 @@ def extreme_counts_tsurf(
 
 #%%
 # read tsurf
-def read_tsurf(tsurf_dir):
+def read_spmean_tsurf(tsurf_dir):
     tsurf = xr.open_dataset(tsurf_dir)
 
     # read the array either tusrf, ts, or tas
@@ -86,6 +86,39 @@ def read_tsurf(tsurf_dir):
         pass
 
     return tsurf_arr
+
+def read_var_data(field_tsurf_dir):
+    print(" reading the tsurf field data...")
+    try:
+        var_data = xr.open_dataset(field_tsurf_dir + "all_ens_tsurf.nc")
+    except FileNotFoundError:
+        var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens')
+
+    try:
+        var_data = var_data.tsurf
+    except AttributeError:
+        try:
+            var_data = var_data.ts
+        except AttributeError:
+            var_data = var_data.tas
+    try:
+        var_data['time'] = var_data['time'].astype('datetime64[ns]')
+    except TypeError:
+        pass
+
+    # demean the ensemble mean
+    var_data = var_data - var_data.mean(dim="ens")
+    return var_data
+
+def split_first_last(eof_result):
+    times = eof_result.time
+    years = np.unique(times.dt.year)
+    first_years = years[:10]
+    last_years = years[-10:]
+
+    eof_first = eof_result.isel(decade = 0).sel(time = eof_result['time.year'].isin(first_years))
+    eof_last = eof_result.isel(decade = -1).sel(time = eof_result['time.year'].isin(last_years))
+    return eof_first,eof_last
 
 
 # %%
@@ -128,6 +161,7 @@ def composite_analysis(
         plev=50000,
         index_season="MJJA",
         tsurf_season="MJJA",
+        var_data = None,
         reduction="mean",
         threshold=1.5,):
     """
@@ -142,35 +176,20 @@ def composite_analysis(
     first_composite_dir = f"{odir}composite/{prefix}{tsurf_season}_first_composite.nc"
     last_composite_dir = f"{odir}composite/{prefix}{tsurf_season}_last_composite.nc"
 
-    print(" reading the tsurf field data...")
-    try:
-        var_data = xr.open_dataset(field_tsurf_dir + "all_ens_tsurf.nc")
-    except FileNotFoundError:
-        var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens')
-
-    try:
-        var_data = var_data.tsurf
-    except AttributeError:
-        try:
-            var_data = var_data.ts
-        except AttributeError:
-            var_data = var_data.tas
-    try:
-        var_data['time'] = var_data['time'].astype('datetime64[ns]')
-    except TypeError:
+    if var_data is None:
+        var_data = read_var_data(field_tsurf_dir)
+    else:
         pass
-
-    # demean the ensemble mean
-    var_data = var_data - var_data.mean(dim="ens")
 
 
     # eof
     eof_result = xr.open_dataset(eof_dir)
-    index = eof_result.pc
+    eof_first,eof_last = split_first_last(eof_result)
 
     # select the first and last 10 decades
-    first_index = index.isel(time=slice(0, 10))
-    last_index = index.isel(time=slice(-10, None))
+    
+    first_index = eof_first.isel(time=slice(0, 10))
+    last_index = eof_last.isel(time=slice(-10, None))
 
     print(" compositing the tsurf data...")
     first_var = composite.Tel_field_composite(
@@ -184,3 +203,4 @@ def composite_analysis(
     # save the result
     first_var.to_netcdf(first_composite_dir)
     last_var.to_netcdf(last_composite_dir)
+
