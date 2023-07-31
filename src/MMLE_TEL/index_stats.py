@@ -192,8 +192,8 @@ def composite_analysis(
 
     # select the first and last 10 decades
     
-    first_index = eof_first.isel(time=slice(0, 10))
-    last_index = eof_last.isel(time=slice(-10, None))
+    first_index = eof_first.pc
+    last_index = eof_last.pc
 
     print(" compositing the tsurf data...")
     first_var = composite.Tel_field_composite(
