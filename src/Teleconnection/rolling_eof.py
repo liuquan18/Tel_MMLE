@@ -163,9 +163,15 @@ def decompose_decade_mpi(xarr, window):
         pc = eof_result_single["pc"].copy()
         fra = eof_result_single["fra"]
 
+        # append eof to eofs if eof is not None
         eofs.append(eof)
         pcs.append(pc)
         fras.append(fra)
+
+        # drop the None from the list
+        eofs = [i for i in eofs if i is not None]
+        pcs = [i for i in pcs if i is not None]
+        fras = [i for i in fras if i is not None]
 
     # gather the subarrays from all processes
     eofs = comm.gather(eofs, root=0)
@@ -173,9 +179,9 @@ def decompose_decade_mpi(xarr, window):
     fras = comm.gather(fras, root=0)
 
     # flat the lists of eofs, pcs, fras
-    eofs = [*eofs]
-    pcs = [*pcs]
-    fras = [*fras]
+    eofs = [item for sublist in eofs for item in sublist]
+    pcs = [item for sublist in pcs for item in sublist]
+    fras = [item for sublist in fras for item in sublist]
     
 
 
