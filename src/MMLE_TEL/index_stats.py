@@ -7,6 +7,7 @@ import os
 import src.extreme.extreme_ci as extreme
 import src.composite.field_composite as composite
 import numpy as np
+import glob
 
 #%%
 import importlib
@@ -92,7 +93,10 @@ def read_var_data(field_tsurf_dir):
     try:
         var_data = xr.open_dataset(field_tsurf_dir + "all_ens_tsurf.nc")
     except FileNotFoundError:
-        var_data = xr.open_mfdataset(field_tsurf_dir + "*.nc",combine='nested',concat_dim='ens')
+        
+        all_ens_lists = sorted(glob.glob(field_tsurf_dir + "*.nc")) # to make sure that the order of ensemble members is fixed
+        var_data = xr.open_mfdataset(all_ens_lists,combine='nested',concat_dim='ens')
+        var_data['ens'] = np.arange(var_data.ens.size)
 
     try:
         var_data = var_data.tsurf
