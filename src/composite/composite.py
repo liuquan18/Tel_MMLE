@@ -6,7 +6,7 @@ import xarray as xr
 def extreme(
     xarr: xr.DataArray,
     extreme_type: str,
-    threshold: int = 2,
+    threshold: float = 1.5,
 ) -> xr.DataArray:
     """
     select only the positive or extreme cases from the index.
