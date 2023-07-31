@@ -13,7 +13,8 @@ import src.Teleconnection.vertical_eof as vertical_eof
 import src.Teleconnection.tools as tools
 import src.Teleconnection.rolling_eof as rolling_eof
 import src.warming_stage.warming_stage as warming_stage
-
+import warnings
+import glob
 
 #%%
 class decompose_troposphere:
@@ -383,13 +384,17 @@ def read_data(
     # read MPI_onepct data
     try:
         zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
+        Warning.warn("reading allens_zg.nc, which may be wrong in the order of ensemble members")
         if "ens" in zg_data.dims:
             pass
         else:
             zg_data = tools.split_ens(zg_data)
     except FileNotFoundError:
+        # fix the order of ensemble members
+        print("reading the gph data of all ensemble members...")
+        all_ens_lists = sorted(glob.glob(gph_dir + "*.nc")) # to make sure that the order of ensemble members is fixed
         zg_data = xr.open_mfdataset(
-            gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
+            all_ens_lists, combine="nested", concat_dim="ens", join="override"
         )
     try:
         zg_data = zg_data.var156
