@@ -159,6 +159,8 @@ def composite_analysis(
         var_data['time'] = var_data['time'].astype('datetime64[ns]')
     except TypeError:
         pass
+
+    # demean the ensemble mean
     var_data = var_data - var_data.mean(dim="ens")
 
 
