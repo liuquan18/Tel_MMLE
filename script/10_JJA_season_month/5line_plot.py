@@ -5,6 +5,14 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 import proplot as pplt
+import src.plots.extreme_plot as extplt
+import src.plots.statistical_overview as stat_overview
+import seaborn as sns
+
+#%%
+import importlib
+importlib.reload(extplt)
+importlib.reload(stat_overview)
 
 # %%
 def read_extrc(model):
@@ -13,57 +21,42 @@ def read_extrc(model):
     ds = xr.open_dataset(odir+filename).pc
     ds = ds.sel(confidence = 'true')
     return ds
+#%%
+def read_eof(model):
+    odir = f'/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/'
+    filename = 'plev_50000_decade_mpi_first_JJA_eof_result.nc'
+    ds = xr.open_dataset(odir+filename)
+    ds = ds.sel(mode = 'NAO')
+    return ds
+
+def split_first_last(eof_result):
+    times = eof_result.time
+    years = np.unique(times.dt.year)
+    first_years = years[:10]
+    last_years = years[-10:]
+
+    eof_first = eof_result.isel(decade = 0).sel(time = eof_result['time.year'].isin(first_years))
+    eof_last = eof_result.isel(decade = -1).sel(time = eof_result['time.year'].isin(last_years))
+    return eof_first,eof_last
+
 # %%
 models = ['MPI_GE','CanESM2','CESM1_CAM5','MK36','GFDL_CM3']
 extrcs = [read_extrc(model) for model in models]
-# %%
-gs = pplt.GridSpec(nrows=1, ncols=2)
-fig = pplt.figure(refwidth=2.2, refheight = 5.2, span=False, share="labels")
-# the right order of the models
-models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
-models_legend = [
-    "MPI-GE (100)",
-    "CanESM2 (50)",
-    "CESM1-CAM5 (40)",
-    "MK3.6 (30)",
-    "GFDL-CM3 (20)",
-]
-colors_model = ["C1", "tab:purple", "tab:blue", "tab:green", "C4"]
-model_color = dict(zip(models, colors_model))
+eof_results = [read_eof(model) for model in models]
+eof_firsts,eof_lasts = zip(*[split_first_last(eof_result) for eof_result in eof_results])
 
-lines = []
-for r, mode in enumerate(['NAO']):
-    for c, extr_type in enumerate(['pos','neg']):
-        ax = fig.subplot(gs[r, c])
-        for model in models:
-            extrc = extrcs[models.index(model)]
-            line = extrc.sel(mode=mode,extr_type=extr_type).plot(
-                ax=ax, 
-                label=model_color[model],
-                x = 'time',
-                color = model_color[model],
-                linewidth = 2,)
-            lines.append(line)
-            
-        ax.format(
-            ylim=(20, 280),
-            ylabel="Extreme counts",
-            xlabel="Year",
-            title=f"{mode} {extr_type}",
-            suptitle="",
-            titleloc="uc",
-            ylocator=20,
-            yminorlocator="null",
-            grid=False,
-
-        )
-fig.legend(
-    lines,
-    labels=models_legend,
-    ncols=3,
-    loc="b",
-)
+#%%
+# line plot of extreme counts vs time
+extplt.extrc_time_line(extrcs)
 plt.savefig(
     '/work/mh0033/m300883/Tel_MMLE/docs/source/plots/monthly/JJA_extreme_counts_line_time_all.png',
 )
 # %%
+# spatial pattern and distribution of index
+stat_overview.spatial_index_MMLEA(eof_firsts, eof_lasts)
+plt.savefig(
+     '/work/mh0033/m300883/Tel_MMLE/docs/source/plots/monthly/JJA_month_spatial_index_stat_MMLEA.png',
+)
+
+# %%
+# composite analysis
