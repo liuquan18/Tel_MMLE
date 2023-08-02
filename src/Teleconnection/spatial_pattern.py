@@ -41,19 +41,19 @@ def doeof(
         print("no combined dimension found. use tools.stackens() first")
 
     # weights
-    wgts = tools.sqrtcoslat(data)
+    wgts = tools.sqrtcoslat(data) # same coords as data
 
     # EOF decompose
     solver = Eof(
         data.values, weights=wgts, center=True
-    )  # if it's com dim, is is right to remove the mean
-    # along the com dim?
+    )  
+    
     eof = solver.eofs(neofs=nmode)  # (mode,lat,lon,...)
     pc = solver.pcs(npcs=nmode)  # (com,mode)
     fra = solver.varianceFraction(nmode)  # (mode)
 
     # eof to xarray
-    eofx, pcx, frax = eofs_to_xarray(data, dim, eof, pc, fra)
+    eofx, pcx, frax = eofs_to_xarray(data, eof, pc, fra)
 
     # deweight
     eofx = eofx / wgts[0]
@@ -102,19 +102,18 @@ def standard_by_pc_temporal_std(eofx, pcx):
     eofx = eofx * std_pc
     return eofx,pcx
 
-def eofs_to_xarray(data, dim, eof, pc, fra):
-    eof_cnt = data.unstack()
-    eof_cnt = eof_cnt.isel(ens=[0, 1], time=[0])
-    eof_cnt = eof_cnt.rename({"ens": "mode", "time": "decade"})
-    eof_cnt = eof_cnt.transpose("mode", ...)
-    eof_cnt["mode"] = ["NAO", "EA"]
+def eofs_to_xarray(data, eof, pc, fra):
+    reduce_dim = data.dims[0] # 'com' or 'time'
+    eof_cnt = data[0]
+    eof_cnt = eof_cnt.drop_vars(reduce_dim) # drop the dim 'com' or 'time'
+    eof_cnt = eof_cnt.expand_dims(dim = {'mode':['NAO','EA'],'decade':[data.isel(time = 0).time.values]},axis = [0,-1]) # add one more dimension to eof_cnt with shape 1
 
-    eof = eof[..., np.newaxis]
+    eof = eof[..., np.newaxis] # add one new dimension for the info of decade (time of the beginning of the decade)
     eofx = eof_cnt.copy(data=eof)
 
     # pc to xarray
     pcx = xr.DataArray(
-        pc, dims=[dim, "mode"], coords={dim: data[dim], "mode": ["NAO", "EA"]}
+        pc, dims=[reduce_dim, "mode"], coords={reduce_dim: data[reduce_dim], "mode": ["NAO", "EA"]}
     )
     frax = xr.DataArray(fra, dims=["mode"], coords={"mode": ["NAO", "EA"]})
     return eofx,pcx,frax
