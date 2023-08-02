@@ -60,10 +60,7 @@ def doeof(
     eofx = eofx / wgts[0]
 
     # standardize, here the loading gives to the pc, to make the index from different spatil pattern comparable.
-    std_eof = eofx.std(dim=("lat", "lon"))
-    eofx = eofx / std_eof
-    std_eof = std_eof.squeeze()
-    pcx = pcx * std_eof
+    eofx, pcx = standard_by_eof_spatial_std(eofx, pcx)
 
     # change sign
     coef = sign_coef(eofx)
@@ -85,6 +82,13 @@ def doeof(
     eof_result = xr.Dataset({"eof": eofx, "pc": pcx, "fra": frax})
 
     return eof_result
+
+def standard_by_eof_spatial_std(eofx, pcx):
+    std_eof = eofx.std(dim=("lat", "lon"))
+    eofx = eofx / std_eof
+    std_eof = std_eof.squeeze()
+    pcx = pcx * std_eof
+    return eofx,pcx
 
 def eofs_to_xarray(data, dim, eof, pc, fra):
     eof_cnt = data.unstack()
