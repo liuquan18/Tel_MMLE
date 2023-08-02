@@ -30,6 +30,7 @@ def read_var_months(model):
     Aug_f = index_stats.read_var_data(Aug_fl)
 
     JJA_f = xr.concat([Jun_f, Jul_f, Aug_f], dim='time')
+    JJA_f = JJA_f.sortby('time')
     return JJA_f
 
 def composite(model):
