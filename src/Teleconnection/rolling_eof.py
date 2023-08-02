@@ -189,6 +189,6 @@ def decompose_decade_mpi(xarr, window):
         return eof_result
     else:
         # no output for other processes
-        eof_result = None
+        return None
     
 
