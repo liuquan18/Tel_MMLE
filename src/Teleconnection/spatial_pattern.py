@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from eofs.standard import Eof
-from tqdm.notebook import tqdm, trange
 
 import src.Teleconnection.tools as tools
 
@@ -12,7 +11,7 @@ def doeof(
     data: xr.DataArray,
     nmode: int = 2,
     dim: str = "com",
-    standard: bool = True,
+    standard: str = 'eof_spatial_std',
 ):
     """
     do eof to seasonal data along a combined dim
@@ -60,7 +59,10 @@ def doeof(
     eofx = eofx / wgts[0]
 
     # standardize, here the loading gives to the pc, to make the index from different spatil pattern comparable.
-    eofx, pcx = standard_by_eof_spatial_std(eofx, pcx)
+    if standard == "eof_spatial_std":
+        eofx, pcx = standard_by_eof_spatial_std(eofx, pcx)
+    elif standard == "pc_temporal_std":
+        eofx, pcx = standard_by_pc_temporal_std(eofx, pcx)
 
     # change sign
     coef = sign_coef(eofx)
@@ -88,6 +90,13 @@ def standard_by_eof_spatial_std(eofx, pcx):
     eofx = eofx / std_eof
     std_eof = std_eof.squeeze()
     pcx = pcx * std_eof
+    return eofx,pcx
+
+def standard_by_pc_temporal_std(eofx, pcx):
+    std_pc = pcx.std(dim="time")
+    pcx = pcx / std_pc
+    std_pc = std_pc.squeeze()
+    eofx = eofx * std_pc
     return eofx,pcx
 
 def eofs_to_xarray(data, dim, eof, pc, fra):
