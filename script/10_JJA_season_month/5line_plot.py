@@ -9,10 +9,12 @@ import src.plots.extreme_plot as extplt
 import src.plots.statistical_overview as stat_overview
 import seaborn as sns
 
+import src.composite.field_composite as field_composite
 #%%
 import importlib
 importlib.reload(extplt)
 importlib.reload(stat_overview)
+importlib.reload(field_composite)
 
 # %%
 def read_extrc(model):
@@ -60,3 +62,42 @@ plt.savefig(
 
 # %%
 # composite analysis
+def read_composite():
+    models = ['MPI_GE','CanESM2','CESM1_CAM5','MK36','GFDL_CM3']
+    firsts = {}
+    lasts = {}
+    odir = '/work/mh0033/m300883/Tel_MMLE/data/'
+    for model in models:
+        first_name = 'plev_50000_decade_first_JJA_JJA_first_composite.nc'
+        last_name = 'plev_50000_decade_first_JJA_JJA_last_composite.nc'
+
+        first = xr.open_dataset(f"{odir}{model}/composite/{first_name}")
+        last = xr.open_dataset(f"{odir}{model}/composite/{last_name}")
+        try:
+            first = first.tsurf
+            last = last.tsurf
+        except AttributeError:
+            try:
+                first = first.ts
+                last = last.ts
+            except AttributeError:
+                first = first.tas
+                last = last.tas
+        firsts[model] = first
+        lasts[model] = last
+    return firsts,lasts
+
+# %%
+firsts,lasts = read_composite()
+# %%
+field_composite.composite_plot_MMLEA(firsts,lasts,extr_type='pos',levels =np.arange(-2,2.1,0.4))
+# plt.savefig(
+#     '/work/mh0033/m300883/Tel_MMLE/docs/source/plots/monthly/JJA_month_composite_MMLEA_pos.png',
+# )
+# %%
+field_composite.composite_plot_MMLEA(firsts,lasts,extr_type='neg',levels =np.arange(-1.5,1.6,0.3))
+plt.savefig(
+    '/work/mh0033/m300883/Tel_MMLE/docs/source/plots/monthly/JJA_month_composite_MMLEA_neg.png',
+)
+
+# %%
