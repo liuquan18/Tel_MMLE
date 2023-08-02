@@ -133,3 +133,63 @@ def composite_plot( first, last, mode,level_bound = None,levels = None):
 
 
 # %%
+def composite_plot_MMLEA(firsts,lasts,mode='NAO',level_bound = None,levels = np.arange(-1,1.1,0.2),extr_type = 'pos'):
+    models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+    models_legend = [
+    "MPI-GE (100)",
+    "CanESM2 (50)",
+    "CESM1-CAM5 (40)",
+    "MK3.6 (30)",
+    "GFDL-CM3 (20)",
+    ]
+
+    fig, axes = pplt.subplots(
+        space=0,
+        refwidth="50em",
+        wspace=3,
+        hspace=3,
+        proj="ortho",
+        proj_kw=({"lon_0": -20, "lat_0": 60}),
+        nrows=3,
+        ncols=5,
+    )
+    axes.format(
+        latlines=20,
+        lonlines=30,
+        color = 'grey7',
+        coast=True,
+        coastlinewidth=1,
+        coastcolor="grey9",
+        leftlabels=["first10", "last10", "last10 - first10"],
+        toplabels=models_legend,
+        toplabels_kw = {"fontsize": 50},
+        leftlabels_kw = {"fontsize": 50},
+        suptitle=f"Change in influence of extreme {mode} on surface temperature",
+        # set the fontsize of labels to 25        
+    )
+
+
+    for i, model in enumerate(models): # cols for different models
+        first = firsts[model].sel(mode=mode,extr_type = extr_type)
+        last = lasts[model].sel(mode=mode,extr_type = extr_type)
+        first = utils.erase_white_line(first)
+        last = utils.erase_white_line(last)
+
+        data_all = [
+            first,
+            last,
+            last - first
+        ]
+
+        for j, data in enumerate(data_all):  # row for different data
+            first_m = axes[j, i].contourf(
+                data,
+                x="lon",
+                y="lat",
+                levels=levels,
+                extend="both",
+                transform=ccrs.PlateCarree(),
+                cmap="RdBu_r",
+            )
+            axes[j,i].grid(color = 'grey7',linewidth = 1.5)
+    fig.colorbar(first_m, loc="r", pad=3, title=f"tsurf/K")
