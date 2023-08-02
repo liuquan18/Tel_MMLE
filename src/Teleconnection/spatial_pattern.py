@@ -54,20 +54,7 @@ def doeof(
     fra = solver.varianceFraction(nmode)  # (mode)
 
     # eof to xarray
-    eof_cnt = data.unstack()
-    eof_cnt = eof_cnt.isel(ens=[0, 1], time=[0])
-    eof_cnt = eof_cnt.rename({"ens": "mode", "time": "decade"})
-    eof_cnt = eof_cnt.transpose("mode", ...)
-    eof_cnt["mode"] = ["NAO", "EA"]
-
-    eof = eof[..., np.newaxis]
-    eofx = eof_cnt.copy(data=eof)
-
-    # pc to xarray
-    pcx = xr.DataArray(
-        pc, dims=[dim, "mode"], coords={dim: data[dim], "mode": ["NAO", "EA"]}
-    )
-    frax = xr.DataArray(fra, dims=["mode"], coords={"mode": ["NAO", "EA"]})
+    eofx, pcx, frax = eofs_to_xarray(data, dim, eof, pc, fra)
 
     # deweight
     eofx = eofx / wgts.isel(com=0)
@@ -98,6 +85,23 @@ def doeof(
     eof_result = xr.Dataset({"eof": eofx, "pc": pcx, "fra": frax})
 
     return eof_result
+
+def eofs_to_xarray(data, dim, eof, pc, fra):
+    eof_cnt = data.unstack()
+    eof_cnt = eof_cnt.isel(ens=[0, 1], time=[0])
+    eof_cnt = eof_cnt.rename({"ens": "mode", "time": "decade"})
+    eof_cnt = eof_cnt.transpose("mode", ...)
+    eof_cnt["mode"] = ["NAO", "EA"]
+
+    eof = eof[..., np.newaxis]
+    eofx = eof_cnt.copy(data=eof)
+
+    # pc to xarray
+    pcx = xr.DataArray(
+        pc, dims=[dim, "mode"], coords={dim: data[dim], "mode": ["NAO", "EA"]}
+    )
+    frax = xr.DataArray(fra, dims=["mode"], coords={"mode": ["NAO", "EA"]})
+    return eofx,pcx,frax
 
 
 def sign_coef(eof):
