@@ -64,11 +64,8 @@ def doeof(
     elif standard == "pc_temporal_std":
         eofx, pcx = standard_by_pc_temporal_std(eofx, pcx)
 
-    # change sign
-    coef = sign_coef(eofx)
-    eofx = eofx * coef
-    coef = coef.squeeze()
-    pcx = pcx * coef
+    # fix the sign, so that the North center of action is always low.
+    eofx, pcx = fix_sign(eofx, pcx)
 
     # make sure at the loc where the data==np.nan, the eof==np.nan as well.
     map_data = data[0]  # just one map
@@ -119,7 +116,7 @@ def eofs_to_xarray(data, eof, pc, fra):
     return eofx,pcx,frax
 
 
-def sign_coef(eof):
+def fix_sign(eof,pc):
     """
     function to calculate the coefficient for eof, so that the sign is consistent.
     for NAO, the positive NAO with a low in the North and high at the south.
@@ -151,4 +148,9 @@ def sign_coef(eof):
     )
     coef_EA = 2 * coef_EA - 1
 
-    return xr.concat([coef_NAO, coef_EA], dim="mode")
+    # change sign
+    coef = xr.concat([coef_NAO, coef_EA], dim="mode")
+    eofx = eofx * coef
+    coef = coef.squeeze()
+    pcx = pcx * coef
+    return eofx, pcx
