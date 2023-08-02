@@ -57,7 +57,7 @@ def doeof(
     eofx, pcx, frax = eofs_to_xarray(data, dim, eof, pc, fra)
 
     # deweight
-    eofx = eofx / wgts.isel(com=0)
+    eofx = eofx / wgts[0]
 
     # standardize, here the loading gives to the pc, to make the index from different spatil pattern comparable.
     std_eof = eofx.std(dim=("lat", "lon"))
