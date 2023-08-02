@@ -78,7 +78,10 @@ def doeof(
     pcx = pcx.unstack()
 
     # dorp vars
-    eofx = eofx.drop_vars(("ens", "time", "com"))
+    try:
+        eofx = eofx.drop_vars(("ens", "time", dim))
+    except ValueError:
+        pass
 
     # to dataset
     eof_result = xr.Dataset({"eof": eofx, "pc": pcx, "fra": frax})
