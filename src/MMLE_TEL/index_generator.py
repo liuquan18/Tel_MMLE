@@ -436,8 +436,8 @@ def standard_index(eof_result, standard):
     if standard == "first":
         print(" standardizing the index with the first 10 years ...")
         years = np.unique(eof_result["time.year"]).sort()
-        years = sorted(years)[:10].astype(str)
-        ref = eof_result["pc"].sel(time = slice(years[0], years[-1]))
+        years = sorted(years)[:10]
+        ref = eof_result["pc"].sel(time = eof_result["time.year"].isin(years))
         pc_std = (eof_result["pc"] - ref.mean(dim=("time", "ens"))) / ref.std(
             dim=("time", "ens")
         )
