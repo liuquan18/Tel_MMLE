@@ -90,10 +90,10 @@ def read_composite():
 # %%
 firsts,lasts = read_composite()
 # %%
-field_composite.composite_plot_MMLEA(firsts,lasts,extr_type='pos',levels =np.arange(-2,2.1,0.4))
-# plt.savefig(
-#     '/work/mh0033/m300883/Tel_MMLE/docs/source/plots/monthly/JJA_month_composite_MMLEA_pos.png',
-# )
+field_composite.composite_plot_MMLEA(firsts,lasts,extr_type='pos',levels =np.arange(-1.5,1.6,0.3))
+plt.savefig(
+    '/work/mh0033/m300883/Tel_MMLE/docs/source/plots/monthly/JJA_month_composite_MMLEA_pos.png',
+)
 # %%
 field_composite.composite_plot_MMLEA(firsts,lasts,extr_type='neg',levels =np.arange(-1.5,1.6,0.3))
 plt.savefig(
