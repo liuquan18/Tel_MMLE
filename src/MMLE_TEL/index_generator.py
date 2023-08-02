@@ -308,7 +308,7 @@ class decompose_plev_JJA:
             print(f"reading the gph data of {month} ...")
             zg_path = self.odir + "zg_" + month + "/"
             data_JJA.append(read_data(zg_path, plev=self.plev))
-        self.data = xr.concat(data_JJA, dim="time")
+        self.data = xr.concat(data_JJA, dim="time").sortby("time")
 
         # read ts_mean data if needed
         self.ts_mean = None
