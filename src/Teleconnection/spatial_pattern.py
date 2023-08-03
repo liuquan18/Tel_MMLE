@@ -104,7 +104,7 @@ def eofs_to_xarray(data, eof, pc, fra):
     eof_cnt = data[0]
     time_tag = data.unstack().time.values[0] # the time tag of the first map
     eof_cnt = eof_cnt.drop_vars(reduce_dim) # drop the dim 'com' or 'time'
-    eof_cnt = eof_cnt.expand_dims(dim = {'mode':['NAO','EA'],'decade':[time_tag]},axis = [0,-1]) # add one more dimension to eof_cnt with shape 1
+    eof_cnt = eof_cnt.expand_dims(dim = {'mode':['NAO','EA'],'decade':[time_tag]},axis = [0,-1]) # add the dim 'mode' and 'decade'
 
     eof = eof[..., np.newaxis] # add one new dimension for the info of decade (time of the beginning of the decade)
     eofx = eof_cnt.copy(data=eof)
