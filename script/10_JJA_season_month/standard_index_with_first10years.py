@@ -34,6 +34,12 @@ odir = '/work/mh0033/m300883/Tel_MMLE/data/'
 for model in models:
     print(model)
     eof_result = xr.open_dataset(odir + model + '/EOF_result/'  + 'plev_50000_decade_mpi_JJA_none_eof_result.nc')
-    eof_result = standard_index(eof_result, standard = 'first')
-    eof_result.to_netcdf(odir + model + '/EOF_result/'  + 'plev_50000_decade_mpi_first_JJA_eof_result.nc')
+    std_eof_result = standard_index(eof_result, standard = 'first')
+    std_eof_result.to_netcdf(odir + model + '/EOF_result/'  + 'plev_50000_decade_mpi_first_JJA_eof_result.nc')
 # %%
+model = 'MK36'
+# %%
+    eof_result = xr.open_dataset(odir + model + '/EOF_result/'  + 'plev_50000_decade_mpi_JJA_none_eof_result.nc')
+
+# %%
+standard_index(eof_result, standard = 'first')
