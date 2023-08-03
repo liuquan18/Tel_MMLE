@@ -93,7 +93,7 @@ def standard_by_eof_spatial_std(eofx, pcx):
     return eofx,pcx
 
 def standard_by_pc_temporal_std(eofx, pcx):
-    std_pc = pcx.std(dim="time")
+    std_pc = pcx.std(axis = 0) # either along 'com' or 'time'
     pcx = pcx / std_pc
     std_pc = std_pc.squeeze()
     eofx = eofx * std_pc
