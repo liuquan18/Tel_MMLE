@@ -151,7 +151,7 @@ def fix_sign(eof,pc):
 
     # change sign
     coef = xr.concat([coef_NAO, coef_EA], dim="mode")
-    eofx = eofx * coef
+    eof = eof * coef
     coef = coef.squeeze()
-    pcx = pcx * coef
-    return eofx, pcx
+    pc = pc * coef
+    return eof, pc
