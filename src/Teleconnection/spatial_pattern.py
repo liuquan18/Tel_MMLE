@@ -129,24 +129,16 @@ def fix_sign(eof,pc):
     """
 
     # sortby lat since some dataset the lat goes from higher to lower.
-    eof = eof.sortby("lat")
 
     # NAO
-    coef_NAO = (
-        eof.sel(lat=slice(60, 90), lon=slice(-70, -10), mode="NAO").mean(
-            dim=["lat", "lon"]
-        )
-        < 0
-    )
+    # check if the lat of the eof is from lower to higher
+    NAO_box = neg_center_box(eof.sel(mode = 'NAO'), 60, 90, -70, -10)
+    coef_NAO = (NAO_box.mean(dim=["lat", "lon"])< 0)
     coef_NAO = 2 * coef_NAO - 1  # to make 1 to 1 , 0 to -1
 
     # EA
-    coef_EA = (
-        eof.sel(lat=slice(45, 65), lon=slice(-40, 40), mode="EA").mean(
-            dim=["lat", "lon"]
-        )
-        < 0
-    )
+    EA_box = neg_center_box(eof.sel(mode = 'EA'), 45, 65, -40, 40)
+    coef_EA = (EA_box.mean(dim=["lat", "lon"])< 0)
     coef_EA = 2 * coef_EA - 1
 
     # change sign
@@ -155,3 +147,26 @@ def fix_sign(eof,pc):
     coef = coef.squeeze()
     pc = pc * coef
     return eof, pc
+
+def neg_center_box(xarr, blat, tlat, llon, rlon): 
+    """
+    check if the lat and lon of the eof is from lower to higher.
+    input the order of expected box in # bottom lat, top lat, left lon, right lon for the box
+    return the order of the box in the eof.
+    """
+    if xarr.lat[0] > xarr.lat[-1]: # descending
+        start_lat = tlat
+        end_lat = blat
+    else: # ascending
+        start_lat = blat
+        end_lat = tlat
+
+    if xarr.lon[0] > xarr.lon[-1]:
+        start_lon = llon
+        end_lon = rlon
+
+    else:
+        start_lon = rlon
+        end_lon = llon
+    
+    return xarr.sel(lat=slice(start_lat, end_lat), lon=slice(start_lon, end_lon))
