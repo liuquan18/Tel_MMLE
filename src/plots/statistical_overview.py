@@ -109,6 +109,7 @@ def spatial_pattern_plot(
     last_eof=None,
     last_fra=None,
     levels=np.arange(-2, 2.1, 0.4),
+    title=None,
 ):
     # plot spatial map at 500hPa
     spatial_ax = fig.add_subplot(gs, proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
@@ -144,7 +145,7 @@ def spatial_pattern_plot(
             coast=True,
             coastlinewidth=0.5,
             coastcolor="charcoal",
-            title=f"({first_fra:.0%})",
+            title=f"{title} ({first_fra:.0%})",
         )
     return spatial_ax, fmap, lmap
 
@@ -233,3 +234,28 @@ def spatial_index_MMLEA(eof_firsts, eof_lasts):
     bottomlabels = models_legend,
 )
     return fig
+
+#%%
+def envolop_obs_mmlea(fig, gs, obs, mmlea):
+    models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+    models_legend = [
+        "ERA5 (obs)",
+        "MPI-GE (100)",
+        "CanESM2 (50)",
+        "CESM1-CAM5 (40)",
+        "MK3.6 (30)",
+        "GFDL-CM3 (20)",
+    ]
+    ax = fig.add_subplot(gs)
+    ax.plot(mmlea.values, color="grey7", linewidth=0.5)
+    ax.plot(obs.values, label="obs", color="orange", linewidth=2)
+
+    ax.xaxis.set_major_locator(ticker.MultipleLocator(30))
+    ticklabels = [str(year) for year in np.insert(obs.time[0::30].dt.year.values, 0, 0)]
+    ax.xaxis.set_major_formatter(ticker.FixedFormatter(ticklabels))
+    ax.format(
+        ylim=(-3.5, 3.5),
+        yminorticks="null",
+        xminorticks="null",
+        grid=False,
+    )
