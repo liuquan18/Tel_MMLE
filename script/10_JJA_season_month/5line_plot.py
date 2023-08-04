@@ -42,14 +42,14 @@ def split_first_last(eof_result):
     return eof_first,eof_last
 
 # %%
-models = ['MPI_GE','CanESM2','CESM1_CAM5','MK36','GFDL_CM3']
+models = ['MPI_GE_onepct','MPI_GE','CanESM2','CESM1_CAM5','MK36','GFDL_CM3']
 extrcs = [read_extrc(model) for model in models]
 eof_results = [read_eof(model) for model in models]
 eof_firsts,eof_lasts = zip(*[split_first_last(eof_result) for eof_result in eof_results])
 
 #%%
 # line plot of extreme counts vs time
-extplt.extrc_time_line(extrcs)
+extplt.extrc_time_line(extrcs,ylim = (25,315))
 plt.savefig(
     '/work/mh0033/m300883/Tel_MMLE/docs/source/plots/monthly/JJA_extreme_counts_line_time_all.png',
 )
@@ -77,12 +77,8 @@ def read_composite():
             first = first.tsurf
             last = last.tsurf
         except AttributeError:
-            try:
-                first = first.ts
-                last = last.ts
-            except AttributeError:
-                first = first.tas
-                last = last.tas
+            first = first.ts
+            last = last.ts
         firsts[model] = first
         lasts[model] = last
     return firsts,lasts
