@@ -22,14 +22,7 @@ warnings.filterwarnings("ignore")
 # colums for 'spatial map','pc hist','violion vertical profile'.
 
 
-def index_to_df(first_pc, last_pc):
-    periods = xr.IndexVariable("periods", ["first", "last"])
-    both = xr.concat([first_pc, last_pc], dim=periods)
-    both = both.to_dataframe().reset_index()
-    both = both[["periods", "pc"]]
-    return both
-
-
+#%% for one model spatial pattern and index distritbuion together 
 def stat_overview(
     first_pc,
     last_pc,
@@ -100,83 +93,8 @@ def stat_overview(
     return fig
 
 
-# %%
-def spatial_pattern_plot(
-    fig,
-    gs,
-    first_eof,
-    first_fra,
-    last_eof=None,
-    last_fra=None,
-    levels=np.arange(-2, 2.1, 0.4),
-    title=None,
-):
-    # plot spatial map at 500hPa
-    spatial_ax = fig.add_subplot(gs, proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
 
-    fmap = first_eof.plot.contourf(
-        ax=spatial_ax, levels=levels, extend="both", add_colorbar=False
-    )
-
-    lmap = None
-    if last_eof is not None:
-        lmap = last_eof.plot.contour(
-            ax=spatial_ax,
-            colors="gray8",
-            nozero=True,
-            labels=True,
-            levels=np.delete(levels, int((len(levels) - 1) / 2)),
-            labels_kw={"weight": "bold"},
-            add_colorbar=False,
-        )
-
-        spatial_ax.format(
-            lonlines=20,
-            latlines=30,
-            coast=True,
-            coastlinewidth=0.5,
-            coastcolor="charcoal",
-            title=f"({first_fra:.0%}" + f"->{last_fra:.0%})",
-        )
-    else:
-        spatial_ax.format(
-            lonlines=20,
-            latlines=30,
-            coast=True,
-            coastlinewidth=0.5,
-            coastcolor="charcoal",
-            title=f"{title} ({first_fra:.0%})",
-        )
-    return spatial_ax, fmap, lmap
-
-
-
-def index_distribution_plot(fig, gs, first_pc, last_pc):
-    hist_ax = fig.add_subplot(gs)
-    df = index_to_df(first_pc, last_pc)
-    hist = sns.histplot(
-        data=df,
-        x="pc",
-        hue="periods",
-        hue_order=["first", "last"],
-        palette=["#1f77b4", "#ff7f0e"],
-        multiple="dodge",
-        shrink=0.6,
-        bins=np.arange(-4, 4.1, 0.5),
-        legend=False,
-        ax=hist_ax,
-        stat= "density",
-    )
-
-    hist_ax.format(grid=False, 
-                   yminorticks="null", 
-                   xminorticks="null",
-                   xticks = [-3,-1.5,0,1.5,3])
-    hist_ax.spines["right"].set_visible(False)
-    hist_ax.spines["top"].set_visible(False)
-    return hist_ax,hist
-
-
+#%% for all MMLEAS, plot the spatial pattern and index distribution
 def spatial_index_MMLEA(eof_firsts, eof_lasts):
     models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
     models_legend = [
@@ -235,17 +153,85 @@ def spatial_index_MMLEA(eof_firsts, eof_lasts):
 )
     return fig
 
-#%%
-def envolop_obs_mmlea(fig, gs, obs, mmlea):
-    models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
-    models_legend = [
-        "ERA5 (obs)",
-        "MPI-GE (100)",
-        "CanESM2 (50)",
-        "CESM1-CAM5 (40)",
-        "MK3.6 (30)",
-        "GFDL-CM3 (20)",
-    ]
+# %% tool function for plotting the spatial pattern 
+def spatial_pattern_plot(
+    fig,
+    gs,
+    first_eof,
+    first_fra,
+    last_eof=None,
+    last_fra=None,
+    levels=np.arange(-2, 2.1, 0.4),
+    title=None,
+):
+    # plot spatial map at 500hPa
+    spatial_ax = fig.add_subplot(gs, proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
+
+    fmap = first_eof.plot.contourf(
+        ax=spatial_ax, levels=levels, extend="both", add_colorbar=False
+    )
+
+    lmap = None
+    if last_eof is not None:
+        lmap = last_eof.plot.contour(
+            ax=spatial_ax,
+            colors="gray8",
+            nozero=True,
+            labels=True,
+            levels=np.delete(levels, int((len(levels) - 1) / 2)),
+            labels_kw={"weight": "bold"},
+            add_colorbar=False,
+        )
+
+        spatial_ax.format(
+            lonlines=20,
+            latlines=30,
+            coast=True,
+            coastlinewidth=0.5,
+            coastcolor="charcoal",
+            title=f"({first_fra:.0%}" + f"->{last_fra:.0%})",
+        )
+    else:
+        spatial_ax.format(
+            lonlines=20,
+            latlines=30,
+            coast=True,
+            coastlinewidth=0.5,
+            coastcolor="charcoal",
+            title=f"{title} ({first_fra:.0%})",
+        )
+    return spatial_ax, fmap, lmap
+
+
+#%% tool function to plot the index distribution
+def index_distribution_plot(fig, gs, first_pc, last_pc):
+    hist_ax = fig.add_subplot(gs)
+    df = index_to_df(first_pc, last_pc)
+    hist = sns.histplot(
+        data=df,
+        x="pc",
+        hue="periods",
+        hue_order=["first", "last"],
+        palette=["#1f77b4", "#ff7f0e"],
+        multiple="dodge",
+        shrink=0.6,
+        bins=np.arange(-4, 4.1, 0.5),
+        legend=False,
+        ax=hist_ax,
+        stat= "density",
+    )
+
+    hist_ax.format(grid=False, 
+                   yminorticks="null", 
+                   xminorticks="null",
+                   xticks = [-3,-1.5,0,1.5,3])
+    hist_ax.spines["right"].set_visible(False)
+    hist_ax.spines["top"].set_visible(False)
+    return hist_ax,hist
+
+
+#%% tool function to plot the lines of obs and mmlea (envelop or not)
+def envelop_obs_mmlea(fig, gs, obs, mmlea):
     ax = fig.add_subplot(gs)
     ax.plot(mmlea.values, color="grey7", linewidth=0.5)
     ax.plot(obs.values, label="obs", color="orange", linewidth=2)
@@ -259,3 +245,38 @@ def envolop_obs_mmlea(fig, gs, obs, mmlea):
         xminorticks="null",
         grid=False,
     )
+
+
+def index_to_df(first_pc, last_pc):
+    periods = xr.IndexVariable("periods", ["first", "last"])
+    both = xr.concat([first_pc, last_pc], dim=periods)
+    both = both.to_dataframe().reset_index()
+    both = both[["periods", "pc"]]
+    return both
+
+#%% tool function to plot the box plot of obs and mmlea
+def obs_mmlea_box_plot( EOFs, fig, gs):
+    models_legend = [
+        "ERA5 (obs)",
+        "MPI-GE (100)",
+        "CanESM2 (50)",
+        "CESM1-CAM5 (40)",
+        "MK3.6 (30)",
+        "GFDL-CM3 (20)",
+    ]
+    box_ax = fig.add_subplot(gs)
+    keys = EOFs.keys()
+    for i, key in enumerate(keys):
+        box_ax.boxplot(
+        i + 1,
+        EOFs[key].pc.values.reshape(-1),
+        flierprops={"markerfacecolor": "grey", "marker": "o", "markersize": 2},
+        widths=0.5,
+    )
+        box_ax.set_ylim(-3.5, 3.5)
+    box_ax.set_xticklabels(models_legend, rotation=45)
+    box_ax.format(
+    xminorticks="null",
+    yminorticks="null",
+    grid=True,
+)
