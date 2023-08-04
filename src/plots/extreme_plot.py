@@ -447,7 +447,7 @@ def slope_diff_tsurf(extrs, tsurf_gmst, NA_tsurf, tropical_arctic_gradient, time
 
 ############################### MMLE line plot #########################################
 #%%
-def mmle_line_plot(
+def mmle_tsurf_line(
     extrs, tsurfs, extrs_rands, tsurfs_rands, tsurf="ens_fld_year_mean", time="all"
 ):
     params = {
@@ -663,19 +663,22 @@ def mmle_line_sum_plot(
 
 #%%
 
-def extrc_time_line(extrcs):
+def extrc_time_line(extrcs, **kwargs):
+    ylim = kwargs.pop("ylim", (20, 280))
+
     gs = pplt.GridSpec(nrows=1, ncols=2)
     fig = pplt.figure(refwidth=2.2, refheight = 5.2, span=False, share="labels")
     # the right order of the models
-    models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+    models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
     models_legend = [
+    "MPI_GE_onepct (100)",
     "MPI-GE (100)",
     "CanESM2 (50)",
     "CESM1-CAM5 (40)",
     "MK3.6 (30)",
     "GFDL-CM3 (20)",
 ]
-    colors_model = ["C1", "tab:purple", "tab:blue", "tab:green", "C4"]
+    colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
     model_color = dict(zip(models, colors_model))
 
     lines = []
@@ -693,7 +696,7 @@ def extrc_time_line(extrcs):
                 lines.append(line)
             
             ax.format(
-            ylim=(20, 280),
+            ylim=ylim,
             ylabel="Extreme counts",
             xlabel="Year",
             title=f"{mode} {extr_type}",
