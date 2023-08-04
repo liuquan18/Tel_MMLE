@@ -26,10 +26,7 @@ def read_extreme_counts(plev = 50000,standard = 'first',tsurf = 'ens_fld_year_me
         try:
             tsurfs[model] = tsurfs[model].tsurf
         except AttributeError:
-            try:
-                tsurfs[model] = tsurfs[model].ts
-            except AttributeError:
-                tsurfs[model] = tsurfs[model].tas
+            tsurfs[model] = tsurfs[model].ts
 
     # random sampled models
     extrs_rand = {}
