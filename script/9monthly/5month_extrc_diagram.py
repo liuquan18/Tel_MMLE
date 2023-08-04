@@ -50,10 +50,7 @@ def read_tsurf(model="MPI_GE_onepct"):
     try:
         ds = ds.tsurf
     except AttributeError:
-        try: 
-            ds = ds.ts
-        except AttributeError:
-            ds = ds.tas
+        ds = ds.ts
     return ds
 
 # %%

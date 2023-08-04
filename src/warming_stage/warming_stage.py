@@ -19,10 +19,8 @@ def read_tsurf_fldmean(dir):
     try:
         tsurf = tsurf.tsurf
     except AttributeError:
-        try :
-            tsurf = tsurf.ts
-        except AttributeError:
-            tsurf = tsurf.tas
+        tsurf = tsurf.ts
+
 
     try:
         tsurf.lon.size == 1 & tsurf.lat.size == 1
