@@ -8,6 +8,7 @@ import cartopy.crs as ccrs
 import proplot as pplt
 import seaborn as sns
 import matplotlib.patches as mpatches
+import matplotlib.ticker as ticker
 
 import src.warming_stage.warming_stage as warming_stage
 
