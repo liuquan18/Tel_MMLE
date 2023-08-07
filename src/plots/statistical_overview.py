@@ -279,3 +279,4 @@ def obs_mmlea_box_plot( box_ax,EOFs):
     yminorticks="null",
     grid=True,
 )
+    return box_ax
