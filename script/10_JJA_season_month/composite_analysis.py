@@ -19,11 +19,11 @@ import multiprocessing as mp
 from multiprocessing import Pool
 
 #%%
-def read_var_months(model):
+def read_var_months(model,var_name='ts'):
     odir = f'/work/mh0033/m300883/Tel_MMLE/data/{model}/'
-    Jun_fl = odir + 'ts_Jun/'
-    Jul_fl = odir + 'ts_Jul/'
-    Aug_fl = odir + 'ts_Aug/'
+    Jun_fl = odir + f'{var_name}_Jun/'
+    Jul_fl = odir + f'{var_name}_Jul/'
+    Aug_fl = odir + f'{var_name}_Aug/'
 
     Jun_f = index_stats.read_var_data(Jun_fl)
     Jul_f = index_stats.read_var_data(Jul_fl)
@@ -31,24 +31,37 @@ def read_var_months(model):
 
     JJA_f = xr.concat([Jun_f, Jul_f, Aug_f], dim='time')
     JJA_f = JJA_f.sortby('time')
+    if var_name == 'ts':
+        try:
+            JJA_f = JJA_f['tsurf']
+        except AttributeError:
+            JJA_f = JJA_f['ts']
+    elif var_name == 'pr':
+        try:
+            JJA_f = JJA_f['pr']
+        except AttributeError:
+            JJA_f = JJA_f['precip']
+
     return JJA_f
 
-def composite(model):
-    var_data = read_var_months(model)
+def composite(model,var_name='ts'):
+    var_data = read_var_months(model,var_name=var_name)
     index_stats.composite_analysis(
         model            = model,
         index_season     = 'JJA',
-        tsurf_season     = 'JJA',
-        var_data         = var_data,)
+        var_season     = 'JJA',
+        fixed_pattern    = 'decade_mpi',
+        var_data         = var_data,
+        )
     
 #%%
 num = int(sys.argv[1])
 t1 = int(sys.argv[2])
 t2 = int(sys.argv[3])
 
+#%%
 
-
-models = ['MPI_GE','CanESM2','CESM1_CAM5','MK36','GFDL_CM3']
+models = ['MK36','GFDL_CM3','CanESM2','CESM1_CAM5','MPI_GE']
 
 # %%
 print("===========================================")
@@ -69,4 +82,6 @@ composite('MK36')
 composite('CanESM2')
 # %%
 composite('GFDL_CM3')
+# %%
+composite('MPI_GE_onepct')
 # %%
