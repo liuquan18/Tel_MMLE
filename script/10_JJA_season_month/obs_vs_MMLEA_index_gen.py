@@ -96,3 +96,7 @@ model = models[mindex]
 print(f"model: {model}")
 decompose_SNAO(model, time = slice("1940", "2022"))
 # %%
+
+for model in models:
+    decompose_SNAO(model, time = slice("1940", "2022"))
+# %%
