@@ -164,7 +164,7 @@ def spatial_pattern_plot(
     last_eof=None,
     last_fra=None,
     levels=np.arange(-2, 2.1, 0.4),
-    title=None,
+    title="",
 ):
 
     fmap = spatial_ax.contourf(
@@ -283,21 +283,47 @@ def obs_mmlea_box_plot( box_ax,EOFs):
         "MK3.6 (30)",
         "GFDL-CM3 (20)",
     ]
-    
+    models = ["ERA5", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
     keys = EOFs.keys()
-    for i, key in enumerate(keys):
-        box_ax.boxplot(
+    colors = [None, "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
+    bps = []
+    for i, key in enumerate(models):
+        bps.append(box_ax.boxplot(
         i + 1,
         EOFs[key].pc.values.reshape(-1),
-        flierprops={"markerfacecolor": "grey", "marker": "o", "markersize": 2},
+        flierprops={"markerfacecolor": "grey", "marker": "o", "markersize": 0.8},
         widths=0.5,
-        patch_artist=True,
-    )
+        fc = colors[i],
+        fill = colors[i] != None,
+        label = models_legend[i],
+        alpha = 0.8,
+    ))
         box_ax.set_ylim(-3.5, 3.5)
-    box_ax.set_xticklabels(models_legend, rotation=45)
+
     box_ax.format(
     xminorticks="null",
     yminorticks="null",
     grid=True,
 )
+
+    box_ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+    box_ax.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
     return box_ax
+
+def format_func(value, tick_number):
+    if value == 1:
+        return "ERA5 \n obs"
+    elif value == 2:
+        return "MPI-GE \n (100)"
+    elif value == 3:
+        return "CanESM2 \n (50)"
+    elif value == 4:
+        return "CESM1-CAM5 \n (40)"
+    elif value == 5:
+        return "MK3.6 \n (30)"
+    elif value == 6:
+        return "GFDL-CM3 \n (20)"
+    else:
+        return ""
+    
+# %%
