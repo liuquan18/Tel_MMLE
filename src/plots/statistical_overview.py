@@ -65,7 +65,7 @@ def stat_overview(
         except AttributeError:
             pass
 
-        spatial_ax = fig.add_subplot(gs[i, 0])
+        spatial_ax = fig.add_subplot(gs[i, 0],proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
 
         # plot spatial map at 500hPa
         spatial_ax, fmap, lmap = spatial_pattern_plot(
@@ -122,7 +122,7 @@ def spatial_index_MMLEA(eof_firsts, eof_lasts):
 # rows for spatial pattern and index, columns for different models
     for c, model in enumerate(models):
     # plot spatial pattern
-        spatial_ax = fig.add_subplot(gs[0, c])
+        spatial_ax = fig.add_subplot(gs[0, c],proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
         spatial_ax, fmap, lmap = spatial_pattern_plot(
         spatial_ax,
         eof_firsts[c].eof,
