@@ -230,8 +230,7 @@ def index_distribution_plot(hist_ax, first_pc, last_pc):
 
 
 #%% tool function to plot the lines of obs and mmlea (envelop or not)
-def envelop_obs_mmlea(fig, gs, obs, mmlea):
-    ax = fig.add_subplot(gs)
+def envelop_obs_mmlea(ax, obs, mmlea):
     ax.plot(mmlea.values, color="grey7", linewidth=0.5)
     ax.plot(obs.values, label="obs", color="orange", linewidth=2)
 
