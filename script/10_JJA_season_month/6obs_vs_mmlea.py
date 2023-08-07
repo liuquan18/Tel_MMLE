@@ -56,8 +56,9 @@ def obs_mmlea_time_series(EOFs):
     for i, model in enumerate(models):
         obs = EOFs["ERA5"].pc
         mmlea = EOFs[model].pc
+        ax = fig.add_subplot(gs[divmod(i, gs.ncols)])
         # the line plot
-        sov.envelop_obs_mmlea(fig, gs[divmod(i, gs.ncols)], obs, mmlea)
+        sov.envelop_obs_mmlea(ax, obs, mmlea)
 
     # the box plot
     box_ax = fig.add_subplot(gs[1, 2])
