@@ -65,10 +65,11 @@ def stat_overview(
         except AttributeError:
             pass
 
+        spatial_ax = fig.add_subplot(gs[i, 0])
+
         # plot spatial map at 500hPa
         spatial_ax, fmap, lmap = spatial_pattern_plot(
-            fig,
-            gs[i, 0],
+            spatial_ax,
             first_eof_mode,
             first_fra_mode,
             last_eof_mode,
@@ -80,7 +81,8 @@ def stat_overview(
         # split the pc into two parts
         first_pc_mode = first_pc.sel(mode=mode)
         last_pc_mode = last_pc.sel(mode=mode)
-        hist_ax = index_distribution_plot(fig, gs[i,1], first_pc_mode, last_pc_mode)
+        hist_ax = fig.add_subplot(gs[i, 1])
+        hist_ax = index_distribution_plot(hist_ax, first_pc_mode, last_pc_mode)
 
         # add legend
         f_patch = mpatches.Patch(color="#1f77b4", label="first10")
@@ -120,9 +122,9 @@ def spatial_index_MMLEA(eof_firsts, eof_lasts):
 # rows for spatial pattern and index, columns for different models
     for c, model in enumerate(models):
     # plot spatial pattern
+        spatial_ax = fig.add_subplot(gs[0, c])
         spatial_ax, fmap, lmap = spatial_pattern_plot(
-        fig,
-        gs[0, c],
+        spatial_ax,
         eof_firsts[c].eof,
         eof_firsts[c].fra,
         eof_lasts[c].eof,
@@ -130,9 +132,9 @@ def spatial_index_MMLEA(eof_firsts, eof_lasts):
     )
 
     # plot index distribution
+        hist_ax = fig.add_subplot(gs[1, c])
         hist_ax,hist = index_distribution_plot(
-        fig,
-        gs[1, c],
+        hist_ax,
         eof_firsts[c].pc,
         eof_lasts[c].pc,
     )
@@ -156,8 +158,7 @@ def spatial_index_MMLEA(eof_firsts, eof_lasts):
 
 # %% tool function for plotting the spatial pattern 
 def spatial_pattern_plot(
-    fig,
-    gs,
+    spatial_ax,
     first_eof,
     first_fra,
     last_eof=None,
@@ -166,8 +167,6 @@ def spatial_pattern_plot(
     title=None,
 ):
     # plot spatial map at 500hPa
-    spatial_ax = fig.add_subplot(gs, proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
-
     fmap = first_eof.plot.contourf(
         ax=spatial_ax, levels=levels, extend="both", add_colorbar=False
     )
@@ -205,8 +204,7 @@ def spatial_pattern_plot(
 
 
 #%% tool function to plot the index distribution
-def index_distribution_plot(fig, gs, first_pc, last_pc):
-    hist_ax = fig.add_subplot(gs)
+def index_distribution_plot(hist_ax, first_pc, last_pc):
     df = index_to_df(first_pc, last_pc)
     hist = sns.histplot(
         data=df,

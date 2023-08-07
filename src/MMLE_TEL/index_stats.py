@@ -164,8 +164,8 @@ def composite_analysis(
     field_var_dir = odir + f"{var_name}_{var_season}/"
 
     # to dir
-    first_composite_dir = f"{odir}composite/{prefix}{var_season}_first_composite.nc"
-    last_composite_dir = f"{odir}composite/{prefix}{var_season}_last_composite.nc"
+    first_composite_dir = f"{odir}composite/{prefix}{var_season}_first_{var_name}_composite.nc"
+    last_composite_dir = f"{odir}composite/{prefix}{var_season}_last_{var_name}_composite.nc"
 
     if var_data is None:
         var_data = read_var_data(field_var_dir)

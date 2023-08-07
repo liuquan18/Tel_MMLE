@@ -34,12 +34,12 @@ def read_var_months(model,var_name='ts'):
     if var_name == 'ts':
         try:
             JJA_f = JJA_f['tsurf']
-        except AttributeError:
+        except KeyError:
             JJA_f = JJA_f['ts']
     elif var_name == 'pr':
         try:
             JJA_f = JJA_f['pr']
-        except AttributeError:
+        except KeyError:
             JJA_f = JJA_f['precip']
 
     return JJA_f
@@ -52,6 +52,7 @@ def composite(model,var_name='ts'):
         var_season     = 'JJA',
         fixed_pattern    = 'decade_mpi',
         var_data         = var_data,
+        var_name         = var_name
         )
     
 #%%
@@ -69,10 +70,13 @@ print(f"node_num:{num} is doing {models[num-1]}")
 composite(models[num-1])
 
 # %%
-composite('MPI_GE')
 # %%
 for model in models:
-    composite(model)
+    for var_name in ['ts','pr']:
+        print("===========================================")
+
+        print(f"model {model} var {var_name} is doing")
+        composite(model,var_name=var_name)
 
 # %%
 composite('CESM1_CAM5')
@@ -81,7 +85,12 @@ composite('MK36')
 # %%
 composite('CanESM2')
 # %%
-composite('GFDL_CM3')
+composite('GFDL_CM3',var_name='ts')
+
 # %%
-composite('MPI_GE_onepct')
+composite('GFDL_CM3',var_name='pr')
+
+# %%
+composite('MPI_GE_onepct',var_name='ts')
+composite('MPI_GE_onepct',var_name='pr')
 # %%
