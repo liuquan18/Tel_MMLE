@@ -107,13 +107,14 @@ def eofs_to_xarray(data, eof, pc, fra):
     eof_cnt = eof_cnt.expand_dims(dim = {'mode':['NAO','EA'],'decade':[time_tag]},axis = [0,-1]) # add the dim 'mode' and 'decade'
 
     eof = eof[..., np.newaxis] # add one new dimension for the info of decade (time of the beginning of the decade)
+    fra = fra[..., np.newaxis] # add one new dimension for the info of decade (time of the beginning of the decade)
     eofx = eof_cnt.copy(data=eof)
 
     # pc to xarray
     pcx = xr.DataArray(
         pc, dims=[reduce_dim, "mode"], coords={reduce_dim: data[reduce_dim], "mode": ["NAO", "EA"]}
     )
-    frax = xr.DataArray(fra, dims=["mode"], coords={"mode": ["NAO", "EA"]})
+    frax = xr.DataArray(fra, dims=["mode","decade"], coords={"mode": ["NAO", "EA"],'decade':[time_tag]})
     return eofx,pcx,frax
 
 
