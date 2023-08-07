@@ -172,12 +172,12 @@ def composite_analysis(
         if var_name == 'ts':
             try:
                 var_data = var_data['tsurf']
-            except AttributeError:
+            except KeyError:
                 var_data = var_data['ts']
         elif var_name == 'pr':
             try:
                 var_data = var_data['pr']
-            except AttributeError:
+            except KeyError:
                 var_data = var_data['precip']
     else:
         pass
@@ -192,7 +192,7 @@ def composite_analysis(
     first_index = eof_first.pc
     last_index = eof_last.pc
 
-    print(" compositing the tsurf data...")
+    print(f" compositing the {var_name} data...")
     first_var = composite.Tel_field_composite(
         first_index, var_data, threshold=threshold, reduction=reduction
     )
