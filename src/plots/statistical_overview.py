@@ -291,6 +291,7 @@ def obs_mmlea_box_plot( box_ax,EOFs):
         EOFs[key].pc.values.reshape(-1),
         flierprops={"markerfacecolor": "grey", "marker": "o", "markersize": 2},
         widths=0.5,
+        patch_artist=True,
     )
         box_ax.set_ylim(-3.5, 3.5)
     box_ax.set_xticklabels(models_legend, rotation=45)
