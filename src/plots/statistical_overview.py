@@ -166,15 +166,23 @@ def spatial_pattern_plot(
     levels=np.arange(-2, 2.1, 0.4),
     title=None,
 ):
-    # plot spatial map at 500hPa
-    fmap = first_eof.plot.contourf(
-        ax=spatial_ax, levels=levels, extend="both", add_colorbar=False
+
+    fmap = spatial_ax.contourf(
+        first_eof.lon,
+        first_eof.lat,
+        first_eof,
+        levels=levels,
+        extend="both",
+        transform=ccrs.PlateCarree(),
+        cmap="RdBu_r",
     )
 
     lmap = None
     if last_eof is not None:
-        lmap = last_eof.plot.contour(
-            ax=spatial_ax,
+        lmap = spatial_ax.contour(
+            last_eof.lon,
+            last_eof.lat,
+            last_eof,
             colors="gray8",
             nozero=True,
             labels=True,
@@ -231,7 +239,19 @@ def index_distribution_plot(hist_ax, first_pc, last_pc):
 
 #%% tool function to plot the lines of obs and mmlea (envelop or not)
 def envelop_obs_mmlea(ax, obs, mmlea):
-    ax.plot(mmlea.values, color="grey7", linewidth=0.5)
+
+    max_mmlea = mmlea.max(dim="ens")
+    min_mmlea = mmlea.min(dim="ens")
+    # shading between the max and min
+    ax.fill_between(
+        np.arange(max_mmlea.time.size),
+        max_mmlea.values,
+        min_mmlea.values,
+        color="grey7",
+        alpha=0.3,
+        linewidth=0,
+    )
+
     ax.plot(obs.values, label="obs", color="orange", linewidth=2)
 
     ax.xaxis.set_major_locator(ticker.MultipleLocator(30))
