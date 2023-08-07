@@ -21,5 +21,5 @@ from multiprocessing import Pool
 index_stats.composite_analysis(
     model            = "MPI_GE_onepct",
     index_season     = 'JJAS',
-    tsurf_season     = 'JJAS')
+    var_season     = 'JJAS')
 # %%
