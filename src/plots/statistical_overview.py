@@ -254,7 +254,7 @@ def index_to_df(first_pc, last_pc):
     return both
 
 #%% tool function to plot the box plot of obs and mmlea
-def obs_mmlea_box_plot( fig, gs,EOFs):
+def obs_mmlea_box_plot( box_ax,EOFs):
     models_legend = [
         "ERA5 (obs)",
         "MPI-GE (100)",
@@ -263,7 +263,7 @@ def obs_mmlea_box_plot( fig, gs,EOFs):
         "MK3.6 (30)",
         "GFDL-CM3 (20)",
     ]
-    box_ax = fig.add_subplot(gs)
+    
     keys = EOFs.keys()
     for i, key in enumerate(keys):
         box_ax.boxplot(
