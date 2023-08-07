@@ -60,7 +60,8 @@ def obs_mmlea_time_series(EOFs):
         sov.envelop_obs_mmlea(fig, gs[divmod(i, gs.ncols)], obs, mmlea)
 
     # the box plot
-    sov.obs_mmlea_box_plot(fig, gs[1,2],EOFs)
+    box_ax = fig.add_subplot(gs[1, 2])
+    sov.obs_mmlea_box_plot(ax,EOFs)
     plt.savefig(
         "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/obs_vs_MMLEA/EOF_time_series.png",
     )
