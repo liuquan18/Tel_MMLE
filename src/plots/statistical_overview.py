@@ -189,6 +189,7 @@ def spatial_pattern_plot(
             levels=np.delete(levels, int((len(levels) - 1) / 2)),
             labels_kw={"weight": "bold"},
             add_colorbar=False,
+            lw = 1.2,
         )
 
         spatial_ax.format(
@@ -279,7 +280,7 @@ def obs_mmlea_box_plot( box_ax,EOFs):
         "ERA5 (obs)",
         "MPI-GE (100)",
         "CanESM2 (50)",
-        "CESM1-CAM5 (40)",
+        "CESM1 (40)",
         "MK3.6 (30)",
         "GFDL-CM3 (20)",
     ]
@@ -312,7 +313,7 @@ def obs_mmlea_box_plot( box_ax,EOFs):
 
 def format_func(value, tick_number):
     if value == 1:
-        return "ERA5 \n obs"
+        return "ERA5 \n (obs)"
     elif value == 2:
         return "MPI-GE \n (100)"
     elif value == 3:
