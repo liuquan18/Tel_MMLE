@@ -84,20 +84,13 @@ def read_spmean_tsurf(tsurf_dir):
 
     return tsurf_arr
 
-def read_var_data(field_tsurf_dir):
+def read_var_data(field_var_dir):
     print(" reading the field data...")
 
-    all_ens_lists = sorted(glob.glob(field_tsurf_dir + "*.nc")) # to make sure that the order of ensemble members is fixed
+    all_ens_lists = sorted(glob.glob(field_var_dir + "*.nc")) # to make sure that the order of ensemble members is fixed
     var_data = xr.open_mfdataset(all_ens_lists,combine='nested',concat_dim='ens')
     var_data['ens'] = np.arange(var_data.ens.size)
 
-    try:
-        var_data = var_data.tsurf
-    except AttributeError:
-        try:
-            var_data = var_data.ts
-        except AttributeError:
-            var_data = var_data.tas
     try:
         var_data['time'] = var_data['time'].astype('datetime64[ns]')
     except TypeError:
@@ -160,21 +153,32 @@ def composite_analysis(
         tsurf_season="MJJA",
         var_data = None,
         reduction="mean",
-        threshold=1.5,):
+        threshold=1.5,
+        var_name = 'ts'):
     """
     tfield can be 'same' or 'next'
     """
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/"
     prefix = f"plev_{plev}_{fixed_pattern}_{standard}_{index_season}_"
     eof_dir = odir + "EOF_result/" + prefix + "eof_result.nc"
-    field_tsurf_dir = odir + f"ts_{tsurf_season}/"
+    field_var_dir = odir + f"{var_name}_{tsurf_season}/"
 
     # to dir
     first_composite_dir = f"{odir}composite/{prefix}{tsurf_season}_first_composite.nc"
     last_composite_dir = f"{odir}composite/{prefix}{tsurf_season}_last_composite.nc"
 
     if var_data is None:
-        var_data = read_var_data(field_tsurf_dir)
+        var_data = read_var_data(field_var_dir)
+        if var_name == 'ts':
+            try:
+                var_data = var_data['tsurf']
+            except AttributeError:
+                var_data = var_data['ts']
+        elif var_name == 'pr':
+            try:
+                var_data = var_data['pr']
+            except AttributeError:
+                var_data = var_data['precip']
     else:
         pass
 
