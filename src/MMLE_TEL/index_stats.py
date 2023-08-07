@@ -150,7 +150,7 @@ def composite_analysis(
         standard="first",
         plev=50000,
         index_season="MJJA",
-        tsurf_season="MJJA",
+        var_season="MJJA",
         var_data = None,
         reduction="mean",
         threshold=1.5,
@@ -161,11 +161,11 @@ def composite_analysis(
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/"
     prefix = f"plev_{plev}_{fixed_pattern}_{standard}_{index_season}_"
     eof_dir = odir + "EOF_result/" + prefix + "eof_result.nc"
-    field_var_dir = odir + f"{var_name}_{tsurf_season}/"
+    field_var_dir = odir + f"{var_name}_{var_season}/"
 
     # to dir
-    first_composite_dir = f"{odir}composite/{prefix}{tsurf_season}_first_composite.nc"
-    last_composite_dir = f"{odir}composite/{prefix}{tsurf_season}_last_composite.nc"
+    first_composite_dir = f"{odir}composite/{prefix}{var_season}_first_composite.nc"
+    last_composite_dir = f"{odir}composite/{prefix}{var_season}_last_composite.nc"
 
     if var_data is None:
         var_data = read_var_data(field_var_dir)
