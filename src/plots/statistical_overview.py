@@ -263,6 +263,7 @@ def envelop_obs_mmlea(ax, obs, mmlea):
         xminorticks="null",
         grid=False,
     )
+    return ax
 
 
 def index_to_df(first_pc, last_pc):
