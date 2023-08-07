@@ -604,7 +604,6 @@ def extrc_time_line(extrcs, **kwargs):
     gs = pplt.GridSpec(nrows=1, ncols=2)
     fig = pplt.figure(refwidth=2.2, refheight = 5.2, span=False, share="labels")
     # the right order of the models
-    models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
     models_legend = [
     "MPI_GE_onepct (100)",
     "MPI-GE (100)",
@@ -613,24 +612,37 @@ def extrc_time_line(extrcs, **kwargs):
     "MK3.6 (30)",
     "GFDL-CM3 (20)",
 ]
-    colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
-    model_color = dict(zip(models, colors_model))
 
     lines = []
     for r, mode in enumerate(['NAO']):
         for c, extr_type in enumerate(['pos','neg']):
             ax = fig.subplot(gs[r, c])
-            for model in models:
-                extrc = extrcs[models.index(model)]
-                line = extrc.sel(mode=mode,extr_type=extr_type).plot(
+            line = extrc_time_line_single(extrcs.sel(mode = 'NAO'),  extr_type, ax,ylim = ylim)
+            lines.append(line)
+    fig.legend(
+    lines,
+    labels=models_legend,
+    ncols=3,
+    loc="b",
+)
+
+    return fig
+
+def extrc_time_line_single(extrcs,model_color, extr_type, ax, ylim = (20, 280)):
+    models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+    colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
+    model_color = dict(zip(models, colors_model))
+
+    for model in models:
+        extrc = extrcs[models.index(model)]
+        line = extrc.sel(extr_type=extr_type).plot(
                 ax=ax, 
                 label=model_color[model],
                 x = 'time',
                 color = model_color[model],
                 linewidth = 2,)
-                lines.append(line)
             
-            ax.format(
+    ax.format(
             ylim=ylim,
             ylabel="Extreme counts",
             xlabel="Year",
@@ -641,11 +653,4 @@ def extrc_time_line(extrcs, **kwargs):
             yminorlocator="null",
             grid=False,
         )
-    fig.legend(
-    lines,
-    labels=models_legend,
-    ncols=3,
-    loc="b",
-)
-
-    return fig
+    return line
