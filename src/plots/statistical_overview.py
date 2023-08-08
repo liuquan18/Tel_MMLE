@@ -183,13 +183,13 @@ def spatial_pattern_plot(
             last_eof.lon,
             last_eof.lat,
             last_eof,
-            colors="gray8",
+            colors="grey8",
             nozero=True,
             labels=True,
             levels=np.delete(levels, int((len(levels) - 1) / 2)),
-            labels_kw={"weight": "bold"},
+            labels_kw={"fontsize": "x-small"},
             add_colorbar=False,
-            lw = 1.0,
+            lw = 0.8,
         )
 
         spatial_ax.format(
@@ -244,16 +244,17 @@ def envelop_obs_mmlea(ax, obs, mmlea):
     max_mmlea = mmlea.max(dim="ens")
     min_mmlea = mmlea.min(dim="ens")
     # shading between the max and min
-    ax.fill_between(
+    shading = ax.fill_between(
         np.arange(max_mmlea.time.size),
         max_mmlea.values,
         min_mmlea.values,
         color="grey7",
         alpha=0.3,
         linewidth=0,
+        label = 'MPI-GE (100)',
     )
 
-    ax.plot(obs.values, label="obs", color="orange", linewidth=2)
+    line = ax.plot(obs.values, color="orange", linewidth=2,label = 'ERA5')
 
     ax.xaxis.set_major_locator(ticker.MultipleLocator(30))
     # ticklabels = [str(year) for year in np.insert(obs.time[0::30].dt.year.values, 0, 0)]
