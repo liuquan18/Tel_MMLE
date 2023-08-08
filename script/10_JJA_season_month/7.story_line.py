@@ -9,6 +9,7 @@ import proplot as pplt
 import seaborn as sns
 import cartopy.crs as ccrs
 import matplotlib.ticker as ticker
+from matplotlib import lines as mlines
 
 
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, MaxNLocator
@@ -157,7 +158,7 @@ gs = pplt.GridSpec(
     nrows=2,
     hratios=[1, 1],
     wratios = [0.6,1],
-    wspace=4,
+    wspace=5,
     hspace=4,
 )
 
@@ -204,6 +205,7 @@ cbar = ax2.colorbar(
     loc='b',
     width = 0.1,
     pad = 1,
+    label = '',
 )
 cbar.ax.set_title(
     "NAO/m",
@@ -237,6 +239,26 @@ ax3.tick_params(
     labelcolor="black",
     labelrotation=0,
 )
+ax3.format(
+    ylabel = 'std_NAO',
+)
+
+# create a orange patch for legend
+orange_patch = mpatches.Patch(color="orange", alpha = 0.7, label="MPI-GE (100)")
+# create a black line for legend
+black_line = mlines.Line2D([], [], color="black", linewidth=0.5, label="ERA5")
+
+# add legend
+ax3.legend(
+    handles=[orange_patch, black_line],
+    loc="upper left",
+    frameon=False,
+    handlelength=1.5,
+    handletextpad=0.5,
+    fontsize=7,
+    ncol=2,
+)
+
 
 
 
@@ -254,7 +276,10 @@ ax4.tick_params(
     pad=2,
     labelsize=7,
     labelcolor="black",
-    labelrotation=90,
+    labelrotation=45,
+)
+ax4.format(
+    ylabel = 'std_NAO',
 )
 
 
@@ -269,11 +294,12 @@ plt.savefig(
 # Fig 2, spatial pattern chagne, index distribution change, and extreme lines
 # set the fig size as 180mm x 150mm
 # set the font size as 7pt
-fig2 = pplt.figure(figsize=(180 / 25.4, 150 / 25.4))
+fig2 = pplt.figure(figsize=(180 / 25.4, 180 / 25.4),sharex=False,sharey=False)
 fig2.format(
     abc=True,
     abcloc="ul",
     abcstyle="a",
+    
 )
 models_legend = [
     "MPI_GE_onepct (100)",
@@ -289,7 +315,8 @@ gs = pplt.GridSpec(
     nrows=2,
     wspace=(5, 0.5),
     hspace=0.5,
-    hratios=[1.3, 1],
+    hratios=[1, 0.8],
+    wratios=[1, 0.85, 0.85],
 )
 
 ax1 = fig2.add_subplot(gs[0, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
@@ -314,10 +341,6 @@ ax2,hist = stat_overview.index_distribution_plot(
     last_eof.pc,
 )
 
-# add legend
-f_patch = mpatches.Patch(color="#1f77b4", label="first10")
-l_patch = mpatches.Patch(color="#ff7f0e", label="last10")
-
 
 ax3,lines_pos = extplt.extrc_time_line_single(
     EXTRCs,
@@ -337,11 +360,17 @@ ax4,lines_neg = extplt.extrc_time_line_single(
 
 
 #### ax2 ####
+
+# add legend
+f_patch = mpatches.Patch(color="#1f77b4", label="first10")
+l_patch = mpatches.Patch(color="#ff7f0e", label="last10")
+
 ax2.legend(
-    handles=[f_patch, l_patch], loc="b", title="periods", frameon=False,
-    pad = 0.2,
+    handles=[f_patch, l_patch], loc="b", frameon=False,
+    space = 3.2,
 )
-ax2.colorbar(
+
+cbar = ax2.colorbar(
     fmap,
     width=0.1,
     shrink=1,
@@ -350,15 +379,38 @@ ax2.colorbar(
     pad = 0.2,
 )
 
+ax2.set_ylabel("density", fontsize=7)
+ax2.format(
+    ylocator=pplt.MultipleLocator(0.05),
+    xlabel = "std_NAO",
+    xlabelpad=0.8, 
+)
+
+
 #### ax3 ####
 # set the axis
 ax3.spines["right"].set_visible(False)
 ax3.spines["top"].set_visible(False)
 
+ax3.format(
+    xlabel="time",
+    xlabelpad=0.8, 
+    xtickminor=False,
+    xrotation=45,
+)
+
 #### ax4 ####
 # set the axis
 ax4.spines["right"].set_visible(False)
 ax4.spines["top"].set_visible(False)
+ax4.format(
+    xlabel="time",
+    xlabelpad=0.8, 
+    xtickminor=False,
+    yticklabels = [],
+    ylabel = '',
+    xrotation=45,
+)
 
 ax4.legend(
     lines_pos,
@@ -368,6 +420,7 @@ ax4.legend(
     frameon=False,
     bbox_to_anchor=(-0.1, -0.2),
     pad = 0.2,
+    columnspacing=3,
 )
 
 

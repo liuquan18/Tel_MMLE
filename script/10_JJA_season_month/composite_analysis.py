@@ -94,3 +94,6 @@ composite('GFDL_CM3',var_name='pr')
 composite('MPI_GE_onepct',var_name='ts')
 composite('MPI_GE_onepct',var_name='pr')
 # %%
+composite('CESM1_CAM5',var_name='pr')
+
+# %%

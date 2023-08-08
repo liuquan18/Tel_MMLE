@@ -100,3 +100,4 @@ decompose_SNAO(model, time = slice("1940", "2022"))
 for model in models:
     decompose_SNAO(model, time = slice("1940", "2022"))
 # %%
+decompose_SNAO('ERA5', time = slice("1940", "2022"))
