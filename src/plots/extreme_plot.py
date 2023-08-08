@@ -617,7 +617,7 @@ def extrc_time_line(extrcs, **kwargs):
     for r, mode in enumerate(['NAO']):
         for c, extr_type in enumerate(['pos','neg']):
             ax = fig.subplot(gs[r, c])
-            line = extrc_time_line_single(extrcs.sel(mode = 'NAO'),  extr_type, ax,ylim = ylim)
+            line = extrc_time_line_single(extrcs,  extr_type, ax,ylim = ylim)
             lines.append(line)
     fig.legend(
     lines,
@@ -628,29 +628,45 @@ def extrc_time_line(extrcs, **kwargs):
 
     return fig
 
-def extrc_time_line_single(extrcs, extr_type, ax, ylim = (20, 280)):
+def extrc_time_line_single(extrcs, extr_type, ax, ylim = (20, 280),mode = 'NAO',ci = False):
     models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
     colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
     model_color = dict(zip(models, colors_model))
 
+    lines = []
     for model in models:
-        extrc = extrcs[models.index(model)]
-        line = extrc.sel(extr_type=extr_type).plot(
+        try:
+            extrc = extrcs[models.index(model)]
+        except KeyError:
+            extrc = extrcs[model]
+        line = extrc.sel(extr_type=extr_type,mode = mode,confidence = 'true').plot.line(
                 ax=ax, 
                 label=model_color[model],
                 x = 'time',
                 color = model_color[model],
                 linewidth = 2,)
+        
+        if ci:
+            # fill between the confidence interval ['low','high']
+            ax.fill_between(
+                extrc.time,
+                extrc.sel(extr_type=extr_type,mode = mode,confidence = 'low').values,
+                extrc.sel(extr_type=extr_type,mode = mode,confidence = 'high').values,
+                color = model_color[model],
+                alpha = 0.15,
+            )
+        lines.append(line)
+
             
     ax.format(
             ylim=ylim,
             ylabel="Extreme counts",
             xlabel="Year",
-            title=f"{mode} {extr_type}",
             suptitle="",
             titleloc="uc",
             ylocator=20,
             yminorlocator="null",
             grid=False,
+            title = '',
         )
-    return ax, line 
+    return ax, lines
