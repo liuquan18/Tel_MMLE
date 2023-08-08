@@ -189,7 +189,7 @@ def spatial_pattern_plot(
             levels=np.delete(levels, int((len(levels) - 1) / 2)),
             labels_kw={"weight": "bold"},
             add_colorbar=False,
-            lw = 1.2,
+            lw = 1.0,
         )
 
         spatial_ax.format(
@@ -256,8 +256,9 @@ def envelop_obs_mmlea(ax, obs, mmlea):
     ax.plot(obs.values, label="obs", color="orange", linewidth=2)
 
     ax.xaxis.set_major_locator(ticker.MultipleLocator(30))
-    ticklabels = [str(year) for year in np.insert(obs.time[0::30].dt.year.values, 0, 0)]
-    ax.xaxis.set_major_formatter(ticker.FixedFormatter(ticklabels))
+    # ticklabels = [str(year) for year in np.insert(obs.time[0::30].dt.year.values, 0, 0)]
+    # ax.xaxis.set_major_formatter(ticker.FixedFormatter(ticklabels))
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(format_year_summer))
     ax.format(
         ylim=(-3.5, 3.5),
         yminorticks="null",
@@ -266,6 +267,9 @@ def envelop_obs_mmlea(ax, obs, mmlea):
     )
     return ax
 
+def format_year_summer(value, tick_number):
+    value_year = int(value/3) + 1940
+    return f"JJA \n {str(int(value_year))}"
 
 def index_to_df(first_pc, last_pc):
     periods = xr.IndexVariable("periods", ["first", "last"])
@@ -286,7 +290,8 @@ def obs_mmlea_box_plot( box_ax,EOFs):
     ]
     models = ["ERA5", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
     keys = EOFs.keys()
-    colors = [None, "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
+    colors = ['w', "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
+    fills = [False, True, True, True, True, True]
     bps = []
     for i, key in enumerate(models):
         bps.append(box_ax.boxplot(
@@ -295,7 +300,7 @@ def obs_mmlea_box_plot( box_ax,EOFs):
         flierprops={"markerfacecolor": "grey", "marker": "o", "markersize": 0.8},
         widths=0.5,
         fc = colors[i],
-        fill = colors[i] != None,
+        fill = fills[i],
         label = models_legend[i],
         alpha = 0.8,
     ))
@@ -304,7 +309,7 @@ def obs_mmlea_box_plot( box_ax,EOFs):
     box_ax.format(
     xminorticks="null",
     yminorticks="null",
-    grid=True,
+    grid=False,
 )
 
     box_ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
