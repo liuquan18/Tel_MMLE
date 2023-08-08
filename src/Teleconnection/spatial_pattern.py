@@ -163,11 +163,11 @@ def neg_center_box(xarr, blat, tlat, llon, rlon):
         end_lat = tlat
 
     if xarr.lon[0] > xarr.lon[-1]:
-        start_lon = llon
-        end_lon = rlon
-
-    else:
         start_lon = rlon
         end_lon = llon
+
+    else:
+        start_lon = llon
+        end_lon = rlon
     
     return xarr.sel(lat=slice(start_lat, end_lat), lon=slice(start_lon, end_lon))
