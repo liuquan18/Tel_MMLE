@@ -193,3 +193,33 @@ def composite_plot_MMLEA(firsts,lasts,mode='NAO',level_bound = None,levels = np.
             )
             axes[j,i].grid(color = 'grey7',linewidth = 1.5)
     fig.colorbar(first_m, loc="r", pad=3, title=f"tsurf/K")
+
+
+
+def plot_composite_single_ext(COMPOSITEs, models, axes,extr_type = 'pos'):
+    for i, model in enumerate(models): # cols for different models
+        first = COMPOSITEs[model][0].sel(mode='NAO',extr_type = extr_type)
+        last = COMPOSITEs[model][-1].sel(mode='NAO',extr_type = extr_type)
+        first = utils.erase_white_line(first)
+        last = utils.erase_white_line(last)
+
+        data_all = [
+        first,
+        last,
+        last - first
+    ]
+
+        maps = []
+        for j, data in enumerate(data_all):  # row for different data
+            map = axes[j, i].contourf(
+            data,
+            x="lon",
+            y="lat",
+            levels = np.arange(-1.5,1.6,0.3),
+            extend="both",
+            transform=ccrs.PlateCarree(),
+            cmap="RdBu_r",
+        )
+            maps.append(map)
+            axes[j,i].grid(color = 'grey7',linewidth = 0.5)
+    return axes, maps
