@@ -10,6 +10,8 @@ import seaborn as sns
 import cartopy.crs as ccrs
 import matplotlib.ticker as ticker
 from matplotlib import lines as mlines
+import matplotlib.ticker as ticker
+
 
 
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, MaxNLocator
@@ -20,7 +22,7 @@ import src.composite.field_composite as field_composite
 import src.plots.extreme_plot as extplt
 import src.plots.statistical_overview as stat_overview
 import src.plots.utils as utils
-
+import src.obs.era5_extreme_change as era5_extreme_change
 
 # %%
 import importlib
@@ -28,6 +30,7 @@ import importlib
 importlib.reload(extplt)
 importlib.reload(stat_overview)
 importlib.reload(field_composite)
+importlib.reload(era5_extreme_change)
 
 # %%
 ######################
@@ -96,6 +99,7 @@ def read_all_models(variable):
             model: read_eof_all(model) for model in models[1:]
         }  # no onepct here
         all_model_data["ERA5"] = read_eof_all("ERA5")  # also add ERA5
+        all_model_data["ERA5_no_dec"] = read_eof_all("ERA5_no_dec") # also add ERA5_no_dec
     elif variable == "extrc":
         all_model_data = {model: read_extrc(model) for model in models}
     elif variable == "composite":
@@ -133,8 +137,7 @@ def split_first_last(eof_result):
 
 mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["ps.fonttype"] = 42
-mpl.rcParams["font.family"] = "Arial"
-
+mpl.rcParams['font.family'] = 'sans-serif'
 
 # %%
 EOFs_decade = read_all_models("eof_decade")
@@ -181,10 +184,10 @@ ax2, fmap, _ = stat_overview.spatial_pattern_plot(
     levels=np.arange(-40, 41, 5),
 )
 
-ax3 = stat_overview.envelop_obs_mmlea(
-    ax3,
+ax3 = era5_extreme_change.plot_era_nao_index(
     EOFs_all["ERA5"].pc,
-    EOFs_all["MPI_GE"].pc,
+    EOFs_all["ERA5_no_dec"].pc,
+    ax3,
 )
 
 ax4 = stat_overview.obs_mmlea_box_plot(
@@ -220,15 +223,6 @@ cbar.ax.set_title(
 ax3.spines["right"].set_visible(False)
 ax3.spines["top"].set_visible(False)
 
-# change the color line2D in ax3 into black
-line_era5 = ax3.lines[0]
-line_era5.set_color("black")
-line_era5.set_linewidth(0.5)
-
-# change the polycollection in ax3 into orange
-poly_mpi = ax3.collections[0]
-poly_mpi.set_color("orange")
-
 # change the ticks
 ax3.tick_params(
     axis="x",
@@ -237,29 +231,13 @@ ax3.tick_params(
     pad=2,
     labelsize=7,
     labelcolor="black",
-    labelrotation=0,
 )
 ax3.format(
     ylabel = 'std_NAO',
+    grid = False,
+    yminorticks="null",
+    xminorticks="null",
 )
-
-# create a orange patch for legend
-orange_patch = mpatches.Patch(color="orange", alpha = 0.7, label="MPI-GE (100)")
-# create a black line for legend
-black_line = mlines.Line2D([], [], color="black", linewidth=0.5, label="ERA5")
-
-# add legend
-ax3.legend(
-    handles=[orange_patch, black_line],
-    loc="upper left",
-    frameon=False,
-    handlelength=1.5,
-    handletextpad=0.5,
-    fontsize=7,
-    ncol=2,
-)
-
-
 
 
 #### ax4 ####

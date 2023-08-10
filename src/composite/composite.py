@@ -42,7 +42,9 @@ def composite_reduce(
         sel_data = data.where(index)
         composited = sel_data.mean(dim=dim)
 
-    elif reduction == "mean_first40":
+    elif reduction == "mean_same_number":
+        # get the number of extremes to reduce from kwargs
+        num = kwargs["count"]
         # sel the largest 40 values from index
         index = index.copy()
         index = index.squeeze()
@@ -50,7 +52,7 @@ def composite_reduce(
             index = index.sortby(index, ascending=False)
         elif index.attrs["extreme_type"] == "neg":
             index = index.sortby(index, ascending=True)
-        index = index.isel(com=slice(0, 40))
+        index = index.isel(com=slice(0, num)) # select the first {num} indexes
         sel_data = data.where(index)
         composited = sel_data.mean(dim=dim)
     elif reduction == 'mean_weighted':
@@ -60,7 +62,7 @@ def composite_reduce(
     return composited
 
 
-def extreme_composite(index, data, reduction="mean", dim="com", threshold=1.5):
+def extreme_composite(index, data, reduction="mean", dim="com", threshold=1.5, **kwargs):
     """
     the composite mean or count of data, in terms of different extreme type.
 
@@ -81,7 +83,7 @@ def extreme_composite(index, data, reduction="mean", dim="com", threshold=1.5):
 
         # do composite analysis based on the extreme index
         extr_composite = composite_reduce(
-            extr_index, data, reduction=reduction, dim=dim
+            extr_index, data, reduction=reduction, dim=dim, **kwargs
         )
         Ext_composite.append(extr_composite)
 

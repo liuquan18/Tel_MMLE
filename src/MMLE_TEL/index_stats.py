@@ -9,14 +9,15 @@ import src.composite.field_composite as composite
 import numpy as np
 import glob
 
-#%%
+# %%
 import importlib
 
 importlib.reload(story_line)
 
 # %%
 
-#%%
+
+# %%
 def extreme_counts_tsurf(
     model,
     fixed_pattern="decade",
@@ -59,11 +60,10 @@ def extreme_counts_tsurf(
     except PermissionError:
         pass
 
-
     return extrc, tsurf_mean
 
 
-#%%
+# %%
 # read tsurf
 def read_spmean_tsurf(tsurf_dir):
     tsurf = xr.open_dataset(tsurf_dir)
@@ -84,15 +84,18 @@ def read_spmean_tsurf(tsurf_dir):
 
     return tsurf_arr
 
+
 def read_var_data(field_var_dir):
     print(" reading the field data...")
 
-    all_ens_lists = sorted(glob.glob(field_var_dir + "*.nc")) # to make sure that the order of ensemble members is fixed
-    var_data = xr.open_mfdataset(all_ens_lists,combine='nested',concat_dim='ens')
-    var_data['ens'] = np.arange(var_data.ens.size)
+    all_ens_lists = sorted(
+        glob.glob(field_var_dir + "*.nc")
+    )  # to make sure that the order of ensemble members is fixed
+    var_data = xr.open_mfdataset(all_ens_lists, combine="nested", concat_dim="ens")
+    var_data["ens"] = np.arange(var_data.ens.size)
 
     try:
-        var_data['time'] = var_data['time'].astype('datetime64[ns]')
+        var_data["time"] = var_data["time"].astype("datetime64[ns]")
     except TypeError:
         pass
 
@@ -100,15 +103,20 @@ def read_var_data(field_var_dir):
     var_data = var_data - var_data.mean(dim="ens")
     return var_data
 
+
 def split_first_last(eof_result):
     times = eof_result.time
     years = np.unique(times.dt.year)
     first_years = years[:10]
     last_years = years[-10:]
 
-    eof_first = eof_result.isel(decade = 0).sel(time = eof_result['time.year'].isin(first_years))
-    eof_last = eof_result.isel(decade = -1).sel(time = eof_result['time.year'].isin(last_years))
-    return eof_first,eof_last
+    eof_first = eof_result.isel(decade=0).sel(
+        time=eof_result["time.year"].isin(first_years)
+    )
+    eof_last = eof_result.isel(decade=-1).sel(
+        time=eof_result["time.year"].isin(last_years)
+    )
+    return eof_first, eof_last
 
 
 # %%
@@ -142,19 +150,22 @@ def extreme_counts_profile(model, standard="first", season="MJJA"):
     first_count.to_netcdf(odir + prefix + "first_count.nc")
     last_count.to_netcdf(odir + prefix + "last_count.nc")
 
-#%%
+
+# %%
 # composite analysis of surface temperature in terms of different extreme events
 def composite_analysis(
-        model,
-        fixed_pattern="decade",
-        standard="first",
-        plev=50000,
-        index_season="MJJA",
-        var_season="MJJA",
-        var_data = None,
-        reduction="mean",
-        threshold=1.5,
-        var_name = 'ts'):
+    model,
+    fixed_pattern="decade",
+    standard="first",
+    plev=50000,
+    index_season="MJJA",
+    var_season="MJJA",
+    var_data=None,
+    reduction="mean",  # mean_same_number, mean_weighted, mean
+    threshold=1.5,
+    var_name="ts",
+    **kwargs,
+):
     """
     tfield can be 'same' or 'next'
     """
@@ -164,44 +175,43 @@ def composite_analysis(
     field_var_dir = odir + f"{var_name}_{var_season}/"
 
     # to dir
-    first_composite_dir = f"{odir}composite/{prefix}{var_season}_first_{var_name}_composite.nc"
-    last_composite_dir = f"{odir}composite/{prefix}{var_season}_last_{var_name}_composite.nc"
+    first_composite_dir = f"{odir}composite/{prefix}{var_season}_first_{var_name}_composite_{reduction}_.nc"
+    last_composite_dir = (
+        f"{odir}composite/{prefix}{var_season}_last_{var_name}_{reduction}_composite.nc"
+    )
 
     if var_data is None:
         var_data = read_var_data(field_var_dir)
-        if var_name == 'ts':
+        if var_name == "ts":
             try:
-                var_data = var_data['tsurf']
+                var_data = var_data["tsurf"]
             except KeyError:
-                var_data = var_data['ts']
-        elif var_name == 'pr':
+                var_data = var_data["ts"]
+        elif var_name == "pr":
             try:
-                var_data = var_data['pr']
+                var_data = var_data["pr"]
             except KeyError:
-                var_data = var_data['precip']
+                var_data = var_data["precip"]
     else:
         pass
 
-
     # eof
     eof_result = xr.open_dataset(eof_dir)
-    eof_first,eof_last = split_first_last(eof_result)
+    eof_first, eof_last = split_first_last(eof_result)
 
     # select the first and last 10 decades
-    
+
     first_index = eof_first.pc
     last_index = eof_last.pc
 
     print(f" compositing the {var_name} data...")
     first_var = composite.Tel_field_composite(
-        first_index, var_data, threshold=threshold, reduction=reduction
+        first_index, var_data, threshold=threshold, reduction=reduction, **kwargs
     )
     last_var = composite.Tel_field_composite(
-        last_index, var_data, threshold=threshold, reduction=reduction
+        last_index, var_data, threshold=threshold, reduction=reduction, **kwargs
     )
-
 
     # save the result
     first_var.to_netcdf(first_composite_dir)
     last_var.to_netcdf(last_composite_dir)
-
