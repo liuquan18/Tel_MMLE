@@ -65,11 +65,15 @@ def plot_era_nao_index(nao, NEW_nao, ax):
     nao = nao.sel(time=slice("1941", "2022"))
     NEW_nao = NEW_nao.sel(time=slice("1941", "2022"))
 
+    # hline at y= 1.5 and -1.5
+    ax.axhline(y=1.5, color="g", linestyle="--")
+    ax.axhline(y=-1.5, color="g", linestyle="--")
+
     first_pos_org, first_neg_org, last_pos_org, last_neg_org = count_extreme(nao)
     first_pos_new, first_neg_new, last_pos_new, last_neg_new = count_extreme(NEW_nao)
 
-    nao.plot.line(x="time", color="gray", alpha=0.8, ax=ax, lw=1)
-    NEW_nao.plot.line(x="time", color="black", alpha=0.8, ax=ax, lw=1)
+    nao.plot.line(x="time", color="gray", alpha=0.8, ax=ax, lw=1.5, label="original NAO")
+    NEW_nao.plot.line(x="time", color="black", ax=ax, lw=0.5, label="remove decadal NAO")
 
     # vline at x = 1981
     xmin, xmax = ax.get_xlim()
@@ -77,9 +81,6 @@ def plot_era_nao_index(nao, NEW_nao, ax):
     ax.axvline(x=xmid, color="g", linestyle="--")
     ax.set_yticks([-3, -1.5, 0, 1.5, 3])
 
-    # hline at y= 1.5 and -1.5
-    ax.axhline(y=1.5, color="g", linestyle="--")
-    ax.axhline(y=-1.5, color="g", linestyle="--")
 
     # put the count as text on the plot
     # pos
@@ -167,5 +168,12 @@ def plot_era_nao_index(nao, NEW_nao, ax):
         alpha=0.8,
         verticalalignment="top",
     )
+    ax.set_title("")
+    ax.legend(loc="top", fontsize=7, ncols=2, frameon=False)
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(format_year_summer))
 
     return ax
+def format_year_summer(value, tick_number):
+    value_year = int(value/3) + 1940
+    return f"JJA \n {str(int(value_year))}"
+
