@@ -68,8 +68,8 @@ def plot_era_nao_index(nao, NEW_nao, ax, threshod=1.5):
     NEW_nao = NEW_nao.sel(time=slice("1941", "2022"))
 
     # hline at y= 1.5 and -1.5
-    ax.axhline(y=1.5, color="g", linestyle="--")
-    ax.axhline(y=-1.5, color="g", linestyle="--")
+    ax.axhline(y=threshod, color="g", linestyle="--")
+    ax.axhline(y=-1 * threshod, color="g", linestyle="--")
 
     first_pos_org, first_neg_org, last_pos_org, last_neg_org = count_extreme(
         nao, threshod=threshod
