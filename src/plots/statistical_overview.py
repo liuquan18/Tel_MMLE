@@ -283,16 +283,18 @@ def index_to_df(first_pc, last_pc):
 def obs_mmlea_box_plot( box_ax,EOFs):
     models_legend = [
         "ERA5 (obs)",
+        "ERA5 (no decadal)",
         "MPI-GE (100)",
         "CanESM2 (50)",
         "CESM1 (40)",
         "MK3.6 (30)",
         "GFDL-CM3 (20)",
     ]
-    models = ["ERA5", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+    models = ["ERA5","ERA5_no_dec", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
     keys = EOFs.keys()
-    colors = ['w', "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
-    fills = [False, True, True, True, True, True]
+    colors = ['w','w', "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
+    eccolors = ['grey','black','black','black','black','black','black']
+    fills = [False, False, True, True, True, True, True]
     bps = []
     for i, key in enumerate(models):
         bps.append(box_ax.boxplot(
@@ -302,8 +304,10 @@ def obs_mmlea_box_plot( box_ax,EOFs):
         widths=0.5,
         fc = colors[i],
         fill = fills[i],
+        ec = eccolors[i],
         label = models_legend[i],
         alpha = 0.8,
+        whis = 1, # try 1 rather than 1.5
     ))
         box_ax.set_ylim(-3.5, 3.5)
 
@@ -321,14 +325,16 @@ def format_func(value, tick_number):
     if value == 1:
         return "ERA5 \n (obs)"
     elif value == 2:
-        return "MPI-GE \n (100)"
+        return "ERA5 \n (no dec)"
     elif value == 3:
-        return "CanESM2 \n (50)"
+        return "MPI-GE \n (100)"
     elif value == 4:
-        return "CESM1-CAM5 \n (40)"
+        return "CanESM2 \n (50)"
     elif value == 5:
-        return "MK3.6 \n (30)"
+        return "CESM1-CAM5 \n (40)"
     elif value == 6:
+        return "MK3.6 \n (30)"
+    elif value == 7:
         return "GFDL-CM3 \n (20)"
     else:
         return ""
