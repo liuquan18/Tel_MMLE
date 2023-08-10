@@ -3,7 +3,8 @@ import xarray as xr
 import numpy as np
 import matplotlib.pyplot as plt
 from PyEMD import EEMD
-
+import matplotlib.dates as mdates
+import matplotlib.ticker as ticker
 
 # %%
 def nao_without_decade(nao, method="EEMD", combine_num=2, rolling_years=[10, 20, 30]):
@@ -72,8 +73,8 @@ def plot_era_nao_index(nao, NEW_nao, ax):
     first_pos_org, first_neg_org, last_pos_org, last_neg_org = count_extreme(nao)
     first_pos_new, first_neg_new, last_pos_new, last_neg_new = count_extreme(NEW_nao)
 
-    nao.plot.line(x="time", color="gray", alpha=0.8, ax=ax, lw=1.5, label="original NAO")
-    NEW_nao.plot.line(x="time", color="black", ax=ax, lw=0.5, label="remove decadal NAO")
+    ax.plot(nao.values, color="gray", alpha=0.8, lw=1.5, label="NAO")
+    ax.plot(NEW_nao.values, color="black", lw=0.5, label="NAO no decade")
 
     # vline at x = 1981
     xmin, xmax = ax.get_xlim()
@@ -170,10 +171,16 @@ def plot_era_nao_index(nao, NEW_nao, ax):
     )
     ax.set_title("")
     ax.legend(loc="top", fontsize=7, ncols=2, frameon=False)
+    ax.xaxis.set_major_locator(ticker.FixedLocator(np.arange(-1,246,30))) # every 10 years (JJA)
     ax.xaxis.set_major_formatter(plt.FuncFormatter(format_year_summer))
-
+    ax.set_xlim(-1,246)
     return ax
+
 def format_year_summer(value, tick_number):
-    value_year = int(value/3) + 1940
-    return f"JJA \n {str(int(value_year))}"
+    if value == -1:
+        formater = f"JJA \n 1940"
+    else:
+        value_year = int(value/3) + 1941
+        formater = f"JJA \n {str(int(value_year))}"
+    return formater
 
