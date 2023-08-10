@@ -174,7 +174,7 @@ def plot_era_nao_index(nao, NEW_nao, ax, threshod=1.5):
         verticalalignment="top",
     )
     ax.set_title("")
-    ax.legend(loc="top", fontsize=7, ncols=2, frameon=False)
+    ax.legend(loc="top", fontsize=7, frameon=False)
     ax.xaxis.set_major_locator(
         ticker.FixedLocator(np.arange(-1, 246, 30))
     )  # every 10 years (JJA)
