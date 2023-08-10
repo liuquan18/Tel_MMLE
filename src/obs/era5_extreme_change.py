@@ -6,6 +6,7 @@ from PyEMD import EEMD
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
 
+
 # %%
 def nao_without_decade(nao, method="EEMD", combine_num=2, rolling_years=[10, 20, 30]):
     NEW_nao = []
@@ -52,17 +53,17 @@ def remove_decade_eemd(month_nao, combine_num=2):
     return new_nao, eIMFs
 
 
-def count_extreme(nao):
+def count_extreme(nao, threshod=1.5):
     nao_first = nao.sel(time=slice("1941", "1981")).values.flat
     nao_last = nao.sel(time=slice("1982", "2022")).values.flat
-    first_pos = np.sum(nao_first > 1.5)
-    first_neg = np.sum(nao_first < -1.5)
-    last_pos = np.sum(nao_last > 1.5)
-    last_neg = np.sum(nao_last < -1.5)
+    first_pos = np.sum(nao_first > threshod)
+    first_neg = np.sum(nao_first < -1 * threshod)
+    last_pos = np.sum(nao_last > threshod)
+    last_neg = np.sum(nao_last < -1 * threshod)
     return first_pos, first_neg, last_pos, last_neg
 
 
-def plot_era_nao_index(nao, NEW_nao, ax):
+def plot_era_nao_index(nao, NEW_nao, ax, threshod=1.5):
     nao = nao.sel(time=slice("1941", "2022"))
     NEW_nao = NEW_nao.sel(time=slice("1941", "2022"))
 
@@ -70,8 +71,12 @@ def plot_era_nao_index(nao, NEW_nao, ax):
     ax.axhline(y=1.5, color="g", linestyle="--")
     ax.axhline(y=-1.5, color="g", linestyle="--")
 
-    first_pos_org, first_neg_org, last_pos_org, last_neg_org = count_extreme(nao)
-    first_pos_new, first_neg_new, last_pos_new, last_neg_new = count_extreme(NEW_nao)
+    first_pos_org, first_neg_org, last_pos_org, last_neg_org = count_extreme(
+        nao, threshod=threshod
+    )
+    first_pos_new, first_neg_new, last_pos_new, last_neg_new = count_extreme(
+        NEW_nao, threshod=threshod
+    )
 
     ax.plot(nao.values, color="gray", alpha=0.8, lw=1.5, label="NAO")
     ax.plot(NEW_nao.values, color="black", lw=0.5, label="NAO no decade")
@@ -81,7 +86,6 @@ def plot_era_nao_index(nao, NEW_nao, ax):
     xmid = (xmin + xmax) / 2
     ax.axvline(x=xmid, color="g", linestyle="--")
     ax.set_yticks([-3, -1.5, 0, 1.5, 3])
-
 
     # put the count as text on the plot
     # pos
@@ -171,16 +175,18 @@ def plot_era_nao_index(nao, NEW_nao, ax):
     )
     ax.set_title("")
     ax.legend(loc="top", fontsize=7, ncols=2, frameon=False)
-    ax.xaxis.set_major_locator(ticker.FixedLocator(np.arange(-1,246,30))) # every 10 years (JJA)
+    ax.xaxis.set_major_locator(
+        ticker.FixedLocator(np.arange(-1, 246, 30))
+    )  # every 10 years (JJA)
     ax.xaxis.set_major_formatter(plt.FuncFormatter(format_year_summer))
-    ax.set_xlim(-1,246)
+    ax.set_xlim(-1, 246)
     return ax
+
 
 def format_year_summer(value, tick_number):
     if value == -1:
         formater = f"JJA \n 1940"
     else:
-        value_year = int(value/3) + 1941
+        value_year = int(value / 3) + 1941
         formater = f"JJA \n {str(int(value_year))}"
     return formater
-
