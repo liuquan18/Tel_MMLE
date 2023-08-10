@@ -44,7 +44,7 @@ def read_var_months(model,var_name='ts'):
 
     return JJA_f
 
-def composite(model,var_name='ts'):
+def composite(model,var_name='ts',reduction = 'mean',count = None):
     var_data = read_var_months(model,var_name=var_name)
     index_stats.composite_analysis(
         model            = model,
@@ -52,7 +52,9 @@ def composite(model,var_name='ts'):
         var_season     = 'JJA',
         fixed_pattern    = 'decade_mpi',
         var_data         = var_data,
-        var_name         = var_name
+        var_name         = var_name,
+        reduction        = reduction,
+        count            = count
         )
     
 #%%
@@ -71,6 +73,7 @@ composite(models[num-1])
 
 # %%
 # %%
+# for reduction = 'mean'
 for model in models:
     for var_name in ['ts','pr']:
         print("===========================================")
@@ -78,14 +81,13 @@ for model in models:
         print(f"model {model} var {var_name} is doing")
         composite(model,var_name=var_name)
 
-# %%
-composite('CESM1_CAM5')
-# %%
-composite('MK36')
-# %%
-composite('CanESM2')
-# %%
-composite('GFDL_CM3',var_name='ts')
+# %% # for reduction = 'mean_same_number'
+composite('CESM1_CAM5',reduction= 'mean_same_number',count = 80)
+composite('MK36',reduction= 'mean_same_number',count = 50)
+composite('CanESM2',reduction= 'mean_same_number',count = 80)
+composite('GFDL_CM3',reduction= 'mean_same_number',count = 30)
+composite('MPI_GE_onepct',reduction= 'mean_same_number',count = 200)
+composite('MPI_GE',reduction= 'mean_same_number',count = 200)
 
 # %%
 composite('GFDL_CM3',var_name='pr')
