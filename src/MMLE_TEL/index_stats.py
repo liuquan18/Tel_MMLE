@@ -175,9 +175,9 @@ def composite_analysis(
     field_var_dir = odir + f"{var_name}_{var_season}/"
 
     # to dir
-    first_composite_dir = f"{odir}composite/{prefix}{var_season}_first_{var_name}_composite_{reduction}_.nc"
+    first_composite_dir = f"{odir}composite/{prefix}{var_season}_first_{var_name}_composite_{reduction}.nc"
     last_composite_dir = (
-        f"{odir}composite/{prefix}{var_season}_last_{var_name}_{reduction}_composite.nc"
+        f"{odir}composite/{prefix}{var_season}_last_{var_name}_composite_{reduction}.nc"
     )
 
     if var_data is None:
