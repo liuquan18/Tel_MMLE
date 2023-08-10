@@ -204,7 +204,7 @@ def composite_analysis(
     first_index = eof_first.pc
     last_index = eof_last.pc
 
-    print(f" compositing the {var_name} data...")
+    print(f" compositing {reduction} of the {var_name} data...")
     first_var = composite.Tel_field_composite(
         first_index, var_data, threshold=threshold, reduction=reduction, **kwargs
     )
