@@ -1,5 +1,4 @@
 # %%
-import src.MMLE_TEL.story_line as story_line
 import importlib
 import matplotlib.pyplot as plt
 import xarray as xr
@@ -11,8 +10,6 @@ import glob
 
 # %%
 import importlib
-
-importlib.reload(story_line)
 
 # %%
 
@@ -191,6 +188,8 @@ def composite_analysis(
                 var_data = var_data["precip"]
     else:
         pass
+
+    var_data.load()
 
     # eof
     eof_result = xr.open_dataset(eof_dir)
