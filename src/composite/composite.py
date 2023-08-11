@@ -198,8 +198,9 @@ def first_last_extreme_composite(
     try:
         first_index = first_index.drop_vars(('decade','plev'))
         last_index = last_index.drop_vars(('decade','plev'))
-    except:
+    except ValueError:
         pass
+
     # first 10 years
     first_composite = Tel_field_composite(
         first_index,
@@ -223,9 +224,10 @@ def first_last_extreme_composite(
     # combine the first and last composite
     period = xr.IndexVariable('period', ['first', 'last'])
     composite = xr.concat([first_composite, last_composite], dim=period)
-    diff = first_composite - last_composite
+    diff = last_composite - first_composite
 
     if return_diff:
+        print(" doing bootstrap resampling...")
         # first 10 years with bootstrap
         first_composite_boot = Tel_field_composite(
             first_index,
@@ -245,7 +247,7 @@ def first_last_extreme_composite(
         )
 
         # difference between first and last 10 years
-        diff_boot = first_composite_boot - last_composite_boot
+        diff_boot = last_composite_boot - first_composite_boot
 
         # check if the difference is significant
         # get the 95% confidence interval
