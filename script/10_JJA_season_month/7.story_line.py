@@ -18,7 +18,7 @@ from matplotlib.ticker import MultipleLocator, FormatStrFormatter, MaxNLocator
 import matplotlib.patches as mpatches
 
 
-import src.composite.field_composite as field_composite
+import src.plots.composite_plot as composite_plot
 import src.plots.extreme_plot as extplt
 import src.plots.statistical_overview as stat_overview
 import src.plots.utils as utils
@@ -29,7 +29,7 @@ import importlib
 
 importlib.reload(extplt)
 importlib.reload(stat_overview)
-importlib.reload(field_composite)
+importlib.reload(composite_plot)
 importlib.reload(era5_extreme_change)
 
 # %%
@@ -67,26 +67,19 @@ def read_extrc(model):
 def read_composite(model, var_name,reduction = 'mean'):
     """read composite data"""
     odir = "/work/mh0033/m300883/Tel_MMLE/data/"
-    first_name = f"plev_50000_decade_mpi_first_JJA_JJA_first_{var_name}_composite_{reduction}.nc"
-    last_name = f"plev_50000_decade_mpi_first_JJA_JJA_last_{var_name}_composite_{reduction}.nc"
-
-    first = xr.open_dataset(f"{odir}{model}/composite/{first_name}")
-    last = xr.open_dataset(f"{odir}{model}/composite/{last_name}")
+    comp_name = f"plev_50000_decade_mpi_first_JJA_JJA_first_last_{var_name}_composite_{reduction}.nc"
+    composite = xr.open_dataset(f"{odir}{model}/composite/{comp_name}")
     if var_name == "ts":
         try:
-            first = first.tsurf
-            last = last.tsurf
+            composite = composite.tsurf
         except AttributeError:
-            first = first.ts
-            last = last.ts
+            composite = composite.ts
     elif var_name == "pr":
         try:
-            first = first.pr
-            last = last.pr
+            composite = composite.pr
         except AttributeError:
-            first = first.precip
-            last = last.precip
-    return first, last
+            composite = composite.precip
+    return composite
 
 
 def read_all_models(variable):
@@ -103,6 +96,7 @@ def read_all_models(variable):
     elif variable == "extrc":
         all_model_data = {model: read_extrc(model) for model in models}
     elif variable == "composite":
+        models = models[1:]
         all_model_data = {
             model: read_composite(model, var_name="ts") for model in models
         }
@@ -446,14 +440,14 @@ axes.format(
     abcstyle="a",
 )
 
-axes,maps = field_composite.plot_composite_single_ext(COMPOSITEs, models, axes)
+axes,maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes)
 fig3.colorbar(maps[0], loc="b", pad=1, title=f"tsurf / K",width = 0.1,shrink=1)
 
-plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/composite_tsurf_pos_same_number.png",
-    dpi=300,
-    bbox_inches="tight",
-)
+# plt.savefig(
+#     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/composite_tsurf_pos_same_number.png",
+#     dpi=300,
+#     bbox_inches="tight",
+# )
 
 # %%
 # %%
@@ -493,7 +487,7 @@ axes.format(
     abcstyle="a",
 )
 
-axes,maps = field_composite.plot_composite_single_ext(COMPOSITEs, models, axes,extr_type='neg')
+axes,maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes,extr_type='neg')
 fig4.colorbar(maps[0], loc="b", pad=1, title=f"tsurf / K",width = 0.1,shrink=1)
 
 plt.savefig(
@@ -501,4 +495,49 @@ plt.savefig(
     dpi=300,
     bbox_inches="tight",
 )
+# %%
+import matplotlib.pyplot as plt
+import numpy as np
+import xarray as xr
+
+# create a sample data array with values of 1 and 0
+data = np.random.randint(0, 2, size=(10, 10))
+da = xr.DataArray(data)
+
+# create a contour plot with hatching on the significant areas
+fig, axes = pplt.subplots(
+    space=0,
+    width = 180/25.4,
+    wspace=0.2,
+    hspace=0.2,
+    proj="ortho",
+    proj_kw=({"lon_0": -20, "lat_0": 60}),
+    nrows=3,
+    ncols=1,
+)
+model = 'MPI_GE'
+extr_type = 'pos'
+first = COMPOSITEs[model].sel(mode='NAO',period = 'first', extr_type = extr_type)
+last = COMPOSITEs[model].sel(mode='NAO',period = 'last', extr_type = extr_type)
+diff = COMPOSITEs[model].sel(mode='NAO',period = 'diff', extr_type = extr_type)
+diff_sig = COMPOSITEs[model].sel(mode='NAO',period = 'diff_sig', extr_type = extr_type)
+
+first = utils.erase_white_line(first)
+last = utils.erase_white_line(last)
+diff = utils.erase_white_line(diff)
+diff_sig = utils.erase_white_line(diff_sig)
+
+data_all = [
+first,
+last,
+diff,
+]
+maps = []
+for j, data in enumerate(data_all):
+    cs = axes[j].contourf(data, levels = np.arange(-1.5,1.6,0.3),cmap="RdBu_r",)
+    axes[j].set_aspect('equal')
+
+axes[2].contourf(diff_sig, levels=[-0.5, 0.5, 1.5], colors=['none', 'none'], hatches=['', '///'])
+
+plt.show()
 # %%
