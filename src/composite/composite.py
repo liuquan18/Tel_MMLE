@@ -195,15 +195,15 @@ def first_last_extreme_composite(
         *composite* the composite mean of the extreme cases of NAO and EA for the first and last 10 years, and the difference between them.
     """
     count = kwargs.get('count', None)    # Select the same time period
-    first_index_c = first_index.copy()  # make a copy of the original data
-    last_index_c = last_index.copy()
-    var_data_first = var_data.copy()
-    var_data_last = var_data.copy()
-
+    try:
+        first_index = first_index.drop_vars(('decade','plev'))
+        last_index = last_index.drop_vars(('decade','plev'))
+    except:
+        pass
     # first 10 years
     first_composite = Tel_field_composite(
-        first_index_c,
-        var_data_first,
+        first_index,
+        var_data,
         threshold=1.5,
         reduction="mean",
         bootstrap=False,
@@ -212,8 +212,8 @@ def first_last_extreme_composite(
 
     # last 10 years
     last_composite = Tel_field_composite(
-        last_index_c,
-        var_data_last,
+        last_index,
+        var_data,
         threshold=threshold,
         reduction=reduction,
         bootstrap=False,
@@ -228,8 +228,8 @@ def first_last_extreme_composite(
     if return_diff:
         # first 10 years with bootstrap
         first_composite_boot = Tel_field_composite(
-            first_index_c,
-            var_data_first,
+            first_index,
+            var_data,
             threshold=1.5,
             reduction="mean",
             bootstrap=True,
@@ -237,8 +237,8 @@ def first_last_extreme_composite(
 
         # last 10 years
         last_composite_boot = Tel_field_composite(
-            last_index_c,
-            var_data_last,
+            last_index,
+            var_data,
             threshold=threshold,
             reduction=reduction,
             bootstrap=True,
