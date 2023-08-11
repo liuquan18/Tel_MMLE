@@ -22,7 +22,7 @@ import src.plots.plot_violin as violin_plots
 import src.plots.spatial_distribution_plot as spatial_dis_plots
 import src.plots.return_period as RP_plots
 import src.plots.composite_spatial_pattern as composite_spatial_pattern
-import src.plots.composite_var as composite_var
+import src.plots.composite_plot as composite_plot
 
 import src.extreme.period_pattern_extreme as extreme
 import src.EVT.return_period as EVT
@@ -251,7 +251,7 @@ class first10_last10_index:
         first_var = composite.Tel_field_composite(first_index, var_data)
         last_var = composite.Tel_field_composite(last_index, var_data)
 
-        fig = composite_var.composite_var(var, first_var, last_var, mode)
+        fig = composite_plot.composite_var(var, first_var, last_var, mode)
         plt.savefig(
             self.plot_dir + self.prefix + f"composite_{var}_{mode}.png",
             dpi=300,

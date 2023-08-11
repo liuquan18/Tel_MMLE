@@ -16,7 +16,7 @@ import src.plots.plot_violin as violin_plots
 import src.plots.spatial_distribution_plot as spatial_dis_plots
 import src.plots.return_period as RP_plots
 import src.plots.composite_spatial_pattern as composite_spatial_pattern
-import src.plots.composite_var as composite_var
+import src.plots.composite_plot as composite_plot
 import src.warming_stage.warming_stage as warming_stage
 
 import src.extreme.period_pattern_extreme as extreme

@@ -99,3 +99,19 @@ composite('MPI_GE_onepct',var_name='pr')
 composite('CESM1_CAM5',var_name='pr')
 
 # %%
+import xarray as xr
+
+# generate some example data
+sel_data = xr.DataArray(
+    np.random.rand(10, 5, 3),
+    dims=('com', 'x', 'y'),
+    coords={'com': range(10)}
+)
+#%%
+# randomly select data with replacement along the 'com' dimension 1000 times
+n_samples = sel_data.sizes['com']
+samples = np.random.choice(n_samples, size=(n_samples, 1000), replace=True)
+# %%
+resampled_data = sel_data[samples, :, :]
+
+# %%
