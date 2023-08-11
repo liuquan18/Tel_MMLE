@@ -1,5 +1,4 @@
 # %%
-import src.MMLE_TEL.story_line as story_line
 import numpy as np
 import importlib
 import matplotlib.pyplot as plt
@@ -63,55 +62,43 @@ t1 = int(sys.argv[2])
 t2 = int(sys.argv[3])
 
 #%%
+def mean_all(num,rank):
+    models = ['MPI_GE_onepct','MK36','GFDL_CM3','CanESM2','CESM1_CAM5','MPI_GE']
+    vars = ['ts','pr']
 
-models = ['MK36','GFDL_CM3','CanESM2','CESM1_CAM5','MPI_GE']
+    print("===========================================")
+    print(f"node_num:{num} is doing {models[num-1]}")
+    composite(models[num-1])
 
-# %%
-print("===========================================")
-print(f"node_num:{num} is doing {models[num-1]}")
-composite(models[num-1])
+    # for reduction = 'mean'
+    model = models[num-1]
+    var_name = vars[rank]
+    print("===========================================")
 
-# %%
-# %%
-# for reduction = 'mean'
-for model in models:
-    for var_name in ['ts','pr']:
-        print("===========================================")
+    print(f"model {model} var {var_name} is doing")
+    composite(model,var_name=var_name)
 
-        print(f"model {model} var {var_name} is doing")
-        composite(model,var_name=var_name)
+def mean_same_number():
+    # for reduction = 'mean_same_number'
+    composite('CESM1_CAM5',reduction= 'mean_same_number',count = 80)
+    composite('MK36',reduction= 'mean_same_number',count = 50)
+    composite('CanESM2',reduction= 'mean_same_number',count = 80)
+    composite('GFDL_CM3',reduction= 'mean_same_number',count = 30)
+    composite('MPI_GE_onepct',reduction= 'mean_same_number',count = 200)
+    composite('MPI_GE',reduction= 'mean_same_number',count = 200)
 
-# %% # for reduction = 'mean_same_number'
-composite('CESM1_CAM5',reduction= 'mean_same_number',count = 80)
-composite('MK36',reduction= 'mean_same_number',count = 50)
-composite('CanESM2',reduction= 'mean_same_number',count = 80)
-composite('GFDL_CM3',reduction= 'mean_same_number',count = 30)
-composite('MPI_GE_onepct',reduction= 'mean_same_number',count = 200)
-composite('MPI_GE',reduction= 'mean_same_number',count = 200)
+# main run mean_all
+if __name__ == '__main__':
 
-# %%
-composite('GFDL_CM3',var_name='pr')
+    # === mpi4py ===
+    try:
+        from mpi4py import MPI
+        comm = MPI.COMM_WORLD
+        rank = comm.Get_rank()
+        npro = comm.Get_size()
+    except:
+        print('::: Warning: Proceeding without mpi4py! :::')
+        rank = 0
+        npro = 1
 
-# %%
-composite('MPI_GE_onepct',var_name='ts')
-composite('MPI_GE_onepct',var_name='pr')
-# %%
-composite('CESM1_CAM5',var_name='pr')
-
-# %%
-import xarray as xr
-
-# generate some example data
-sel_data = xr.DataArray(
-    np.random.rand(10, 5, 3),
-    dims=('com', 'x', 'y'),
-    coords={'com': range(10)}
-)
-#%%
-# randomly select data with replacement along the 'com' dimension 1000 times
-n_samples = sel_data.sizes['com']
-samples = np.random.choice(n_samples, size=(n_samples, 1000), replace=True)
-# %%
-resampled_data = sel_data[samples, :, :]
-
-# %%
+    mean_all(num,rank)
