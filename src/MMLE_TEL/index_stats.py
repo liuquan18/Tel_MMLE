@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import xarray as xr
 import os
 import src.extreme.extreme_ci as extreme
-import src.composite.field_composite as composite
+import src.composite.composite as composite
 import numpy as np
 import glob
 
@@ -175,10 +175,7 @@ def composite_analysis(
     field_var_dir = odir + f"{var_name}_{var_season}/"
 
     # to dir
-    first_composite_dir = f"{odir}composite/{prefix}{var_season}_first_{var_name}_composite_{reduction}.nc"
-    last_composite_dir = (
-        f"{odir}composite/{prefix}{var_season}_last_{var_name}_composite_{reduction}.nc"
-    )
+    composite_dir = f"{odir}composite/{prefix}{var_season}_first_last_{var_name}_composite_{reduction}.nc"
 
     if var_data is None:
         var_data = read_var_data(field_var_dir)
@@ -205,13 +202,13 @@ def composite_analysis(
     last_index = eof_last.pc
 
     print(f" compositing {reduction} of the {var_name} data...")
-    first_var = composite.Tel_field_composite(
-        first_index, var_data, threshold=threshold, reduction=reduction, **kwargs
+    composite_mean = composite.first_last_extreme_composite(
+        first_index,
+        last_index,
+        var_data,
+        threshold=threshold,
+        reduction=reduction,
+        return_diff = True,
     )
-    last_var = composite.Tel_field_composite(
-        last_index, var_data, threshold=threshold, reduction=reduction, **kwargs
-    )
-
     # save the result
-    first_var.to_netcdf(first_composite_dir)
-    last_var.to_netcdf(last_composite_dir)
+    composite_mean.to_netcdf(composite_dir)
