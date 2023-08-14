@@ -208,6 +208,7 @@ def composite_analysis(
         threshold=threshold,
         reduction=reduction,
         return_diff = True,
+        **kwargs,
     )
     # save the result
     composite_mean.to_netcdf(composite_dir)
