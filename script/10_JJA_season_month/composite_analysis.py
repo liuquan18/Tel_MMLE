@@ -87,6 +87,7 @@ def mean_same_number():
     composite('MPI_GE_onepct',reduction= 'mean_same_number',count = 200)
     composite('MPI_GE',reduction= 'mean_same_number',count = 200)
 
+#%%
 # main run mean_all
 if __name__ == '__main__':
 
