@@ -181,6 +181,7 @@ def first_last_extreme_composite(
     threshold: float = 1.5,
     reduction: str = "mean",
     return_diff: bool = True,
+    alpha = 0.05,
     **kwargs
 ):
     """
@@ -251,9 +252,11 @@ def first_last_extreme_composite(
 
         # check if the difference is significant
         # get the 95% confidence interval
-        ci = diff_boot.quantile([0.025, 0.975], dim="bootstrap")
+        low_bnd = alpha/2.0
+        high_bnd = 1-alpha/2.0
+        ci = diff_boot.quantile([low_bnd, high_bnd], dim="bootstrap")
         # check if 0 is in the interval, return boolean
-        diff_sig = xr.where((ci.sel(quantile=0.975) > 0) & (ci.sel(quantile=0.025) < 0), 1, 0)
+        diff_sig = xr.where((ci.sel(quantile=low_bnd) > 0) | (ci.sel(quantile=high_bnd) < 0), 1, 0)
         # combine the first, last, diff and diff_sig together
         period = xr.IndexVariable('period', ['first', 'last', 'diff', 'diff_sig'])
         composite = xr.concat([first_composite, last_composite, diff, diff_sig], dim=period)
