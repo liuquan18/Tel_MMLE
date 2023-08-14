@@ -65,10 +65,15 @@ def reduce_var(
         sel_data = data.where(index)
         composite_mean = sel_data.mean(dim=dim)
 
+
     elif reduction == "mean_weighted":
         sel_data = data.where(index)
         weights = index
         composite_mean = sel_data.weighted(weights).mean(dim=dim)
+    
+    # set count info as attribute
+    composite_mean.attrs["reduction"] = reduction
+    composite_mean.attrs["count"] = num
 
     if bootstrap:
         n_resamples = kwargs.get("n_resamples", 1000)
