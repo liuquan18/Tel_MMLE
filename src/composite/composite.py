@@ -46,7 +46,6 @@ def reduce_var(
     **Return**
         *composite_mean* the composite mean of the extreme cases.
     """
-
     if reduction == "mean":
         # get the data at the  coordinates
         sel_data = data.where(index)
@@ -132,8 +131,10 @@ def extreme_composite(
 def Tel_field_composite(
     index: xr.DataArray,
     data: xr.DataArray,
-    threshold: float = 1.5,
-    reduction="mean",
+    # threshold: float = 1.5,
+    # reduction="mean",
+    threshold,
+    reduction,
     bootstrap=False,
     count = None,
 ):
@@ -208,7 +209,7 @@ def first_last_extreme_composite(
         first_index,
         var_data,
         threshold=1.5,
-        reduction="mean",
+        reduction=reduction,
         bootstrap=False,
         count = count,
     )
@@ -235,7 +236,7 @@ def first_last_extreme_composite(
             first_index,
             var_data,
             threshold=1.5,
-            reduction="mean",
+            reduction=reduction,
             bootstrap=True,
         )
 

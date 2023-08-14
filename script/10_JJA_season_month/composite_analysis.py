@@ -103,3 +103,6 @@ if __name__ == '__main__':
         npro = 1
 
     mean_all(num,rank)
+
+#%%
+composite('GFDL_CM3',reduction= 'mean_same_number',count = 30)
