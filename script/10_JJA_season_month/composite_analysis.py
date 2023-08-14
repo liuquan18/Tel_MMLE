@@ -105,4 +105,4 @@ if __name__ == '__main__':
     mean_all(num,rank)
 
 #%%
-composite('GFDL_CM3',reduction= 'mean_same_number',count = 30)
+mean_same_number()

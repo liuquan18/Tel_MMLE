@@ -64,7 +64,7 @@ def read_extrc(model):
     return ds
 
 
-def read_composite(model, var_name,reduction = 'mean'):
+def read_composite(model, var_name,reduction = 'mean_same_number'):
     """read composite data"""
     odir = "/work/mh0033/m300883/Tel_MMLE/data/"
     comp_name = f"plev_50000_decade_mpi_first_JJA_JJA_first_last_{var_name}_composite_{reduction}.nc"
