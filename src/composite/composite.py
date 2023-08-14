@@ -72,12 +72,13 @@ def reduce_var(
         composite_mean = sel_data.weighted(weights).mean(dim=dim)
 
     if bootstrap:
+        n_resamples = kwargs.get("n_resamples", 1000)
         # get the 'com' random index with the shape sel_data.size['com'] and 1000 times
         n_samples = sel_data.sizes[
             dim
         ]  # the resampled data is the same length as the original data
         rng = np.random.default_rng(seed=12345)
-        sampled_index = rng.choice(n_samples, size=(n_samples, 1000), replace=True)
+        sampled_index = rng.choice(n_samples, size=(n_samples, n_resamples), replace=True)
         composite_mean = []
         for i in range(1000):
             sample = sel_data.isel(com=sampled_index[:, i])
