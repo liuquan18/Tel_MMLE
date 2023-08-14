@@ -196,7 +196,7 @@ def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos"):
             diff_sig,
             levels=[-0.5, 0.5, 1.5],
             colors=["none", "none"],
-            hatches=["", "///"],
+            hatches=["", "xxxxx"],
         )
 
     return axes, maps

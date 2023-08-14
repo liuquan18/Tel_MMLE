@@ -132,7 +132,7 @@ def split_first_last(eof_result):
 mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["ps.fonttype"] = 42
 mpl.rcParams['font.family'] = 'sans-serif'
-
+plt.rcParams['hatch.linewidth'] = 0.3
 # %%
 EOFs_decade = read_all_models("eof_decade")
 EOFs_all = read_all_models("eof_all")
@@ -443,13 +443,13 @@ axes.format(
 axes,maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes)
 fig3.colorbar(maps[0], loc="b", pad=1, title=f"tsurf / K",width = 0.1,shrink=1)
 
-# plt.savefig(
-#     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/composite_tsurf_pos_same_number.png",
-#     dpi=300,
-#     bbox_inches="tight",
-# )
+plt.savefig(
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/composite_tsurf_pos_same_number.png",
+    dpi=300,
+    bbox_inches="tight",
+)
 
-# %%
+
 # %%
 # Fig 4, composite plot of ts for neg extremes
 models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
@@ -495,49 +495,5 @@ plt.savefig(
     dpi=300,
     bbox_inches="tight",
 )
-# %%
-import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
 
-# create a sample data array with values of 1 and 0
-data = np.random.randint(0, 2, size=(10, 10))
-da = xr.DataArray(data)
-
-# create a contour plot with hatching on the significant areas
-fig, axes = pplt.subplots(
-    space=0,
-    width = 180/25.4,
-    wspace=0.2,
-    hspace=0.2,
-    proj="ortho",
-    proj_kw=({"lon_0": -20, "lat_0": 60}),
-    nrows=3,
-    ncols=1,
-)
-model = 'MPI_GE'
-extr_type = 'pos'
-first = COMPOSITEs[model].sel(mode='NAO',period = 'first', extr_type = extr_type)
-last = COMPOSITEs[model].sel(mode='NAO',period = 'last', extr_type = extr_type)
-diff = COMPOSITEs[model].sel(mode='NAO',period = 'diff', extr_type = extr_type)
-diff_sig = COMPOSITEs[model].sel(mode='NAO',period = 'diff_sig', extr_type = extr_type)
-
-first = utils.erase_white_line(first)
-last = utils.erase_white_line(last)
-diff = utils.erase_white_line(diff)
-diff_sig = utils.erase_white_line(diff_sig)
-
-data_all = [
-first,
-last,
-diff,
-]
-maps = []
-for j, data in enumerate(data_all):
-    cs = axes[j].contourf(data, levels = np.arange(-1.5,1.6,0.3),cmap="RdBu_r",)
-    axes[j].set_aspect('equal')
-
-axes[2].contourf(diff_sig, levels=[-0.5, 0.5, 1.5], colors=['none', 'none'], hatches=['', '///'])
-
-plt.show()
 # %%
