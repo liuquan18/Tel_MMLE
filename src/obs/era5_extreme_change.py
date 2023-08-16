@@ -78,8 +78,8 @@ def plot_era_nao_index(nao, NEW_nao, ax, threshod=1.5):
         NEW_nao, threshod=threshod
     )
 
-    ax.plot(nao.values, color="gray", alpha=0.8, lw=1.5, label="NAO")
-    ax.plot(NEW_nao.values, color="black", lw=0.5, label="NAO no decade")
+    ax.plot(nao.values, color="gray", alpha=1, lw=1.5, label="NAO")
+    ax.plot(NEW_nao.values, color="red", lw=0.5, label="NAO no decade")
 
     # vline at x = 1981
     xmin, xmax = ax.get_xlim()
@@ -116,7 +116,7 @@ def plot_era_nao_index(nao, NEW_nao, ax, threshod=1.5):
         f"1941-1981: {first_pos_new}",
         transform=ax.transAxes,
         fontsize=7,
-        color="black",
+        color = 'red',
         alpha=0.8,
         verticalalignment="top",
     )
@@ -126,7 +126,7 @@ def plot_era_nao_index(nao, NEW_nao, ax, threshod=1.5):
         f"1982-2022: {last_pos_new}",
         transform=ax.transAxes,
         fontsize=7,
-        color="black",
+        color = 'red',
         alpha=0.8,
         verticalalignment="top",
     )
@@ -159,7 +159,7 @@ def plot_era_nao_index(nao, NEW_nao, ax, threshod=1.5):
         f"1941-1981: {first_neg_new}",
         transform=ax.transAxes,
         fontsize=7,
-        color="black",
+        color = 'red',
         alpha=0.8,
         verticalalignment="top",
     )
@@ -169,7 +169,7 @@ def plot_era_nao_index(nao, NEW_nao, ax, threshod=1.5):
         f"1982-2022: {last_neg_new}",
         transform=ax.transAxes,
         fontsize=7,
-        color="black",
+        color = 'red',
         alpha=0.8,
         verticalalignment="top",
     )
