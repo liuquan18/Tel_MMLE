@@ -106,3 +106,4 @@ if __name__ == '__main__':
 
 #%%
 mean_same_number()
+# %%
