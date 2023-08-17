@@ -30,6 +30,10 @@ def change_lon_to_180(zg):
 #%%
 
 def standardize_arr(arr, standard="first10", dim="com"):
+    """
+    standard when count the extreme cases.
+    """
+
     if standard == "first10":
         years = np.unique(arr.sortby("time").time.dt.year)
         arr_ref = arr.sel(time=slice(str(years[0]), str(years[9])))
@@ -81,6 +85,7 @@ def stats_arr(arr, statis="std", **kwargs):
 # %%
 def box_spatial_mean(xarr, blat, tlat, llon, rlon):
     """
+    calculate the spatial mean of the box.
     check if the lat and lon of the eof is from lower to higher.
     input the order of expected box in # bottom lat, top lat, left lon, right lon for the box
     return the order of the box in the eof.
