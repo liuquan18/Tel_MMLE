@@ -293,7 +293,7 @@ def obs_mmlea_box_plot( box_ax,EOFs):
     models = ["ERA5","ERA5_no_dec", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
     keys = EOFs.keys()
     colors = ['w','w', "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
-    eccolors = ['grey','black','black','black','black','black','black']
+    eccolors = ['grey','red','black','black','black','black','black']
     fills = [False, False, True, True, True, True, True]
     bps = []
     for i, key in enumerate(models):
