@@ -45,6 +45,8 @@ def read_var_months(model,var_name='ts'):
 
 def composite(model,var_name='ts',reduction = 'mean',count = None):
     var_data = read_var_months(model,var_name=var_name)
+    if var_name == 'zg':
+        var_data = var_data.sel(plev=50000).drop('plev')
     index_stats.composite_analysis(
         model            = model,
         index_season     = 'JJA',
@@ -64,7 +66,7 @@ t2 = int(sys.argv[3])
 #%%
 def mean_all(num,rank):
     models = ['MPI_GE_onepct','MK36','GFDL_CM3','CanESM2','CESM1_CAM5','MPI_GE']
-    vars = ['ts','pr']
+    vars = ['zg']
 
     print("===========================================")
     print(f"node_num:{num} is doing {models[num-1]}")
@@ -104,6 +106,4 @@ if __name__ == '__main__':
 
     mean_all(num,rank)
 
-#%%
-mean_same_number()
 # %%
