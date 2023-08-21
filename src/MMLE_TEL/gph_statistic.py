@@ -6,6 +6,7 @@ import sys
 
 import src.MMLE_TEL.index_generator as index_generator
 import src.Teleconnection.tools as tools
+from scipy.stats import linregress
 
 
 # %%
@@ -27,7 +28,10 @@ def read_gph_data(model):
 def change_lon_to_180(zg):
     zg = zg.assign_coords(lon=(((zg.lon + 180) % 360) - 180)).sortby("lon")
     return zg
-#%%
+
+
+# %%
+
 
 def standardize_arr(arr, standard="first10", dim="com"):
     """
@@ -50,7 +54,6 @@ def standardize_arr(arr, standard="first10", dim="com"):
 
 
 def stats_arr(arr, statis="std", **kwargs):
-
     if statis == "std":
         arr = arr.stack(com=("time", "ens"))
         arr_stat = arr.std(dim="com")
@@ -63,18 +66,14 @@ def stats_arr(arr, statis="std", **kwargs):
         arr_standard = standardize_arr(arr, standard=standard)
         arr_standard = arr_standard.stack(com=("time", "ens"))
         # count the number of events above 1.5
-        arr_stat = arr_standard.where(arr_standard > threshold).count(
-            dim="com"
-        )
+        arr_stat = arr_standard.where(arr_standard > threshold).count(dim="com")
     elif statis == "count_neg":
         standard = kwargs.get("standard", "first10")
         threshold = kwargs.get("threshold", 1.5)
         arr_standard = standardize_arr(arr, standard=standard)
         arr_standard = arr_standard.stack(com=("time", "ens"))
         # count the number of events above 1.5
-        arr_stat = arr_standard.where(arr_standard < -1 * threshold).count(
-            dim="com"
-        )
+        arr_stat = arr_standard.where(arr_standard < -1 * threshold).count(dim="com")
     elif statis == "slope":
         arr = arr.stack(com=("time", "ens"))
         arr_stat = arr.polyfit(dim="com", deg=1)
@@ -82,7 +81,6 @@ def stats_arr(arr, statis="std", **kwargs):
         print("please input the correct statistic method")
 
     return arr_stat
-
 
 
 # %%
@@ -117,13 +115,13 @@ def box_spatial_mean(xarr, blat, tlat, llon, rlon):
 
 
 def NAO_pos_center(zg, statis="std"):
-    pos_box_spa_mean = box_spatial_mean(zg, 45,60,-30,0)
+    pos_box_spa_mean = box_spatial_mean(zg, 45, 60, -30, 0)
     pos_box_std = stats_arr(pos_box_spa_mean, statis=statis)
     return pos_box_std
 
 
 def NAO_neg_center(zg, statis="std"):
-    neg_box = box_spatial_mean(zg, 60,75,-75,-50)
+    neg_box = box_spatial_mean(zg, 60, 75, -75, -50)
     neg_box_std = stats_arr(neg_box, statis=statis)
     return neg_box_std
     # spaital mean with weights
@@ -143,14 +141,34 @@ def box_mean(model):
     pos_var = zg.resample(time="10AS-JUN").apply(NAO_pos_center, statis="mean")
     neg_var = zg.resample(time="10AS-JUN").apply(NAO_neg_center, statis="mean")
     return pos_var, neg_var
-#%%
 
 
-#%%
+# %%
+# define function to calculate slope and p-value
+def linregress_ufunc(x):
+    slope, _, r_value, p_value, _ = linregress(np.arange(len(x)), x)
+    return slope, p_value < 0.05
+
+
+# %%
 def slope_ens_std(model):
     zg = read_gph_data(model)
-    zg_std = zg.resample(time = "10AS-JUN").apply(stats_arr, statis="std")
-    zg_std['time'] = np.arange(0, zg_std.time.size)
-    slope = zg_std.polyfit(dim="time", deg=1)
-    slope = slope.polyfit_coefficients.sel(degree = 1)
-    return slope
+    zg_std = zg.resample(time="10AS-JUN").apply(stats_arr, statis="std")
+
+    result = xr.apply_ufunc(
+        linregress_ufunc,
+        zg_std,
+        input_core_dims=[["time"]],
+        output_core_dims=[[], []],
+        vectorize=True,
+        dask="parallelized",
+    )
+
+    # convert result to DataArray
+    slope_da = result[0].rename("slope")
+    pvalue_da = result[1].rename("pvalue")
+
+    # create a new dataset and add the slope_da and pvalue_da as variables
+    result_ds = xr.Dataset({"slope": slope_da, "pvalue": pvalue_da})
+    return result_ds
+# %%
