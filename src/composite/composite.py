@@ -53,7 +53,7 @@ def reduce_var(
 
     elif reduction == "mean_same_number":
         # get the number of extremes to reduce from kwargs
-        num = kwargs["count"]
+        num = kwargs.get("count", 'all')
         # sel the largest 40 values from index
         index = index.copy()
         index = index.squeeze()
