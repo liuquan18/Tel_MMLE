@@ -18,8 +18,58 @@ def read_eof_data(model,decade = 0):
     fra = eof_re.fra.isel(decade = decade,mode = 0)
     return eof,fra
 
+def read_box_stats(model):
+    pos_name = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/box_based/pos_var.nc"
+    neg_name = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/box_based/neg_var.nc"
 
-def plot_box(lat,ulat,llon,rlon,ax,linestyle = "solid"):
+    pos_var = xr.open_dataset(pos_name)
+    neg_var = xr.open_dataset(neg_name)
+
+    try:
+        pos_var = pos_var.var156
+        neg_var = neg_var.var156
+    except AttributeError:
+        pos_var = pos_var.zg
+        neg_var = neg_var.zg
+    return pos_var,neg_var
+
+def read_slope_std(model):
+    slope_name = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/box_based/slope_of_ens_std.nc"
+    slope_std = xr.open_dataset(slope_name)
+    slope = slope_std.polyfit_coefficients
+    return slope
+
+#%%
+# read data for all the models
+eofs = {}
+fras = {}
+
+vars_pos = {} # for the variability chagne over boxes
+vars_neg = {}
+
+slopes = {}  # the slope of the ensemble std over the whole North Atlantic sector
+
+models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+
+#%%
+for model in models:
+    eof,fra = read_eof_data(model)
+    eofs[model] = eof
+    fras[model] = fra
+
+    pos_var, neg_var = read_box_stats(model)
+    vars_pos[model] = pos_var
+    vars_neg[model] = neg_var
+
+#%%
+for model in models:
+    slope = read_slope_std(model)
+    slopes[model] = slope
+
+#%%
+
+
+def plot_box_outline(lat,ulat,llon,rlon,ax,linestyle = "solid"):
     ax.plot(
         [llon,rlon,rlon,llon,llon],
         [ulat,ulat,lat,lat,ulat],
@@ -29,16 +79,18 @@ def plot_box(lat,ulat,llon,rlon,ax,linestyle = "solid"):
 
     )
     return ax
+
+def plot_slope_singleModel(ax,slope):
+    map = slope.plot(
+        ax=ax,
+        color="black",
+        linestyle="solid",
+        transform=ccrs.PlateCarree(),
+        add_colorbar=False,
+    )
+    return ax,map
 #%%
 
-eofs = {}
-fras = {}
-models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
-
-for model in models:
-    eof,fra = read_eof_data(model)
-    eofs[model] = eof
-    fras[model] = fra
 #%%
 
 fig1 = pplt.figure(figsize=(180 / 25.4, 150 / 25.4),sharex=False,sharey=False)
@@ -67,15 +119,13 @@ for i, ax in enumerate(axes):
     # positive box, solid line, lat,lat,lon,lon: 45, 60, -25, 5
     # negative box, dashed line, lat,lat,lon,lon: 60, 75, -70, -40
 
-    ax = plot_box(45,60,-30,0,ax,'solid')
-    ax = plot_box(60,75,-75,-50,ax,'dashed')
+    ax = plot_box_outline(45,60,-30,0,ax,'solid')
+    ax = plot_box_outline(60,75,-75,-50,ax,'dashed')
 
 
 
 
 # %%
-# read the data
-models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
 models_legend = [
     "MPI-GE_onepct (100)",
     "MPI-GE (100)",
@@ -85,29 +135,8 @@ models_legend = [
     "GFDL-CM3 (20)",
 ]
 
-vars_pos = {}
-vars_neg = {}
-
-for model in models:
-    pos_name = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/box_based/pos_var.nc"
-    neg_name = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/box_based/neg_var.nc"
-
-    pos_var = xr.open_dataset(pos_name)
-    neg_var = xr.open_dataset(neg_name)
-
-    try:
-        pos_var = pos_var.var156
-        neg_var = neg_var.var156
-    except AttributeError:
-        pos_var = pos_var.zg
-        neg_var = neg_var.zg
-
-    vars_pos[model] = pos_var
-    vars_neg[model] = neg_var
-
-# %%
 # plot the variability, pos as solid line, neg as dashed line
-fig, axes = plt.subplots(figsize=(8, 5), ncols=2, nrows=1, sharey=True)
+fig2, axes = plt.subplots(figsize=(8, 5), ncols=2, nrows=1, sharey=True)
 colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
 
 
@@ -135,4 +164,25 @@ plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/variability_pos_neg_center.png"
 )
 
+# %%
+
+fig3 = pplt.figure(figsize=(180 / 25.4, 150 / 25.4),sharex=False,sharey=False)
+fig3.format(
+    abc=True,
+    abcloc="ul",
+    abcstyle="a",
+)
+
+axes = fig3.subplots(
+    ncols=3,
+    nrows=2,
+    proj="ortho", 
+    proj_kw={"lon_0": -20, "lat_0": 60},
+)
+
+for i, ax in enumerate(axes):
+    model = models[i]
+    ax, map = plot_slope_singleModel(ax = axes[i],slope=slopes[model])
+
+fig3.colorbar(map,orientation='horizontal',shrink=0.5,aspect=30,loc = 'b')
 # %%

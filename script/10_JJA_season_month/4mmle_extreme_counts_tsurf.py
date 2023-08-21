@@ -1,5 +1,4 @@
 # %%
-import src.MMLE_TEL.story_line as story_line
 import numpy as np
 import importlib
 import matplotlib.pyplot as plt
@@ -8,11 +7,6 @@ import src.MMLE_TEL.index_stats as index_stats
 import xarray as xr
 import os
 
-#%%
-import importlib
-
-importlib.reload(story_line)
-importlib.reload(extrc_tsurf)
 
 # %%
 import multiprocessing as mp
