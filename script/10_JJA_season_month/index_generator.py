@@ -19,7 +19,7 @@ t1 = int(sys.argv[2])
 t2 = int(sys.argv[3])
 
 #%%
-models = ['MPI_GE','CanESM2','CESM1_CAM5','MK36','GFDL_CM3']
+models = ['CESM1_CAM5']#['MPI_GE','CanESM2','CESM1_CAM5','MK36','GFDL_CM3']
 
 # %%
 def index_gene(model):
