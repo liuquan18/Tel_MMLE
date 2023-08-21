@@ -32,7 +32,12 @@ def slope_stats(model):
     # create directory if it does not exist
     if not os.path.exists(to_dir):
         os.makedirs(to_dir)
-    slope.to_netcdf(to_dir + "slope_of_ens_std.nc")
+    try:
+        slope.to_netcdf(to_dir + "slope_of_ens_std.nc")
+    except PermissionError:
+        os.remove(to_dir + "slope_of_ens_std.nc")
+        slope.to_netcdf(to_dir + "slope_of_ens_std.nc")
+
 
 
 # %%
