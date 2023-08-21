@@ -46,6 +46,7 @@ def reduce_var(
     **Return**
         *composite_mean* the composite mean of the extreme cases.
     """
+    num = kwargs.get("count", 'all')
     if reduction == "mean":
         # get the data at the  coordinates
         sel_data = data.where(index)
@@ -53,7 +54,6 @@ def reduce_var(
 
     elif reduction == "mean_same_number":
         # get the number of extremes to reduce from kwargs
-        num = kwargs.get("count", 'all')
         # sel the largest 40 values from index
         index = index.copy()
         index = index.squeeze()
