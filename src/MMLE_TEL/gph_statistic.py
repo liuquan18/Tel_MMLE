@@ -75,6 +75,9 @@ def stats_arr(arr, statis="std", **kwargs):
         arr_stat = arr_standard.where(arr_standard < -1 * threshold).count(
             dim="com"
         )
+    elif statis == "slope":
+        arr = arr.stack(com=("time", "ens"))
+        arr_stat = arr.polyfit(dim="com", deg=1)
     else:
         print("please input the correct statistic method")
 
@@ -142,3 +145,12 @@ def box_mean(model):
     return pos_var, neg_var
 #%%
 
+
+#%%
+def slope_ens_std(model):
+    zg = read_gph_data(model)
+    zg_std = zg.resample(time = "10AS-JUN").apply(stats_arr, statis="std")
+    zg_std['time'] = np.arange(0, zg_std.time.size)
+    slope = zg_std.polyfit(dim="time", deg=1)
+    slope = slope.polyfit_coefficients.sel(degree = 1)
+    return slope
