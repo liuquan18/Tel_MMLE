@@ -114,13 +114,13 @@ def box_spatial_mean(xarr, blat, tlat, llon, rlon):
 
 
 def NAO_pos_center(zg, statis="std"):
-    pos_box_spa_mean = box_spatial_mean(zg, 45, 60, -25, 5)
+    pos_box_spa_mean = box_spatial_mean(zg, 45,60,-30,0)
     pos_box_std = stats_arr(pos_box_spa_mean, statis=statis)
     return pos_box_std
 
 
 def NAO_neg_center(zg, statis="std"):
-    neg_box = box_spatial_mean(zg, 60, 75, -70, -40)
+    neg_box = box_spatial_mean(zg, 60,75,-75,-50)
     neg_box_std = stats_arr(neg_box, statis=statis)
     return neg_box_std
     # spaital mean with weights
