@@ -157,7 +157,8 @@ def composite_plot_MMLEA(
     fig.colorbar(first_m, loc="r", pad=3, title=f"tsurf/K")
 
 
-def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos"):
+def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos",**kwargs):
+    levels = kwargs.get("levels", np.arange(-1.5, 1.6, 0.3))
     for i, model in enumerate(models):  # cols for different models
         first = COMPOSITEs[model].sel(mode="NAO", period="first", extr_type=extr_type)
         last = COMPOSITEs[model].sel(mode="NAO", period="last", extr_type=extr_type)
@@ -183,7 +184,7 @@ def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos"):
                 data,
                 x="lon",
                 y="lat",
-                levels=np.arange(-1.5, 1.6, 0.3),
+                levels=levels,
                 extend="both",
                 transform=ccrs.PlateCarree(),
                 cmap="RdBu_r",
