@@ -153,15 +153,14 @@ fig1.format(
 gs = pplt.GridSpec(
     ncols=2,
     nrows=2,
-    hratios=[1, 1],
     wratios = [0.6,1],
     wspace=5,
     hspace=4,
 )
 
 ax1 = fig1.add_subplot(gs[0, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
-ax2 = fig1.add_subplot(gs[1, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
 ax3 = fig1.add_subplot(gs[0, 1])
+ax2 = fig1.add_subplot(gs[1, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
 ax4 = fig1.add_subplot(gs[1, 1])
 
 ax1, fmap, _ = stat_overview.spatial_pattern_plot(
