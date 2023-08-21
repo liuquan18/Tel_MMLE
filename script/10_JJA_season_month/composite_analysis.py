@@ -40,10 +40,15 @@ def read_var_months(model,var_name='ts'):
             JJA_f = JJA_f['pr']
         except KeyError:
             JJA_f = JJA_f['precip']
+    elif var_name == 'zg':
+        try:
+            JJA_f = JJA_f.var156
+        except AttributeError:
+            JJA_f = JJA_f.zg
 
     return JJA_f
 
-def composite(model,var_name='ts',reduction = 'mean',count = None):
+def composite(model,var_name='ts',reduction = 'mean',**kwargs):
     var_data = read_var_months(model,var_name=var_name)
     if var_name == 'zg':
         var_data = var_data.sel(plev=50000).drop('plev')
@@ -55,7 +60,7 @@ def composite(model,var_name='ts',reduction = 'mean',count = None):
         var_data         = var_data,
         var_name         = var_name,
         reduction        = reduction,
-        count            = count
+        **kwargs
         )
     
 #%%
