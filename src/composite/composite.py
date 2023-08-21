@@ -202,7 +202,7 @@ def first_last_extreme_composite(
     **Return**
         *composite* the composite mean of the extreme cases of NAO and EA for the first and last 10 years, and the difference between them.
     """
-    count = kwargs.get('count', None)    # Select the same time period
+    count = kwargs.get('count', 'all')    # Select the same time period
     try:
         first_index = first_index.drop_vars(('decade','plev'))
         last_index = last_index.drop_vars(('decade','plev'))
