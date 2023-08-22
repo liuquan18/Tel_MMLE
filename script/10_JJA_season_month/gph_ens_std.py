@@ -26,7 +26,7 @@ class gph_stats:
 
         # box statistics
         print("-----------------------")
-        self.boxStats = self.box_stats()
+        # self.boxStats = self.box_stats()
 
         # slope of the ensemble std
         print("-----------------------")

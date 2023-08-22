@@ -10,7 +10,7 @@ from scipy.stats import linregress
 
 
 # %%
-def read_gph_data(model,remove_ens_mean = True):
+def read_gph_data(model, remove_ens_mean=True):
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/"
 
     # read gph data
@@ -18,7 +18,11 @@ def read_gph_data(model,remove_ens_mean = True):
     for month in ["Jun", "Jul", "Aug"]:
         print(f"reading the gph data of {month} ...")
         zg_path = odir + "zg_" + month + "/"
-        data_JJA.append(index_generator.read_data(zg_path, plev=50000, remove_ens_mean=remove_ens_mean))
+        data_JJA.append(
+            index_generator.read_data(
+                zg_path, plev=50000, remove_ens_mean=remove_ens_mean
+            )
+        )
     data = xr.concat(data_JJA, dim="time").sortby("time")
     data = change_lon_to_180(data)
     return data
@@ -171,14 +175,17 @@ def slope_ens_std(model):
     # create a new dataset and add the slope_da and pvalue_da as variables
     result_ds = xr.Dataset({"slope": slope_da, "pvalue": pvalue_da})
     return result_ds
+
+
 # %%
 
+
 def slope_ens_mean(model):
-    zg = read_gph_data(model,remove_ens_mean=False)
+    zg = read_gph_data(model, remove_ens_mean=False)
     zg.load()
 
     # calculate the decadal mean of zg to corresponds to the slope of ens std.
-    zg_yearly = zg.resample(time="10AS-JUN").mean(dim="time")
+    zg_yearly = zg.resample(time="10AS-JUN").mean(dim=("time", "ens"))  # ens mean
 
     # calculate the slope and pvalue
     result = xr.apply_ufunc(
@@ -197,4 +204,5 @@ def slope_ens_mean(model):
     result_ds = xr.Dataset({"slope": slope_da, "pvalue": pvalue_da})
     return result_ds
 
-#%%
+
+# %%
