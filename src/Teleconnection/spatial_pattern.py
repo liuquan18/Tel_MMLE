@@ -133,7 +133,7 @@ def fix_sign(eof,pc):
 
     # NAO
     # check if the lat of the eof is from lower to higher
-    NAO_box = neg_center_box(eof.sel(mode = 'NAO'), 60, 90, -70, -10)
+    NAO_box = neg_center_box(eof.sel(mode = 'NAO'), 60, 75, -75, -50)
     coef_NAO = (NAO_box.mean(dim=["lat", "lon"])< 0)
     coef_NAO = 2 * coef_NAO - 1  # to make 1 to 1 , 0 to -1
 
@@ -169,5 +169,13 @@ def neg_center_box(xarr, blat, tlat, llon, rlon):
     else:
         start_lon = llon
         end_lon = rlon
+
+    # if the longitude from 0-360, change the lon to -180-180
+    if xarr.lon.min() >= 0 and xarr.lon.max() <= 360:
+        if start_lon < 0:
+            start_lon = start_lon + 360
+        if end_lon < 0:
+            end_lon = end_lon + 360
+
     
     return xarr.sel(lat=slice(start_lat, end_lat), lon=slice(start_lon, end_lon))
