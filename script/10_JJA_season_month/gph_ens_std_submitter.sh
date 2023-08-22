@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=slope_std
+#SBATCH --job-name=slope_forced
 #SBATCH --time=08:00:00
 #SBATCH --partition=compute
 #SBATCH --nodes=1
@@ -7,7 +7,7 @@
 #SBATCH --mem=0
 #SBATCH --mail-type=FAIL
 #SBATCH --account=mh0033
-#SBATCH --output=slope_std.%j.out
+#SBATCH --output=slope_forced.%j.out
 
 
 mpirun -np 1 python -u gph_ens_std.py $1 $2 $3
