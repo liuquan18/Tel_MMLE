@@ -153,6 +153,7 @@ def linregress_ufunc(x):
 # %%
 def slope_ens_std(model):
     zg = read_gph_data(model)
+    zg.load()
     zg_std = zg.resample(time="10AS-JUN").apply(stats_arr, statis="std")
 
     result = xr.apply_ufunc(
@@ -161,7 +162,6 @@ def slope_ens_std(model):
         input_core_dims=[["time"]],
         output_core_dims=[[], []],
         vectorize=True,
-        dask="parallelized",
     )
 
     # convert result to DataArray
@@ -175,10 +175,10 @@ def slope_ens_std(model):
 
 def slope_ens_mean(model):
     zg = read_gph_data(model,remove_ens_mean=False)
+    zg.load()
 
-    # calculate the yearly mean of zg
-    zg_yearly = zg.resample(time="AS-JUN").mean(dim="time")
-    zg_yearly.load()
+    # calculate the decadal mean of zg to corresponds to the slope of ens std.
+    zg_yearly = zg.resample(time="10AS-JUN").mean(dim="time")
 
     # calculate the slope and pvalue
     result = xr.apply_ufunc(
