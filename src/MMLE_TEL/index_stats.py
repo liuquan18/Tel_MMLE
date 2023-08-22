@@ -211,4 +211,8 @@ def composite_analysis(
         **kwargs,
     )
     # save the result
-    composite_mean.to_netcdf(composite_dir)
+    try:
+        composite_mean.to_netcdf(composite_dir)
+    except PermissionError:
+        os.remove(composite_dir)
+        composite_mean.to_netcdf(composite_dir)
