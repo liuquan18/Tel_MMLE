@@ -116,7 +116,7 @@ axes.format(
     abcstyle="a",
 )
 
-axes,maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes,levels = np.arange(-40,41,5))
+axes,maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes,levels = np.arange(-60,61,10))
 fig3.colorbar(maps[0], loc="b", pad=1, title=f"tsurf / K",width = 0.1,shrink=1)
 
 plt.savefig(
@@ -163,7 +163,7 @@ axes.format(
     abcstyle="a",
 )
 
-axes,maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes,extr_type='neg',levels = np.arange(-40,41,5))
+axes,maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes,extr_type='neg',levels = np.arange(-60,61,10))
 fig4.colorbar(maps[0], loc="b", pad=1, title=f"tsurf / K",width = 0.1,shrink=1)
 
 plt.savefig(

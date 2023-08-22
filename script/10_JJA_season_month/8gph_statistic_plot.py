@@ -37,12 +37,11 @@ def read_box_stats(model):
     return pos_var, neg_var
 
 
-def read_slope_std(model):
+def read_slope_std(model,var='std'):
     slope_name = (
-        f"/work/mh0033/m300883/Tel_MMLE/data/{model}/box_based/slope_of_ens_std.nc"
+        f"/work/mh0033/m300883/Tel_MMLE/data/{model}/box_based/slope_of_ens_{var}.nc"
     )
-    slope_std = xr.open_dataset(slope_name)
-    slope = slope_std.polyfit_coefficients
+    slope = xr.open_dataset(slope_name)
     return slope
 
 
@@ -54,7 +53,8 @@ fras = {}
 vars_pos = {}  # for the variability chagne over boxes
 vars_neg = {}
 
-slopes = {}  # the slope of the ensemble std over the whole North Atlantic sector
+slopes_ens_std = {}  # the slope of the ensemble std over the whole North Atlantic sector
+slopes_ens_mean = {}
 
 models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
 
@@ -68,10 +68,13 @@ for model in models:
     vars_pos[model] = pos_var
     vars_neg[model] = neg_var
 
-# %%
-for model in models:
-    slope = read_slope_std(model)
-    slopes[model] = slope
+    slope_std = read_slope_std(model, var='std')
+    slopes_ens_std[model] = slope_std
+
+    slope_mean = read_slope_std(model, var='mean')
+    slopes_ens_mean[model] = slope_mean
+
+
 
 # %%
 # %%
@@ -96,18 +99,53 @@ def plot_box_outline(lat, ulat, llon, rlon, ax, linestyle="solid"):
     return ax
 
 
-def plot_slope_singleModel(ax, slope):
-    map = slope.plot(
+def plot_slope_std_singleModel(ax, slope, sig = False):
+    map = slope.slope.plot(
         ax=ax,
         color="black",
         linestyle="solid",
         transform=ccrs.PlateCarree(),
         add_colorbar=False,
     )
+
+    if sig:
+        sig = slope.pvalue.plot.contourf(
+            ax=ax,
+            levels=[0, 0.05],
+            colors="none",
+            hatches=["", "///"],
+            transform=ccrs.PlateCarree(),
+            add_colorbar=False,
+        )
+    
     return ax, map
 
+def plot_slope_mean_singleModel(ax, slope, sig = False):
+    map = ax.contour(
+        slope.lon,
+        slope.lat,
+        slope.slope,
+        levels = np.arange(4,14,0.5),
+        colors = 'grey8',
+        nozero = True,
+        add_colorbar = False,
+        lw = 0.8,
+        labels = True,
+        transform = ccrs.PlateCarree(),
+    )
 
-# %%
+    if sig:
+        sig = slope.pvalue.plot.contourf(
+            ax=ax,
+            levels=[0, 0.05],
+            colors="none",
+            hatches=["", "///"],
+            transform=ccrs.PlateCarree(),
+            add_colorbar=False,
+        )
+    
+    return ax, map
+
 
 # %%
 
@@ -141,7 +179,13 @@ for i, ax in enumerate(axes):
     ax = plot_box_outline(45, 60, -30, 0, ax, "solid")
     ax = plot_box_outline(60, 75, -75, -50, ax, "dashed")
 
+fig1.colorbar(fmap, loc="b", label="NAO standard", shrink=0.8)
 
+plt.savefig(
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/box_loc.png"
+)
+
+#%%
 # plot the variability, pos as solid line, neg as dashed line
 fig2, axes = plt.subplots(figsize=(8, 5), ncols=2, nrows=1, sharey=True)
 colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
@@ -189,7 +233,7 @@ for i, ax in enumerate(axes):
     model = models[i]
     ax = plot_box_outline(45, 60, -30, 0, ax, "solid")
     ax = plot_box_outline(60, 75, -75, -50, ax, "dashed")
-    ax, map = plot_slope_singleModel(ax=axes[i], slope=slopes[model])
+    ax, map = plot_slope_std_singleModel(ax=axes[i], slope=slopes_ens_std[model])
     ax.format(
         lonlines=20,
         latlines=30,
@@ -208,3 +252,58 @@ plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/slope_ens_std.png"
 )
 
+
+# %%
+
+fig4 = pplt.figure(figsize=(180 / 25.4, 150 / 25.4), sharex=False, sharey=False)
+fig4.format(
+    abc=True,
+    abcloc="ul",
+    abcstyle="a",
+)
+
+axes = fig4.subplots(
+    ncols=3,
+    nrows=2,
+    proj="ortho",
+    proj_kw={"lon_0": -20, "lat_0": 60},
+)
+
+for i, ax in enumerate(axes):
+    model = models[i]
+
+    try:
+        ax, map_std = plot_slope_std_singleModel(ax=axes[i], slope=slopes_ens_std[model])
+    except:
+        pass
+    try:
+        ax, map_mean = plot_slope_mean_singleModel(ax=axes[i], slope=slopes_ens_mean[model])
+    except:
+        pass
+    ax.format(
+        lonlines=20,
+        latlines=30,
+        coast=True,
+        coastlinewidth=0.5,
+        coastcolor="charcoal",
+        title=f"{models_legend[i]}",
+    )
+
+fig4.colorbar(map_std, 
+              orientation="horizontal", 
+              shrink=0.5, 
+              loc="b",
+              title = 'slope of the variability along ensemble dimension every ten years')
+
+fig4.colorbar(map_mean,
+                orientation="horizontal", 
+                shrink=0.5, 
+                loc="b",
+                title = 'slope of the mean along ensemble dimension every ten years')
+
+plt.savefig(
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/slope_ens_mean.png"
+)
+
+
+# %%

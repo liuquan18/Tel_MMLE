@@ -24,13 +24,13 @@ class gph_stats:
         if not os.path.exists(self.to_dir):
             os.makedirs(self.to_dir)
 
-        # box statistics
-        print("-----------------------")
-        # self.boxStats = self.box_stats()
+        # # box statistics
+        # print("-----------------------")
+        # # self.boxStats = self.box_stats()
 
-        # slope of the ensemble std
-        print("-----------------------")
-        self.slopeStd = self.slope_ens_std()
+        # # slope of the ensemble std
+        # print("-----------------------")
+        # self.slopeStd = self.slope_ens_std()
 
         # slope of the ensemble mean
         print("-----------------------")
