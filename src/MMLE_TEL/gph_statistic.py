@@ -10,7 +10,7 @@ from scipy.stats import linregress
 
 
 # %%
-def read_gph_data(model):
+def read_gph_data(model,remove_ens_mean = True):
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/"
 
     # read gph data
@@ -18,7 +18,7 @@ def read_gph_data(model):
     for month in ["Jun", "Jul", "Aug"]:
         print(f"reading the gph data of {month} ...")
         zg_path = odir + "zg_" + month + "/"
-        data_JJA.append(index_generator.read_data(zg_path, plev=50000))
+        data_JJA.append(index_generator.read_data(zg_path, plev=50000, remove_ens_mean=remove_ens_mean))
     data = xr.concat(data_JJA, dim="time").sortby("time")
     data = change_lon_to_180(data)
     return data
@@ -172,3 +172,29 @@ def slope_ens_std(model):
     result_ds = xr.Dataset({"slope": slope_da, "pvalue": pvalue_da})
     return result_ds
 # %%
+
+def slope_ens_mean(model):
+    zg = read_gph_data(model,remove_ens_mean=False)
+
+    # calculate the yearly mean of zg
+    zg_yearly = zg.resample(time="AS-JUN").mean(dim="time")
+    zg_yearly.load()
+
+    # calculate the slope and pvalue
+    result = xr.apply_ufunc(
+        linregress_ufunc,
+        zg_yearly,
+        input_core_dims=[["time"]],
+        output_core_dims=[[], []],
+        vectorize=True,
+    )
+
+    # convert result to DataArray
+    slope_da = result[0].rename("slope")
+    pvalue_da = result[1].rename("pvalue")
+
+    # create a new dataset and add the slope_da and pvalue_da as variables
+    result_ds = xr.Dataset({"slope": slope_da, "pvalue": pvalue_da})
+    return result_ds
+
+#%%
