@@ -350,11 +350,12 @@ def decade_tsurf(tsurf):
     time_s = np.arange(start,end,10)
     time_e = np.arange(start+9,end+1,10)
     
+    time_tag = pd.date_range(str(time_s[0]) + '-06-16',periods=len(time_s),freq = '10Y')
     
     decade_slices = [slice(str(s), str(e)) for s, e in zip(time_s, time_e)]
 
     tsurf_dec_mean = [
     tsurf.sel(time=decade_slice).mean(dim="time") for decade_slice in decade_slices
     ]
-    tsurf_dec_mean = xr.concat(tsurf_dec_mean, dim=extrc.time)
+    tsurf_dec_mean = xr.concat(tsurf_dec_mean, dim = time_tag).rename({'concat_dim':'time'})
     return tsurf_dec_mean.squeeze()
