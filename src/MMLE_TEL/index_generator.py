@@ -2,7 +2,7 @@
 To generate the index by projecting the data of all the years to the fixed spatial pattern.
 """
 
-#%%
+# %%
 import xarray as xr
 import numpy as np
 import pandas as pd
@@ -16,7 +16,8 @@ import src.warming_stage.warming_stage as warming_stage
 import warnings
 import glob
 
-#%%
+
+# %%
 class decompose_troposphere:
     """
     A class to generate the eof and index of the whole troposphere
@@ -102,7 +103,7 @@ class decompose_troposphere:
         )
 
 
-#%%
+# %%
 ##########################################
 class decompose_plev:
     """
@@ -153,26 +154,27 @@ class decompose_plev:
         print("saving the result ...")
         # save the unstandardized result
         nondir = (
-                self.save_path
-                + "plev_"
-                + str(self.plev)
-                + "_"
-                + self.fixedPattern
-                + "_"
-                + self.season
-                + "_none_eof_result.nc")
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + "_"
+            + self.season
+            + "_none_eof_result.nc"
+        )
         stddir = (
-                self.save_path
-                + "plev_"
-                + str(self.plev)
-                + "_"
-                + self.fixedPattern
-                + "_"
-                + self.standard
-                + "_"
-                + self.season
-                + "_eof_result.nc"
-            )
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + "_"
+            + self.standard
+            + "_"
+            + self.season
+            + "_eof_result.nc"
+        )
         try:
             self.eof_result.to_netcdf(nondir)
         except PermissionError:
@@ -184,7 +186,8 @@ class decompose_plev:
             os.remove(stddir)
             self.std_eof_result.to_netcdf(stddir)
 
-#%%
+
+# %%
 ##########################################
 class decompose_plev_random_ens:
     def __init__(
@@ -216,8 +219,14 @@ class decompose_plev_random_ens:
         )
 
         # read gph data
-        print(f"reading the gph data of {self.season} ...")
-        self.data = read_data(self.zg_path, plev=self.plev, remove_ens_mean=False)
+        data_JJA = []
+        for month in ["Jun", "Jul", "Aug"]:
+            print(f"reading the gph data of {month} ...")
+            zg_path = self.odir + "zg_" + month + "/"
+            data_JJA.append(
+                read_data(zg_path, plev=self.plev, remove_ens_mean=False)
+            )  # not remove the ensemble mean here yet.
+        self.data = xr.concat(data_JJA, dim="time").sortby("time")
 
         # randomly select ens_size members
         random.seed(1)
@@ -243,15 +252,12 @@ class decompose_plev_random_ens:
         """
         print("decomposing ...")
 
-        eof_result = rolling_eof.rolling_eof(
-            self.data, fixed_pattern=self.fixedPattern, ts_mean=self.ts_mean
-        )
+        eof_result = rolling_eof.rolling_eof(self.data, fixed_pattern=self.fixedPattern)
         return eof_result
 
     def save_result(self):
         print("saving the result ...")
-        # save the unstandardized result
-        self.eof_result.to_netcdf(
+        none_standard_name = (
             self.save_path
             + "plev_"
             + str(self.plev)
@@ -263,25 +269,37 @@ class decompose_plev_random_ens:
             + str(self.ens_size)
             + "_none_eof_result.nc"
         )
-        # save the standardized result
-        self.std_eof_result.to_netcdf(
-            self.save_path
-            + "plev_"
-            + str(self.plev)
-            + "_"
-            + self.fixedPattern
-            + "_"
-            + self.season
-            + "_"
-            + self.standard
-            + "_"
-            + str(self.ens_size)
-            + "_eof_result.nc"
+
+        standard_name = (
+                self.save_path
+                + "plev_"
+                + str(self.plev)
+                + "_"
+                + self.fixedPattern
+                + "_"
+                + self.season
+                + "_"
+                + self.standard
+                + "_"
+                + str(self.ens_size)
+                + "_eof_result.nc"
         )
 
+        try:
+            # save the unstandardized result
+            self.eof_result.to_netcdf(none_standard_name)
+            # save the standardized result
+            self.std_eof_result.to_netcdf(standard_name)
+        except PermissionError:
+            os.remove(none_standard_name)            
+            os.remove(standard_name)
+            # save the unstandardized result
+            self.eof_result.to_netcdf(none_standard_name)
+            # save the standardized result
+            self.std_eof_result.to_netcdf(standard_name)
 
 
-#%%
+# %%
 ##########################################
 class decompose_plev_JJA:
     """
@@ -289,7 +307,11 @@ class decompose_plev_JJA:
     """
 
     def __init__(
-        self, model, fixedPattern = 'decade', plev=50000, standard="first",
+        self,
+        model,
+        fixedPattern="decade",
+        plev=50000,
+        standard="first",
     ) -> None:
         self.model = model
         self.plev = plev
@@ -300,7 +322,6 @@ class decompose_plev_JJA:
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
         self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
-        
 
         # read gph data
         data_JJA = []
@@ -336,26 +357,27 @@ class decompose_plev_JJA:
         print("saving the result ...")
         # save the unstandardized result
         nondir = (
-                self.save_path
-                + "plev_"
-                + str(self.plev)
-                + "_"
-                + self.fixedPattern
-                + "_"
-                + self.season
-                + "_none_eof_result.nc")
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + "_"
+            + self.season
+            + "_none_eof_result.nc"
+        )
         stddir = (
-                self.save_path
-                + "plev_"
-                + str(self.plev)
-                + "_"
-                + self.fixedPattern
-                + "_"
-                + self.standard
-                + "_"
-                + self.season
-                + "_eof_result.nc"
-            )
+            self.save_path
+            + "plev_"
+            + str(self.plev)
+            + "_"
+            + self.fixedPattern
+            + "_"
+            + self.standard
+            + "_"
+            + self.season
+            + "_eof_result.nc"
+        )
         try:
             self.eof_result.to_netcdf(nondir)
         except PermissionError:
@@ -368,7 +390,7 @@ class decompose_plev_JJA:
             self.std_eof_result.to_netcdf(stddir)
 
 
-#%%
+# %%
 ##########################################
 
 
@@ -384,7 +406,9 @@ def read_data(
     # read MPI_onepct data
     try:
         zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
-        Warning.warn("reading allens_zg.nc, which may be wrong in the order of ensemble members")
+        Warning.warn(
+            "reading allens_zg.nc, which may be wrong in the order of ensemble members"
+        )
         if "ens" in zg_data.dims:
             pass
         else:
@@ -392,11 +416,13 @@ def read_data(
     except FileNotFoundError:
         # fix the order of ensemble members
         print("reading the gph data of all ensemble members...")
-        all_ens_lists = sorted(glob.glob(gph_dir + "*.nc")) # to make sure that the order of ensemble members is fixed
+        all_ens_lists = sorted(
+            glob.glob(gph_dir + "*.nc")
+        )  # to make sure that the order of ensemble members is fixed
         zg_data = xr.open_mfdataset(
             all_ens_lists, combine="nested", concat_dim="ens", join="override"
         )
-        zg_data['ens'] = np.arange(zg_data.ens.size)
+        zg_data["ens"] = np.arange(zg_data.ens.size)
     try:
         zg_data = zg_data.var156
     except AttributeError:
@@ -437,7 +463,7 @@ def standard_index(eof_result, standard):
         print(" standardizing the index with the first 10 years ...")
         years = np.unique(eof_result["time.year"])
         years = sorted(years)[:10]
-        ref = eof_result["pc"].sel(time = eof_result["time.year"].isin(years))
+        ref = eof_result["pc"].sel(time=eof_result["time.year"].isin(years))
         pc_std = (eof_result["pc"] - ref.mean(dim=("time", "ens"))) / ref.std(
             dim=("time", "ens")
         )
