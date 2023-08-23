@@ -194,7 +194,7 @@ class decompose_plev_random_ens:
         self,
         fixedPattern,
         ens_size,
-        base_model="MPI_GE",
+        base_model="MPI_GE_onepct",
         plev=50000,
         standard="first",
     ) -> None:
