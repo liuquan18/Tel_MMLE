@@ -522,10 +522,9 @@ def mmle_tsurf_line(
                 )
 
                 # plot the line
-                im = line_single(
+                im = extrc_tsurf_line_single(
                     extrc,
                     tsurf,
-                    ensemble_size[i],
                     axs[r, c],
                     color=colors_model[i],
                     label=f"{model} ({str(ens_size)})",
@@ -558,8 +557,8 @@ def mmle_tsurf_line(
     return fig
 
 
-def line_single(
-    extrc, tsurf, ens_size, ax, extrc_rand=None, tsurf_rand=None, color="k", label=None
+def extrc_tsurf_line_single(
+    extrc, tsurf, ax, extrc_rand=None, tsurf_rand=None, color="k", label=None
 ):
     """
     line for just one dataset.
