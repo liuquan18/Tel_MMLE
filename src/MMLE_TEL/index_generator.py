@@ -196,27 +196,19 @@ class decompose_plev_random_ens:
         ens_size,
         base_model="MPI_GE",
         plev=50000,
-        standard="temporal",
-        season="DJFM",
+        standard="first",
     ) -> None:
         self.model = base_model + "_random"
         self.plev = plev
         self.fixedPattern = fixedPattern  # warming or decade
         self.standard = standard
         self.ens_size = ens_size
-        self.season = season
+        self.season = 'JJA'
 
         self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
 
         self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
-        self.zg_path = (
-            "/work/mh0033/m300883/Tel_MMLE/data/"
-            + base_model
-            + "/zg_"
-            + self.season
-            + "/"
-        )
 
         # read gph data
         data_JJA = []
