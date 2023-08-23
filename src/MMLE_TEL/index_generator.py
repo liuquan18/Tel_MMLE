@@ -396,25 +396,15 @@ def read_data(
     """
     gph_dir = zg_path
     # read MPI_onepct data
-    try:
-        zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
-        Warning.warn(
-            "reading allens_zg.nc, which may be wrong in the order of ensemble members"
-        )
-        if "ens" in zg_data.dims:
-            pass
-        else:
-            zg_data = tools.split_ens(zg_data)
-    except FileNotFoundError:
-        # fix the order of ensemble members
-        print("reading the gph data of all ensemble members...")
-        all_ens_lists = sorted(
-            glob.glob(gph_dir + "*.nc")
-        )  # to make sure that the order of ensemble members is fixed
-        zg_data = xr.open_mfdataset(
-            all_ens_lists, combine="nested", concat_dim="ens", join="override"
-        )
-        zg_data["ens"] = np.arange(zg_data.ens.size)
+    # fix the order of ensemble members
+    print("reading the gph data of all ensemble members...")
+    all_ens_lists = sorted(
+        glob.glob(gph_dir + "*.nc")
+    )  # to make sure that the order of ensemble members is fixed
+    zg_data = xr.open_mfdataset(
+        all_ens_lists, combine="nested", concat_dim="ens", join="override"
+    )
+    zg_data["ens"] = np.arange(zg_data.ens.size)
     try:
         zg_data = zg_data.var156
     except AttributeError:
