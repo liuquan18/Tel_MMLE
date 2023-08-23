@@ -15,34 +15,25 @@ import importlib
 
 
 # %%
-def extreme_counts_tsurf(
+def extreme_counts(
     model,
     fixed_pattern="decade",
     standard="temporal_ens",
-    tsurf="ens_fld_year_mean",
     plev=50000,
     season="MJJA",
 ):
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/"
     prefix = f"plev_{plev}_{fixed_pattern}_{standard}_{season}_"
     eof_dir = odir + "EOF_result/" + prefix + "eof_result.nc"
-    tsurf_dir = odir + "ts_processed/" + tsurf + ".nc"
 
     # to dir
     extr_counts_dir = odir + "extreme_count/" + prefix + "extre_counts.nc"
-    t_surf_mean_dir = odir + "extreme_count/" + tsurf + ".nc"
 
     # eof
     eof_result = xr.open_dataset(eof_dir)
-    # tsurf
-    temperature = read_spmean_tsurf(tsurf_dir)
-
     # extreme counts
     # check if the extr_counts_dir exists
     extrc = extreme.decadal_extrc(eof_result.pc, ci="bootstrap")
-
-    # tsurf mean
-    tsurf_mean = extreme.decade_tsurf(extrc, temperature)
 
     # save the result
     try:
@@ -52,13 +43,31 @@ def extreme_counts_tsurf(
         os.remove(extr_counts_dir)
         extrc.to_netcdf(extr_counts_dir)
 
+
+
+# %%
+def decadal_tsurf(
+    model,
+    tsurf="ens_fld_year_mean",
+):
+    odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/"
+    tsurf_dir = odir + "ts_processed/" + tsurf + ".nc"
+
+    # to dir
+    t_surf_mean_dir = odir + "extreme_count/" + tsurf + ".nc"
+
+    # tsurf
+    temperature = read_spmean_tsurf(tsurf_dir)
+
+    # tsurf mean
+    tsurf_mean = extreme.decade_tsurf(temperature)
+
+    # save the result
     try:
         tsurf_mean.to_netcdf(t_surf_mean_dir)
     except PermissionError:
-        pass
-
-    return extrc, tsurf_mean
-
+        os.remove(t_surf_mean_dir)
+        tsurf_mean.to_netcdf(t_surf_mean_dir)
 
 # %%
 # read tsurf
@@ -69,10 +78,7 @@ def read_spmean_tsurf(tsurf_dir):
     try:
         tsurf_arr = tsurf.tsurf.squeeze()
     except AttributeError:
-        try:
-            tsurf_arr = tsurf.ts.squeeze()
-        except AttributeError:
-            tsurf_arr = tsurf.tas.squeeze()
+        tsurf_arr = tsurf.ts.squeeze()
     # change the temp time into datetime64
     try:
         tsurf_arr["time"] = tsurf_arr.indexes["time"].to_datetimeindex()
