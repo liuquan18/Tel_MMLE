@@ -205,7 +205,7 @@ class decompose_plev_random_ens:
         self.ens_size = ens_size
         self.season = 'JJA'
 
-        self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
+        self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + base_model + "/"
 
         self.ts_mean_path = self.odir + "ts_processed/ens_fld_year_mean.nc"
         self.save_path = self.odir + "EOF_result/"
