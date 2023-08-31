@@ -24,10 +24,11 @@ num = int(sys.argv[1])
 t1 = int(sys.argv[2])
 t2 = int(sys.argv[3])
 
-#%%
-num = 1
+
 #%%
 ens_size = ens_sizes[num - 1]
 print("++++++++++++++++++++++++++")
 print(f"node_num {num} is running ens_size {ens_size}")
 decompose_random(ens_size=ens_size,model = model)
+
+# %%

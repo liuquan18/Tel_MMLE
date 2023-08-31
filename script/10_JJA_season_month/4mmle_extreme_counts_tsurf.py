@@ -16,13 +16,18 @@ from multiprocessing import Pool
 # MPI_GE_onepct
 # MPI_GE_onepct summer
 def extreme_count(model):
-    index_stats.extreme_counts_tsurf(
+    index_stats.extreme_counts(
         model        =  model,
         tsurf        =  "ens_fld_year_mean", 
         standard     =  "first",
         season       =  'JJA',
         fixed_pattern=  'decade_mpi')
 
+def tsurf_decade(model):
+    index_stats.decadal_tsurf(
+        model = model,
+        tsurf = "ens_fld_year_mean"
+    )
 
 # %%
 extreme_count('MPI_GE_onepct')
