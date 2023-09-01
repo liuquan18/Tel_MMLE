@@ -54,8 +54,8 @@ def remove_decade_eemd(month_nao, combine_num=2):
 
 
 def count_extreme(nao, threshod=1.5):
-    nao_first = nao.sel(time=slice("1941", "1981")).values.flat
-    nao_last = nao.sel(time=slice("1982", "2022")).values.flat
+    nao_first = nao.sel(time=slice("1940", "1981")).values.flat
+    nao_last = nao.sel(time=slice("1982", "2023")).values.flat
     first_pos = np.sum(nao_first > threshod)
     first_neg = np.sum(nao_first < -1 * threshod)
     last_pos = np.sum(nao_last > threshod)
