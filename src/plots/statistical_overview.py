@@ -227,13 +227,13 @@ def index_distribution_plot(hist_ax, first_pc, last_pc = None):
         x="pc",
         hue="periods",
         hue_order=["first", "last"],
-        palette=["#1f77b4", "#ff7f0e"],
+        palette=["w", "r"],
         multiple="dodge",
         shrink=0.6,
         bins=np.arange(-4, 4.1, 0.5),
         legend=False,
         ax=hist_ax,
-        stat= "density",
+        stat= "probability",
     )
 
     hist_ax.format(grid=False, 
