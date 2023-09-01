@@ -213,8 +213,15 @@ def spatial_pattern_plot(
 
 
 #%% tool function to plot the index distribution
-def index_distribution_plot(hist_ax, first_pc, last_pc):
-    df = index_to_df(first_pc, last_pc)
+def index_distribution_plot(hist_ax, first_pc, last_pc = None):
+    if last_pc is not None:
+        df = index_to_df(first_pc, last_pc)
+    else:
+        # cerate a dummy last_pc
+        last_pc = xr.zeros_like(first_pc)
+        # replace the zeros with nan
+        last_pc = last_pc.where(last_pc != 0)
+        df = index_to_df(first_pc, last_pc)
     hist = sns.histplot(
         data=df,
         x="pc",
