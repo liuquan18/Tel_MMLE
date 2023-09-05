@@ -15,8 +15,8 @@ def read_extreme_counts(**kwargs):
     plev = kwargs.get("plev", 50000)
     standard = kwargs.get("standard", "first")
     tsurf = kwargs.get("tsurf", "ens_fld_year_mean")
-    fixed_pattern = kwargs.get("fixed_pattern", "decade")
-    season = kwargs.get("season", "JJAS")
+    fixed_pattern = kwargs.get("fixed_pattern", "decade_mpi")
+    season = kwargs.get("season", "JJA")
 
     models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
     # load data
@@ -89,7 +89,7 @@ def slope_diff_tsurf(**kwargs):
 
 #%%
 mmle_slope(
-    plev=50000, standard="first", tsurf="ens_fld_year_mean", time='1960-01-01', season="DJFM"
+    plev=50000, standard="first", tsurf="ens_fld_year_mean", time='1960-01-01', season="JJA"
 )
 
 #%%
@@ -106,7 +106,7 @@ mmle_slope(
 
 #%%
 extrs, tsurfs, extrs_rand, tsurfs_rand = read_extreme_counts(
-    plev=50000, standard="first", tsurf="ens_fld_year_mean", season="JJAS"
+    plev=50000, standard="first", tsurf="ens_fld_year_mean", season="JJA"
 )
 # %%
 importlib.reload(ext_plot)

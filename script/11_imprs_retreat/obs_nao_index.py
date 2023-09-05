@@ -5,10 +5,14 @@ import proplot as pplt
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
+import matplotlib.ticker as ticker
 
 # %%
 import src.obs.era5_extreme_change as era5_extreme_change
 
+#%%
+import importlib
+importlib.reload(era5_extreme_change)
 # %%
 
 
@@ -99,12 +103,23 @@ ax.xaxis.set_major_formatter(mpl.dates.DateFormatter("%d %b"))
 
 # no legend and title
 ax.legend().set_visible(False)
+ax.set_ylabel("NAO standard deviation")
+ax.set_xlabel("")
 # save
 plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/imprs_retreat/nao_index_2023.pdf",
     bbox_inches="tight",
     dpi=300,
 )
+#%%
+df_jja_2023 = df.loc["2023-06":"2023-08"]
+
+# monthly mean of df_jja_2023
+df_jja_2023_monthly = df_jja_2023.resample("M").mean()
+#%%
+df_jja_2023_monthly.index = pd.to_datetime(['2023-06-01', '2023-07-01', '2023-08-01'])
+df_jja_2023_monthly = df_jja_2023_monthly.to_xarray()
+df_jja_2023_monthly = df_jja_2023_monthly.rename({'index':'time'}).nao_index
 
 # %%
 #####################
@@ -112,23 +127,170 @@ plt.savefig(
 ERA5 = xr.open_dataset(
     "/work/mh0033/m300883/Tel_MMLE/data/ERA5/EOF_result/plev_50000_1940_2022_ERA5_all.nc"
 )
-ERA5 = ERA5.pc.sel(mode="NAO").squeeze()
+ERA5 = ERA5.pc.sel(mode="NAO").drop_vars(('mode','plev')).squeeze()
+
+# add also the data for 2023 from the daily data mean
+ERA5 = xr.concat([ERA5, df_jja_2023_monthly],dim = 'time')
+
 
 ERA5_nodec = xr.open_dataset(
     "/work/mh0033/m300883/Tel_MMLE/data/ERA5/EOF_result/plev_50000_1940_2022_ERA5_no_dec_all.nc"
 )
-ERA5_nodec = ERA5_nodec.pc.sel(mode="NAO").squeeze()
+ERA5_nodec = ERA5_nodec.pc.sel(mode="NAO").drop_vars('mode').squeeze()
 
 # %%
 fig, ax = plt.subplots(figsize=(6, 4))
-df_jja_2023.plot(ax=ax, kind="line", color="w", linewidth=2)
 
 ax.set_ylim(-3.2, 3.2)
 ax.set_yticks([-3, -1.5, 0, 1.5, 3])
 
-ax = era5_extreme_change.plot_era_nao_index(
-    ERA5,
-    ERA5_nodec,
-    ax,
+nao = ERA5
+NEW_nao = ERA5_nodec.sel(time=slice("1941", "2022"))
+
+
+# hline at y= 1.5 and -1.5
+threshod = 1.5
+ax.axhline(y=threshod, color="w", linestyle="dotted", linewidth=1)
+ax.axhline(y=-1 * threshod, color="w", linestyle="dotted", linewidth=1)
+ax.axhline(y=0, color="w", linestyle="dotted", linewidth=1)
+
+first_pos_org, first_neg_org, last_pos_org, last_neg_org = era5_extreme_change.count_extreme(
+    nao, threshod=threshod
+)
+first_pos_new, first_neg_new, last_pos_new, last_neg_new = era5_extreme_change.count_extreme(
+    NEW_nao, threshod=threshod
+)
+
+ax.plot(nao.values, color="white", alpha=1, lw=1.5, label="NAO")
+# ax.plot(NEW_nao.values, color="red", lw=0.5, label="NAO no decade")
+
+# vline at x = 1981
+xmin, xmax = ax.get_xlim()
+xmid = (xmin + xmax) / 2
+# ax.axvline(x=xmid, color="g", linestyle="--")
+ax.set_yticks([-3, -1.5, 0, 1.5, 3])
+
+
+ax.spines["right"].set_visible(False)
+ax.spines["top"].set_visible(False)
+# change the ticks
+ax.tick_params(
+    axis="x",
+    which="major",
+    direction="out",
+    pad=2,
+    labelsize=7,
+    labelcolor="white",
+)
+
+ax.tick_params(
+    axis="y",
+    which="major",
+    direction="out",
+    pad=2,
+    labelsize=7,
+    labelcolor="white",
+)
+
+# set null to minor ticks
+ax.xaxis.set_minor_locator(mpl.ticker.NullLocator())
+ax.yaxis.set_minor_locator(mpl.ticker.NullLocator())
+
+# # put the count as text on the plot
+# # pos
+# ax.text(
+#     0.20,
+#     0.99,
+#     f"1941-1981: {first_pos_org}",
+#     transform=ax.transAxes,
+#     fontsize=7,
+#     color="gray",
+#     alpha=0.8,
+#     verticalalignment="top",
+# )
+# ax.text(
+#     0.55,
+#     0.99,
+#     f"1982-2022: {last_pos_org}",
+#     transform=ax.transAxes,
+#     fontsize=7,
+#     color="gray",
+#     alpha=0.8,
+#     verticalalignment="top",
+# )
+
+# ax.text(
+#     0.20,
+#     0.93,
+#     f"1941-1981: {first_pos_new}",
+#     transform=ax.transAxes,
+#     fontsize=7,
+#     color = 'red',
+#     alpha=0.8,
+#     verticalalignment="top",
+# )
+# ax.text(
+#     0.55,
+#     0.93,
+#     f"1982-2022: {last_pos_new}",
+#     transform=ax.transAxes,
+#     fontsize=7,
+#     color = 'red',
+#     alpha=0.8,
+#     verticalalignment="top",
+# )
+
+# # neg
+# ax.text(
+#     0.20,
+#     0.15,
+#     f"1941-1981: {first_neg_org}",
+#     transform=ax.transAxes,
+#     fontsize=7,
+#     color="gray",
+#     alpha=0.8,
+#     verticalalignment="top",
+# )
+# ax.text(
+#     0.55,
+#     0.15,
+#     f"1982-2022: {last_neg_org}",
+#     transform=ax.transAxes,
+#     fontsize=7,
+#     color="gray",
+#     alpha=0.8,
+#     verticalalignment="top",
+# )
+
+# ax.text(
+#     0.20,
+#     0.10,
+#     f"1941-1981: {first_neg_new}",
+#     transform=ax.transAxes,
+#     fontsize=7,
+#     color = 'red',
+#     alpha=0.8,
+#     verticalalignment="top",
+# )
+# ax.text(
+#     0.55,
+#     0.10,
+#     f"1982-2022: {last_neg_new}",
+#     transform=ax.transAxes,
+#     fontsize=7,
+#     color = 'red',
+#     alpha=0.8,
+#     verticalalignment="top",
+# )
+# ax.set_title("")
+# ax.legend(loc="top", fontsize=7, frameon=False)
+ax.xaxis.set_major_locator(
+    ticker.FixedLocator(np.arange(-1, 246, 30))
+)  # every 10 years (JJA)
+ax.xaxis.set_major_formatter(plt.FuncFormatter(era5_extreme_change.format_year_summer))
+# ax.set_xlim(-1, 246)
+ax.set_ylabel("NAO standard deviation")
+plt.savefig(
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/imprs_retreat/nao_index_1941_2022_threshod.pdf",
 )
 # %%

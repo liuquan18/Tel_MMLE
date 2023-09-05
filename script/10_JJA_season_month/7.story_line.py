@@ -64,7 +64,7 @@ def read_extrc(model):
     return ds
 
 
-def read_composite(model, var_name,reduction = 'mean_same_number'):
+def read_composite(model, var_name,reduction = 'mean'):
     """read composite data"""
     odir = "/work/mh0033/m300883/Tel_MMLE/data/"
     comp_name = f"plev_50000_decade_mpi_first_JJA_JJA_first_last_{var_name}_composite_{reduction}.nc"
@@ -322,7 +322,7 @@ axes,maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes)
 fig3.colorbar(maps[0], loc="b", pad=1, title=f"tsurf / K",width = 0.1,shrink=1)
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/composite_tsurf_pos_same_number.png",
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/Story_line_nature_climate_change/composite_tsurf_pos.png",
     dpi=300,
     bbox_inches="tight",
 )
@@ -369,7 +369,7 @@ axes,maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes,ex
 fig4.colorbar(maps[0], loc="b", pad=1, title=f"tsurf / K",width = 0.1,shrink=1)
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/composite_tsurf_neg_same_number.png",
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/Story_line_nature_climate_change/composite_tsurf_neg.png",
     dpi=300,
     bbox_inches="tight",
 )
