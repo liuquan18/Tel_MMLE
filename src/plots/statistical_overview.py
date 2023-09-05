@@ -233,7 +233,7 @@ def index_distribution_plot(hist_ax, first_pc, last_pc = None):
         bins=np.arange(-4, 4.1, 0.5),
         legend=False,
         ax=hist_ax,
-        stat= "probability",
+        stat= "frequency",
     )
 
     hist_ax.format(grid=False, 
