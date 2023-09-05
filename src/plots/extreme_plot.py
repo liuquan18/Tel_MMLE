@@ -628,8 +628,8 @@ def extrc_time_line(extrcs, **kwargs):
     return fig
 
 def extrc_time_line_single(extrcs, extr_type, ax, ylim = (20, 280),mode = 'NAO',ci = False):
-    models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
-    colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
+    models = ["MPI_GE", "MPI_GE_onepct","CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+    colors_model = ["C1", "red", "tab:purple", "tab:blue", "tab:green", "C4"]
     model_color = dict(zip(models, colors_model))
 
     lines = []
@@ -652,7 +652,7 @@ def extrc_time_line_single(extrcs, extr_type, ax, ylim = (20, 280),mode = 'NAO',
                 extrc.sel(extr_type=extr_type,mode = mode,confidence = 'low').values,
                 extrc.sel(extr_type=extr_type,mode = mode,confidence = 'high').values,
                 color = model_color[model],
-                alpha = 0.15,
+                alpha = 0.3,
             )
         lines.append(line)
 
