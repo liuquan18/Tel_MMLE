@@ -37,12 +37,13 @@ def read_box_stats(model):
     return pos_var, neg_var
 
 
-def read_slope_std(model,var='std'):
+def read_slope_stat(model,var='end_std'):
     slope_name = (
-        f"/work/mh0033/m300883/Tel_MMLE/data/{model}/box_based/slope_of_ens_{var}.nc"
+        f"/work/mh0033/m300883/Tel_MMLE/data/{model}/box_based/slope_of_{var}.nc"
     )
     slope = xr.open_dataset(slope_name)
     return slope
+
 
 
 # %%
@@ -55,6 +56,7 @@ vars_neg = {}
 
 slopes_ens_std = {}  # the slope of the ensemble std over the whole North Atlantic sector
 slopes_ens_mean = {}
+slopes_ens_extrc = {}
 
 models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
 
@@ -68,12 +70,15 @@ for model in models:
     vars_pos[model] = pos_var
     vars_neg[model] = neg_var
 
-    slope_std = read_slope_std(model, var='std')
+    slope_std = read_slope_stat(model, var='ens_std')
     slopes_ens_std[model] = slope_std
 
-    slope_mean = read_slope_std(model, var='mean')
+    slope_mean = read_slope_stat(model, var='ens_mean')
     slopes_ens_mean[model] = slope_mean
 
+
+    slope_extrc = read_slope_stat(model, var='gph_extrc')
+    slopes_ens_extrc[model] = slope_extrc
 
 
 # %%
@@ -106,6 +111,8 @@ def plot_slope_std_singleModel(ax, slope, sig = False):
         linestyle="solid",
         transform=ccrs.PlateCarree(),
         add_colorbar=False,
+        levels = np.arange(-0.8,0.9,0.2),
+        extend = 'both'
     )
 
     if sig:
@@ -186,7 +193,7 @@ plt.savefig(
 )
 
 #%%
-# plot the variability, pos as solid line, neg as dashed line
+# plot the variability of the positive and negative center over time
 fig2, axes = plt.subplots(figsize=(8, 5), ncols=2, nrows=1, sharey=True)
 colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
 
@@ -214,7 +221,7 @@ plt.savefig(
 )
 
 # %%
-
+# slope of the variability along ensemble dimension over time
 fig3 = pplt.figure(figsize=(180 / 25.4, 150 / 25.4), sharex=False, sharey=False)
 fig3.format(
     abc=True,
@@ -254,7 +261,7 @@ plt.savefig(
 
 
 # %%
-
+# Fig 4: slope of the std and mean along ensemble dimension over time
 fig4 = pplt.figure(figsize=(180 / 25.4, 150 / 25.4), sharex=False, sharey=False)
 fig4.format(
     abc=True,
@@ -307,3 +314,40 @@ plt.savefig(
 
 
 # %%
+# Fig 5: slope of the extreme events along ensemble dimension over time
+fig5 = pplt.figure(figsize=(180 / 25.4, 150 / 25.4), sharex=False, sharey=False)
+fig5.format(
+    abc=True,
+    abcloc="ul",
+    abcstyle="a",
+)
+
+axes = fig5.subplots(
+    ncols=3,
+    nrows=2,
+    proj="ortho",
+    proj_kw={"lon_0": -20, "lat_0": 60},
+)
+
+for i, ax in enumerate(axes):
+    model = models[i]
+    ax = plot_box_outline(45, 60, -30, 0, ax, "solid")
+    ax = plot_box_outline(60, 75, -75, -50, ax, "dashed")
+    ax, map = plot_slope_std_singleModel(ax=axes[i], slope=slopes_ens_std[model])
+    ax.format(
+        lonlines=20,
+        latlines=30,
+        coast=True,
+        coastlinewidth=0.5,
+        coastcolor="charcoal",
+        title=f"{models_legend[i]}",
+    )
+
+fig5.colorbar(map, 
+              orientation="horizontal", 
+              shrink=0.5, 
+              loc="b",
+              title = 'slope of the variability along ensemble dimension every ten years')
+plt.savefig(
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/slope_ens_std.png"
+)
