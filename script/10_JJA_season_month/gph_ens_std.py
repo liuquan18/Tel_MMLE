@@ -15,8 +15,9 @@ importlib.reload(gph_statistic)
 
 # %%
 class gph_stats:
-    def __init__(self,model) -> None:
+    def __init__(self,model,standard = 'first10') -> None:
         self.model = model
+        self.standard = standard
 
         # dir to save the result
         self.to_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/box_based/"
@@ -38,7 +39,7 @@ class gph_stats:
 
         # slope of the extreme events occurence
         print("-----------------------")
-        self.slopeExtrc = self.slope_gph_extrc()
+        self.slopeExtrc = self.slope_gph_extrc(standard = self.standard)
 
     
     def box_varibility(self):
@@ -85,10 +86,10 @@ class gph_stats:
         slope = gph_statistic.slope_gph_extrc(self.model,**kwargs)
 
         try:
-            slope.to_netcdf(self.to_dir + "slope_of_gph_extrc.nc")
+            slope.to_netcdf(self.to_dir + f"slope_of_gph_extrc_{self.standard}.nc")
         except PermissionError:
-            os.remove(self.to_dir + "slope_of_gph_extrc.nc")
-            slope.to_netcdf(self.to_dir + "slope_of_gph_extrc.nc")
+            os.remove(self.to_dir + f"slope_of_gph_extrc_{self.standard}.nc")
+            slope.to_netcdf(self.to_dir + f"slope_of_gph_extrc_{self.standard}.nc")
 
 # %%
 models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
@@ -101,4 +102,4 @@ model = models[num - 1]
 
 #%%
 print(f"**********{model}**********")
-gph_stats(model)
+gph_stats(model,standard='all')
