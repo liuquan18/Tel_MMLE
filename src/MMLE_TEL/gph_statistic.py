@@ -54,6 +54,7 @@ def standardize_arr(arr, standard="first10", dim="com"):
         arr_box_mean = arr.mean(dim=dim)
         arr_box_std = arr.std(dim=dim)
         arr_standard = (arr - arr_box_mean) / arr_box_std
+        arr_standard = arr_standard.unstack()
     return arr_standard
 
 
