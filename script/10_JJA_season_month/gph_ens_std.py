@@ -68,9 +68,9 @@ class gph_stats:
 
 
     
-    def slope_ens_mean(self):
+    def slope_ens_mean(self,**kwargs):
         print("calculating the slope of ens mean ...")
-        slope = gph_statistic.slope_ens_mean(self.model)
+        slope = gph_statistic.slope_ens_mean(self.model,**kwargs)
         # mkdir if not exist
         # create directory if it does not exist
 
@@ -80,9 +80,9 @@ class gph_stats:
             os.remove(self.to_dir + "slope_of_ens_mean.nc")
             slope.to_netcdf(self.to_dir + "slope_of_ens_mean.nc")
 
-    def slope_gph_extrc(self):
+    def slope_gph_extrc(self,**kwargs):
         print("counting the extreme events ...")
-        slope = gph_statistic.slope_gph_extrc(self.model)
+        slope = gph_statistic.slope_gph_extrc(self.model,**kwargs)
 
         try:
             slope.to_netcdf(self.to_dir + "slope_of_gph_extrc.nc")

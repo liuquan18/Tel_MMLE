@@ -225,8 +225,8 @@ def gph_extrc(model, **kwargs):
     return zg_count_pos, zg_count_neg
 
 #%%
-def slope_gph_extrc(model):
-    zg_count_pos, zg_count_neg = gph_extrc(model)
+def slope_gph_extrc(model, **kwargs):
+    zg_count_pos, zg_count_neg = gph_extrc(model, **kwargs)
 
     # calculate the slope and pvalue
     result_pos = xr.apply_ufunc(
