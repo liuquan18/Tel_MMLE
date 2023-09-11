@@ -32,9 +32,13 @@ class gph_stats:
         # print("-----------------------")
         # self.slopeStd = self.slope_ens_std()
 
-        # slope of the ensemble mean
+        # # slope of the ensemble mean
+        # print("-----------------------")
+        # self.slopeMean = self.slope_ens_mean()
+
+        # slope of the extreme events occurence
         print("-----------------------")
-        self.slopeMean = self.slope_ens_mean()
+        self.slopeExtrc = self.slope_gph_extrc()
 
     
     def box_varibility(self):
@@ -75,6 +79,16 @@ class gph_stats:
         except PermissionError:
             os.remove(self.to_dir + "slope_of_ens_mean.nc")
             slope.to_netcdf(self.to_dir + "slope_of_ens_mean.nc")
+
+    def slope_gph_extrc(self):
+        print("counting the extreme events ...")
+        slope = gph_statistic.slope_gph_extrc(self.model)
+
+        try:
+            slope.to_netcdf(self.to_dir + "slope_of_gph_extrc.nc")
+        except PermissionError:
+            os.remove(self.to_dir + "slope_of_gph_extrc.nc")
+            slope.to_netcdf(self.to_dir + "slope_of_gph_extrc.nc")
 
 # %%
 models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
