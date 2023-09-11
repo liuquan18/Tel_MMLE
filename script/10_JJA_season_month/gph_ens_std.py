@@ -26,7 +26,7 @@ class gph_stats:
 
         # # box statistics
         # print("-----------------------")
-        # # self.boxStats = self.box_stats()
+        # # self.boxStats = self.box_varibility()
 
         # # slope of the ensemble std
         # print("-----------------------")
@@ -37,7 +37,7 @@ class gph_stats:
         self.slopeMean = self.slope_ens_mean()
 
     
-    def box_stats(self):
+    def box_varibility(self):
         print(f"calculating the variability of {self.model} ...")
         model_pos, model_neg = gph_statistic.box_variability(self.model)
         # mkdir if not exist
