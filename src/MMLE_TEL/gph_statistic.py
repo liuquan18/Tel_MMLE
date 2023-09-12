@@ -57,6 +57,22 @@ def standardize_arr(arr, standard="first10", dim="com"):
         arr_standard = arr_standard.unstack()
     return arr_standard
 
+def box_arr_cov(box_mean,arr):
+    """
+    calculate the covariability between a temporal-ens box mean (time*ens x 1) 
+    and the spatial-temporalens array (time*ens x lat x lon)
+    """
+    x = box_mean.stack(com = ("time","ens"))
+    y = arr.stack(com=("time", "ens"))
+    y = y.transpose("com","lat","lon").values
+    cov = np.cov(x,y.reshape(y.shape[0],-1),rowvar=False)
+
+    # extract covariability between box mean and each grid point
+    cov_xy = cov[0,1:].reshape(y.shape[1],y.shape[2])
+
+    cov_xy = xr.DataArray(cov_xy, dims=("lat","lon"), coords={"lat":arr.lat,"lon":arr.lon})
+
+    return cov_xy
 
 def stats_arr(arr, statis="std", **kwargs):
     if statis == "std":
@@ -75,9 +91,13 @@ def stats_arr(arr, statis="std", **kwargs):
         arr_com = arr.stack(com=("time", "ens"))
         # count the number of events above 1.5
         arr_stat = arr_com.where(arr_com < -1 * threshold).count(dim="com")
-    elif statis == "slope":
-        arr = arr.stack(com=("time", "ens"))
-        arr_stat = arr.polyfit(dim="com", deg=1)
+    elif statis == "cov_pos":
+        box_mean = box_spatial_mean(arr, 45, 60, -30, 0)
+        arr_stat = box_arr_cov(box_mean,arr)
+    elif statis == "cov_neg":
+        box_mean = box_spatial_mean(arr, 60, 75, -75, -50)
+        arr_stat = box_arr_cov(box_mean,arr)
+
     else:
         print("please input the correct statistic method")
 
