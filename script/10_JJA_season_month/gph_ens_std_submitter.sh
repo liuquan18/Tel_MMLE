@@ -7,7 +7,7 @@
 #SBATCH --mem=0
 #SBATCH --mail-type=FAIL
 #SBATCH --account=mh0033
-#SBATCH --output=slope_forced.%j.out
+#SBATCH --output=slope_99.%j.out
 
 
 mpirun -np 1 python -u gph_ens_std.py $1 $2 $3

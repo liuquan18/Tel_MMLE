@@ -29,21 +29,21 @@ class gph_stats:
         # print("-----------------------")
         # # self.boxStats = self.box_varibility()
 
-        # # slope of the ensemble std
-        # print("-----------------------")
-        # self.slopeStd = self.slope_ens_std()
+        # slope of the ensemble std
+        print("-----------------------")
+        self.slopeStd = self.slope_ens_std()
 
-        # # slope of the ensemble mean
-        # print("-----------------------")
-        # self.slopeMean = self.slope_ens_mean()
+        # slope of the ensemble mean
+        print("-----------------------")
+        self.slopeMean = self.slope_ens_mean()
 
         # # slope of the extreme events occurence
         # print("-----------------------")
         # self.slopeExtrc = self.slope_gph_extrc(standard = self.standard)
 
-        # slope of the box covariance
-        print("-----------------------")
-        self.slopeCov = self.slope_box_cov(standard = self.standard)
+        # # slope of the box covariance
+        # print("-----------------------")
+        # self.slopeCov = self.slope_box_cov(standard = self.standard)
 
     
     def box_varibility(self):
@@ -59,6 +59,17 @@ class gph_stats:
             os.remove(self.to_dir + "neg_var.nc")
             model_pos.to_netcdf(self.to_dir + "pos_var.nc")
             model_neg.to_netcdf(self.to_dir + "neg_var.nc")
+
+    def ens_std(self):
+        print("calculating the ensemble std ...")
+        std = gph_statistic.ens_std(self.model)
+        # mkdir if not exist
+        # create directory if it does not exist
+        try:
+            std.to_netcdf(self.to_dir + "ens_std.nc")
+        except PermissionError:
+            os.remove(self.to_dir + "ens_std.nc")
+            std.to_netcdf(self.to_dir + "ens_std.nc")
     
     def slope_ens_std(self):
         print(f"calculating the slope of std {self.model} ...")
@@ -70,7 +81,6 @@ class gph_stats:
         except PermissionError:
             os.remove(self.to_dir + "slope_of_ens_std.nc")
             slope.to_netcdf(self.to_dir + "slope_of_ens_std.nc")
-
 
     
     def slope_ens_mean(self,**kwargs):
