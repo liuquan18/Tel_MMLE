@@ -142,19 +142,19 @@ def box_spatial_mean(xarr, blat, tlat, llon, rlon):
 def box_variability(model):
     zg = read_gph_data(model)
 
-    pos_var = zg.resample(time="10AS-JUN").apply(NAO_pos_center, statis="std")
-    neg_var = zg.resample(time="10AS-JUN").apply(NAO_neg_center, statis="std")
+    pos_std = zg.resample(time="10AS-JUN").apply(NAO_pos_center, statis="std")
+    neg_std = zg.resample(time="10AS-JUN").apply(NAO_neg_center, statis="std")
 
 
-    return pos_var, neg_var
+    return pos_std, neg_std
 
 
 def box_mean(model):
     zg = read_gph_data(model)
 
-    pos_var = zg.resample(time="10AS-JUN").apply(NAO_pos_center, statis="mean")
-    neg_var = zg.resample(time="10AS-JUN").apply(NAO_neg_center, statis="mean")
-    return pos_var, neg_var
+    pos_mean = zg.resample(time="10AS-JUN").apply(NAO_pos_center, statis="mean")
+    neg_mean = zg.resample(time="10AS-JUN").apply(NAO_neg_center, statis="mean")
+    return pos_mean, neg_mean
 
 
 
@@ -246,9 +246,6 @@ def gph_extrc(model, **kwargs):
         stats_arr, statis="count_neg"
     )
 
-    # exclude the last 10 years which is not complete
-    zg_count_pos = zg_count_pos[:-1]
-    zg_count_neg = zg_count_neg[:-1]
 
     return zg_count_pos, zg_count_neg
 
@@ -297,7 +294,7 @@ def slope_box_cov(model, **kwargs):
     result_pos = xr.apply_ufunc(
         linregress_ufunc,
         pos_cov,
-        input_core_dims=[["lat","lon"]],
+        input_core_dims=[["time"]],
         output_core_dims=[[], []],
         vectorize=True,
     )
@@ -305,7 +302,20 @@ def slope_box_cov(model, **kwargs):
     result_neg = xr.apply_ufunc(
         linregress_ufunc,
         neg_cov,
-        input_core_dims=[["lat","lon"]],
+        input_core_dims=[["time"]],
         output_core_dims=[[], []],
         vectorize=True,
     )
+
+    # convert result to DataArray
+    slope_pos_da = result_pos[0].rename("slope")
+    pvalue_pos_da = result_pos[1].rename("pvalue")
+
+    slope_neg_da = result_neg[0].rename("slope")
+    pvalue_neg_da = result_neg[1].rename("pvalue")
+
+    # create a new dataset and add the slope_da and pvalue_da as variables
+    result_ds = xr.Dataset(
+        {"slope_pos": slope_pos_da, "pvalue_pos": pvalue_pos_da, "slope_neg": slope_neg_da, "pvalue_neg": pvalue_neg_da}
+    )
+    return result_ds
