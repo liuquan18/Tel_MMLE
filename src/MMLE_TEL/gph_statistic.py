@@ -61,22 +61,26 @@ def standardize_arr(arr, standard="first10", dim="com"):
         arr_standard = arr_standard.unstack()
     return arr_standard
 
-def box_arr_cov(box_mean,arr):
+
+def box_arr_cov(box_mean, arr):
     """
-    calculate the covariability between a temporal-ens box mean (time*ens x 1) 
+    calculate the covariability between a temporal-ens box mean (time*ens x 1)
     and the spatial-temporalens array (time*ens x lat x lon)
     """
-    x = box_mean.stack(com = ("time","ens"))
+    x = box_mean.stack(com=("time", "ens"))
     y = arr.stack(com=("time", "ens"))
-    y = y.transpose("com","lat","lon").values
-    cov = np.cov(x,y.reshape(y.shape[0],-1),rowvar=False)
+    y = y.transpose("com", "lat", "lon").values
+    cov = np.cov(x, y.reshape(y.shape[0], -1), rowvar=False)
 
     # extract covariability between box mean and each grid point
-    cov_xy = cov[0,1:].reshape(y.shape[1],y.shape[2])
+    cov_xy = cov[0, 1:].reshape(y.shape[1], y.shape[2])
 
-    cov_xy = xr.DataArray(cov_xy, dims=("lat","lon"), coords={"lat":arr.lat,"lon":arr.lon})
+    cov_xy = xr.DataArray(
+        cov_xy, dims=("lat", "lon"), coords={"lat": arr.lat, "lon": arr.lon}
+    )
 
     return cov_xy
+
 
 def stats_arr(arr, statis="std", **kwargs):
     if statis == "std":
@@ -97,10 +101,10 @@ def stats_arr(arr, statis="std", **kwargs):
         arr_stat = arr_com.where(arr_com < -1 * threshold).count(dim="com")
     elif statis == "cov_pos":
         box_mean = box_spatial_mean(arr, 45, 60, -30, 0)
-        arr_stat = box_arr_cov(box_mean,arr)
+        arr_stat = box_arr_cov(box_mean, arr)
     elif statis == "cov_neg":
         box_mean = box_spatial_mean(arr, 60, 75, -75, -50)
-        arr_stat = box_arr_cov(box_mean,arr)
+        arr_stat = box_arr_cov(box_mean, arr)
 
     else:
         print("please input the correct statistic method")
@@ -145,7 +149,6 @@ def box_variability(model):
     pos_std = zg.resample(time="10AS-JUN").apply(NAO_pos_center, statis="std")
     neg_std = zg.resample(time="10AS-JUN").apply(NAO_neg_center, statis="std")
 
-
     return pos_std, neg_std
 
 
@@ -155,7 +158,6 @@ def box_mean(model):
     pos_mean = zg.resample(time="10AS-JUN").apply(NAO_pos_center, statis="mean")
     neg_mean = zg.resample(time="10AS-JUN").apply(NAO_neg_center, statis="mean")
     return pos_mean, neg_mean
-
 
 
 def NAO_pos_center(zg, statis="std"):
@@ -179,10 +181,15 @@ def linregress_ufunc(x):
 
 
 # %%
-def slope_ens_std(model):
+def ens_std(model):
     zg = read_gph_data(model)
     zg.load()
     zg_std = zg.resample(time="10AS-JUN").apply(stats_arr, statis="std")
+    return zg_std
+
+
+def slope_ens_std(model):
+    zg_std = ens_std(model)
 
     result = xr.apply_ufunc(
         linregress_ufunc,
@@ -246,10 +253,10 @@ def gph_extrc(model, **kwargs):
         stats_arr, statis="count_neg"
     )
 
-
     return zg_count_pos, zg_count_neg
 
-#%%
+
+# %%
 def slope_gph_extrc(model, **kwargs):
     zg_count_pos, zg_count_neg = gph_extrc(model, **kwargs)
 
@@ -279,13 +286,18 @@ def slope_gph_extrc(model, **kwargs):
 
     # create a new dataset and add the slope_da and pvalue_da as variables
     result_ds = xr.Dataset(
-        {"slope_pos": slope_pos_da, "pvalue_pos": pvalue_pos_da, "slope_neg": slope_neg_da, "pvalue_neg": pvalue_neg_da}
+        {
+            "slope_pos": slope_pos_da,
+            "pvalue_pos": pvalue_pos_da,
+            "slope_neg": slope_neg_da,
+            "pvalue_neg": pvalue_neg_da,
+        }
     )
     return result_ds
 
-#%%
-def box_cov(model, **kwargs):
 
+# %%
+def box_cov(model, **kwargs):
     zg = read_gph_data(model)
     zg.load()
 
@@ -294,9 +306,9 @@ def box_cov(model, **kwargs):
 
     return pos_cov, neg_cov
 
+
 # %%
 def slope_box_cov(model, **kwargs):
-
     pos_cov, neg_cov = box_cov(model, **kwargs)
     # calculate the slope and pvalue
     result_pos = xr.apply_ufunc(
@@ -324,6 +336,11 @@ def slope_box_cov(model, **kwargs):
 
     # create a new dataset and add the slope_da and pvalue_da as variables
     result_ds = xr.Dataset(
-        {"slope_pos": slope_pos_da, "pvalue_pos": pvalue_pos_da, "slope_neg": slope_neg_da, "pvalue_neg": pvalue_neg_da}
+        {
+            "slope_pos": slope_pos_da,
+            "pvalue_pos": pvalue_pos_da,
+            "slope_neg": slope_neg_da,
+            "pvalue_neg": pvalue_neg_da,
+        }
     )
     return result_ds
