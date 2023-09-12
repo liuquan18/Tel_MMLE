@@ -135,19 +135,6 @@ def box_spatial_mean(xarr, blat, tlat, llon, rlon):
     return arr_box_spatial_mean
 
 
-def NAO_pos_center(zg, statis="std"):
-    pos_box_spa_mean = box_spatial_mean(zg, 45, 60, -30, 0)
-    pos_box_std = stats_arr(pos_box_spa_mean, statis=statis)
-    return pos_box_std
-
-
-def NAO_neg_center(zg, statis="std"):
-    neg_box = box_spatial_mean(zg, 60, 75, -75, -50)
-    neg_box_std = stats_arr(neg_box, statis=statis)
-    return neg_box_std
-    # spaital mean with weights
-
-
 def box_variability(model):
     zg = read_gph_data(model)
 
@@ -164,11 +151,25 @@ def box_mean(model):
     return pos_var, neg_var
 
 
+
+def NAO_pos_center(zg, statis="std"):
+    pos_box_spa_mean = box_spatial_mean(zg, 45, 60, -30, 0)
+    pos_box_std = stats_arr(pos_box_spa_mean, statis=statis)
+    return pos_box_std
+
+
+def NAO_neg_center(zg, statis="std"):
+    neg_box = box_spatial_mean(zg, 60, 75, -75, -50)
+    neg_box_std = stats_arr(neg_box, statis=statis)
+    return neg_box_std
+    # spaital mean with weights
+
+
 # %%
 # define function to calculate slope and p-value
 def linregress_ufunc(x):
     slope, _, r_value, p_value, _ = linregress(np.arange(len(x)), x)
-    return slope, p_value < 0.05
+    return slope, p_value
 
 
 # %%
