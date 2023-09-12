@@ -37,9 +37,13 @@ class gph_stats:
         # print("-----------------------")
         # self.slopeMean = self.slope_ens_mean()
 
-        # slope of the extreme events occurence
+        # # slope of the extreme events occurence
+        # print("-----------------------")
+        # self.slopeExtrc = self.slope_gph_extrc(standard = self.standard)
+
+        # slope of the box covariance
         print("-----------------------")
-        self.slopeExtrc = self.slope_gph_extrc(standard = self.standard)
+        self.slopeCov = self.slope_box_cov(standard = self.standard)
 
     
     def box_varibility(self):
@@ -86,10 +90,21 @@ class gph_stats:
         slope = gph_statistic.slope_gph_extrc(self.model,**kwargs)
 
         try:
-            slope.to_netcdf(self.to_dir + f"slope_of_gph_extrc_{self.standard}.nc")
+            slope.to_netcdf(self.to_dir + f"slope_of_gph_extrc.nc")
         except PermissionError:
-            os.remove(self.to_dir + f"slope_of_gph_extrc_{self.standard}.nc")
-            slope.to_netcdf(self.to_dir + f"slope_of_gph_extrc_{self.standard}.nc")
+            os.remove(self.to_dir + f"slope_of_gph_extrc.nc")
+            slope.to_netcdf(self.to_dir + f"slope_of_gph_extrc.nc")
+
+
+    def slope_box_cov(self,**kwargs):
+        print("calculating the slope of box covariance ...")
+        slope = gph_statistic.slope_box_cov(self.model,**kwargs)
+
+        try:
+            slope.to_netcdf(self.to_dir + f"slope_of_box_cov.nc")
+        except PermissionError:
+            os.remove(self.to_dir + f"slope_of_box_cov.nc")
+            slope.to_netcdf(self.to_dir + f"slope_of_box_cov.nc")
 
 # %%
 models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]

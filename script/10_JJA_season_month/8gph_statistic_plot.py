@@ -104,19 +104,19 @@ def plot_box_outline(lat, ulat, llon, rlon, ax, linestyle="solid"):
     return ax
 
 
-def plot_slope_std_singleModel(ax, slope, sig = False):
-    map = slope.slope.plot(
+def plot_slope_std_singleModel(ax, slope,pvalue, sig = False,levels = np.arange(-0.8,0.9,0.2)):
+    map = slope.plot(
         ax=ax,
         color="black",
         linestyle="solid",
         transform=ccrs.PlateCarree(),
         add_colorbar=False,
-        levels = np.arange(-0.8,0.9,0.2),
+        levels = levels,
         extend = 'both'
     )
 
     if sig:
-        sig = slope.pvalue.plot.contourf(
+        sig = slope.plot.contourf(
             ax=ax,
             levels=[0, 0.05],
             colors="none",
@@ -240,7 +240,7 @@ for i, ax in enumerate(axes):
     model = models[i]
     ax = plot_box_outline(45, 60, -30, 0, ax, "solid")
     ax = plot_box_outline(60, 75, -75, -50, ax, "dashed")
-    ax, map = plot_slope_std_singleModel(ax=axes[i], slope=slopes_ens_std[model])
+    ax, map = plot_slope_std_singleModel(ax=axes[i], slope=slopes_ens_std[model].slope, pvalue=slopes_ens_std[model].pvalue, sig = True)
     ax.format(
         lonlines=20,
         latlines=30,
@@ -280,7 +280,7 @@ for i, ax in enumerate(axes):
     model = models[i]
 
     try:
-        ax, map_std = plot_slope_std_singleModel(ax=axes[i], slope=slopes_ens_std[model])
+        ax, map_std = plot_slope_std_singleModel(ax=axes[i], slope=slopes_ens_std[model].slope, pvalue=slopes_ens_std[model].pvalue)
     except:
         pass
     try:
@@ -314,7 +314,7 @@ plt.savefig(
 
 
 # %%
-# Fig 5: slope of the extreme events along ensemble dimension over time
+# Fig 5: slope of the pos extreme events along ensemble dimension over time
 fig5 = pplt.figure(figsize=(180 / 25.4, 150 / 25.4), sharex=False, sharey=False)
 fig5.format(
     abc=True,
@@ -333,7 +333,10 @@ for i, ax in enumerate(axes):
     model = models[i]
     ax = plot_box_outline(45, 60, -30, 0, ax, "solid")
     ax = plot_box_outline(60, 75, -75, -50, ax, "dashed")
-    ax, map = plot_slope_std_singleModel(ax=axes[i], slope=slopes_ens_std[model])
+    ax, map = plot_slope_std_singleModel(ax=axes[i], 
+                                        slope=slopes_ens_extrc[model].slope_pos,
+                                        pvalue=slopes_ens_extrc[model].pvalue_pos,
+                                        levels = np.arange(-4,5,1),)
     ax.format(
         lonlines=20,
         latlines=30,
@@ -347,7 +350,53 @@ fig5.colorbar(map,
               orientation="horizontal", 
               shrink=0.5, 
               loc="b",
-              title = 'slope of the variability along ensemble dimension every ten years')
+              title = 'slope of the extreme occurence every ten years')
+
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/slope_ens_std.png"
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/slope_pos_extrc.png"
 )
+
+# %%
+# Fig 5: slope of the neg extreme events along ensemble dimension over time
+fig6 = pplt.figure(figsize=(180 / 25.4, 150 / 25.4), sharex=False, sharey=False)
+fig6.format(
+    abc=True,
+    abcloc="ul",
+    abcstyle="a",
+)
+
+axes = fig6.subplots(
+    ncols=3,
+    nrows=2,
+    proj="ortho",
+    proj_kw={"lon_0": -20, "lat_0": 60},
+)
+
+for i, ax in enumerate(axes):
+    model = models[i]
+    ax = plot_box_outline(45, 60, -30, 0, ax, "solid")
+    ax = plot_box_outline(60, 75, -75, -50, ax, "dashed")
+    ax, map = plot_slope_std_singleModel(ax=axes[i], 
+                                        slope=slopes_ens_extrc[model].slope_neg,
+                                        pvalue=slopes_ens_extrc[model].pvalue_neg,
+                                        levels = np.arange(-4,5,1),)
+    ax.format(
+        lonlines=20,
+        latlines=30,
+        coast=True,
+        coastlinewidth=0.5,
+        coastcolor="charcoal",
+        title=f"{models_legend[i]}",
+    )
+
+fig6.colorbar(map, 
+              orientation="horizontal", 
+              shrink=0.5, 
+              loc="b",
+              title = 'slope of the extreme occurence every ten years')
+
+plt.savefig(
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/slope_neg_extrc.png"
+)
+
+# %%
