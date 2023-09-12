@@ -24,6 +24,10 @@ def read_gph_data(model, remove_ens_mean=True):
             )
         )
     data = xr.concat(data_JJA, dim="time").sortby("time")
+
+    # drop the year 2100 since it is not complete as a 10-year mean
+    data = data.sel(time=slice(None, "2099"))
+
     data = change_lon_to_180(data)
     return data
 
@@ -140,6 +144,8 @@ def box_variability(model):
 
     pos_var = zg.resample(time="10AS-JUN").apply(NAO_pos_center, statis="std")
     neg_var = zg.resample(time="10AS-JUN").apply(NAO_neg_center, statis="std")
+
+
     return pos_var, neg_var
 
 
@@ -280,3 +286,26 @@ def slope_gph_extrc(model, **kwargs):
     )
     return result_ds
 # %%
+def slope_box_cov(model, **kwargs):
+    zg = read_gph_data(model)
+    zg.load()
+
+    pos_cov = zg.resample(time="10AS-JUN").apply(stats_arr, statis="cov_pos")
+    neg_cov = zg.resample(time="10AS-JUN").apply(stats_arr, statis="cov_neg")
+
+    # calculate the slope and pvalue
+    result_pos = xr.apply_ufunc(
+        linregress_ufunc,
+        pos_cov,
+        input_core_dims=[["lat","lon"]],
+        output_core_dims=[[], []],
+        vectorize=True,
+    )
+
+    result_neg = xr.apply_ufunc(
+        linregress_ufunc,
+        neg_cov,
+        input_core_dims=[["lat","lon"]],
+        output_core_dims=[[], []],
+        vectorize=True,
+    )
