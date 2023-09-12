@@ -282,14 +282,22 @@ def slope_gph_extrc(model, **kwargs):
         {"slope_pos": slope_pos_da, "pvalue_pos": pvalue_pos_da, "slope_neg": slope_neg_da, "pvalue_neg": pvalue_neg_da}
     )
     return result_ds
-# %%
-def slope_box_cov(model, **kwargs):
+
+#%%
+def box_cov(model, **kwargs):
+
     zg = read_gph_data(model)
     zg.load()
 
     pos_cov = zg.resample(time="10AS-JUN").apply(stats_arr, statis="cov_pos")
     neg_cov = zg.resample(time="10AS-JUN").apply(stats_arr, statis="cov_neg")
 
+    return pos_cov, neg_cov
+
+# %%
+def slope_box_cov(model, **kwargs):
+
+    pos_cov, neg_cov = box_cov(model, **kwargs)
     # calculate the slope and pvalue
     result_pos = xr.apply_ufunc(
         linregress_ufunc,
