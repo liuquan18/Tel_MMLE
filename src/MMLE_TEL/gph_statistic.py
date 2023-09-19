@@ -41,7 +41,7 @@ def change_lon_to_180(zg):
 # %%
 
 
-def standardize_arr(arr, standard="first10", dim="com"):
+def standardize_arr(arr, standard="first10", dim="com",divide_std=True):
     """
     standard when count the extreme cases.
     """
@@ -52,12 +52,18 @@ def standardize_arr(arr, standard="first10", dim="com"):
         arr_ref = arr_ref.stack(com=("time", "ens"))
         arr_ref_mean = arr_ref.mean(dim=dim)
         arr_ref_std = arr_ref.std(dim=dim)
-        arr_standard = (arr - arr_ref_mean) / arr_ref_std
+        if divide_std:
+            arr_standard = (arr - arr_ref_mean) / arr_ref_std
+        else:
+            arr_standard = arr - arr_ref_mean
     elif standard == "all":
         arr = arr.stack(com=("time", "ens"))
         arr_box_mean = arr.mean(dim=dim)
         arr_box_std = arr.std(dim=dim)
-        arr_standard = (arr - arr_box_mean) / arr_box_std
+        if divide_std:
+            arr_standard = (arr - arr_box_mean) / arr_box_std
+        else:
+            arr_standard = arr - arr_box_mean
         arr_standard = arr_standard.unstack()
     return arr_standard
 
@@ -81,6 +87,36 @@ def box_arr_cov(box_mean, arr):
 
     return cov_xy
 
+def box_arr_cov_std(box_mean, arr):
+    """
+    same as box_arr_cov, but set the mean of x and y as zero when calculate the covariance.
+    the box_mean and arr should be removed the mean of time and ens of the first10 years.
+    """
+    x = box_mean.stack(com=("time", "ens"))
+    y = arr.stack(com=("time", "ens"))
+    y = y.transpose("com", "lat", "lon")
+
+    stadand_cov = xr.apply_ufunc(
+        std_cov,
+        x,
+        y,
+        input_core_dims=[["com"], ["com"]],
+        output_core_dims=[[]],
+        vectorize=True,
+    )
+
+    return stadand_cov
+
+def std_cov(x,y):
+    """
+    calculate covariance between x and y, but do not remove the mean of x and y.
+    """
+    n = len(x)
+    cov = np.sum(x * y) / (n - 1)
+    return cov
+
+
+
 
 def stats_arr(arr, statis="std", **kwargs):
     if statis == "std":
@@ -100,11 +136,19 @@ def stats_arr(arr, statis="std", **kwargs):
         # count the number of events above 1.5
         arr_stat = arr_com.where(arr_com < -1 * threshold).count(dim="com")
     elif statis == "cov_pos":
+        std_cov = kwargs.get("std_cov", False)
         box_mean = box_spatial_mean(arr, 45, 60, -30, 0)
-        arr_stat = box_arr_cov(box_mean, arr)
+        if std_cov:
+            arr_stat = box_arr_cov_std(box_mean, arr)
+        else:
+            arr_stat = box_arr_cov(box_mean, arr)
     elif statis == "cov_neg":
+        std_cov = kwargs.get("std_cov", False)
         box_mean = box_spatial_mean(arr, 60, 75, -75, -50)
-        arr_stat = box_arr_cov(box_mean, arr)
+        if std_cov:
+            arr_stat = box_arr_cov_std(box_mean, arr)
+        else:
+            arr_stat = box_arr_cov(box_mean, arr)
 
     else:
         print("please input the correct statistic method")

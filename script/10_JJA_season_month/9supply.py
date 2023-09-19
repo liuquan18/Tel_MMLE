@@ -77,7 +77,6 @@ def read_all_models(variable):
     return all_model_data
 # %%
 COMPOSITEs = read_all_models("composite")
-# %%
 
 # %%
 # Fig 3, composite plot of ts for positve extremes
@@ -117,7 +116,7 @@ axes.format(
 )
 
 axes,maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes,levels = np.arange(-60,61,10))
-fig3.colorbar(maps[0], loc="b", pad=1, title=f"tsurf / K",width = 0.1,shrink=1)
+fig3.colorbar(maps[0], loc="b", pad=1, title=f"gph/m",width = 0.1,shrink=1)
 
 plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/composite_zg_pos.png",
