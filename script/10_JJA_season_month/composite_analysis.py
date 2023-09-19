@@ -45,6 +45,10 @@ def read_var_months(model,var_name='ts'):
             JJA_f = JJA_f.var156
         except AttributeError:
             JJA_f = JJA_f.zg
+    elif var_name == 'u10':
+        JJA_f = JJA_f.u10
+    elif var_name == 'v10':
+        JJA_f = JJA_f.v10
 
     return JJA_f
 
@@ -112,3 +116,4 @@ if __name__ == '__main__':
     mean_all(num,rank)
 
 # %%
+composite('MPI_GE_onepct',var_name = 'u10')
