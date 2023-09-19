@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=cesm_remap
+#SBATCH --job-name=onepct_30
 #SBATCH --time=04:00:00
 #SBATCH --partition=compute
 #SBATCH --nodes=1
@@ -7,7 +7,7 @@
 #SBATCH --mem=0
 #SBATCH --mail-type=FAIL
 #SBATCH --account=mh0033
-#SBATCH --output=cesm_rmap.%j.out
+#SBATCH --output=onepct_30.%j.out
 
 
 mpirun -np 5 python -u index_generator.py $1 $2 $3
