@@ -13,20 +13,16 @@ import importlib
 importlib.reload(index_stats)
 importlib.reload(extrc_tsurf)
 
-# %%
-import multiprocessing as mp
-from multiprocessing import Pool
-
 #%%
-def read_var_months(model,var_name='ts'):
+def read_var_months(model,var_name='ts',remove_ensmean = True):
     odir = f'/work/mh0033/m300883/Tel_MMLE/data/{model}/'
     Jun_fl = odir + f'{var_name}_Jun/'
     Jul_fl = odir + f'{var_name}_Jul/'
     Aug_fl = odir + f'{var_name}_Aug/'
 
-    Jun_f = index_stats.read_var_data(Jun_fl)
-    Jul_f = index_stats.read_var_data(Jul_fl)
-    Aug_f = index_stats.read_var_data(Aug_fl)
+    Jun_f = index_stats.read_var_data(Jun_fl,remove_ensmean=remove_ensmean)
+    Jul_f = index_stats.read_var_data(Jul_fl,remove_ensmean=remove_ensmean)
+    Aug_f = index_stats.read_var_data(Aug_fl,remove_ensmean=remove_ensmean)
 
     JJA_f = xr.concat([Jun_f, Jul_f, Aug_f], dim='time')
     JJA_f = JJA_f.sortby('time')
@@ -53,7 +49,8 @@ def read_var_months(model,var_name='ts'):
     return JJA_f
 
 def composite(model,var_name='ts',reduction = 'mean',**kwargs):
-    var_data = read_var_months(model,var_name=var_name)
+    remove_ensmean = kwargs.get('remove_ensmean',True)
+    var_data = read_var_months(model,var_name=var_name,remove_ensmean=remove_ensmean)
     if var_name == 'zg':
         var_data = var_data.sel(plev=50000).drop('plev')
     index_stats.composite_analysis(
