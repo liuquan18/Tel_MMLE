@@ -44,7 +44,6 @@ def extreme_counts(
         extrc.to_netcdf(extr_counts_dir)
 
 
-
 # %%
 def decadal_tsurf(
     model,
@@ -69,6 +68,7 @@ def decadal_tsurf(
         os.remove(t_surf_mean_dir)
         tsurf_mean.to_netcdf(t_surf_mean_dir)
 
+
 # %%
 # read tsurf
 def read_spmean_tsurf(tsurf_dir):
@@ -88,7 +88,7 @@ def read_spmean_tsurf(tsurf_dir):
     return tsurf_arr
 
 
-def read_var_data(field_var_dir,remove_ensmean=True):
+def read_var_data(field_var_dir, remove_ensmean=True):
     print(" reading the field data...")
 
     all_ens_lists = sorted(
@@ -214,7 +214,7 @@ def composite_analysis(
         var_data,
         threshold=threshold,
         reduction=reduction,
-        return_diff = True,
+        return_diff=True,
         **kwargs,
     )
     # save the result
