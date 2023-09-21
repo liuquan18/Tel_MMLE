@@ -88,7 +88,7 @@ def read_spmean_tsurf(tsurf_dir):
     return tsurf_arr
 
 
-def read_var_data(field_var_dir):
+def read_var_data(field_var_dir,remove_ens_mean=True):
     print(" reading the field data...")
 
     all_ens_lists = sorted(
@@ -103,7 +103,8 @@ def read_var_data(field_var_dir):
         pass
 
     # demean the ensemble mean
-    var_data = var_data - var_data.mean(dim="ens")
+    if remove_ens_mean:
+        var_data = var_data - var_data.mean(dim="ens")
     return var_data
 
 
