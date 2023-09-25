@@ -8,9 +8,6 @@ import src.plots.utils as utils
 import matplotlib as mpl
 
 # %%
-
-
-# %%
 def wind_map_single(u, v, ax,levels=np.arange(5, 21, 4)):
     # caluclate the wind speed (m/s)
     wind_speed = np.sqrt(u**2 + v**2)
@@ -94,6 +91,7 @@ def wind_composite_map(U, V, plev=50000,levels = np.arange(5, 21, 4),sig = False
     # add colorbar
     fig.colorbar(contourf, loc="r", label="Wind speed (m/s)",
                  orientation = 'vertical',shrink=0.8,width = 0.2)
+    return fig
     # plt.savefig(
     #     f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/Story_line_nature_climate_change/wind_composite_map_{plev/100:.0f}hPa.png",
     # )
@@ -134,7 +132,9 @@ plt.savefig(
 )
 
 #%%
-wind_composite_map(Ur.u,Vr.v,plev=20000,levels = np.arange(0, 2.1, 0.2),sig = False)
+fig = wind_composite_map(Ur.u,Vr.v,plev=20000,levels = np.arange(0, 2.1, 0.2),sig = False)
+# change fig title
+fig.suptitle(f"Change in internal wind field over 200 hPa")
 plt.savefig(
     f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/Story_line_nature_climate_change/wind_composite_map_200hPa_remove.png",
 )
