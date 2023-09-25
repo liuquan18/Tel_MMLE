@@ -31,20 +31,6 @@ num = int(sys.argv[1])
 f1 = int(sys.argv[2])
 f2 = int(sys.argv[3])
 
-#%%
-months = ["Jun", "Jul", "Aug","ano_Jun", "ano_Jul", "ano_Aug"]
-month = months[num-1]
-odir = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/zg_{month}/"
-files = glob.glob(odir + "*.nc")
-files.sort()
-
-#%%
-list_all_pros = [0]*npro
-for nn in range(npro):
-  list_all_pros[nn] = files[nn::npro]
-steps = list_all_pros[rank]
-
-
 
 def detect_index(file):
         # open the file
@@ -54,10 +40,30 @@ def detect_index(file):
         return blocks
 
 #%%
+month = ["ano_Jun", "ano_Jul", "ano_Aug"]
+files_globes = []
+for mm in month:
+    odir = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/zg_{mm}/"
+    files_globe = glob.glob(odir + "*.nc")
+    files_globe.sort()
+    files_globes.append(files_globe)
+# flat the files_globes into a list
+files_globes = [item for sublist in files_globes for item in sublist]
+files = files_globes[f1:f2]
+
+#%%
+list_all_pros = [0]*npro
+for nn in range(npro):
+  list_all_pros[nn] = files[nn::npro]
+steps = list_all_pros[rank]
+
+
+#%%
 for kk, step in enumerate(steps):
     fname = os.path.basename(step)
     print(f'{month} on node: {num}: kk = {kk+1}/{len(steps)}, step = {fname}')
-    to_path = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/block_{month}/{fname}"
+    # replace the 'zg' in step with 'block'
+    to_path = step.replace('zg_', 'block_')
     blocks = detect_index(step)
     blocks.to_netcdf(to_path)
 
