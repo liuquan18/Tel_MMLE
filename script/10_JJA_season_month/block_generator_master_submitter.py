@@ -4,9 +4,9 @@ import os
 import numpy as np
 
 #%%
-nsteps = 30
-npar   = 2
-njobs  = int(nsteps/npar) # 15
+nsteps = 96
+npar   = 6
+njobs  = int(nsteps/npar) # 16
 
 #%%
 for kk in range(njobs): #

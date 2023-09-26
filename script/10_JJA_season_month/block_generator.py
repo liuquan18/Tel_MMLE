@@ -40,7 +40,7 @@ def detect_index(file):
         return blocks
 
 #%%
-month = ["ano_Jun", "ano_Jul", "ano_Aug"]
+month = ["Jun", "Jul", "Aug"]
 files_globes = []
 for mm in month:
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/zg_{mm}/"
