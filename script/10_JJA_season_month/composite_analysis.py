@@ -45,6 +45,8 @@ def read_var_months(model,var_name='ts',remove_ensmean = True):
         JJA_f = JJA_f.u10
     elif var_name == 'v10':
         JJA_f = JJA_f.v10
+    elif var_name == 'bDays':
+        JJA_f = JJA_f['IB index'].squeeze()
 
     return JJA_f
 
