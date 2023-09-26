@@ -60,8 +60,8 @@ def wind_composite_map(U, V, plev=50000,levels = np.arange(5, 21, 4),sig = False
         # set the fontsize of labels to 25
     )
 
-    for i, extr_type in enumerate(["pos", "neg"]):
-        for j, period in enumerate(["first", "last", "diff"]):
+    for i, extr_type in enumerate(["pos", "neg"]): # rows as extr_type
+        for j, period in enumerate(["first", "last", "diff"]): # columns as period
             u = U.sel(period=period, extr_type=extr_type, mode="NAO", plev=plev)
             v = V.sel(period=period, extr_type=extr_type, mode="NAO", plev=plev)
             ax, contourf = wind_map_single(u, v, axes[i, j],levels=levels)
