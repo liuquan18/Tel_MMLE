@@ -206,6 +206,7 @@ def first_last_extreme_composite(
     try:
         first_index = first_index.drop_vars(('decade','plev'))
         last_index = last_index.drop_vars(('decade','plev'))
+        var_data = var_data.drop('plev')
     except ValueError:
         pass
 
