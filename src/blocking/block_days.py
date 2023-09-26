@@ -21,8 +21,9 @@ def read_IB_index(model = 'MPI_GE_onepct_30_daily',anomaly = False):
     blocks = blocks.sortby('time')
     return blocks
 # %%
-def decadal_block_days(IB_index):
-    dec_IB = IB_index.resample(time = '10AS-JUN').sum(dim = ('time','ens'))
+def decadal_block_days(IB_index,month):
+    time_tag = f'10AS-{month}'
+    dec_IB = IB_index.resample(time = time_tag).sum(dim = ('time','ens'))
     dec_IB = dec_IB[:-1] # exclude the last decade where there is no full decade
     return dec_IB
 def annual_block_days(IB_index):
