@@ -26,7 +26,12 @@ def decadal_block_days(IB_index,month):
     dec_IB = IB_index.resample(time = time_tag).sum(dim = ('time','ens'))
     dec_IB = dec_IB[:-1] # exclude the last decade where there is no full decade
     return dec_IB
-def annual_block_days(IB_index):
-    ann_IB = IB_index.resample(time = 'AS-JUN').sum(dim = ('time'))
+
+# %%
+def annual_block_days(IB_index,month):
+    time_tag = f'AS-{month}'
+    ann_IB = IB_index.resample(time = time_tag).sum(dim = ('time'))
     return ann_IB
 
+
+# %%
