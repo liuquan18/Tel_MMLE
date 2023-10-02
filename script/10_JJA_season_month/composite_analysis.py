@@ -46,7 +46,8 @@ def read_var_months(model,var_name='ts',remove_ensmean = True):
     elif var_name == 'v10':
         JJA_f = JJA_f.v10
     elif var_name == 'bDays':
-        JJA_f = JJA_f['IB index'].squeeze()
+        JJA_f = JJA_f['IB index']
+        JJA_f = JJA_f.drop('plev')
 
     return JJA_f
 
@@ -67,9 +68,9 @@ def composite(model,var_name='ts',reduction = 'mean',**kwargs):
         )
     
 #%%
-num = int(sys.argv[1])
-t1 = int(sys.argv[2])
-t2 = int(sys.argv[3])
+# num = int(sys.argv[1])
+# t1 = int(sys.argv[2])
+# t2 = int(sys.argv[3])
 
 #%%
 def mean_all(num,rank):
@@ -98,21 +99,25 @@ def mean_same_number():
     composite('MPI_GE',reduction= 'mean_same_number',count = 200)
 
 #%%
-# main run mean_all
-if __name__ == '__main__':
+# # main run mean_all
+# if __name__ == '__main__':
 
-    # === mpi4py ===
-    try:
-        from mpi4py import MPI
-        comm = MPI.COMM_WORLD
-        rank = comm.Get_rank()
-        npro = comm.Get_size()
-    except:
-        print('::: Warning: Proceeding without mpi4py! :::')
-        rank = 0
-        npro = 1
+#     # === mpi4py ===
+#     try:
+#         from mpi4py import MPI
+#         comm = MPI.COMM_WORLD
+#         rank = comm.Get_rank()
+#         npro = comm.Get_size()
+#     except:
+#         print('::: Warning: Proceeding without mpi4py! :::')
+#         rank = 0
+#         npro = 1
 
-    mean_all(num,rank)
+#     mean_all(num,rank)
 
 # %%
-composite('MPI_GE_onepct',var_name = 'u10')
+composite('MPI_GE_onepct_30','bDays',remove_ensmean=False)
+# %%
+composite('MPI_GE_onepct_30','bDays_ano',remove_ensmean=False)
+
+# %%
