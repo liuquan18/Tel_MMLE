@@ -3,6 +3,11 @@ import xarray as xr
 import numpy as np
 import src.blocking.block_index as block_index
 import src.blocking.block_days as block_days
+from src.blocking.utils import reg_lens
+import mpi4py as MPI
+import glob
+import os
+import sys
 # %%
 
 #An auxilliary function used by blocking_event_index
@@ -76,3 +81,5 @@ def blocking_event_index(LSB_ix,lat_thresh=2.5,lon_thresh=5,pers_thresh=5):
     blocking_event=_yearly_persistence(box_index,pers_thresh)
     
     return blocking_event
+
+#%%
