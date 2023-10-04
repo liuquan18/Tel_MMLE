@@ -17,7 +17,7 @@ import importlib
 
 importlib.reload(block_index)
 
-# %%
+
 # === mpi4py ===
 try:
     from mpi4py import MPI
@@ -35,18 +35,21 @@ num = int(sys.argv[1])
 f1 = int(sys.argv[2])
 f2 = int(sys.argv[3])
 
-anomaly = True
+anomaly = False
+nollb = False
+
+filter = not nollb
 
 #%%
-var_name = "wb"
+var_name = "block"
 
 
-def detect_index(file, var_name="block"):
+def detect_index(file, var_name="block",filter = True):
     # open the file
     ds = xr.open_dataset(file)
     Z = ds.geopoth.squeeze()
     if var_name == "block":
-        blocks = block_index.IB_index(Z, LLB_filter=False)
+        blocks = block_index.IB_index(Z, LLB_filter=filter)
     elif var_name == "wb":
         blocks = wave_breaking.wave_breaking_index(Z)
     return blocks
@@ -80,7 +83,7 @@ for kk, step in enumerate(steps):
     print(f"{month} on node: {num}: kk = {kk+1}/{len(steps)}, step = {fname}")
     # replace the 'zg' in step with 'block'
     to_path = step.replace("zg_", f"{var_name}_")
-    blocks = detect_index(step, var_name=var_name)
+    blocks = detect_index(step, var_name=var_name,filter = filter)
     blocks.to_netcdf(to_path)
 
 # %%
