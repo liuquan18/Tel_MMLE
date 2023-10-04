@@ -10,6 +10,7 @@ import glob
 
 # %%
 import src.blocking.block_index as block_index
+import src.blocking.wave_breaking as wave_breaking
 
 # %%
 import importlib
@@ -35,7 +36,7 @@ f1 = int(sys.argv[2])
 f2 = int(sys.argv[3])
 
 #%%
-var_name = "wb"
+var_name = "block"
 
 
 def detect_index(file, var_name="block"):
@@ -45,12 +46,12 @@ def detect_index(file, var_name="block"):
     if var_name == "block":
         blocks = block_index.IB_index(Z, LLB_filter=False)
     elif var_name == "wb":
-        blocks = block_index.wave_breaking_index(Z)
+        blocks = wave_breaking.wave_breaking_index(Z)
     return blocks
 
 
 # %%
-month = ["ano_Jun", "ano_Jul", "ano_Aug"]
+month = ["Jun", "Jul", "Aug"]
 files_globes = []
 for mm in month:
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/zg_{mm}/"
