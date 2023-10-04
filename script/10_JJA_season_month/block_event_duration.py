@@ -56,17 +56,25 @@ num = int(sys.argv[1])
 f1 = int(sys.argv[2])
 f2 = int(sys.argv[3])
 
+#%%
 anomaly = False
+nollb = True
+#%%
+o_pre = "block_nollb_event" if nollb else "block_event"
+o_pre = o_pre + "_ano/" if anomaly else o_pre+"/"
+#%%
+to_pre = "block_nollb_duration_average" if nollb else "block_duration_average"
+to_pre = to_pre + "_ano/" if anomaly else to_pre+"/"
 
 #%%
-if anomaly:
-    odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/block_event_ano/"
-    todir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30/block_duration_average_ano/"
 
-else:
-    odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/block_event/"
-    todir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30/block_duration_average/"
+odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/" + o_pre
+todir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30/" + to_pre
 
+# mkdir if todir does not exist
+if not os.path.exists(todir):
+    os.makedirs(todir)
+    
 global_files = glob.glob(odir + "*.nc")
 files = global_files[f1:f2]
 list_all_pros = [0] * npro
@@ -83,3 +91,5 @@ for kk, step in enumerate(steps):
     average_dur = decade_average_duration(event)
     average_dur.name = 'average_duration'
     average_dur.to_netcdf(todir + 'dec_' + fbase_name)
+
+# %%
