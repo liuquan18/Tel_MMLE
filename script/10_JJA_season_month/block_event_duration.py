@@ -78,6 +78,7 @@ steps = list_all_pros[rank]
 for kk, step in enumerate(steps):
     fbase_name = os.path.basename(step)
     print(f"node {num} Process {rank} is working on {kk+1}/{len(steps)}")
+    print(f"current file is {fbase_name}")
     event = xr.open_dataset(step)
     average_dur = decade_average_duration(event)
     average_dur.to_netcdf(todir + 'dec_' + fbase_name)
