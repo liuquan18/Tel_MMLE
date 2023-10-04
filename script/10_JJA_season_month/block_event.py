@@ -29,8 +29,12 @@ f2 = int(sys.argv[3])
 
 #%%
 anomaly = False
+nollb = True
 #%%
-odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/block_"
+prefix =  'block_nollb_' if nollb else 'block_'
+folder = prefix + "ano_" if anomaly else prefix
+#%%
+odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/" + folder
 
 # Create an array of integers from 69 to 100 (inclusive)
 all_ens = np.arange(69, 101, 1)
@@ -41,14 +45,9 @@ all_ens_str = [str(i).zfill(4) for i in all_ens]
 global_files = np.empty((32,3), dtype=object)
 for i, ens in enumerate(all_ens_str):
     fname_pre = f"onepct_1850-1999_ens_{ens}.gph500"
-    if anomaly:
-        fnames = [odir + 'ano_Jun/' + fname_pre + '_06.nc', 
-                    odir + 'ano_Jul/' + fname_pre + '_07.nc', 
-                    odir + 'ano_Aug/' + fname_pre + '_08.nc']
-    else:
-        fnames = [odir + 'Jun/' + fname_pre + '_06.nc', 
-            odir + 'Jul/' + fname_pre + '_07.nc', 
-            odir + 'Aug/' + fname_pre + '_08.nc']
+    fnames = [odir + 'Jun/' + fname_pre + '_06.nc', 
+        odir + 'Jul/' + fname_pre + '_07.nc', 
+        odir + 'Aug/' + fname_pre + '_08.nc']
     global_files[i,:] = fnames
 
 # %%
@@ -59,10 +58,14 @@ for nn in range(npro):
 steps = list_all_pros[rank]
 
 #%%
-if anomaly:
-    todir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/block_event_ano/"
-else:
-    todir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/block_event/"
+to_per = "block_nollb_event" if nollb else "block_event"
+to_per = to_per + "_ano/" if anomaly else to_per+"/"
+todir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/" + to_per
+
+# make dir if todir does not exist
+if not os.path.exists(todir):
+    os.makedirs(todir)
+
 
 for kk, step in enumerate(steps):
     print(f"node {num} Process {rank} is working on {kk+1}/{len(steps)}")
