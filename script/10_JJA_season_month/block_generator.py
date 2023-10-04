@@ -35,8 +35,10 @@ num = int(sys.argv[1])
 f1 = int(sys.argv[2])
 f2 = int(sys.argv[3])
 
+anomaly = False
+
 #%%
-var_name = "block"
+var_name = "wb"
 
 
 def detect_index(file, var_name="block"):
@@ -51,7 +53,10 @@ def detect_index(file, var_name="block"):
 
 
 # %%
-month = ["Jun", "Jul", "Aug"]
+if anomaly:
+    month = ["ano_Jun", "ano_Jul", "ano_Aug"]
+else:
+    month = ["Jun", "Jul", "Aug"]
 files_globes = []
 for mm in month:
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/zg_{mm}/"
@@ -70,12 +75,12 @@ steps = list_all_pros[rank]
 
 
 # %%
-for kk, step in enumerate(steps):
+for kk, step in enumerate(steps,var_name=var_name):
     fname = os.path.basename(step)
     print(f"{month} on node: {num}: kk = {kk+1}/{len(steps)}, step = {fname}")
     # replace the 'zg' in step with 'block'
     to_path = step.replace("zg_", f"{var_name}_")
-    blocks = detect_index(step)
+    blocks = detect_index(step, var_name=var_name)
     blocks.to_netcdf(to_path)
 
 # %%
