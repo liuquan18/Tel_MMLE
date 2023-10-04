@@ -1,13 +1,7 @@
 #%%
 import xarray as xr
 import numpy as np
-import src.blocking.block_index as block_index
-import src.blocking.block_days as block_days
 from src.blocking.utils import reg_lens
-import mpi4py as MPI
-import glob
-import os
-import sys
 # %%
 
 #An auxilliary function used by blocking_event_index
