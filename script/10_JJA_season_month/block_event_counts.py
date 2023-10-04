@@ -52,7 +52,7 @@ num = int(sys.argv[1])
 f1 = int(sys.argv[2])
 f2 = int(sys.argv[3])
 
-anomaly = True
+anomaly = False
 
 #%%
 if anomaly:
@@ -75,5 +75,6 @@ for kk, step in enumerate(steps):
     print(f"node {num} Process {rank} is working on {kk+1}/{len(steps)}")
     print(f"current file is {fbase_name}")
     event = xr.open_dataset(step)
-    average_dur = decade_events_count(event)
-    average_dur.to_netcdf(todir + 'dec_' + fbase_name)
+    event_count = decade_events_count(event)
+    event_count.name = 'block_event_count'
+    event_count.to_netcdf(todir + 'dec_' + fbase_name)

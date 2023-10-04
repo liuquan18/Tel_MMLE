@@ -56,7 +56,7 @@ num = int(sys.argv[1])
 f1 = int(sys.argv[2])
 f2 = int(sys.argv[3])
 
-anomaly = True
+anomaly = False
 
 #%%
 if anomaly:
@@ -81,4 +81,5 @@ for kk, step in enumerate(steps):
     print(f"current file is {fbase_name}")
     event = xr.open_dataset(step)
     average_dur = decade_average_duration(event)
+    average_dur.name = 'average_duration'
     average_dur.to_netcdf(todir + 'dec_' + fbase_name)
