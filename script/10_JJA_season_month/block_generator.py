@@ -75,7 +75,7 @@ steps = list_all_pros[rank]
 
 
 # %%
-for kk, step in enumerate(steps,var_name=var_name):
+for kk, step in enumerate(steps):
     fname = os.path.basename(step)
     print(f"{month} on node: {num}: kk = {kk+1}/{len(steps)}, step = {fname}")
     # replace the 'zg' in step with 'block'
