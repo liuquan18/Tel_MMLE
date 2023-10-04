@@ -35,7 +35,7 @@ num = int(sys.argv[1])
 f1 = int(sys.argv[2])
 f2 = int(sys.argv[3])
 
-anomaly = False
+anomaly = True
 
 #%%
 var_name = "wb"
