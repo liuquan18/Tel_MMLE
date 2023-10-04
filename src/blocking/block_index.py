@@ -4,7 +4,6 @@
 import numpy as np
 import xarray as xr
 import pandas as pd
-from src.blocking.utils import reg_lens
 #%%
 
 ##1D Tibaldi Molteni Index############
