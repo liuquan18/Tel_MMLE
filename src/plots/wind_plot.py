@@ -28,7 +28,7 @@ def read_wind_months(var_name = 'u', remove_ensmean = False):
 
     return JJA_f[var_name]
 
-def wind_map_single(u, v, ax,levels=np.arange(5, 21, 4),cmap = "YlOrRd"):
+def wind_map_single(u, v, ax,levels=np.arange(5, 21, 4),cmap = "YlOrRd", color = 'white'):
     # caluclate the wind speed (m/s)
     wind_speed = np.sqrt(u**2 + v**2)
 
@@ -46,7 +46,7 @@ def wind_map_single(u, v, ax,levels=np.arange(5, 21, 4),cmap = "YlOrRd"):
         u.values[::4, ::4],
         v.values[::4, ::4],
         transform=ccrs.PlateCarree(),
-        color = 'w',
+        color = color,
     )
     return contourf, ax
 
