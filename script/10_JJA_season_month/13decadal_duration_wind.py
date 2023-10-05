@@ -47,7 +47,7 @@ def wind_map_single(u, v, ax,levels=np.arange(5, 21, 4),cmap = "YlOrRd"):
         v.values[::4, ::4],
         transform=ccrs.PlateCarree(),
     )
-    return ax, contourf
+    return contourf, ax
 
 
 # %%
@@ -68,9 +68,9 @@ dec_avedur = dec_avedur['average_duration'].mean(dim = 'ens')
 # %%
 dec_avedur = utils.erase_white_line(dec_avedur)
 # %%
-block = [dec_avedur.isel(time = 0),
-        dec_avedur.isel(time = -1),
-        dec_avedur.isel(time = -1) - dec_avedur.isel(time = 0)]
+block = [dec_avedur.isel(time = 0)/4, # from 6h to 24h
+        dec_avedur.isel(time = -1)/4,
+        (dec_avedur.isel(time = -1) - dec_avedur.isel(time = 0))/4]
 
 #%%
 u = read_wind_months(var_name = 'u')
@@ -110,20 +110,25 @@ axes.format(
     coastcolor="charcoal",
     toplabels=["first10", "last10", "last10 - first10"],
     leftlabels=["wind-200", "blocking"],
-    suptitle=f"Change in blocking event occurence in full field of 500 hPa",
+    suptitle=f"Change in wind-200 and blocking duration in full field",
     # set the fontsize of labels to 25
 )
 
 
-ax,map = wind_map_single(U.isel(time = 0), V.isel(time = 0), axes[0,0], levels=np.arange(5,31,5))
+wind_map, ax = wind_map_single(U.isel(time = 0), V.isel(time = 0), axes[0,0], levels=np.arange(5,31,5))
 wind_map_single(U.isel(time = -1), V.isel(time = -1), axes[0,1], levels=np.arange(5,31,5))
 wind_map_single(U.isel(time = -1) - U.isel(time = 0), V.isel(time = -1) - V.isel(time = 0), axes[0,2], 
                 levels=np.arange(5,31,5))
 
 
-blockm, ax = duration_map_single(block[0]/4, axes[1,0],levels=np.arange(5,10,0.5))
-duration_map_single(block[1]/4, axes[1,1],levels=np.arange(5,10,0.5))
-duration_map_single(block[2]/4, axes[1,2],levels=np.arange(5,10,0.5))
+block_map, ax = duration_map_single(block[0], axes[1,0],levels=np.arange(5,10.5,0.5))
+duration_map_single(block[1], axes[1,1],levels=np.arange(5,10.5,0.5))
+duration_map_single(block[2], axes[1,2],levels=np.arange(5,10.5,0.5))
 
-fig.colorbar(map, loc = 'r', label = 'days')
+
+
+fig.colorbar(wind_map, row = 1, loc = 'r', orientation='vertical', label = 'm/s')
+fig.colorbar(block_map, row = 2, loc = 'r', orientation='vertical', label = 'days')
+
+fig.save('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/decadal_wind_blocking.png', dpi=300)
 # %%
