@@ -58,7 +58,7 @@ f2 = int(sys.argv[3])
 
 #%%
 anomaly = False
-nollb = True
+nollb = False
 #%%
 o_pre = "block_nollb_event" if nollb else "block_event"
 o_pre = o_pre + "_ano/" if anomaly else o_pre+"/"

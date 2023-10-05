@@ -1,13 +1,10 @@
 #%%
 import xarray as xr
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import proplot as pplt
+import src.MMLE_TEL.index_stats as index_stats
 import cartopy.crs as ccrs
 import src.plots.utils as utils
-import src.MMLE_TEL.index_stats as index_stats
-
+import proplot as pplt
 # %%
 def read_wind_months(var_name = 'u', remove_ensmean = False):
     odir = '/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30/'
@@ -49,54 +46,36 @@ def wind_map_single(u, v, ax,levels=np.arange(5, 21, 4),cmap = "YlOrRd"):
     )
     return ax, contourf
 
-
 # %%
-def duration_map_single(duration, ax, levels = np.arange(5,11,0.5),cmap = 'Fire'):
-    
-    fig = ax.contourf(
-        duration,
-        transform=ccrs.PlateCarree(),
-        levels=levels,
-        cmap = cmap
-    )
-    return fig, ax
-
-# %%
-dec_avedur = xr.open_mfdataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30/block_nollb_duration_average/*.nc", combine='nested', concat_dim='ens', parallel=True)
-# %%
-dec_avedur = dec_avedur['average_duration'].mean(dim = 'ens')
-# %%
-dec_avedur = utils.erase_white_line(dec_avedur)
-# %%
-block = [dec_avedur.isel(time = 0),
-        dec_avedur.isel(time = -1),
-        dec_avedur.isel(time = -1) - dec_avedur.isel(time = 0)]
-
-#%%
 u = read_wind_months(var_name = 'u')
-
+# %%
 v = read_wind_months(var_name = 'v')
+# %%
+### decade
 u_dec = u.resample(time = '10AS').mean()
 v_dec = v.resample(time = '10AS').mean()
 
+# %%
 u_dec_mean = u_dec.mean(dim = 'ens')
 v_dec_mean = v_dec.mean(dim = 'ens')
 
+# %%
+
 U = u_dec_mean.sel(plev = 20000).drop('plev')
 V = v_dec_mean.sel(plev = 20000).drop('plev')
+
+#%%
 U= utils.erase_white_line(U)
 V = utils.erase_white_line(V)
 
-
-# %%
-fig = pplt.figure(figsize=(150 / 25.4, 100 / 25.4),sharex=False,sharey=False)
+fig = pplt.figure(figsize=(150 / 25.4, 50 / 25.4),sharex=False,sharey=False)
 fig.format(
     abcloc="ul",
     abc="a",
 )
 axes = fig.subplots(
     ncols=3,
-    nrows=2,
+    nrows=1,
     proj="ortho",
     proj_kw=({"lon_0": -20, "lat_0": 60})
 )
@@ -109,21 +88,12 @@ axes.format(
     coastlinewidth=0.3,
     coastcolor="charcoal",
     toplabels=["first10", "last10", "last10 - first10"],
-    leftlabels=["wind-200", "blocking"],
-    suptitle=f"Change in blocking event occurence in full field of 500 hPa",
+    suptitle=f"Change in full wind field over {200} hPa",
     # set the fontsize of labels to 25
 )
 
-
-ax,map = wind_map_single(U.isel(time = 0), V.isel(time = 0), axes[0,0], levels=np.arange(5,31,5))
-wind_map_single(U.isel(time = -1), V.isel(time = -1), axes[0,1], levels=np.arange(5,31,5))
-wind_map_single(U.isel(time = -1) - U.isel(time = 0), V.isel(time = -1) - V.isel(time = 0), axes[0,2], 
+ax,map = wind_map_single(U.isel(time = 0), V.isel(time = 0), axes[0], levels=np.arange(5,31,5))
+wind_map_single(U.isel(time = -1), V.isel(time = -1), axes[1], levels=np.arange(5,31,5))
+wind_map_single(U.isel(time = -1) - U.isel(time = 0), V.isel(time = -1) - V.isel(time = 0), axes[2], 
                 levels=np.arange(5,31,5))
-
-
-blockm, ax = duration_map_single(block[0]/4, axes[1,0],levels=np.arange(5,10,0.5))
-duration_map_single(block[1]/4, axes[1,1],levels=np.arange(5,10,0.5))
-duration_map_single(block[2]/4, axes[1,2],levels=np.arange(5,10,0.5))
-
-fig.colorbar(map, loc = 'r', label = 'days')
 # %%

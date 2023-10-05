@@ -29,7 +29,7 @@ f2 = int(sys.argv[3])
 
 #%%
 anomaly = False
-nollb = True
+nollb = False
 #%%
 prefix =  'block_nollb_' if nollb else 'block_'
 folder = prefix + "ano_" if anomaly else prefix

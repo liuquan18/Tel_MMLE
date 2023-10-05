@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=event
+#SBATCH --job-name=ave_dur
 #SBATCH --time=08:00:00
 #SBATCH --partition=compute
 #SBATCH --nodes=1
@@ -7,7 +7,7 @@
 #SBATCH --mem=0
 #SBATCH --mail-type=FAIL
 #SBATCH --account=mh0033
-#SBATCH --output=block_event.%j.out
+#SBATCH --output=ave_dur.%j.out
 
 
 mpirun -np 2 python -u block_event_duration.py $1 $2 $3
