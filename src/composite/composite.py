@@ -26,10 +26,33 @@ def extreme(
     return extreme
 
 
+def _sel_data(data, index, num = 'all'):
+    """
+    select the data based on the coordinates of extreme cases in index.
+    **num**: 'all' or int
+    """
+    if num == 'all':
+        sel_data = data.where(index)
+    else:
+        index = index.copy()
+        index = index.squeeze()
+        try:
+            index = index.stack(com = ('time','mode'))
+            data = data.stack(com = ('time','mode'))
+        except KeyError:
+            pass
+        if index.attrs["extreme_type"] == "pos":
+            index = index.sortby(index, ascending=False)
+        elif index.attrs["extreme_type"] == "neg":
+            index = index.sortby(index, ascending=True)
+        index = index.isel(com=slice(0, num))  # select the first {num} indexes
+        sel_data = data.where(index)
+        sel_data = sel_data.unstack('com')
+    return sel_data
+
 def reduce_var(
     index: xr.DataArray,
     data: xr.DataArray,
-    dim: str = "com",
     reduction="mean",
     bootstrap=False,
     **kwargs
@@ -46,51 +69,43 @@ def reduce_var(
     **Return**
         *composite_mean* the composite mean of the extreme cases.
     """
+
+    # select the same time period
+    data = data.sortby("time")
+    data = data.sel(time=index.time, method="nearest")
+    data["time"] = index.time  # make sure the time is the same to use where function
+
     num = kwargs.get("count", 'all')
-    if reduction == "mean":
+    sel_data = _sel_data(data, index, num = num)
+
+    if reduction == "mean" or reduction == "mean_same_number":
         # get the data at the  coordinates
-        sel_data = data.where(index)
-        composite_mean = sel_data.mean(dim=dim)
-
-    elif reduction == "mean_same_number":
-        # get the number of extremes to reduce from kwargs
-        # sel the largest 40 values from index
-        index = index.copy()
-        index = index.squeeze()
-        if index.attrs["extreme_type"] == "pos":
-            index = index.sortby(index, ascending=False)
-        elif index.attrs["extreme_type"] == "neg":
-            index = index.sortby(index, ascending=True)
-        index = index.isel(com=slice(0, num))  # select the first {num} indexes
-        sel_data = data.where(index)
-        composite_mean = sel_data.mean(dim=dim)
-
+        sel_data = sel_data.stack(com=("time", "ens"))
+        composite_res = sel_data.mean(dim="com")
 
     elif reduction == "mean_weighted":
-        sel_data = data.where(index)
+        sel_data = sel_data.stack(com=("time", "ens"))
         weights = index
-        composite_mean = sel_data.weighted(weights).mean(dim=dim)
+        composite_res = sel_data.weighted(weights).mean(dim="com")
     
     # set count info as attribute
-    composite_mean.attrs["reduction"] = reduction
-    composite_mean.attrs["count"] = num
+    composite_res.attrs["reduction"] = reduction
+    composite_res.attrs["count"] = num
 
-    if bootstrap:
+    if bootstrap and reduction == "mean":
         n_resamples = kwargs.get("n_resamples", 1000)
         # get the 'com' random index with the shape sel_data.size['com'] and 1000 times
-        n_samples = sel_data.sizes[
-            dim
-        ]  # the resampled data is the same length as the original data
+        n_samples = sel_data.sizes["com"]  # the resampled data is the same length as the original data
         rng = np.random.default_rng(seed=12345)
         sampled_index = rng.choice(n_samples, size=(n_samples, n_resamples), replace=True)
-        composite_mean = []
+        composite_res = []
         for i in range(1000):
             sample = sel_data.isel(com=sampled_index[:, i])
-            composite_mean.append(sample.mean(dim=dim))
+            composite_res.append(sample.mean(dim="com"))
 
-        composite_mean = xr.concat(composite_mean, dim="bootstrap")
+        composite_res = xr.concat(composite_res, dim="bootstrap")
 
-    return composite_mean
+    return composite_res
 
 
 def extreme_composite(
@@ -121,7 +136,6 @@ def extreme_composite(
             extr_index,
             data,
             reduction=reduction,
-            dim=dim,
             bootstrap=bootstrap,
             **kwargs
         )
@@ -136,12 +150,10 @@ def extreme_composite(
 def Tel_field_composite(
     index: xr.DataArray,
     data: xr.DataArray,
-    # threshold: float = 1.5,
-    # reduction="mean",
-    threshold,
-    reduction,
+    threshold: float = 1.5,
+    reduction="mean",
     bootstrap=False,
-    count = None,
+    count = 'all',
 ):
     """
     composite mean maps of NAO and EA extremes.
@@ -154,25 +166,11 @@ def Tel_field_composite(
         *compostie* the composite mean of the extreme cases of NAO and EA.
     """
 
-    # Select the same time period
-    index_c = index.copy()  # make a copy of the original data
-    data_c = data.copy()
-
-    # select the same time period
-    data_c = data_c.sortby("time")
-    data_c = data_c.sel(time=index_c.time, method="nearest")
-    data_c["time"] = index_c.time  # make sure the time is the same to use where function
-
-    # combine time and ens into one dim
-    index_c = index_c.stack(com=("time", "ens"))
-    data_c = data_c.stack(com=("time", "ens"))
-
     # since there is 'mode' dim in index, here groupby.
-    tel_composite = index_c.groupby("mode").apply(
+    tel_composite = index.groupby("mode").apply(
         extreme_composite,
-        data=data_c,
+        data=data,
         reduction=reduction,
-        dim="com",
         threshold=threshold,
         bootstrap=bootstrap,
         count = count,
@@ -244,6 +242,7 @@ def first_last_extreme_composite(
             threshold=1.5,
             reduction=reduction,
             bootstrap=True,
+            count = 'all'
         )
 
         # last 10 years
@@ -253,6 +252,7 @@ def first_last_extreme_composite(
             threshold=threshold,
             reduction=reduction,
             bootstrap=True,
+            count = 'all'
         )
 
         # difference between first and last 10 years

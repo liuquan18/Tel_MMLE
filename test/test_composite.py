@@ -30,13 +30,13 @@ lat = np.arange(10)
 data = xr.DataArray(values_data,dims = ['time','ens','lat','lon'],coords = {'time':time,'ens':np.arange(3),'lat':lat,'lon':lon})
 
 #%%
-index_c = index.copy()
-data_c = data.copy()
-index_c = index_c.stack(com = ['time','ens'])
-data_c = data_c.stack(com = ['time','ens'])
+# index_c = index.copy()
+# data_c = data.copy()
+# index_c = index_c.stack(com = ['time','ens'])
+# data_c = data_c.stack(com = ['time','ens'])
 
 #%%
-composite_mean = comp.reduce_var(index_c,data_c,dim = 'com',reduction = 'mean',bootstrap = True)
+composite_mean = comp.reduce_var(index,data,dim = 'com',reduction = 'mean',bootstrap = True)
 
 #%%
 
