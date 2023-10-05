@@ -9,37 +9,8 @@ import glob
 import os
 import sys
 
-# %%
-
-def average_duration(event):
-    """
-    the average duraion for one single pixel
-    """
-    
-    df = event.to_dataframe()
-    df = df['IB index'].reset_index()
-    # see https://mp.weixin.qq.com/s?__biz=MzkzNjI1ODQxMQ==&mid=2247484296&idx=1&sn=a9b63336bfbf13724d8b9d13321c75e4&chksm=c2a03d8cf5d7b49afef7ccbf4e0337d019ec1419a241a45ca8e6ca5cfcba6658dc39a9eebd04&token=1605307128&lang=zh_CN#rd
-    Grouper = df.groupby(df.time.dt.year)['IB index'].transform(lambda x: (x<=0).cumsum())
-    G=df[df['IB index']> 0].groupby([df.time.dt.year,Grouper])
-    durations = G.size()
-    dur_mean = durations.mean()
-    dur_mean_x = xr.DataArray(dur_mean, dims = ['z'],coords = {'z':event.z})
-    return dur_mean_x
-
-def spatial_applyer(event):
-    event = event.stack(z=('lat', 'lon'))
-    mean_dur = event.groupby('z').apply(average_duration)
-    return mean_dur.unstack()
-
-def annual_average_duration(arr):
-    annual_dur = arr.resample(time = 'AS').apply(spatial_applyer)
-    return annual_dur
-
-def decade_average_duration(arr):
-    decade_dur = arr.resample(time = '10AS').apply(spatial_applyer)
-    return decade_dur
-
-
+#%%
+from src.blocking.block_event_stat import decade_average_duration
 
 
 # %%
@@ -96,4 +67,3 @@ for kk, step in enumerate(steps):
     average_dur.name = 'average_duration'
     average_dur.to_netcdf(todir + 'dec_' + fbase_name)
 
-# %%

@@ -1,3 +1,4 @@
+#%%
 import xarray as xr
 import numpy as np
 import pandas as pd
@@ -7,37 +8,7 @@ import mpi4py.MPI as MPI
 import glob
 import os
 import sys
-
-# %%
-def events_count(event, threshold=10):
-    """
-    count the number of events that lasted more than 10 days for one single pixel
-    """
-    df = event.to_dataframe()
-    df = df['IB index'].reset_index()
-    Grouper = df.groupby(df.time.dt.year)['IB index'].transform(lambda x: (x<=0).cumsum())
-    G=df[df['IB index']> 0].groupby([df.time.dt.year,Grouper])
-    durations = G.size()
-    count = durations[durations> threshold].count()
-    count_x = xr.DataArray(count, dims = ['z'],coords = {'z':arr.z})
-    return count_x
-
-def spatial_applyer(arr, threshold=10):
-    """
-    statistcis (average, count) of the duration of events 
-    """
-    arr = arr.stack(z=('lat', 'lon'))
-    count = arr.groupby('z').apply(events_count, threshold=threshold)
-    return count.unstack()
-
-def annual_events_count(arr, threshold=10): # 10 days (6h a day)
-    annual_count = arr.resample(time = 'AS').apply(spatial_applyer, threshold=threshold)
-    return annual_count
-
-def decade_events_count(arr, threshold=40): # 10 days (6h a day)
-    decade_count = arr.resample(time = '10AS').apply(spatial_applyer, threshold=threshold)
-    return decade_count
-
+from src.blocking.block_event_stat import decade_events_count
 
 # %%
 # === mpi4py ===
@@ -93,3 +64,5 @@ for kk, step in enumerate(steps):
     event_count = decade_events_count(event)
     event_count.name = 'block_event_count'
     event_count.to_netcdf(todir + 'dec_' + fbase_name)
+
+# %%
