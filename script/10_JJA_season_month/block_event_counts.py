@@ -9,7 +9,7 @@ import os
 import sys
 
 # %%
-def events_count(arr, threshold=10):
+def events_count(event, threshold=10):
     """
     count the number of events that lasted more than 10 days for one single pixel
     """
