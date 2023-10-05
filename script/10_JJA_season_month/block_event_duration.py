@@ -18,6 +18,7 @@ def average_duration(event):
     
     df = event.to_dataframe()
     df = df['IB index'].reset_index()
+    # see https://mp.weixin.qq.com/s?__biz=MzkzNjI1ODQxMQ==&mid=2247484296&idx=1&sn=a9b63336bfbf13724d8b9d13321c75e4&chksm=c2a03d8cf5d7b49afef7ccbf4e0337d019ec1419a241a45ca8e6ca5cfcba6658dc39a9eebd04&token=1605307128&lang=zh_CN#rd
     Grouper = df.groupby(df.time.dt.year)['IB index'].transform(lambda x: (x<=0).cumsum())
     G=df[df['IB index']> 0].groupby([df.time.dt.year,Grouper])
     durations = G.size()
