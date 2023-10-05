@@ -66,7 +66,7 @@ def _yearly_persistence(ix, pers_thresh=5):
 
 # %%
 #Defines a blocking event by requiring spatial and temporal persistence:
-def blocking_event_index(LSB_ix,lat_thresh=2.5,lon_thresh=5,pers_thresh=5):
+def blocking_event_index(LSB_ix,lat_thresh=5,lon_thresh=10,pers_thresh=5):
     
     #Find all points where there is LSB within
     #a certain lat lon region
