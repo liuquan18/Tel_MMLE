@@ -31,10 +31,14 @@ def spatial_applyer(event):
     mean_dur = event.groupby('z').apply(average_duration)
     return mean_dur.unstack()
 
+def annual_average_duration(arr):
+    annual_dur = arr.resample(time = 'AS').apply(spatial_applyer)
+    return annual_dur
 
 def decade_average_duration(arr):
     decade_dur = arr.resample(time = '10AS').apply(spatial_applyer)
     return decade_dur
+
 
 
 
