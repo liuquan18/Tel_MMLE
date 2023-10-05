@@ -46,6 +46,7 @@ def wind_map_single(u, v, ax,levels=np.arange(5, 21, 4),cmap = "YlOrRd"):
         u.values[::4, ::4],
         v.values[::4, ::4],
         transform=ccrs.PlateCarree(),
+        color = 'w',
     )
     return contourf, ax
 
