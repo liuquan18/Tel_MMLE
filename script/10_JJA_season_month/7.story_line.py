@@ -84,7 +84,7 @@ def read_composite(model, var_name,reduction = 'mean'):
 
 def read_all_models(variable):
     """read all models data"""
-    models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+    models = ["MPI_GE_onepct", "MPI_GE"]#, "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
     if variable == "eof_decade":
         all_model_data = {model: read_eof_decade(model) for model in models}
     elif variable == "eof_all":
@@ -139,102 +139,86 @@ EOFs_all = read_all_models("eof_all")
 EXTRCs = read_all_models("extrc")
 COMPOSITEs = read_all_models("composite")
 
+#%%
+
+def extrc_time_line_single(extrcs, extr_type, ax, ylim = (20, 280),mode = 'NAO',ci = False):
+    models = ["MPI_GE", "MPI_GE_onepct"]#,"CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+    colors_model = ["C1", "red"]#, "tab:purple", "tab:blue", "tab:green", "C4"]
+    model_color = dict(zip(models, colors_model))
+
+    lines = []
+    for model in models:
+        try:
+            extrc = extrcs[models.index(model)]
+        except KeyError:
+            extrc = extrcs[model]
+        line = extrc.sel(extr_type=extr_type,mode = mode,confidence = 'true').plot.line(
+                ax=ax, 
+                label=model_color[model],
+                x = 'time',
+                color = model_color[model],
+                linewidth = 2,)
+        
+        if ci:
+            # fill between the confidence interval ['low','high']
+            ax.fill_between(
+                extrc.time,
+                extrc.sel(extr_type=extr_type,mode = mode,confidence = 'low').values,
+                extrc.sel(extr_type=extr_type,mode = mode,confidence = 'high').values,
+                color = model_color[model],
+                alpha = 0.3,
+            )
+        lines.append(line)
+
+            
+    ax.format(
+            ylim=ylim,
+            ylabel="Extreme counts",
+            xlabel="Year",
+            suptitle="",
+            titleloc="uc",
+            ylocator=20,
+            yminorlocator="null",
+            grid=False,
+            title = '',
+        )
+    return ax, lines
 
 # %%
 # Fig 2, spatial pattern chagne, index distribution change, and extreme lines
 # set the fig size as 180mm x 150mm
 # set the font size as 7pt
-fig2 = pplt.figure(figsize=(180 / 25.4, 180 / 25.4),sharex=False,sharey=False)
+fig2 = pplt.figure(figsize=(100 / 25.4, 100 / 25.4),sharex=False,sharey=False)
 fig2.format(
     abc=True,
-    abcloc="ul",
-    abcstyle="a",
-    
 )
-models_legend = [
-    "MPI_GE_onepct (100)",
-    "MPI-GE (100)",
-    "CanESM2 (50)",
-    "CESM1-CAM5 (40)",
-    "MK3.6 (30)",
-    "GFDL-CM3 (20)",
-    ]
 
 gs = pplt.GridSpec(
-    ncols=3,
-    nrows=2,
-    wspace=(5, 0.5),
-    hspace=0.5,
-    hratios=[1, 0.8],
-    wratios=[1, 0.85, 0.85],
+    ncols=2,
+    nrows=1,
+    wspace=1,
 )
 
-ax1 = fig2.add_subplot(gs[0, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
-ax2 = fig2.add_subplot(gs[1,0])
-ax3 = fig2.add_subplot(gs[:, 1])
-ax4 = fig2.add_subplot(gs[:, 2])
+ax3 = fig2.add_subplot(gs[0, 0])
+ax4 = fig2.add_subplot(gs[0, 1])
 
 
-ax1, fmap, lmap = stat_overview.spatial_pattern_plot(
-    ax1,
-    EOFs_decade["MPI_GE"].eof.isel(decade=0),
-    EOFs_decade["MPI_GE"].fra.isel(decade=0),
-    EOFs_decade["MPI_GE"].eof.isel(decade=-1),
-    EOFs_decade["MPI_GE"].fra.isel(decade=-1),
-    levels=np.arange(-2,2.1,0.4),
-)
-
-first_eof,last_eof = split_first_last(EOFs_decade["MPI_GE"])
-ax2,hist = stat_overview.index_distribution_plot(
-    ax2,
-    first_eof.pc,
-    last_eof.pc,
-)
-
-
-ax3,lines_pos = extplt.extrc_time_line_single(
+ax3,lines_pos = extrc_time_line_single(
     EXTRCs,
     extr_type='pos',
     ax = ax3,
-    ylim = (25,315),
+    ylim = (130,330),
     ci = True,
 )
 
-ax4,lines_neg = extplt.extrc_time_line_single(
+ax4,lines_neg = extrc_time_line_single(
     EXTRCs,
     extr_type='neg',
     ax = ax4,
-    ylim = (25,315),
+    ylim = (130,330),
     ci = True,
 )
 
-
-#### ax2 ####
-
-# add legend
-f_patch = mpatches.Patch(color="#1f77b4", label="first10")
-l_patch = mpatches.Patch(color="#ff7f0e", label="last10")
-
-ax2.legend(
-    handles=[f_patch, l_patch], loc="b", frameon=False,
-    space = 3.2,
-)
-
-cbar = ax2.colorbar(
-    fmap,
-    width=0.1,
-    shrink=1,
-    loc = 'b', 
-    label = 'NAO_std',   
-    pad = 0.2,
-)
-
-ax2.set_ylabel("density", fontsize=7)
-ax2.format(
-    ylocator=pplt.MultipleLocator(0.05),
-    xlabel = "std_NAO",
-    xlabelpad=0.8, 
-)
 
 
 #### ax3 ####
@@ -247,6 +231,7 @@ ax3.format(
     xlabelpad=0.8, 
     xtickminor=False,
     xrotation=45,
+    title = 'positive'
 )
 
 #### ax4 ####
@@ -260,24 +245,23 @@ ax4.format(
     yticklabels = [],
     ylabel = '',
     xrotation=45,
+    title = 'negative'
 )
 
 ax4.legend(
     lines_pos,
-    models_legend,
+    ['MPI_GE_Hist_RCP8.5(100)','MPI_GE_onepct(100)'],
     loc="b",
     ncols=2,
     frameon=False,
     bbox_to_anchor=(-0.1, -0.2),
-    pad = 0.2,
-    columnspacing=3,
+    pad = -0.2,
 )
 
 
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/Story_line_nature_climate_change/extrc_change.png",
-    dpi=300,
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/imprs_retreat/extrc_change.pdf",
     bbox_inches="tight",
 )
 
