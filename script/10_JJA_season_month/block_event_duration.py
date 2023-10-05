@@ -18,22 +18,20 @@ def average_duration(event):
     
     df = event.to_dataframe()
     df = df['IB index'].reset_index()
-    G=df[df['IB index']> 0].groupby((df['IB index']<=0).cumsum())
+    Grouper = df.groupby(df.time.dt.year)['IB index'].transform(lambda x: (x<=0).cumsum())
+    G=df[df['IB index']> 0].groupby([df.time.dt.year,Grouper])
     durations = G.size()
     dur_mean = durations.mean()
     dur_mean_x = xr.DataArray(dur_mean, dims = ['z'],coords = {'z':event.z})
     return dur_mean_x
 
-def yearly_average_duration(event):
-    """
-    statistcis (average, count) of the duration of events 
-    """
+def spatial_applyer(event):
     event = event.stack(z=('lat', 'lon'))
     mean_dur = event.groupby('z').apply(average_duration)
-    return mean_dur.unstack()
+
 
 def decade_average_duration(arr):
-    decade_dur = arr.resample(time = '10AS').apply(yearly_average_duration)
+    decade_dur = arr.resample(time = '10AS').apply(spatial_applyer)
     return decade_dur
 
 
