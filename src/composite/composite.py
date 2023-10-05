@@ -87,6 +87,8 @@ def reduce_var(
         sel_data = sel_data.stack(com=("time", "ens"))
         weights = index
         composite_res = sel_data.weighted(weights).mean(dim="com")
+    else:
+        composite_res = sel_data.reduce(reduction) # apply custom reduction
     
     # set count info as attribute
     composite_res.attrs["reduction"] = reduction

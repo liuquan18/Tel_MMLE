@@ -29,6 +29,7 @@ def average_duration(event):
 def spatial_applyer(event):
     event = event.stack(z=('lat', 'lon'))
     mean_dur = event.groupby('z').apply(average_duration)
+    return mean_dur.unstack()
 
 
 def decade_average_duration(arr):
@@ -57,7 +58,7 @@ f2 = int(sys.argv[3])
 
 #%%
 anomaly = False
-nollb = False
+nollb = True
 #%%
 o_pre = "block_nollb_event" if nollb else "block_event"
 o_pre = o_pre + "_ano/" if anomaly else o_pre+"/"
