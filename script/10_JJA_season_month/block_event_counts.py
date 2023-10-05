@@ -29,7 +29,7 @@ def yearly_events_count(arr, threshold=10):
     count = arr.groupby('z').apply(events_count, threshold=threshold)
     return count.unstack()
 
-def decade_events_count(arr, threshold=10):
+def decade_events_count(arr, threshold=40): # 10 days (6h a day)
     decade_count = arr.resample(time = '10AS').apply(yearly_events_count, threshold=threshold)
     return decade_count
 
@@ -52,15 +52,25 @@ num = int(sys.argv[1])
 f1 = int(sys.argv[2])
 f2 = int(sys.argv[3])
 
+#%%
 anomaly = False
+nollb = True
+#%%
+o_pre = "block_nollb_event" if nollb else "block_event"
+o_pre = o_pre + "_ano/" if anomaly else o_pre+"/"
+#%%
+to_pre = "block_nollb_event_count" if nollb else "block_event_count"
+to_pre = to_pre + "_ano/" if anomaly else to_pre+"/"
 
 #%%
-if anomaly:
-    odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/block_event_ano/"
-    todir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30/block_event_count_ano/"
-else:
-    odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/block_event/"
-    todir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30/block_event_count/"
+
+odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30_daily/" + o_pre
+todir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_30/" + to_pre
+
+#%%
+# mkdir if todir does not exist
+if not os.path.exists(todir):
+    os.makedirs(todir)
 
 global_files = glob.glob(odir + "*.nc")
 files = global_files[f1:f2]
