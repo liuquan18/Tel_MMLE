@@ -173,7 +173,7 @@ def extrc_time_line_single(extrcs, extr_type, ax, ylim = (20, 280),mode = 'NAO',
             
     ax.format(
             ylim=ylim,
-            ylabel="Extreme counts",
+            ylabel="extreme occurrence",
             xlabel="Year",
             suptitle="",
             titleloc="uc",
@@ -189,9 +189,7 @@ def extrc_time_line_single(extrcs, extr_type, ax, ylim = (20, 280),mode = 'NAO',
 # set the fig size as 180mm x 150mm
 # set the font size as 7pt
 fig2 = pplt.figure(figsize=(100 / 25.4, 100 / 25.4),sharex=False,sharey=False)
-fig2.format(
-    abc=True,
-)
+
 
 gs = pplt.GridSpec(
     ncols=2,
@@ -231,7 +229,9 @@ ax3.format(
     xlabelpad=0.8, 
     xtickminor=False,
     xrotation=45,
-    title = 'positive'
+    title = 'positive',
+    abc = 'a.',
+    titleloc = 'l',
 )
 
 #### ax4 ####
@@ -245,6 +245,8 @@ ax4.format(
     yticklabels = [],
     ylabel = '',
     xrotation=45,
+    abc = 'a.',
+    titleloc = 'l',
     title = 'negative'
 )
 
