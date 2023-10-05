@@ -13,15 +13,16 @@ def events_count(arr, threshold=10):
     """
     count the number of events that lasted more than 10 days for one single pixel
     """
-    df = arr.to_dataframe()
+    df = event.to_dataframe()
     df = df['IB index'].reset_index()
-    G=df[df['IB index']> 0].groupby((df['IB index']<=0).cumsum())
+    Grouper = df.groupby(df.time.dt.year)['IB index'].transform(lambda x: (x<=0).cumsum())
+    G=df[df['IB index']> 0].groupby([df.time.dt.year,Grouper])
     durations = G.size()
     count = durations[durations> threshold].count()
     count_x = xr.DataArray(count, dims = ['z'],coords = {'z':arr.z})
     return count_x
 
-def yearly_events_count(arr, threshold=10):
+def spatial_applyer(arr, threshold=10):
     """
     statistcis (average, count) of the duration of events 
     """
@@ -30,7 +31,7 @@ def yearly_events_count(arr, threshold=10):
     return count.unstack()
 
 def decade_events_count(arr, threshold=40): # 10 days (6h a day)
-    decade_count = arr.resample(time = '10AS').apply(yearly_events_count, threshold=threshold)
+    decade_count = arr.resample(time = '10AS').apply(spatial_applyer, threshold=threshold)
     return decade_count
 
 
