@@ -61,7 +61,6 @@ for kk, step in enumerate(steps):
     print(f"{month} on node: {num}: kk = {kk+1}/{len(steps)}, step = {fname}")
     # replace the 'zg' in step with 'block'
     to_path = step.replace(prefix, prefix+"event_")
-    to_path = to_path.replace("30_daily", "30")
     ix = xr.open_dataset(step)['IB index']
     BE = block_event.blocking_event_index(ix,pers_thresh=20) # 6h to daily. equal 5 days
     BE.to_netcdf(to_path)
