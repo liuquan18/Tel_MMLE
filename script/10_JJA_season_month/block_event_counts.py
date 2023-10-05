@@ -30,6 +30,10 @@ def spatial_applyer(arr, threshold=10):
     count = arr.groupby('z').apply(events_count, threshold=threshold)
     return count.unstack()
 
+def annual_events_count(arr, threshold=10): # 10 days (6h a day)
+    annual_count = arr.resample(time = 'AS').apply(spatial_applyer, threshold=threshold)
+    return annual_count
+
 def decade_events_count(arr, threshold=40): # 10 days (6h a day)
     decade_count = arr.resample(time = '10AS').apply(spatial_applyer, threshold=threshold)
     return decade_count
