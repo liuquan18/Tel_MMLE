@@ -11,25 +11,25 @@ import sys
 
 # %%
 
-def average_duration(arr):
+def average_duration(event):
     """
     the average duraion for one single pixel
     """
     
-    df = arr.to_dataframe()
+    df = event.to_dataframe()
     df = df['IB index'].reset_index()
     G=df[df['IB index']> 0].groupby((df['IB index']<=0).cumsum())
     durations = G.size()
     dur_mean = durations.mean()
-    dur_mean_x = xr.DataArray(dur_mean, dims = ['z'],coords = {'z':arr.z})
+    dur_mean_x = xr.DataArray(dur_mean, dims = ['z'],coords = {'z':event.z})
     return dur_mean_x
 
-def yearly_average_duration(arr):
+def yearly_average_duration(event):
     """
     statistcis (average, count) of the duration of events 
     """
-    arr = arr.stack(z=('lat', 'lon'))
-    mean_dur = arr.groupby('z').apply(average_duration)
+    event = event.stack(z=('lat', 'lon'))
+    mean_dur = event.groupby('z').apply(average_duration)
     return mean_dur.unstack()
 
 def decade_average_duration(arr):
