@@ -47,8 +47,9 @@ def events_count(event, threshold=10):
     """
     df = event.to_dataframe()
     df = df['IB index'].reset_index()
-    Grouper = df.groupby(df.time.dt.year)['IB index'].transform(lambda x: (x<=0).cumsum())
-    G=df[df['IB index']> 0].groupby([df.time.dt.year,Grouper])
+    # Grouper = df.groupby(df.time.dt.year)['IB index'].transform(lambda x: (x<=0).cumsum())
+    # G=df[df['IB index']> 0].groupby([df.time.dt.year,Grouper])
+    G = df[df['IB index']> 0].groupby((df['IB index']<=0).cumsum())
     durations = G.size()
     count = durations[durations> threshold].count()
     count_x = xr.DataArray(count, dims = ['z'],coords = {'z':event.z})

@@ -8,6 +8,7 @@ import mpi4py as MPI
 import glob
 import os
 import sys
+import src.blocking.block_event_stat as block_event_stat
 
 #%%
 import importlib
@@ -60,9 +61,10 @@ for kk, step in enumerate(steps):
     fname = os.path.basename(step)
     print(f"{month} on node: {num}: kk = {kk+1}/{len(steps)}, step = {fname}")
     # replace the 'zg' in step with 'block'
-    to_path = step.replace(prefix, prefix+"event_")
+    to_path = step.replace(prefix, prefix+"count_")
+    to_path = to_path.replace("30_daily", "30")
     ix = xr.open_dataset(step)['IB index']
-    BE = block_event.blocking_event_index(ix,pers_thresh=20) # 6h to daily. equal 5 days
+    BE = block_event_stat.annual_events_count(ix,threshold=40) # 10 days (6h a day)
     BE.to_netcdf(to_path)
 
 # %%
