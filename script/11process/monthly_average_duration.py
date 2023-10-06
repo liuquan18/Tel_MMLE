@@ -3,12 +3,11 @@
 import xarray as xr
 import numpy as np
 import src.blocking.block_event as block_event
-from src.blocking.utils import reg_lens
 import mpi4py as MPI
 import glob
 import os
 import sys
-import src.blocking.block_event_stat as block_event_stat
+import src.blocking.block_event_stat_pd as block_event_stat
 
 #%%
 import importlib
@@ -61,10 +60,16 @@ for kk, step in enumerate(steps):
     fname = os.path.basename(step)
     print(f"{month} on node: {num}: kk = {kk+1}/{len(steps)}, step = {fname}")
     # replace the 'zg' in step with 'block'
-    to_path = step.replace(prefix, prefix[:-6]+"average_duration_")
-    to_path = to_path.replace("30_daily", "30")
+    dur_to_path = step.replace(prefix, prefix[:-6]+"average_duration_")
+    dur_to_path = dur_to_path.replace("30_daily", "30")
+
+    event_to_path = step.replace(prefix, prefix+"count_")
+    event_to_path = event_to_path.replace("30_daily", "30")
+
     ix = xr.open_dataset(step)['IB index']
-    BE = block_event_stat.annual_average_duration(ix) # 10 days (6h a day)
-    BE.to_netcdf(to_path)
+    Duration, Count = block_event_stat.annual_blocking_stat(ix) # 10 days (6h a day)
+    
+    Duration.to_netcdf(dur_to_path)
+    Count.to_netcdf(event_to_path)
 
 # %%

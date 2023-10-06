@@ -5,8 +5,8 @@ import numpy as np
 
 #%%
 nsteps = 96
-npar   = 12
-njobs  = int(nsteps/npar) # 8
+npar   = 6
+njobs  = int(nsteps/npar) # 16
 
 #%%
 for kk in range(njobs): #
