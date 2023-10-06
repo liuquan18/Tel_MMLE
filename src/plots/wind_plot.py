@@ -19,10 +19,6 @@ def read_wind_months(var_name = 'u', remove_ensmean = False):
     Jul_f = index_stats.read_var_data(Jul_fl,remove_ensmean=remove_ensmean)
     Aug_f = index_stats.read_var_data(Aug_fl,remove_ensmean=remove_ensmean)
 
-    Jun_f = index_stats.read_var_data(Jun_fl,remove_ensmean=remove_ensmean)
-    Jul_f = index_stats.read_var_data(Jul_fl,remove_ensmean=remove_ensmean)
-    Aug_f = index_stats.read_var_data(Aug_fl,remove_ensmean=remove_ensmean)
-
     JJA_f = xr.concat([Jun_f, Jul_f, Aug_f], dim='time')
     JJA_f = JJA_f.sortby('time')
 
