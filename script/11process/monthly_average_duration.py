@@ -11,7 +11,7 @@ import src.blocking.block_event_stat_pd as block_event_stat
 
 #%%
 import importlib
-importlib.reload(block_event)
+importlib.reload(block_event_stat)
 # %%
 # === mpi4py ===
 try:
@@ -60,16 +60,23 @@ for kk, step in enumerate(steps):
     fname = os.path.basename(step)
     print(f"{month} on node: {num}: kk = {kk+1}/{len(steps)}, step = {fname}")
     # replace the 'zg' in step with 'block'
-    dur_to_path = step.replace(prefix, prefix[:-6]+"average_duration_")
+    month = step[-5:-3] # Jun, Jul, Aug
+    dur_to_path = step.replace(prefix, prefix[:-6]+"duration_average_")
     dur_to_path = dur_to_path.replace("30_daily", "30")
 
     event_to_path = step.replace(prefix, prefix+"count_")
     event_to_path = event_to_path.replace("30_daily", "30")
 
     ix = xr.open_dataset(step)['IB index']
-    Duration, Count = block_event_stat.annual_blocking_stat(ix) # 10 days (6h a day)
+    Duration, Count = block_event_stat.annual_blocking_stat(ix,month = month) # 10 days (6h a day)
     
-    Duration.to_netcdf(dur_to_path)
-    Count.to_netcdf(event_to_path)
+    try:
+        Duration.to_netcdf(dur_to_path)
+        Count.to_netcdf(event_to_path)
+    except PermissionError:
+        os.remove(dur_to_path)
+        os.remove(event_to_path)
+        Duration.to_netcdf(dur_to_path)
+        Count.to_netcdf(event_to_path)
 
 # %%

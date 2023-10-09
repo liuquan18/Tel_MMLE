@@ -254,11 +254,11 @@ ax4.format(
 )
 
 
-plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/Story_line_nature_climate_change/statistical_overview.png",
-    dpi=300,
-    bbox_inches="tight",
-)
+# plt.savefig(
+#     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/Story_line_nature_climate_change/statistical_overview.png",
+#     dpi=300,
+#     bbox_inches="tight",
+# )
 
 
 # %%
@@ -274,7 +274,7 @@ fig2.format(
 )
 models_legend = [
     "MPI_GE_onepct (100)",
-    "MPI-GE (100)",
+    "MPI-GE_Hist+RCP8.5 (100)",
     "CanESM2 (50)",
     "CESM1-CAM5 (40)",
     "MK3.6 (30)",
@@ -286,7 +286,7 @@ gs = pplt.GridSpec(
     nrows=2,
     wspace=(5, 0.5),
     hspace=0.5,
-    hratios=[1, 0.8],
+    hratios=[1, 1],
     wratios=[1, 0.85, 0.85],
 )
 
@@ -346,15 +346,16 @@ cbar = ax2.colorbar(
     width=0.1,
     shrink=1,
     loc = 'b', 
-    label = 'NAO_std',   
+    label = 'standardized NAO',   
     pad = 0.2,
 )
 
 ax2.set_ylabel("density", fontsize=7)
 ax2.format(
     ylocator=pplt.MultipleLocator(0.05),
-    xlabel = "std_NAO",
+    xlabel = "standard deviation",
     xlabelpad=0.8, 
+    facecolor = 'none',
 )
 
 
@@ -368,6 +369,8 @@ ax3.format(
     xlabelpad=0.8, 
     xtickminor=False,
     xrotation=45,
+    ylim = (120,350),
+    ylabel = 'Extreme occurence'
 )
 
 #### ax4 ####
@@ -381,6 +384,7 @@ ax4.format(
     yticklabels = [],
     ylabel = '',
     xrotation=45,
+    ylim = (120,350),
 )
 
 ax4.legend(
@@ -397,8 +401,7 @@ ax4.legend(
 
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/Story_line_nature_climate_change/extrc_change.png",
-    dpi=300,
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/imprs_retreat/extrc_change.pdf",
     bbox_inches="tight",
 )
 

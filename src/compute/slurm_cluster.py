@@ -11,7 +11,7 @@ from tempfile import NamedTemporaryFile, TemporaryDirectory # Creating temporary
 from getpass import getuser # Libaray to copy things
 
 
-def init_dask_slurm_cluster(scale = 8, processes = 2, walltime="00:30:00", memory=0):
+def init_dask_slurm_cluster(scale = 8, processes = 2, walltime="00:30:00", memory="128GB"):
     dask.config.set(
         {
             "distributed.worker.data-directory": "/scratch/m/m300883/dask_temp",
