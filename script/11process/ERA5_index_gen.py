@@ -14,6 +14,9 @@ import src.Teleconnection.spatial_pattern as ssp
 import warnings
 import glob
 
+import proplot as pplt
+import src.plots.extreme_plot as extplt
+import src.plots.statistical_overview as stat_overview
 
 #%%
 model = 'ERA5_allens'
@@ -86,4 +89,28 @@ last_40_eof.to_netcdf(save_path + 'last_40_eof.nc')
 
 first_40_eof_std.to_netcdf(save_path + 'first_40_eof_std.nc')
 last_40_eof_std.to_netcdf(save_path + 'last_40_eof_std.nc')
+# %%
+fig2 = pplt.figure(figsize=(180 / 25.4, 90 / 25.4),sharex=False,sharey=False)
+fig2.format(
+    abc=True,
+    abcloc="ul",
+    abcstyle="a",
+    
+)
+gs = pplt.GridSpec(
+    ncols=2,
+    nrows=1,
+)
+ax1 = fig2.add_subplot(gs[0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
+ax2 = fig2.add_subplot(gs[1])
+
+
+ax1, fmap, lmap = stat_overview.spatial_pattern_plot(
+    ax1,
+    first_40_eof.eof.sel(mode = 'NAO',decade = '1940').squeeze(),
+    first_40_eof.fra.sel(mode = 'NAO',decade = '1940').squeeze(),
+    last_40_eof.eof.sel(mode = 'NAO',decade = '1982').squeeze(),
+    last_40_eof.fra.sel(mode = 'NAO',decade = '1982').squeeze(),
+    levels = np.arange(-2,2.1,0.4),
+)
 # %%
