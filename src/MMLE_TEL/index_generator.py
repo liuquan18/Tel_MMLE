@@ -425,16 +425,18 @@ def read_data(
         zg_demean = zg_data
 
     # select one altitude
-    if plev is not None:
-        print(" select the specific plev...")
-        zg_plev = zg_demean.sel(plev=plev)
-    else:
-        # select the 1000hPa - 200hPa
-        print(" select the 1000hPa - 200hPa...")
-        zg_plev = zg_demean.sel(plev=slice(100000, 20000))
-        if zg_plev.plev.size == 0:
-            zg_plev = zg_demean.sel(plev=slice(20000, 100000))
-
+    try:
+        if plev is not None:
+            print(" select the specific plev...")
+            zg_plev = zg_demean.sel(plev=plev)
+        else:
+            # select the 1000hPa - 200hPa
+            print(" select the 1000hPa - 200hPa...")
+            zg_plev = zg_demean.sel(plev=slice(100000, 20000))
+            if zg_plev.plev.size == 0:
+                zg_plev = zg_demean.sel(plev=slice(20000, 100000))
+    except KeyError:
+        zg_plev = zg_demean # for the data only with one plev
     return zg_plev
 
 
