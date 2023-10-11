@@ -90,12 +90,12 @@ def standard_40(first_40_eof,last_40_eof):
 
 first_40_eof_std, last_40_eof_std = standard_40(first_40_eof,last_40_eof)
 
-#%%
-# first_40_eof.to_netcdf(save_path + 'first_40_eof.nc')
-# last_40_eof.to_netcdf(save_path + 'last_40_eof.nc')
+# %%
+first_40_eof.to_netcdf(save_path + 'first_40_eof.nc')
+last_40_eof.to_netcdf(save_path + 'last_40_eof.nc')
 
-# first_40_eof_std.to_netcdf(save_path + 'first_40_eof_std.nc')
-# last_40_eof_std.to_netcdf(save_path + 'last_40_eof_std.nc')
+first_40_eof_std.to_netcdf(save_path + 'first_40_eof_std.nc')
+last_40_eof_std.to_netcdf(save_path + 'last_40_eof_std.nc')
 
 
 
