@@ -79,4 +79,4 @@ for kk, step in enumerate(steps):
         Duration.to_netcdf(dur_to_path)
         Count.to_netcdf(event_to_path)
 
-# %%
+
