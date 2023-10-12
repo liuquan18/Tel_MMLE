@@ -152,3 +152,4 @@ script/8season/seasonmean.o5808103
 
 # pickle files
 *.p
+*.pkl
