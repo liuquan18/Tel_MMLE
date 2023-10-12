@@ -45,7 +45,7 @@ def doeof(
 
     # EOF decompose
     solver = Eof(
-        data.values, weights=wgts, center=True
+        data.values, weights=wgts, center=False
     )  
     
     eof = solver.eofs(neofs=nmode)  # (mode,lat,lon,...)
