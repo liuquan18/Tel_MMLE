@@ -51,7 +51,7 @@ def composite_plot(first, last, mode, level_bound=None, levels=None):
 
     fig, axes = pplt.subplots(
         space=0,
-        refwidth="35em",
+        width = 180/25.4,
         wspace=3,
         hspace=3,
         proj="ortho",
@@ -64,14 +64,12 @@ def composite_plot(first, last, mode, level_bound=None, levels=None):
         lonlines=30,
         color="grey7",
         coast=True,
-        coastlinewidth=1,
-        coastcolor="grey9",
+        coastlinewidth=0.3,
+        coastcolor="grey7",
         toplabels=["first10", "last10", "last10 - first10"],
-        toplabelcolor="w",
-        toplabels_kw={"fontsize": 50},
+        toplabels_kw={"fontsize": 7},
         leftlabels=("pos", "neg"),
-        leftlabelcolor="w",
-        leftlabels_kw={"fontsize": 50},
+        leftlabels_kw={"fontsize": 7},
         suptitle=f"Change in influence of extreme {mode} on surface temperature",
         # set the fontsize of labels to 25
     )
