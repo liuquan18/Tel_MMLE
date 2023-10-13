@@ -31,7 +31,7 @@ def _sel_data(data, index, num = 'all'):
     select the data based on the coordinates of extreme cases in index.
     **num**: 'all' or int
     """
-    index = index.stack(com = ('time','mode'))
+    index = index.stack(com = ('time','ens'))
     index = index.dropna('com')
 
     data = data.stack(com = ('time','ens'))
