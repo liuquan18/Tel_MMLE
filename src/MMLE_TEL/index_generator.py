@@ -390,6 +390,7 @@ def read_data(
     zg_path,
     plev=None,
     remove_ens_mean=True,
+    var_name = "zg",
 ):
     """
     read data quickly
@@ -408,7 +409,11 @@ def read_data(
     try:
         zg_data = zg_data.var156
     except AttributeError:
-        zg_data = zg_data.zg
+        try:
+            zg_data = zg_data.zg
+    
+        except AttributeError:
+            zg_data = zg_data[var_name]
 
     # time to datetime
     try:
