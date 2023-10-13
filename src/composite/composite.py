@@ -31,24 +31,22 @@ def _sel_data(data, index, num = 'all'):
     select the data based on the coordinates of extreme cases in index.
     **num**: 'all' or int
     """
+    index = index.stack(com = ('time','mode'))
+    index = index.dropna('com')
+
+    data = data.stack(com = ('time','ens'))
+
     if num == 'all':
         sel_data = data.where(index)
     else:
-        index = index.copy()
         index = index.squeeze()
-        try:
-            index = index.stack(com = ('time','mode'))
-            data = data.stack(com = ('time','mode'))
-        except KeyError:
-            pass
         if index.attrs["extreme_type"] == "pos":
             index = index.sortby(index, ascending=False)
         elif index.attrs["extreme_type"] == "neg":
             index = index.sortby(index, ascending=True)
         index = index.isel(com=slice(0, num))  # select the first {num} indexes
         sel_data = data.where(index)
-        sel_data = sel_data.unstack('com')
-    return sel_data
+    return sel_data # stacked
 
 def reduce_var(
     index: xr.DataArray,
@@ -80,11 +78,9 @@ def reduce_var(
 
     if reduction == "mean" or reduction == "mean_same_number":
         # get the data at the  coordinates
-        sel_data = sel_data.stack(com=("time", "ens"))
         composite_res = sel_data.mean(dim="com")
 
     elif reduction == "mean_weighted":
-        sel_data = sel_data.stack(com=("time", "ens"))
         weights = index
         composite_res = sel_data.weighted(weights).mean(dim="com")
     else:
