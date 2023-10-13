@@ -68,11 +68,6 @@ def reduce_var(
         *composite_mean* the composite mean of the extreme cases.
     """
 
-    # select the same time period
-    data = data.sortby("time")
-    data = data.sel(time=index.time, method="nearest")
-    data["time"] = index.time  # make sure the time is the same to use where function
-
     num = kwargs.get("count", 'all')
     sel_data = _sel_data(data, index, num = num)
 
@@ -122,6 +117,11 @@ def extreme_composite(
     **Return**
         *composite_mean* the composite mean of the extreme positive and negative cases.
     """
+    # select the same time period
+    data = data.sortby("time")
+    data = data.sel(time=index.time, method="nearest")
+    data["time"] = index.time  # make sure the time is the same to use where function
+
     Ext_composite = []
     extreme_type = xr.DataArray(["pos", "neg"], dims=["extr_type"])
     for extr_type in extreme_type.values:
