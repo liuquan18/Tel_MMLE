@@ -66,7 +66,7 @@ def composite_plot(first, last, mode, level_bound=None, levels=None):
         coast=True,
         coastlinewidth=0.3,
         coastcolor="grey7",
-        toplabels=["first10", "last10", "last10 - first10"],
+        toplabels=["1940-1980", "1982-2022", "last40 - first40"],
         toplabels_kw={"fontsize": 7},
         leftlabels=("pos", "neg"),
         leftlabels_kw={"fontsize": 7},

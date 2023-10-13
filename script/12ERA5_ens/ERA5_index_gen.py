@@ -31,24 +31,31 @@ def linear_detrend(data):
     return linear_detrend
 
 #%%
-model = 'ERA5_allens'
-fixedPattern="decade"
+model = 'MPI_GE'
 plev=50000
 standard="first"
 #%%
 # read gph data
-odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
-ts_mean_path = odir + "ts_processed/ens_fld_year_mean.nc"
-save_path = odir + "EOF_result/"
+def read_gph_data(model,external_forcing = 'linear_trend'):
+    plev = 50000
+    odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
 
-data_JJA = []
-for month in ["Jun", "Jul", "Aug"]:
-    print(f"reading the gph data of {month} ...")
-    zg_path = odir + "zg_" + month + "/"
-    data_month = index_generate.read_data(zg_path, plev=plev, remove_ens_mean=False)
-    data_detrend = linear_detrend(data_month)
-    data_JJA.append(data_detrend)
-data = xr.concat(data_JJA, dim="time").sortby("time")
+    data_JJA = []
+    for month in ["Jun", "Jul", "Aug"]:
+        print(f"reading the gph data of {month} ...")
+        zg_path = odir + "zg_" + month + "/"
+        data_month = index_generate.read_data(zg_path, plev=plev, remove_ens_mean=False)
+        data_month = data_month.sel(time = slice('1940','2022'))
+        if external_forcing == 'linear_trend':
+            data_internal = linear_detrend(data_month)
+        elif external_forcing == 'ens_mean':
+            data_internal = data_month - data_month.mean(dim = 'ens')
+        data_JJA.append(data_internal)
+    data = xr.concat(data_JJA, dim="time").sortby("time")
+    return data
+
+#%%
+data = read_gph_data('MPI_GE',external_forcing = 'ens_mean')
 
 
 
@@ -73,6 +80,7 @@ first_40 = data.sel(time=slice('1940','1980'))
 
 last_40 = data.sel(time=slice('1982','2022'))
 
+#%%
 first_40_eof = decompose_40(first_40)
 last_40_eof = decompose_40(last_40)
 
@@ -91,9 +99,11 @@ def standard_40(first_40_eof,last_40_eof):
 first_40_eof_std, last_40_eof_std = standard_40(first_40_eof,last_40_eof)
 
 # %%
+save_path = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/" + "EOF_result/"
 first_40_eof.to_netcdf(save_path + 'first_40_eof.nc')
 last_40_eof.to_netcdf(save_path + 'last_40_eof.nc')
 
+#%%
 first_40_eof_std.to_netcdf(save_path + 'first_40_eof_std.nc')
 last_40_eof_std.to_netcdf(save_path + 'last_40_eof_std.nc')
 
@@ -138,7 +148,7 @@ ax2,hist = stat_overview.index_distribution_plot(
 )
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/ERA5_monthly_spatial_index.png"
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/MPI_GE_monthly_spatial_index.png"
 )
 
 
