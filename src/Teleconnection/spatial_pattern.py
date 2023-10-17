@@ -100,11 +100,16 @@ def standard_by_pc_temporal_std(eofx, pcx):
     return eofx,pcx
 
 def eofs_to_xarray(data, eof, pc, fra):
+    if pc.shape[1] ==2:
+        modes = ['NAO','EA']
+    else:
+        modes = np.arange(pc.shape[1])
+
     reduce_dim = data.dims[0] # 'com' or 'time'
     eof_cnt = data[0]
     time_tag = data.unstack().time.values[0] # the time tag of the first map
     eof_cnt = eof_cnt.drop_vars(reduce_dim) # drop the dim 'com' or 'time'
-    eof_cnt = eof_cnt.expand_dims(dim = {'mode':['NAO','EA'],'decade':[time_tag]},axis = [0,-1]) # add the dim 'mode' and 'decade'
+    eof_cnt = eof_cnt.expand_dims(dim = {'mode':modes,'decade':[time_tag]},axis = [0,-1]) # add the dim 'mode' and 'decade'
 
     eof = eof[..., np.newaxis] # add one new dimension for the info of decade (time of the beginning of the decade)
     fra = fra[..., np.newaxis] # add one new dimension for the info of decade (time of the beginning of the decade)
@@ -112,9 +117,9 @@ def eofs_to_xarray(data, eof, pc, fra):
 
     # pc to xarray
     pcx = xr.DataArray(
-        pc, dims=[reduce_dim, "mode"], coords={reduce_dim: data[reduce_dim], "mode": ["NAO", "EA"]}
+        pc, dims=[reduce_dim, "mode"], coords={reduce_dim: data[reduce_dim], "mode":modes}
     )
-    frax = xr.DataArray(fra, dims=["mode","decade"], coords={"mode": ["NAO", "EA"],'decade':[time_tag]})
+    frax = xr.DataArray(fra, dims=["mode","decade"], coords={"mode": modes,'decade':[time_tag]})
     return eofx,pcx,frax
 
 
