@@ -65,7 +65,8 @@ def doeof(
         eofx, pcx = standard_by_pc_temporal_std(eofx, pcx)
 
     # fix the sign, so that the North center of action is always low.
-    eofx, pcx = fix_sign(eofx, pcx)
+    if eofx.mode.size == 2:
+        eofx, pcx = fix_sign(eofx, pcx) # only when the first two modes are decomposed
 
     # make sure at the loc where the data==np.nan, the eof==np.nan as well.
     map_data = data[0]  # just one map
