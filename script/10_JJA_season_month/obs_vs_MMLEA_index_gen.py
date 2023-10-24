@@ -7,15 +7,16 @@ from scipy.signal import detrend
 import src.Teleconnection.spatial_pattern as ssp
 import src.MMLE_TEL.index_generator as index_generator
 
-#%%
+# %%
 import importlib
+
 importlib.reload(ssp)
 importlib.reload(index_generator)
 
 
 # %%
 # read data
-def read_EAR_JJA_data(time = slice("1940", "2022")):
+def read_EAR_JJA_data(time=slice("1940", "2022")):
     odir = "/work/mh0033/m300883/Tel_MMLE/data/ERA5/"
     data_JJA = []
     for month in ["Jun", "Jul", "Aug"]:
@@ -59,44 +60,41 @@ def read_LE_month_data(model, time=slice("1940", "2022")):
 
 
 # %%
-def decompose_SNAO(model, time = slice("1940", "2022")):
+def decompose_SNAO(model, time=slice("1940", "2022")):
     print(f"******{model}********")
 
     # read data
     print("----reading data----")
     if model == "ERA5":
         data_JJA = read_EAR_JJA_data(time=time)
-        dim = 'time' # along time
+        dim = "time"  # along time
     else:
         data_JJA = read_LE_month_data(model, time=time)
         data_JJA = data_JJA.stack(com=["time", "ens"])
-        dim = 'com' # along ensemble and time
-    
+        dim = "com"  # along ensemble and time
+
     # decompose
     print("----decomposing----")
-    eof_result = ssp.doeof(
-        data_JJA, nmode=2, dim=dim, standard="pc_temporal_std"
-    ) 
+    eof_result = ssp.doeof(data_JJA, nmode=2, dim=dim, standard="pc_temporal_std")
 
     # save result
     print("----saving result----")
-    sdir =  "/work/mh0033/m300883/Tel_MMLE/data/ERA5/EOF_result/"
-    eof_result.to_netcdf(
-        sdir + f"plev_50000_{time.start}_{time.stop}_{model}_all.nc"
-    )
+    sdir = "/work/mh0033/m300883/Tel_MMLE/data/ERA5/EOF_result/"
+    eof_result.to_netcdf(sdir + f"plev_50000_{time.start}_{time.stop}_{model}_all.nc")
+
 
 # %%
-models = ['ERA5','MPI_GE','CanESM2','CESM1_CAM5','MK36','GFDL_CM3']
-#%%
+models = ["ERA5", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+# %%
 # get the mindex from keyboard
 mindex = int(sys.argv[1])
 
-#%%
+# %%
 model = models[mindex]
 print(f"model: {model}")
-decompose_SNAO(model, time = slice("1940", "2022"))
+decompose_SNAO(model, time=slice("1940", "2022"))
 # %%
 
 for model in models:
-    decompose_SNAO(model, time = slice("1940", "2022"))
+    decompose_SNAO(model, time=slice("1940", "2022"))
 # %%
