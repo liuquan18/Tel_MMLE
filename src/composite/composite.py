@@ -102,7 +102,7 @@ def reduce_var(
 
 
 def extreme_composite(
-    index, data, reduction="mean", dim="com", threshold=1.5, bootstrap=False, **kwargs
+    index, data, reduction="mean", threshold=1.5, bootstrap=False, **kwargs
 ):
     """
     get the indexes for the extreme cases, and do the composite analysis.
