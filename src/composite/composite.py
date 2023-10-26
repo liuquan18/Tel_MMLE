@@ -31,10 +31,14 @@ def _sel_data(data, index, num = 'all'):
     select the data based on the coordinates of extreme cases in index.
     **num**: 'all' or int
     """
-    index = index.stack(com = ('time','ens'))
-    index = index.dropna('com')
+    if 'ens' in data.dims:
+        index = index.stack(com = ('time','ens'))
+        index = index.dropna('com')
 
-    data = data.stack(com = ('time','ens'))
+        data = data.stack(com = ('time','ens'))
+    else: # to use the 'com' as above when only one single realization
+        index = index.dropna('time')
+        data = data
 
     if num == 'all':
         sel_data = data.where(index)
@@ -67,17 +71,17 @@ def reduce_var(
     **Return**
         *composite_mean* the composite mean of the extreme cases.
     """
-
+    dim = 'com' if 'ens' in data.dims else 'time'
     num = kwargs.get("count", 'all')
     sel_data = _sel_data(data, index, num = num)
 
     if reduction == "mean" or reduction == "mean_same_number":
         # get the data at the  coordinates
-        composite_res = sel_data.mean(dim="com")
+        composite_res = sel_data.mean(dim=dim)
 
     elif reduction == "mean_weighted":
         weights = index
-        composite_res = sel_data.weighted(weights).mean(dim="com")
+        composite_res = sel_data.weighted(weights).mean(dim=dim)
     else:
         composite_res = sel_data.reduce(reduction) # apply custom reduction
     
@@ -88,13 +92,13 @@ def reduce_var(
     if bootstrap and reduction == "mean":
         n_resamples = kwargs.get("n_resamples", 1000)
         # get the 'com' random index with the shape sel_data.size['com'] and 1000 times
-        n_samples = sel_data.sizes["com"]  # the resampled data is the same length as the original data
+        n_samples = sel_data.sizes[dim]  # the resampled data is the same length as the original data
         rng = np.random.default_rng(seed=12345)
         sampled_index = rng.choice(n_samples, size=(n_samples, n_resamples), replace=True)
         composite_res = []
         for i in range(1000):
             sample = sel_data.isel(com=sampled_index[:, i])
-            composite_res.append(sample.mean(dim="com"))
+            composite_res.append(sample.mean(dim=dim))
 
         composite_res = xr.concat(composite_res, dim="bootstrap")
 
