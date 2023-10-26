@@ -1,28 +1,11 @@
 # %%
 import xarray as xr
 import numpy as np
-import pandas as pd
 
 import matplotlib.pyplot as plt
-import matplotlib as mpl
-import proplot as pplt
-import seaborn as sns
-import cartopy.crs as ccrs
-import matplotlib.ticker as ticker
-from matplotlib import lines as mlines
-import matplotlib.ticker as ticker
-
-
-
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter, MaxNLocator
-import matplotlib.patches as mpatches
-
 
 import src.plots.composite_plot as composite_plot
-import src.plots.extreme_plot as extplt
-import src.plots.statistical_overview as stat_overview
-import src.plots.utils as utils
-import src.obs.era5_extreme_change as era5_extreme_change
+
 #%%
 import importlib
 importlib.reload(composite_plot)
