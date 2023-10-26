@@ -15,6 +15,9 @@ import proplot as pplt
 import src.plots.extreme_plot as extplt
 import src.plots.statistical_overview as stat_overview
 import matplotlib.pyplot as plt
+import src.reanalysis.remove_force as remove_force
+import src.plots.composite_plot as composite_plot
+
 #%%
 import src.compute.slurm_cluster as slurm_cluster
 import pickle
@@ -28,62 +31,77 @@ client, cluster = slurm_cluster.init_dask_slurm_cluster(scale = 2, processes = 1
 
 
 #%%
-def linear_detrend(data):
-    ens_mean = data.mean(dim = 'ens')
-    ens_mean_c = ens_mean.copy()
-    ens_mean_c['time'] = np.arange(ens_mean_c.time.size)
-    linear_coef = ens_mean_c.polyfit(dim='time', deg=1)
-    linear_fitted = xr.polyval(ens_mean_c.time, linear_coef.polyfit_coefficients)
-    linear_fitted['time'] = ens_mean.time
-    linear_detrend = data - linear_fitted
-    return linear_detrend
+
+def read_temp_data(model,var_name = 't2max'):
+
+    odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
+    data_JJA = []
+    for month in ["Jun", "Jul", "Aug"]:
+        print(f"reading the gph data of {month} ...")
+        zg_path = odir + f"{var_name}_" + month + "/"
+        all_files = glob.glob(zg_path + "*.nc")
+        all_files.sort()
+
+        if model == 'ERA5':
+            data_month = xr.open_mfdataset(all_files,combine = 'by_coords')
+            try:
+                data_month = data_month['T2M']
+            except KeyError:
+                data_month = data_month['var167']
+        elif model == 'CR20':
+            data_month = xr.open_dataset(all_files[0])
+            data_month = data_month['air']
+
+        data_JJA.append(data_month)
+    data = xr.concat(data_JJA, dim="time").sortby("time")
+    data_inter = remove_force.detrend(data, method="quadratic_trend")
+    return data_inter
 
 #%%
-model = 'ERA5_allens'
+def read_eof(model,group_size = 40):
+    odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
+    first_eof_path = odir + f"EOF_result/first_{str(group_size)}_eof_std.nc"
+    last_eof_path = odir + f"EOF_result/last_{str(group_size)}_eof_std.nc"
 
-#%%
-# read gph data
-odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
-save_path = odir + "composite/"
+    first_eof = xr.open_dataset(first_eof_path)
+    last_eof = xr.open_dataset(last_eof_path)
+    return first_eof.pc, last_eof.pc
 
-data_JJA = []
-for month in ["Jun", "Jul", "Aug"]:
-    print(f"reading the gph data of {month} ...")
-    zg_path = odir + "ts_" + month + "/"
-    data_month = xr.open_mfdataset(zg_path + "*.nc",combine = 'nested',concat_dim = 'ens')['ts']
-    data_detrend = linear_detrend(data_month)
-    data_JJA.append(data_detrend)
-data = xr.concat(data_JJA, dim="time").sortby("time")
-# rechunk
-#%%
-# data = data.chunk(chunks = {'time': 100})
 
 # %%
-First_index = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/ERA5_allens/EOF_result/first_40_eof_std.nc").pc
-Last_index = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/ERA5_allens/EOF_result/last_40_eof_std.nc").pc
+def composite_reana(model,var_name = 'ts', group_size = 40):
+    var_data = read_temp_data(model,var_name = var_name)
+    first_index, last_index = read_eof(model,group_size=group_size)
+    first_composite = composite.Tel_field_composite(
+        first_index,
+        var_data,
+        threshold=1.5,
+        reduction='mean',
+        bootstrap=False,
+    )
+    last_composite = composite.Tel_field_composite(
+        last_index,
+        var_data,
+        threshold=1.5,
+        reduction='mean',
+        bootstrap=False,
+    )
+    diff = last_composite - first_composite
+    return first_composite, last_composite, diff
 
-# %%
 
-# first 40 years
-first_composite = composite.Tel_field_composite(
-    First_index,
-    data,
-    threshold=1.5,
-    reduction='mean',
-    bootstrap=False,
-)
-
-# %%
-last_composite = composite.Tel_field_composite(
-    Last_index,
-    data,
-    threshold=1.5,
-    reduction='mean',
-    bootstrap=False,
-)
 #%%
-first_composite.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/ERA5_allens/composite/first_composite.nc")
-last_composite.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/ERA5_allens/composite/last_composite.nc")
+ERA_first, ERA_last, ERA_diff = composite_reana('ERA5', group_size=20)
+ERA_first.name = 'ts'
+ERA_last.name = 'ts'
+ERA_diff.name = 'ts'
+#%%
+ERA_first.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/ERA5/composite/first_composite_20.nc")
+ERA_last.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/ERA5/composite/last_composite_20.nc")
+ERA_diff.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/ERA5/composite/diff_composite_20.nc")
+
+#%%
+composite_plot.composite_plot(ERA_first, ERA_last, 'NAO', levels=np.arange(-1.5, 1.6, 0.3))
 
 
 # %%
