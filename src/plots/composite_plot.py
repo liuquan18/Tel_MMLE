@@ -25,8 +25,11 @@ def composite_plot(first, last, mode, level_bound=None, levels=None):
     else:
         levels = levels
 
-    first = utils.erase_white_line(first)
-    last = utils.erase_white_line(last)
+    try:
+        first = utils.erase_white_line(first)
+        last = utils.erase_white_line(last)
+    except ValueError:
+        pass
 
     data_all = [
         first.sel(mode=mode),
