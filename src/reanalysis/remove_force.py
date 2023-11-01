@@ -33,7 +33,7 @@ def detrend(data,method = 'linear_trend'):
     elif method == 'ens_mean':
         fitted = ens_data.mean(dim = 'ens')
     elif method == None:
-        fitted = 0
+        fitted = ens_data
     detrended = data - fitted
     return detrended
 #%%
