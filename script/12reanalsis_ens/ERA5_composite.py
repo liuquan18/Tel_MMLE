@@ -31,6 +31,9 @@ client, cluster = slurm_cluster.init_dask_slurm_cluster(scale = 2, processes = 1
 
 
 #%%
+def time_convert(data):
+    data['time'] = pd.to_datetime(data['time'].values)
+    return data
 
 def read_temp_data(model,var_name = 't2max'):
 
@@ -42,15 +45,24 @@ def read_temp_data(model,var_name = 't2max'):
         all_files = glob.glob(zg_path + "*.nc")
         all_files.sort()
 
-        if model == 'ERA5':
-            data_month = xr.open_mfdataset(all_files,combine = 'by_coords')
+        if model == 'ERA5' and var_name == 'ts':
+            data_month = xr.open_mfdataset(all_files,combine = 'by_coords',preprocess=time_convert)
             try:
                 data_month = data_month['T2M']
             except KeyError:
                 data_month = data_month['var167']
+        elif model == 'ERA5' and var_name == 't2max':
+            data_month = xr.open_dataset(all_files[0])
+            data_month = data_month['var167']
+        elif model == 'ERA5' and var_name == 't2min':
+            data_month = xr.open_dataset(all_files[0])
+            data_month = data_month['var167']
         elif model == 'CR20':
             data_month = xr.open_dataset(all_files[0])
             data_month = data_month['air']
+        elif model == 'CR20_allens':
+            data_month = xr.open_mfdataset(all_files,combine = 'nested',concat_dim = 'ens')
+            data_month = data_month['TMP']
 
         data_JJA.append(data_month)
     data = xr.concat(data_JJA, dim="time").sortby("time")
@@ -67,8 +79,7 @@ def read_eof(model,group_size = 40):
     last_eof = xr.open_dataset(last_eof_path)
     return first_eof.pc, last_eof.pc
 
-
-# %%
+#%%
 def composite_reana(model,var_name = 'ts', group_size = 40):
     var_data = read_temp_data(model,var_name = var_name)
     first_index, last_index = read_eof(model,group_size=group_size)
@@ -91,14 +102,17 @@ def composite_reana(model,var_name = 'ts', group_size = 40):
 
 
 #%%
-ERA_first, ERA_last, ERA_diff = composite_reana('ERA5', group_size=20)
-ERA_first.name = 'ts'
-ERA_last.name = 'ts'
-ERA_diff.name = 'ts'
+def composite_onclick(model, var_name,group_size,save = False):
+    ERA_first, ERA_last, ERA_diff = composite_reana(model,var_name = var_name, group_size=group_size)
+    ERA_first.name = 'ts'
+    ERA_last.name = 'ts'
+    ERA_diff.name = 'ts'
+    if save:
+        ERA_first.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/ERA5/composite/first_composite_{var_name}_{group_size}.nc")
+        ERA_last.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/ERA5/composite/last_composite_{var_name}_{group_size}.nc")
+        ERA_diff.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/E®RA5/composite/diff_composite_{var_name}_{group_size}.nc")
+    return ERA_first, ERA_last, ERA_diff
 #%%
-ERA_first.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/ERA5/composite/first_composite_20.nc")
-ERA_last.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/ERA5/composite/last_composite_20.nc")
-ERA_diff.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/ERA5/composite/diff_composite_20.nc")
 
 #%%
 composite_plot.composite_plot(ERA_first, ERA_last, 'NAO', levels=np.arange(-1.5, 1.6, 0.3))
