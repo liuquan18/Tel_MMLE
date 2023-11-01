@@ -31,9 +31,9 @@ def detrend(data,method = 'linear_trend'):
     elif method == 'quadratic_trend':
         fitted = ens_data.groupby('time.month').apply(quadratic_trend)
     elif method == 'ens_mean':
-        fitted = ens_data.mean(dim = 'ens')
-    elif method == None:
         fitted = ens_data
+    elif method == None:
+        fitted = 0
     detrended = data - fitted
     return detrended
 #%%
