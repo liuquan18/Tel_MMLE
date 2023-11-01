@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import proplot as pplt
 
 
-def composite_plot(first, last, mode, level_bound=None, levels=None):
+def composite_plot(first, last, mode, level_bound=None, levels=None,**kwargs):
     if levels is None:
         if mode == "NAO":
             bound_l = -1 * level_bound - 1
@@ -69,7 +69,7 @@ def composite_plot(first, last, mode, level_bound=None, levels=None):
         coast=True,
         coastlinewidth=0.3,
         coastcolor="grey7",
-        toplabels=["1940-1980", "1982-2022", "last40 - first40"],
+        toplabels=(kwargs.get("toplabels", ["first", "last", "last - first"])),  
         toplabels_kw={"fontsize": 7},
         leftlabels=("pos", "neg"),
         leftlabels_kw={"fontsize": 7},
