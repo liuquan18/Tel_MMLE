@@ -42,6 +42,8 @@ def detrend(data,method = 'linear_trend'):
         fitted = ens_data.groupby('time.month').apply(linear_trend)
     elif method == 'quadratic_trend':
         fitted = ens_data.groupby('time.month').apply(quadratic_trend)
+    elif method == 'ens_mean':
+        fitted = ens_data.mean(dim = 'ens')
     detrended = data - fitted
     return detrended
 
@@ -113,7 +115,7 @@ def standard_period(first_eof, last_eof):
 
 #%%
 
-class EOF_reannalyis:
+class EOF_reanalysis:
     def __init__(self, model, group_size=40, external_forcing="linear_trend", **kwargs):
         self.model = model
         self.group_size = group_size
@@ -195,32 +197,41 @@ class EOF_reannalyis:
             plt.savefig(
                 f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/{self.model}_{self.group_size}_monthly_spatial_index.png"
             )
+    def plot_ens_std(self,region = None, save = False):
+        if region is not None:
+            data = self.data.sel(lon = slice(region[0],region[1]), lat = slice(region[2],region[3]))
+        weights = np.cos(np.deg2rad(self.data.lat))
+        weights.name = "weights"
+        data_weighted = self.data.weighted(weights)
+        glm = data_weighted.mean(dim = ('lon','lat'))
+        glm_ens_std = glm.std(dim = 'ens')
+        glm_ens_std.plot.line(x = 'time')
 #%%
 # ERA5, 1950 - 2022, 40 years
-ERA5_40 = EOF_reannalyis("ERA5", group_size=40, start_year="1950", end_year="2022")
+ERA5_40 = EOF_reanalysis("ERA5", group_size=40, start_year="1950", end_year="2022")
 ERA5_40.save_eof()
 ERA5_40.plot_spatial_index(save=True)
 
 #%%
 # RA5, 1979 - 2022, 20 years
-ERA5_20 = EOF_reannalyis("ERA5", group_size=20, start_year="1979", end_year="2022")
+ERA5_20 = EOF_reanalysis("ERA5", group_size=20, start_year="1979", end_year="2022")
 ERA5_20.save_eof()
 ERA5_20.plot_spatial_index(save=True)
 
 #%%
 # RA5_allens, 1950 - 2022, 40 years
-ERA5_allens_40 = EOF_reannalyis("ERA5_allens", group_size=40, start_year="1950", end_year="2022")
+ERA5_allens_40 = EOF_reanalysis("ERA5_allens", group_size=40, start_year="1950", end_year="2022")
 ERA5_allens_40.save_eof()
 ERA5_allens_40.plot_spatial_index(save=True)
 #%%
 # CR20, 1950 - 2015, 40 years
-CR20_40 = EOF_reannalyis("CR20", group_size=40, start_year="1950", end_year="2015")
+CR20_40 = EOF_reanalysis("CR20", group_size=40, start_year="1950", end_year="2015")
 CR20_40.save_eof()
 CR20_40.plot_spatial_index(save=True)
 
 #%%
 # CR20_allens, 1950 - 2015, 40 years
-CR20_allens_40 = EOF_reannalyis("CR20_allens", group_size=40, start_year="1950", end_year="2015")
+CR20_allens_40 = EOF_reanalysis("CR20_allens", group_size=40, start_year="1950", end_year="2015")
 CR20_allens_40.save_eof()
 CR20_allens_40.plot_spatial_index(save=True)
 # %%
