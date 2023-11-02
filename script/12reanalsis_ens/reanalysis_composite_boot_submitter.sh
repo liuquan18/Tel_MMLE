@@ -10,6 +10,6 @@
 #SBATCH --output=boot.%j.out
 
 
-mpirun -np 3 python -u ERA5_composite_boot.py $1 $2 $3
+mpirun -np 3 python -u reananlysis_composite_boot.py $1 $2 $3
 # srun -l --cpu_bind=verbose \
 #   --distribution=block:cyclic python -u block_event.py $1 $2 $3
