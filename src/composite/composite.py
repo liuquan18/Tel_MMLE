@@ -26,7 +26,7 @@ def extreme(
     return extreme
 
 
-def _sel_data(data, index, num = 'all'):
+def sel_data(data, index, num = 'all'):
     """
     select the data based on the coordinates of extreme cases in index.
     **num**: 'all' or int
@@ -73,7 +73,7 @@ def reduce_var(
     """
     dim = 'com' if 'ens' in data.dims else 'time'
     num = kwargs.get("count", 'all')
-    seled_data = _sel_data(data, index, num = num)
+    seled_data = sel_data(data, index, num = num)
 
     if reduction == "mean" or reduction == "mean_same_number":
         # get the data at the  coordinates
