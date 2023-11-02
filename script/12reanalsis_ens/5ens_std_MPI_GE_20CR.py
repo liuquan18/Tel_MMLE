@@ -33,7 +33,7 @@ def _ens_std(data):
 
 def ens_std(data,ax, label, region = None, group_size = 10):
     # select the region and time
-    data = data.sel(time = slice('1850','2015'))
+    # data = data.sel(time = slice('1850','2015'))
     if region is not None:
         data = data.sel(lon = slice(region[0],region[1]), lat = slice(region[2],region[3]))
 
@@ -42,6 +42,7 @@ def ens_std(data,ax, label, region = None, group_size = 10):
     data_weighted = data.weighted(weights)
     glm = data_weighted.mean(dim = ('lon','lat'))
     glm_ens_std = glm.resample(time = f'{str(group_size)}Y').apply(_ens_std)
+    glm_ens_std = glm_ens_std.sel(time = slice('1850','2015'))
     return glm_ens_std
     
 

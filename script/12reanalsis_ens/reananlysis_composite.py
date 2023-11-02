@@ -25,6 +25,7 @@ import pickle
 #%%
 import importlib
 importlib.reload(composite)
+importlib.reload(composite_plot)
 
 #%%
 client, cluster = slurm_cluster.init_dask_slurm_cluster(scale = 2, processes = 1, memory = "512GB", walltime = "08:00:00")
@@ -107,15 +108,14 @@ def composite_onclick(model, var_name,group_size,save = False):
     ERA_first.name = 'ts'
     ERA_last.name = 'ts'
     ERA_diff.name = 'ts'
+    composite_plot.composite_plot(ERA_first, ERA_last, 'NAO', levels=np.arange(-1.5, 1.6, 0.3))
+
     if save:
-        ERA_first.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/ERA5/composite/first_composite_{var_name}_{group_size}.nc")
-        ERA_last.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/ERA5/composite/last_composite_{var_name}_{group_size}.nc")
-        ERA_diff.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/E®RA5/composite/diff_composite_{var_name}_{group_size}.nc")
+        ERA_first.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/first_composite_{var_name}_{group_size}.nc")
+        ERA_last.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/last_composite_{var_name}_{group_size}.nc")
+        ERA_diff.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/diff_composite_{var_name}_{group_size}.nc")
     return ERA_first, ERA_last, ERA_diff
 #%%
-
-#%%
-composite_plot.composite_plot(ERA_first, ERA_last, 'NAO', levels=np.arange(-1.5, 1.6, 0.3))
 
 
 # %%
