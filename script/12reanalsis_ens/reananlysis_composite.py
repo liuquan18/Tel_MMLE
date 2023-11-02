@@ -2,19 +2,10 @@
 import xarray as xr
 import numpy as np
 import pandas as pd
-import random
-import os
 
-import src.warming_stage.warming_stage as warming_stage
-import src.Teleconnection.spatial_pattern as ssp
-import src.MMLE_TEL.index_generator as index_generate
 import src.composite.composite as composite
 import glob
 
-import proplot as pplt
-import src.plots.extreme_plot as extplt
-import src.plots.statistical_overview as stat_overview
-import matplotlib.pyplot as plt
 import src.reanalysis.remove_force as remove_force
 import src.plots.composite_plot as composite_plot
 
@@ -67,6 +58,7 @@ def read_temp_data(model,var_name = 't2max'):
 
         data_JJA.append(data_month)
     data = xr.concat(data_JJA, dim="time").sortby("time")
+    data = data.sel(time = slice('1850','2015'))
     data_inter = remove_force.detrend(data, method="quadratic_trend")
     return data_inter
 
