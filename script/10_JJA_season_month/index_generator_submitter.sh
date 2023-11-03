@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=onepct_30
+#SBATCH --job-name=ind_gen
 #SBATCH --time=04:00:00
 #SBATCH --partition=compute
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --mem=0
+#SBATCH --mem=500G
 #SBATCH --mail-type=FAIL
 #SBATCH --account=mh0033
-#SBATCH --output=onepct_30.%j.out
+#SBATCH --output=ind_gen.%j.out
 
 
 mpirun -np 1 python -u index_generator.py $1 $2 $3
