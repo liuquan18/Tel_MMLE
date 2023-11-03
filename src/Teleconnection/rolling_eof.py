@@ -45,7 +45,7 @@ def rolling_eof(xarr, **kwargs):
             tools.stack_ens(xarr, withdim="time"),
             nmode=nmode,
             dim="com",
-            standard=False,
+            standard='pc_temporal_std',
         )
 
     elif fixed_pattern == "warming":
