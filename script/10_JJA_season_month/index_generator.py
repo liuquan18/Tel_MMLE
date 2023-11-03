@@ -19,13 +19,13 @@ t1 = int(sys.argv[2])
 t2 = int(sys.argv[3])
 
 #%%
-models = ['ERA5_allens']#'MPI_GE_onepct_30']#['CESM1_CAM5']#['MPI_GE','CanESM2','CESM1_CAM5','MK36','GFDL_CM3']
+models = ['CESM1_CAM5','CanESM2','MK36']#,'GFDL_CM3'] #['MPI_GE_onepct','MPI_GE']
 
 # %%
 def index_gene(model):
     GEN = index_generate.decompose_plev_JJA(
         model = model,
-        fixedPattern='decade_mpi',
+        fixedPattern='all',
     )
 
     GEN.save_result()
