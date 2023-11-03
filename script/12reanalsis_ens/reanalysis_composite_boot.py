@@ -140,17 +140,17 @@ n_resamples = 1000
 
 sel_first_pos, sel_first_neg, sel_last_pos, sel_last_neg = select_data(data,First_index,Last_index)
 
-res_first_pos, res_first_neg, res_last_pos, res_last_neg = resample_com_ind(sel_first_pos, sel_first_neg, sel_last_pos, sel_last_neg, n_resamples=n_resamples)
+res_first_pos, res_first_neg, res_last_pos, res_last_neg = resample_com_ind(sel_first_pos, sel_first_neg, sel_last_pos, sel_last_neg,n_resamples=n_resamples)
 
 # %%
 list_all_pros = [0] * npro
 for nn in range(npro):
-    list_all_pros[nn] = np.arange(n_resamples)[nn::npro]
+    list_all_pros[nn] = np.arange(f1,f2,1)[nn::npro]+rank
 steps = list_all_pros[rank]
 
 #%%
 for kk, step in enumerate(steps) :
-    print(f"node {node}: core:{rank} kk = {kk+1}/{steps.shape[0]}")
+    print(f"node {node}: core:{rank} kk = {kk+1}/{steps.shape[0]}, step = {step}")
 
     first_pos = sel_first_pos.isel(com=res_first_pos[:, step]).mean(dim = 'com')
     first_neg = sel_first_neg.isel(com=res_first_neg[:, step]).mean(dim = 'com')
@@ -159,9 +159,8 @@ for kk, step in enumerate(steps) :
     last_neg = sel_last_neg.isel(com=res_last_neg[:, step]).mean(dim = 'com')
     
     num_info = step
-    print(save_path + f"first_boot/composite_first_pos_{num_info}.nc")
-# %%
-    print("saving files ...")
+
+    print(f"saving files {num_info} ...")
     first_pos.to_netcdf(
         save_path + f"first_boot/composite_first_pos_{num_info}.nc"
     )
