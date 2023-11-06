@@ -133,6 +133,20 @@ def split_first_last(eof_result):
     )
     return eof_first, eof_last
 
+def y_yerr(extrc):
+    pos_true = extrc.sel(mode="NAO",confidence = 'true',extr_type = 'pos').pc.values/4 # from 40 years to 10 years
+    pos_high = extrc.sel(mode="NAO",confidence = 'high',extr_type = 'pos').pc.values/4
+    pos_low = extrc.sel(mode="NAO",confidence = 'low',extr_type = 'pos').pc.values/4
+    pos_err = [pos_true-pos_low,pos_high - pos_true]
+
+    neg_true = extrc.sel(mode="NAO",confidence = 'true',extr_type = 'neg').pc.values/4
+    neg_high = extrc.sel(mode="NAO",confidence = 'high',extr_type = 'neg').pc.values/4
+    neg_low = extrc.sel(mode="NAO",confidence = 'low',extr_type = 'neg').pc.values/4
+    neg_err = [neg_true-neg_low,neg_high - neg_true]
+
+    return pos_true,pos_err,neg_true,neg_err
+
+        
 
 # %%
 ######################
@@ -179,27 +193,25 @@ models_legend = [
 gs = pplt.GridSpec(
     ncols=4,
     nrows=2,
-    # wspace=(5, 0.5),
-    # hspace=0.5,
-    hratios=[1, 1],
-    wratios=[1,1, 1,1],
+    wspace=(0.7,3,0.7),
+    hratios=[0.9, 1.1],
+    wratios=[1.1,1.1, 0.8,0.8],
 )
 
-# MPI_GE
+# spatial pattern
 ax1 = fig1.add_subplot(gs[0, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
-ax2 = fig1.add_subplot(gs[0,1])
+ax2 = fig1.add_subplot(gs[0, 1], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
 
-# 20CR
-ax3 = fig1.add_subplot(gs[1, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
-ax4 = fig1.add_subplot(gs[1,1])
+# index distribution
+ax3 = fig1.add_subplot(gs[1,0])
+ax4 = fig1.add_subplot(gs[1,1], sharey = ax3, sharex = ax3)
 
 # line plot
 ax5 = fig1.add_subplot(gs[:, 2])
-ax6 = fig1.add_subplot(gs[:, 3])
+ax6 = fig1.add_subplot(gs[:, 3], sharey = ax5, sharex = ax5)
 
-
-# MPI_GE
-ax1, fmap, lmap = stat_overview.spatial_pattern_plot(
+# spatial pattern
+ax1, fmap_MPI, lmap = stat_overview.spatial_pattern_plot(
     ax1,
     EOFs_decade["MPI_GE"].eof.isel(decade=0),
     EOFs_decade["MPI_GE"].fra.isel(decade=0),
@@ -208,80 +220,112 @@ ax1, fmap, lmap = stat_overview.spatial_pattern_plot(
     levels=np.arange(-2,2.1,0.4),
 )
 
-first_eof,last_eof = split_first_last(EOFs_decade["MPI_GE"])
-ax2,hist = stat_overview.index_distribution_plot(
+ax2, fmap_20CR, lmap = stat_overview.spatial_pattern_plot(
     ax2,
+    CR20_first_eof.eof.sel(mode="NAO").squeeze(),
+    CR20_first_eof.fra.sel(mode="NAO").squeeze(),
+    levels=np.arange(-40,41,5),
+)
+
+# index distribution
+first_eof,last_eof = split_first_last(EOFs_decade["MPI_GE"])
+ax3,hist = stat_overview.index_distribution_plot(
+    ax3,
     first_eof.pc,
     last_eof.pc,
 )
-
-# 20 CR 
-ax3, fmap, lmap = stat_overview.spatial_pattern_plot(
-    ax3,
-    CR20_first_eof.eof.sel(mode="NAO").squeeze(),
-    CR20_first_eof.fra.sel(mode="NAO").squeeze(),
-    levels=,
-)
 ax4, hist = stat_overview.index_distribution_plot(
-ax4,
-self.first_eof_std.pc.sel(mode="NAO"),
-self.last_eof_std.pc.sel(mode="NAO"),
-)
+    ax4,
+    CR20_first_eof.pc.sel(mode="NAO"),
+    CR20_last_eof.pc.sel(mode="NAO"),
+    )
 
-
-
-ax3,lines_pos = extplt.extrc_time_line_single(
+# LINE PLOT
+ax5,lines_pos = extplt.extrc_time_line_single(
     EXTRCs,
     extr_type='pos',
-    ax = ax3,
+    ax = ax5,
     ylim = (25,315),
     ci = True,
 )
 
-ax4,lines_neg = extplt.extrc_time_line_single(
+ax6,lines_neg = extplt.extrc_time_line_single(
     EXTRCs,
     extr_type='neg',
-    ax = ax4,
+    ax = ax6,
     ylim = (25,315),
     ci = True,
 )
 
+# error bar for 20CR
+pos_true_first,pos_err_first,neg_true_first,neg_err_first = y_yerr(CR20_first_extc)
+pos_true_last,pos_err_last,neg_true_last,neg_err_last = y_yerr(CR20_last_extc)
+
+ax5.errorbar(
+    x = [pd.to_datetime('1850-06-01'),pd.to_datetime('1976-06-01')],
+    y = [pos_true_first,pos_true_last],
+    yerr = [pos_err_first,pos_err_last],
+    color = 'black',
+    linewidth = 2,
+    fmt='o',
+    zorder = 10,
+)
+
+ax6.errorbar(
+    x = [pd.to_datetime('1850-06-01'),pd.to_datetime('1976-06-01')],
+    y = [neg_true_first,neg_true_last],
+    yerr = [neg_err_first,neg_err_last],
+    color = 'black',
+    linewidth = 2,
+    fmt='o',
+    zorder = 10,
+)
+
+
+#### ax1 ####
+ax1.colorbar(
+    fmap_MPI,
+    width=0.1,
+    shrink=1,
+    loc = 'b',
+    label = 'standardized NAO',
+    pad = -1,
+)
 
 #### ax2 ####
+ax2.colorbar(
+    fmap_20CR,
+    width=0.1,
+    shrink=1,
+    loc = 'b',
+    label = 'NAO',
+    pad = -1,
+)
 
+#### ax3 ####
 # add legend
 f_patch = mpatches.Patch(color="#1f77b4", label="first10")
 l_patch = mpatches.Patch(color="#ff7f0e", label="last10")
 
-ax2.legend(
-    handles=[f_patch, l_patch], loc="b", frameon=False,
-    space = 3.2,
+ax3.legend(
+    handles=[f_patch, l_patch], loc="center left", frameon=False,
+    bbox_to_anchor=(0.5, -0.3,),ncol=2,
 )
 
-cbar = ax2.colorbar(
-    fmap,
-    width=0.1,
-    shrink=1,
-    loc = 'b', 
-    label = 'standardized NAO',   
-    pad = 0.2,
-)
+ax3.set_ylabel("density", fontsize=7)
+ax3.set_xlabel("NAO index", fontsize=7)
 
-ax2.set_ylabel("density", fontsize=7)
-ax2.format(
-    ylocator=pplt.MultipleLocator(0.05),
-    xlabel = "standard deviation",
-    xlabelpad=0.8, 
-    facecolor = 'none',
-)
+# ax4
+ax4.set_ylabel("")
+ax4.set_xlabel("NAO index", fontsize=7)
+plt.setp(ax4.get_yticklabels(), visible=False)
 
-
-#### ax3 ####
+#### ax5 ####
 # set the axis
-ax3.spines["right"].set_visible(False)
-ax3.spines["top"].set_visible(False)
+ax5.spines["right"].set_visible(False)
+ax5.spines["top"].set_visible(False)
 
-ax3.format(
+ax5.format(
     xlabel="time",
     xlabelpad=0.8, 
     xtickminor=False,
@@ -292,19 +336,18 @@ ax3.format(
 
 #### ax4 ####
 # set the axis
-ax4.spines["right"].set_visible(False)
-ax4.spines["top"].set_visible(False)
-ax4.format(
+ax6.spines["right"].set_visible(False)
+ax6.spines["top"].set_visible(False)
+ax6.format(
     xlabel="time",
     xlabelpad=0.8, 
     xtickminor=False,
-    yticklabels = [],
     ylabel = '',
     xrotation=45,
-    ylim = (120,350),
+    ylim = (30,330),
 )
 
-ax4.legend(
+ax6.legend(
     lines_pos,
     models_legend,
     loc="b",
@@ -312,8 +355,9 @@ ax4.legend(
     frameon=False,
     bbox_to_anchor=(-0.1, -0.2),
     pad = 0.2,
-    columnspacing=3,
+    columnspacing=1,
 )
+plt.setp(ax6.get_yticklabels(), visible=False)
 
 
 
