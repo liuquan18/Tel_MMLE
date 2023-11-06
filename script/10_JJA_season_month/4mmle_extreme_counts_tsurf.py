@@ -20,8 +20,7 @@ def extreme_count(model):
         model        =  model,
         standard     =  "first",
         season       =  'JJA',
-        fixed_pattern=  'decade_mpi')
-
+        fixed_pattern=  'all')
 
 # %%
 extreme_count('MPI_GE_onepct')
@@ -35,3 +34,4 @@ extreme_count('CESM1_CAM5')
 extreme_count('MK36')
 # %%
 extreme_count('GFDL_CM3')
+# %%

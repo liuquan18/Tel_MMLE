@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=com_zg
+#SBATCH --job-name=com
 #SBATCH --time=08:00:00
 #SBATCH --partition=compute
 #SBATCH --nodes=1
@@ -7,7 +7,7 @@
 #SBATCH --mem=0
 #SBATCH --mail-type=FAIL
 #SBATCH --account=mh0033
-#SBATCH --output=com_zg.%j.out
+#SBATCH --output=com.%j.out
 
 
 mpirun -np 1 python -u composite_analysis.py $1 $2 $3

@@ -36,27 +36,27 @@ importlib.reload(era5_extreme_change)
 ######################
 
 # SMILEs
-def read_eof_decade(model):
+def read_eof_decade(model,fixed_pattern = 'decade_mpi'):
     """read eofs that is decomposed by decade"""
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/"
-    filename = "plev_50000_decade_mpi_first_JJA_eof_result.nc"
+    filename = f"plev_50000_{fixed_pattern}_first_JJA_eof_result.nc"
     ds = xr.open_dataset(odir + filename)
     ds = ds.sel(mode="NAO")
     return ds
 
 
-def read_extrc(model):
+def read_extrc(model,fixed_pattern = 'decade_mpi'):
     """read extreme counts"""
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/extreme_count/"
-    filename = "plev_50000_decade_mpi_first_JJA_extre_counts.nc"
+    filename = f"plev_50000_{fixed_pattern}_first_JJA_extre_counts.nc"
     ds = xr.open_dataset(odir + filename).pc
     return ds
 
 
-def read_composite(model, var_name,reduction = 'mean_same_number'):
+def read_composite(model, var_name,fixed_pattern = 'decade_mpi',reduction = 'mean_same_number'):
     """read composite data"""
     odir = "/work/mh0033/m300883/Tel_MMLE/data/"
-    comp_name = f"plev_50000_decade_mpi_first_JJA_JJA_first_last_{var_name}_composite_{reduction}.nc"
+    comp_name = f"plev_50000_{fixed_pattern}_first_JJA_JJA_first_last_{var_name}_composite_{reduction}.nc"
     composite = xr.open_dataset(f"{odir}{model}/composite/{comp_name}")
     if var_name == "ts":
         try:
@@ -71,13 +71,13 @@ def read_composite(model, var_name,reduction = 'mean_same_number'):
     return composite
 
 
-def read_all_models(variable):
+def read_all_models(variable,fixed_pattern = 'decade_mpi'):
     """read all models data"""
     models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
     if variable == "eof_decade":
-        all_model_data = {model: read_eof_decade(model) for model in models}
+        all_model_data = {model: read_eof_decade(model,fixed_pattern) for model in models}
     elif variable == "extrc":
-        all_model_data = {model: read_extrc(model) for model in models}
+        all_model_data = {model: read_extrc(model,fixed_pattern) for model in models}
     elif variable == "composite":
         models = models[1:] # no MPI_GE_onepct
         all_model_data = {
@@ -112,7 +112,7 @@ def read_composite_rean(model, var_name,reduction = 'mean',group_size = 40):
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/"
     composite_path = odir + f'composite_{reduction}_{var_name}_{group_size}.nc'
     composite = xr.open_dataset(composite_path)
-    return composite
+    return composite.ts
 
 # %%
 ######################
@@ -159,16 +159,24 @@ mpl.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['hatch.linewidth'] = 0.3
 # %%
 # SMILEs
-EOFs_decade = read_all_models("eof_decade")
-EXTRCs = read_all_models("extrc")
-COMPOSITEs = read_all_models("composite")
+fixed_pattern = 'decade_mpi'
+EOFs_decade = read_all_models("eof_decade",fixed_pattern = fixed_pattern)
+EXTRCs = read_all_models("extrc",fixed_pattern = fixed_pattern)
+COMPOSITEs = read_all_models("composite",fixed_pattern = fixed_pattern)
 
 #%%
-# 20CR
+# 20CR all ens
 CR20_first_eof, CR20_last_eof = read_eof_rean('CR20_allens')
 CR20_first_extc, CR20_last_extc = read_extrc_rean('CR20_allens')
 CR20_composite = read_composite_rean('CR20_allens','ts')
 
+#%%
+COMPOSITEs['20CR'] = CR20_composite
+#%%
+# also read ensemble mean of 20CR
+# CR20_ens_first_extc, CR20_ens_last_extc = read_extrc_rean('CR20')
+# CR20_ens_first_extc = CR20_ens_first_extc * 79
+# CR20_ens_last_extc = CR20_ens_last_extc * 79
 
 # %%
 # Fig 1, spatial pattern chagne, index distribution change, and extreme lines
@@ -217,7 +225,7 @@ ax1, fmap_MPI, lmap = stat_overview.spatial_pattern_plot(
     EOFs_decade["MPI_GE"].fra.isel(decade=0),
     EOFs_decade["MPI_GE"].eof.isel(decade=-1),
     EOFs_decade["MPI_GE"].fra.isel(decade=-1),
-    levels=np.arange(-2,2.1,0.4),
+    # levels=np.arange(-40,41,5),
 )
 
 ax2, fmap_20CR, lmap = stat_overview.spatial_pattern_plot(
@@ -261,6 +269,9 @@ ax6,lines_neg = extplt.extrc_time_line_single(
 pos_true_first,pos_err_first,neg_true_first,neg_err_first = y_yerr(CR20_first_extc)
 pos_true_last,pos_err_last,neg_true_last,neg_err_last = y_yerr(CR20_last_extc)
 
+pos_true_first_ens,pos_err_first_ens,neg_true_first_ens,neg_err_first_ens = y_yerr(CR20_ens_first_extc)
+pos_true_last_ens,pos_err_last_ens,neg_true_last_ens,neg_err_last_ens = y_yerr(CR20_ens_last_extc)
+
 ax5.errorbar(
     x = [pd.to_datetime('1850-06-01'),pd.to_datetime('1976-06-01')],
     y = [pos_true_first,pos_true_last],
@@ -271,6 +282,8 @@ ax5.errorbar(
     zorder = 10,
 )
 
+
+
 ax6.errorbar(
     x = [pd.to_datetime('1850-06-01'),pd.to_datetime('1976-06-01')],
     y = [neg_true_first,neg_true_last],
@@ -280,6 +293,24 @@ ax6.errorbar(
     fmt='o',
     zorder = 10,
 )
+# ax5.errorbar(
+#     x = [pd.to_datetime('1855-06-01'),pd.to_datetime('1981-06-01')],
+#     y = [pos_true_first_ens,pos_true_last_ens],
+#     yerr = [pos_err_first_ens,pos_err_last_ens],
+#     color = 'grey7',
+#     linewidth = 2,
+#     fmt='o',
+#     zorder = 10,
+# )
+# ax6.errorbar(
+#     x = [pd.to_datetime('1855-06-01'),pd.to_datetime('1981-06-01')],
+#     y = [neg_true_first_ens,neg_true_last_ens],
+#     yerr = [neg_err_first_ens,neg_err_last_ens],
+#     color = 'grey7',
+#     linewidth = 2,
+#     fmt='o',
+#     zorder = 10,
+# )
 
 
 #### ax1 ####
@@ -331,7 +362,7 @@ ax5.format(
     xtickminor=False,
     xrotation=45,
     ylim = (120,350),
-    ylabel = 'Extreme occurence'
+    ylabel = 'Extreme occurence / 10 years',
 )
 
 #### ax4 ####
@@ -361,20 +392,21 @@ plt.setp(ax6.get_yticklabels(), visible=False)
 
 
 
-plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/imprs_retreat/extrc_change.pdf",
-    bbox_inches="tight",
-)
+# plt.savefig(
+#     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/imprs_retreat/extrc_change.pdf",
+#     bbox_inches="tight",
+# )
 
 # %%
 # Fig 3, composite plot of ts for positve extremes
-models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3","20CR"]
 models_legend = [
 "MPI-GE (100)",
 "CanESM2 (50)",
 "CESM1-CAM5 (40)",
 "MK3.6 (30)",
 "GFDL-CM3 (20)",
+"20CR(79)",
 ]
 
 fig3, axes = pplt.subplots(
@@ -385,7 +417,7 @@ fig3, axes = pplt.subplots(
     proj="ortho",
     proj_kw=({"lon_0": -20, "lat_0": 60}),
     nrows=3,
-    ncols=5,
+    ncols=6,
 )
 axes.format(
     latlines=20,
@@ -394,7 +426,7 @@ axes.format(
     coast=True,
     coastlinewidth=0.3,
     coastcolor="charcoal",
-    leftlabels=["first10", "last10", "last10 - first10"],
+    leftlabels=["first", "last", "last - first"],
     toplabels=models_legend,
     toplabels_kw = {"fontsize": 7},
     leftlabels_kw = {"fontsize": 7},
@@ -406,22 +438,23 @@ axes.format(
 axes,maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes)
 fig3.colorbar(maps[0], loc="b", pad=1, title=f"tsurf / K",width = 0.1,shrink=1)
 
-plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/composite_tsurf_pos_same_number.png",
-    dpi=300,
-    bbox_inches="tight",
-)
+# plt.savefig(
+#     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/composite_tsurf_pos_same_number.png",
+#     dpi=300,
+#     bbox_inches="tight",
+# )
 
 
 # %%
 # Fig 4, composite plot of ts for neg extremes
-models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3","20CR"]
 models_legend = [
 "MPI-GE (100)",
 "CanESM2 (50)",
 "CESM1-CAM5 (40)",
 "MK3.6 (30)",
 "GFDL-CM3 (20)",
+"20CR(79)",
 ]
 
 fig4, axes = pplt.subplots(
@@ -432,7 +465,7 @@ fig4, axes = pplt.subplots(
     proj="ortho",
     proj_kw=({"lon_0": -20, "lat_0": 60}),
     nrows=3,
-    ncols=5,
+    ncols=6,
 )
 axes.format(
     latlines=20,

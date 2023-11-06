@@ -7,11 +7,13 @@ import src.MMLE_TEL.index_stats as index_stats
 import xarray as xr
 import os
 import sys
+import src.composite as composite
 #%%
 import importlib
 
 importlib.reload(index_stats)
 importlib.reload(extrc_tsurf)
+importlib.reload(composite)
 
 #%%
 def read_var_months(model,var_name='ts',remove_ensmean = True):
@@ -50,12 +52,23 @@ def read_var_months(model,var_name='ts',remove_ensmean = True):
         JJA_f = JJA_f.drop('plev')
 
     return JJA_f
-
+#%%
+def same_count(model,fixed_pattern = 'decade_mpi'):
+    """read extreme counts"""
+    print("reading the extreme counts ... ")
+    odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/extreme_count/"
+    filename = f"plev_50000_{fixed_pattern}_first_JJA_extre_counts.nc"
+    ds = xr.open_dataset(odir + filename).pc
+    count = ds.isel(time = 0).sel(confidence = 'true')
+    count = count.drop(['plev','confidence','time'])
+    return count
+#%%
 def composite(model,var_name='ts',reduction = 'mean',**kwargs):
     remove_ensmean = kwargs.get('remove_ensmean',True)
     var_data = read_var_months(model,var_name=var_name,remove_ensmean=remove_ensmean)
     if var_name == 'zg':
         var_data = var_data.sel(plev=50000).drop('plev')
+    count = same_count(model) if reduction == 'mean_same_number' else 'all'
     index_stats.composite_analysis(
         model            = model,
         index_season     = 'JJA',
@@ -64,13 +77,13 @@ def composite(model,var_name='ts',reduction = 'mean',**kwargs):
         var_data         = var_data,
         var_name         = var_name,
         reduction        = reduction,
-        **kwargs
+        count            = count,
         )
     
 #%%
-# num = int(sys.argv[1])
-# t1 = int(sys.argv[2])
-# t2 = int(sys.argv[3])
+num = int(sys.argv[1])
+t1 = int(sys.argv[2])
+t2 = int(sys.argv[3])
 
 #%%
 def mean_all(num,rank):
@@ -89,35 +102,35 @@ def mean_all(num,rank):
     print(f"model {model} var {var_name} is doing")
     composite(model,var_name=var_name)
 
-def mean_same_number():
-    # for reduction = 'mean_same_number'
-    composite('CESM1_CAM5',reduction= 'mean_same_number',count = 80)
-    composite('MK36',reduction= 'mean_same_number',count = 50)
-    composite('CanESM2',reduction= 'mean_same_number',count = 80)
-    composite('GFDL_CM3',reduction= 'mean_same_number',count = 30)
-    composite('MPI_GE_onepct',reduction= 'mean_same_number',count = 200)
-    composite('MPI_GE',reduction= 'mean_same_number',count = 200)
 
 #%%
-# # main run mean_all
-# if __name__ == '__main__':
 
-#     # === mpi4py ===
-#     try:
-#         from mpi4py import MPI
-#         comm = MPI.COMM_WORLD
-#         rank = comm.Get_rank()
-#         npro = comm.Get_size()
-#     except:
-#         print('::: Warning: Proceeding without mpi4py! :::')
-#         rank = 0
-#         npro = 1
+def mean_same_number(num):
+    models = ['MPI_GE_onepct','MK36','GFDL_CM3','CanESM2','CESM1_CAM5','MPI_GE']
+    composite(models[num-1],reduction= 'mean_same_number')
 
-#     mean_all(num,rank)
+#%%
+# main run mean_all
+if __name__ == '__main__':
 
-# %%
-composite('MPI_GE_onepct_30','bDays',remove_ensmean=False)
-# %%
-composite('MPI_GE_onepct_30','bDays_ano',remove_ensmean=False)
+    # === mpi4py ===
+    try:
+        from mpi4py import MPI
+        comm = MPI.COMM_WORLD
+        rank = comm.Get_rank()
+        npro = comm.Get_size()
+    except:
+        print('::: Warning: Proceeding without mpi4py! :::')
+        rank = 0
+        npro = 1
 
-# %%
+    mean_same_number(num)
+
+# # %%
+# composite('MPI_GE_onepct_30','bDays',remove_ensmean=False)
+# # %%
+# composite('MPI_GE_onepct_30','bDays_ano',remove_ensmean=False)
+
+# # %%
+# composite('GFDL_CM3',reduction = 'mean_same_number')
+# # %%
