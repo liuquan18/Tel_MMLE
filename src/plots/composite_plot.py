@@ -167,11 +167,13 @@ def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos",**kwargs
         diff_sig = COMPOSITEs[model].sel(
             mode="NAO", period="diff_sig", extr_type=extr_type
         )
-
-        first = utils.erase_white_line(first)
-        last = utils.erase_white_line(last)
-        diff = utils.erase_white_line(diff)
-        diff_sig = utils.erase_white_line(diff_sig)
+        try:
+            first = utils.erase_white_line(first)
+            last = utils.erase_white_line(last)
+            diff = utils.erase_white_line(diff)
+            diff_sig = utils.erase_white_line(diff_sig)
+        except ValueError:
+            pass
 
         data_all = [
             first,
