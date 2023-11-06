@@ -89,7 +89,7 @@ def reduce_var(
     composite_res.attrs["reduction"] = reduction
     composite_res.attrs["count"] = num
 
-    if bootstrap and reduction == "mean":
+    if bootstrap and (reduction == "mean" or reduction == "mean_same_number"):
         n_resamples = kwargs.get("n_resamples", 1000)
         # get the 'com' random index with the shape sel_data.size['com'] and 1000 times
         n_samples = seled_data.sizes[dim]  # the resampled data is the same length as the original data
@@ -134,7 +134,7 @@ def extreme_composite(
         extr_index.attrs["extreme_type"] = extr_type
 
         count = kwargs.get("count", 'all')
-        count = count.sel(extreme_type=extr_type, mode = 'NAO').values if count != 'all' else count
+        count = count.sel(extr_type=extr_type, mode = index.mode).values[0] if type(count) != 'str'  else count
 
         # do composite analysis based on the extreme index
         extr_composite = reduce_var(
