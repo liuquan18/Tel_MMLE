@@ -133,13 +133,16 @@ def extreme_composite(
         extr_index = extreme(index, extreme_type=extr_type, threshold=threshold)
         extr_index.attrs["extreme_type"] = extr_type
 
+        count = kwargs.get("count", 'all')
+        count = count.sel(extreme_type=extr_type, mode = index.mode).values if count != 'all' else count
+
         # do composite analysis based on the extreme index
         extr_composite = reduce_var(
             extr_index,
             data,
             reduction=reduction,
             bootstrap=bootstrap,
-            **kwargs
+            count = count
         )
         Ext_composite.append(extr_composite)
 
@@ -244,7 +247,7 @@ def first_last_extreme_composite(
             threshold=1.5,
             reduction=reduction,
             bootstrap=True,
-            count = 'all'
+            count = count,
         )
 
         # last 10 years
@@ -254,7 +257,7 @@ def first_last_extreme_composite(
             threshold=threshold,
             reduction=reduction,
             bootstrap=True,
-            count = 'all'
+            count = count,
         )
 
         # difference between first and last 10 years
