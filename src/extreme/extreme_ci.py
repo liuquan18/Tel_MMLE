@@ -149,8 +149,11 @@ def extreme_count_xr(pc, ci="AR1"):
     ci: if True, calculate the confidence interval of extreme events
     return: xarray dataarray
     """
-    stacked_pc = pc.stack(stacked=["time", "ens"])
-
+    if 'ens' in pc.dims:
+        stacked_pc = pc.stack(stacked=["time", "ens"])
+    else:
+        stacked_pc = pc.stack(stacked=["time"])
+    
     # positive extreme events
     pos_count_true = xr.apply_ufunc(
         _pos_count,
