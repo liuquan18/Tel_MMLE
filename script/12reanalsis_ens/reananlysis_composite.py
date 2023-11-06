@@ -73,21 +73,21 @@ def read_eof(model,group_size = 40):
     return first_eof.pc, last_eof.pc
 
 #%%
-def composite_reana(model,var_name = 'ts', group_size = 40):
+def composite_reana(model,var_name = 'ts', group_size = 40,reduction = 'mean'):
     var_data = read_temp_data(model,var_name = var_name)
     first_index, last_index = read_eof(model,group_size=group_size)
     first_composite = composite.Tel_field_composite(
         first_index,
         var_data,
         threshold=1.5,
-        reduction='mean',
+        reduction=reduction,
         bootstrap=False,
     )
     last_composite = composite.Tel_field_composite(
         last_index,
         var_data,
         threshold=1.5,
-        reduction='mean',
+        reduction=reduction,
         bootstrap=False,
     )
     diff = last_composite - first_composite
@@ -95,71 +95,77 @@ def composite_reana(model,var_name = 'ts', group_size = 40):
 
 
 #%%
-def composite_onclick(model, var_name,group_size,save = False):
-    ERA_first, ERA_last, ERA_diff = composite_reana(model,var_name = var_name, group_size=group_size)
+def composite_oneclick(model, var_name,group_size,reduction = 'mean',save = False):
+    ERA_first, ERA_last, ERA_diff = composite_reana(model,var_name = var_name, group_size=group_size,reduction = reduction)
     ERA_first.name = 'ts'
     ERA_last.name = 'ts'
     ERA_diff.name = 'ts'
-    composite_plot.composite_plot(ERA_first, ERA_last, 'NAO', levels=np.arange(-1.5, 1.6, 0.3))
+    # composite_plot.composite_plot(ERA_first, ERA_last, 'NAO', levels=np.arange(-1.5, 1.6, 0.3))
 
     if save:
-        ERA_first.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/first_composite_{var_name}_{group_size}.nc")
-        ERA_last.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/last_composite_{var_name}_{group_size}.nc")
-        ERA_diff.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/diff_composite_{var_name}_{group_size}.nc")
+        ERA_first.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/first_composite_{reduction}_{var_name}_{group_size}.nc")
+        ERA_last.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/last_composite_{reduction}_{var_name}_{group_size}.nc")
     return ERA_first, ERA_last, ERA_diff
 #%%
 
+def composite_together(model,var_name,group_size,reduction = 'mean',alpha = 0.05):
+    """
+    first,last,diff,first_boot,last_boot,diff_sig
+    """
+    odir = f'/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/'
+    first_composite = xr.open_dataset(odir + f'first_composite_{reduction}_{var_name}_{group_size}.nc')
+    last_composite = xr.open_dataset(odir + f'last_composite_{reduction}_{var_name}_{group_size}.nc')
+    diff = last_composite - first_composite
 
-# %%
-# combine the first and last composite
-period = xr.IndexVariable('period', ['first', 'last'])
-com_ts = xr.concat([first_composite, last_composite], dim=period)
-diff = last_composite - first_composite
+    first_composite_boot_pos = xr.open_mfdataset(
+        odir + 'first_boot/composite_first_pos*.nc',
+        combine = 'nested',
+        concat_dim = 'bootstrap',
+    ).chunk(dict(bootstrap=-1))
 
-# %%
-print(" doing bootstrap resampling...")
-# first 10 years with bootstrap
+    first_composite_boot_neg = xr.open_mfdataset(
+        odir + 'first_boot/composite_first_neg*.nc',
+        combine = 'nested',
+        concat_dim = 'bootstrap',
+    ).chunk(dict(bootstrap=-1))
+    first_composite_boot = xr.concat([first_composite_boot_pos['__xarray_dataarray_variable__'],
+                                      first_composite_boot_neg['__xarray_dataarray_variable__']],
+                                      pd.Index(['pos','neg'],name = 'extr_type'))
 
-# first 40 years
-first_composite_boot = composite.Tel_field_composite(
-    First_index,
-    data,
-    threshold=1.5,
-    reduction='mean',
-    bootstrap=True,
-)
 
-# %%
-last_composite_boot = composite.Tel_field_composite(
-    Last_index,
-    data,
-    threshold=1.5,
-    reduction='mean',
-    bootstrap=True,
-)
-#%%
-first_composite_boot.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/ERA5_allens/composite/first_composite_boot.nc")
-#%%
-last_composite_boot.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/ERA5_allens/composite/last_composite_boot.nc")
+    last_composite_boot_pos = xr.open_mfdataset(
+        odir + 'last_boot/composite_last_pos*.nc',
+        combine = 'nested',
+        concat_dim = 'bootstrap',
+    ).chunk(dict(bootstrap=-1))
+    last_composite_boot_neg = xr.open_mfdataset(
+        odir + 'last_boot/composite_last_neg*.nc',
+        combine = 'nested',
+        concat_dim = 'bootstrap',
+    ).chunk(dict(bootstrap=-1))
+    last_composite_boot = xr.concat([last_composite_boot_pos['__xarray_dataarray_variable__'],
+                                     last_composite_boot_neg['__xarray_dataarray_variable__']],
+                                     pd.Index(['pos','neg'],name = 'extr_type'))
 
-#%%
-# difference between first and last 10 years
-diff_boot = last_composite_boot - first_composite_boot
-#%%
-# check if the difference is significant
-# get the 95% confidence interval
-alpha = 0.05
-low_bnd = alpha/2.0
-high_bnd = 1-alpha/2.0
+    diff_boot = last_composite_boot - first_composite_boot
 
-#%%
-diff_boot.compute()
+    # check if the difference is significant
+    # get the 95% confidence interval
+    low_bnd = alpha/2.0
+    high_bnd = 1-alpha/2.0
+    ci = diff_boot.quantile([low_bnd, high_bnd], dim="bootstrap")
+    # check if 0 is in the interval, return boolean
+    diff_sig = xr.where((ci.sel(quantile=low_bnd) > 0) | (ci.sel(quantile=high_bnd) < 0), 1, 0)
+    diff_sig.name = var_name
+    # combine the first, last, diff and diff_sig together
+    period = xr.IndexVariable('period', ['first', 'last', 'diff', 'diff_sig'])
+    composite = xr.concat([first_composite['ts'], 
+                           last_composite['ts'], 
+                           diff['ts'], 
+                           diff_sig], 
+                           dim=period,
+                           coords='minimal')
 
-#%%
-ci = diff_boot.quantile([low_bnd, high_bnd], dim="bootstrap")
-# check if 0 is in the interval, return boolean
-diff_sig = xr.where((ci.sel(quantile=low_bnd) > 0) | (ci.sel(quantile=high_bnd) < 0), 1, 0)
-# combine the first, last, diff and diff_sig together
-period = xr.IndexVariable('period', ['first', 'last', 'diff', 'diff_sig'])
-Com_ts = xr.concat([first_composite, last_composite, diff, diff_sig], dim=period)
+    # save
+    composite.to_netcdf(odir + f'composite_{reduction}_{var_name}_{group_size}.nc')
 # %%

@@ -12,8 +12,6 @@ import matplotlib.ticker as ticker
 from matplotlib import lines as mlines
 import matplotlib.ticker as ticker
 
-
-
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, MaxNLocator
 import matplotlib.patches as mpatches
 
@@ -37,20 +35,11 @@ importlib.reload(era5_extreme_change)
 # read data
 ######################
 
-
+# SMILEs
 def read_eof_decade(model):
     """read eofs that is decomposed by decade"""
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/"
     filename = "plev_50000_decade_mpi_first_JJA_eof_result.nc"
-    ds = xr.open_dataset(odir + filename)
-    ds = ds.sel(mode="NAO")
-    return ds
-
-
-def read_eof_all(model):
-    """read eofs of one model to compare with ERA5"""
-    odir = f"/work/mh0033/m300883/Tel_MMLE/data/ERA5/EOF_result/"  # ALL models are here
-    filename = f"plev_50000_1940_2022_{model}_all.nc"
     ds = xr.open_dataset(odir + filename)
     ds = ds.sel(mode="NAO")
     return ds
@@ -87,27 +76,48 @@ def read_all_models(variable):
     models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
     if variable == "eof_decade":
         all_model_data = {model: read_eof_decade(model) for model in models}
-    elif variable == "eof_all":
-        all_model_data = {
-            model: read_eof_all(model) for model in models[1:]
-        }  # no onepct here
-        all_model_data["ERA5"] = read_eof_all("ERA5")  # also add ERA5
-        all_model_data["ERA5_no_dec"] = read_eof_all("ERA5_no_dec") # also add ERA5_no_dec
     elif variable == "extrc":
         all_model_data = {model: read_extrc(model) for model in models}
     elif variable == "composite":
-        models = models[1:]
+        models = models[1:] # no MPI_GE_onepct
         all_model_data = {
             model: read_composite(model, var_name="ts") for model in models
         }
     return all_model_data
 
+#%%
+# 20CR
+# eof
+def read_eof_rean(model,group_size = 40):
+    odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
+    first_eof_path = odir + f"EOF_result/first_{str(group_size)}_eof_std.nc"
+    last_eof_path = odir + f"EOF_result/last_{str(group_size)}_eof_std.nc"
+
+    first_eof = xr.open_dataset(first_eof_path)
+    last_eof = xr.open_dataset(last_eof_path)
+    return first_eof, last_eof
+
+# read extreme counts
+def read_extrc_rean(model, group_size = 40):
+    odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/"
+    first_extc_path = odir + f'first_{str(group_size)}_extc.nc'
+    last_extc_path = odir + f'last_{str(group_size)}_extc.nc'
+
+    first_extc = xr.open_dataset(first_extc_path)
+    last_extc = xr.open_dataset(last_extc_path)
+    return first_extc, last_extc
+
+# read composite
+def read_composite_rean(model, var_name,reduction = 'mean',group_size = 40):
+    odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/"
+    composite_path = odir + f'composite_{reduction}_{var_name}_{group_size}.nc'
+    composite = xr.open_dataset(composite_path)
+    return composite
 
 # %%
 ######################
 # utils functions
 ######################
-
 
 def split_first_last(eof_result):
     times = eof_result.time
@@ -134,139 +144,24 @@ mpl.rcParams["ps.fonttype"] = 42
 mpl.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['hatch.linewidth'] = 0.3
 # %%
+# SMILEs
 EOFs_decade = read_all_models("eof_decade")
-EOFs_all = read_all_models("eof_all")
 EXTRCs = read_all_models("extrc")
 COMPOSITEs = read_all_models("composite")
 
-# %%
-# Fig 1, spatial patterns of ERA5 and MPI_GE, the time series and the boxplot
-# set the fig size as 88mm x 88mm
-# set the font size as 7pt
-fig1 = pplt.figure(figsize=(150 / 25.4, 150 / 25.4),sharex=False,sharey=False)
-fig1.format(
-    abc=True,
-    abcloc="ul",
-    abcstyle="a",
-)
-
-gs = pplt.GridSpec(
-    ncols=2,
-    nrows=2,
-    wratios = [0.6,1],
-    wspace=5,
-    hspace=4,
-)
-
-ax1 = fig1.add_subplot(gs[0, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
-ax3 = fig1.add_subplot(gs[0, 1])
-ax2 = fig1.add_subplot(gs[1, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
-ax4 = fig1.add_subplot(gs[1, 1])
-
-ax1, fmap, _ = stat_overview.spatial_pattern_plot(
-    ax1,
-    EOFs_all["ERA5"].eof.isel(decade=0),
-    EOFs_all["ERA5"].fra.isel(decade=0),
-    levels=np.arange(-40, 41, 5),
-)
-
-ax2, fmap, _ = stat_overview.spatial_pattern_plot(
-    ax2,
-    EOFs_all["MPI_GE"].eof.isel(decade=0),
-    EOFs_all["MPI_GE"].fra.isel(decade=0),
-    levels=np.arange(-40, 41, 5),
-)
-
-ax3 = era5_extreme_change.plot_era_nao_index(
-    EOFs_all["ERA5"].pc,
-    EOFs_all["ERA5_no_dec"].pc,
-    ax3,
-)
-
-ax4 = stat_overview.obs_mmlea_box_plot(
-    ax4,
-    EOFs_all,
-)
-
-
-#### ax2 ####
-cbar = ax2.colorbar(
-    fmap,
-    orientation="horizontal",
-    shrink=1,
-    ticks=np.arange(-40, 41, 10),
-    ticklabelsize=6,
-    labelsize=6,
-    extend="both",
-    loc='b',
-    width = 0.1,
-    pad = 1,
-    label = '',
-)
-cbar.ax.set_title(
-    "NAO/m",
-    fontsize=7,
-)
-
-
-
-
-#### ax3 ####
-# set the axis
-ax3.spines["right"].set_visible(False)
-ax3.spines["top"].set_visible(False)
-
-# change the ticks
-ax3.tick_params(
-    axis="x",
-    which="major",
-    direction="out",
-    pad=2,
-    labelsize=7,
-    labelcolor="black",
-)
-ax3.format(
-    ylabel = 'std_NAO',
-    grid = False,
-    yminorticks="null",
-    xminorticks="null",
-)
-
-
-#### ax4 ####
-# set the axis
-ax4.spines["right"].set_visible(False)
-ax4.spines["top"].set_visible(False)
-
-
-# the ticks
-ax4.tick_params(
-    axis="x",
-    which="major",
-    direction="out",
-    pad=2,
-    labelsize=7,
-    labelcolor="black",
-    labelrotation=45,
-)
-ax4.format(
-    ylabel = 'std_NAO',
-)
-
-
-# plt.savefig(
-#     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/Story_line_nature_climate_change/statistical_overview.png",
-#     dpi=300,
-#     bbox_inches="tight",
-# )
+#%%
+# 20CR
+CR20_first_eof, CR20_last_eof = read_eof_rean('CR20_allens')
+CR20_first_extc, CR20_last_extc = read_extrc_rean('CR20_allens')
+CR20_composite = read_composite_rean('CR20_allens','ts')
 
 
 # %%
-# Fig 2, spatial pattern chagne, index distribution change, and extreme lines
+# Fig 1, spatial pattern chagne, index distribution change, and extreme lines
 # set the fig size as 180mm x 150mm
 # set the font size as 7pt
-fig2 = pplt.figure(figsize=(180 / 25.4, 180 / 25.4),sharex=False,sharey=False)
-fig2.format(
+fig1 = pplt.figure(figsize=(180 / 25.4, 180 / 25.4),sharex=False,sharey=False)
+fig1.format(
     abc=True,
     abcloc="ul",
     abcstyle="a",
@@ -282,20 +177,28 @@ models_legend = [
     ]
 
 gs = pplt.GridSpec(
-    ncols=3,
+    ncols=4,
     nrows=2,
-    wspace=(5, 0.5),
-    hspace=0.5,
+    # wspace=(5, 0.5),
+    # hspace=0.5,
     hratios=[1, 1],
-    wratios=[1, 0.85, 0.85],
+    wratios=[1,1, 1,1],
 )
 
-ax1 = fig2.add_subplot(gs[0, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
-ax2 = fig2.add_subplot(gs[1,0])
-ax3 = fig2.add_subplot(gs[:, 1])
-ax4 = fig2.add_subplot(gs[:, 2])
+# MPI_GE
+ax1 = fig1.add_subplot(gs[0, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
+ax2 = fig1.add_subplot(gs[0,1])
+
+# 20CR
+ax3 = fig1.add_subplot(gs[1, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
+ax4 = fig1.add_subplot(gs[1,1])
+
+# line plot
+ax5 = fig1.add_subplot(gs[:, 2])
+ax6 = fig1.add_subplot(gs[:, 3])
 
 
+# MPI_GE
 ax1, fmap, lmap = stat_overview.spatial_pattern_plot(
     ax1,
     EOFs_decade["MPI_GE"].eof.isel(decade=0),
@@ -311,6 +214,20 @@ ax2,hist = stat_overview.index_distribution_plot(
     first_eof.pc,
     last_eof.pc,
 )
+
+# 20 CR 
+ax3, fmap, lmap = stat_overview.spatial_pattern_plot(
+    ax3,
+    CR20_first_eof.eof.sel(mode="NAO").squeeze(),
+    CR20_first_eof.fra.sel(mode="NAO").squeeze(),
+    levels=,
+)
+ax4, hist = stat_overview.index_distribution_plot(
+ax4,
+self.first_eof_std.pc.sel(mode="NAO"),
+self.last_eof_std.pc.sel(mode="NAO"),
+)
+
 
 
 ax3,lines_pos = extplt.extrc_time_line_single(
