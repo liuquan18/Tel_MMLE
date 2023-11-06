@@ -134,7 +134,10 @@ def extreme_composite(
         extr_index.attrs["extreme_type"] = extr_type
 
         count = kwargs.get("count", 'all')
-        count = count.sel(extr_type=extr_type, mode = index.mode).values[0] if type(count) != 'str'  else count
+        if count == 'all':
+            count = 'all'
+        else:
+            count = count.sel(extr_type=extr_type, mode = index.mode).values[0]
 
         # do composite analysis based on the extreme index
         extr_composite = reduce_var(
