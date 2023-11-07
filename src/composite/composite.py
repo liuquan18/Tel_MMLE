@@ -275,6 +275,6 @@ def first_last_extreme_composite(
         diff_sig = xr.where((ci.sel(quantile=low_bnd) > 0) | (ci.sel(quantile=high_bnd) < 0), 1, 0)
         # combine the first, last, diff and diff_sig together
         period = xr.IndexVariable('period', ['first', 'last', 'diff', 'diff_sig'])
-        composite = xr.concat([first_composite, last_composite, diff, diff_sig], dim=period)
+        composite = xr.concat([first_composite, last_composite, diff, diff_sig], dim=period,coords='minimal')
 
     return composite
