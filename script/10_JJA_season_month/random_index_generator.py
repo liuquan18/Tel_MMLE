@@ -10,7 +10,7 @@ importlib.reload(index_generate)
 
 
 # %%
-def decompose_random(ens_size,model = 'MPI_GE_onepct', fixedPattern = 'decade_mpi',plev = 50000):
+def decompose_random(ens_size,model = 'MPI_GE', fixedPattern = 'decade_mpi',plev = 50000):
     index_gen= index_generate.decompose_plev_random_ens(base_model=model,fixedPattern =fixedPattern, ens_size=ens_size,standard='first',plev=plev)
     index_gen.save_result()
 
