@@ -67,3 +67,12 @@ def compare_ens_std(region = None, save = False,group_size = 10):
     if save:
         plt.savefig(f'/work/mh0033/m300883/Tel_MMLE/docs/source/plots/supplyment/MPI_GE_20CR_ens_std.png')
 # %%
+compare_ens_std(group_size = 20)
+# %%
+compare_ens_std(group_size = 20,region = [-30,10,60,40],save=True)
+
+
+# %%
+compare_ens_std(group_size = 20,region = [-30,10,60,40])
+
+# %%

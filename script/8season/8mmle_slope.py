@@ -4,9 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 
-#%%
+# %%
 import src.plots.extreme_plot as ext_plot
 import importlib
+
 importlib.reload(ext_plot)
 
 
@@ -41,8 +42,9 @@ def read_extreme_counts(**kwargs):
     tsurfs_rand = {}
     for ens_size in np.arange(20, 101, 10):
         odir = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/"
-        extrs_rand[ens_size] = xr.open_dataset(odir + 
-            f"plev_{plev}_{fixed_pattern}_{season}_{standard}_{str(ens_size)}_extre_counts.nc"
+        extrs_rand[ens_size] = xr.open_dataset(
+            odir
+            + f"plev_{plev}_{fixed_pattern}_{season}_{standard}_{str(ens_size)}_extre_counts.nc"
         ).squeeze()
         tsurfs_rand[ens_size] = xr.open_dataset(
             f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/{tsurf}.nc"
@@ -51,7 +53,7 @@ def read_extreme_counts(**kwargs):
     return extrs, tsurfs, extrs_rand, tsurfs_rand
 
 
-#%%
+# %%
 # Create a scatter plot of the slopes for each model and extreme type
 def mmle_slope(**kwargs):
     tsurf = kwargs.get("tsurf", "ens_fld_year_mean")
@@ -68,7 +70,7 @@ def mmle_slope(**kwargs):
     # )
 
 
-#%%
+# %%
 def slope_diff_tsurf(**kwargs):
     plev = kwargs.get("plev", 50000)
     season = kwargs.get("season", "JJAS")
@@ -87,29 +89,43 @@ def slope_diff_tsurf(**kwargs):
     )
 
 
-#%%
+# %%
 mmle_slope(
-    plev=50000, standard="first", tsurf="ens_fld_year_mean", time='1960-01-01', season="DJFM"
+    plev=50000,
+    standard="first",
+    tsurf="ens_fld_year_mean",
+    time="1960-01-01",
+    season="DJFM",
 )
 
-#%%
+# %%
 mmle_slope(
-    plev=50000, standard="first", tsurf="ens_fld_year_mean", time='1960-01-01', season="JJAS"
+    plev=50000,
+    standard="first",
+    tsurf="ens_fld_year_mean",
+    time="1960-01-01",
+    season="JJAS",
 )
 
-#%%
+# %%
 mmle_slope(
-    plev=50000, standard="first", tsurf="ens_fld_year_mean", time='1960-01-01', season="MAM"
+    plev=50000,
+    standard="first",
+    tsurf="ens_fld_year_mean",
+    time="1960-01-01",
+    season="MAM",
 )
 # %%
 
 
-#%%
+# %%
 extrs, tsurfs, extrs_rand, tsurfs_rand = read_extreme_counts(
     plev=50000, standard="first", tsurf="ens_fld_year_mean", season="JJAS"
 )
 # %%
 importlib.reload(ext_plot)
-fig = ext_plot.mmle_line_plot(extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean",time = '1960-01-01')
+fig = ext_plot.mmle_line_plot(
+    extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean", time="1960-01-01"
+)
 # fig.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/slides_IUGG/mmle_line_plot_GFDL_CM3.png', facecolor=fig.get_facecolor(), edgecolor='none')
 # %%
