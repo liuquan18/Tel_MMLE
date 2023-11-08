@@ -269,7 +269,8 @@ def handle_label_models(colors, models):
 
 # Create a scatter plot of the slopes for each model and extreme type
 def mmle_slope_scatter(
-    extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean", time="all"
+    extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean", time="all",
+    models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],
 ):
     """
     plot the slope of extreme event count profile for multiple models
@@ -284,7 +285,7 @@ def mmle_slope_scatter(
         xtickminor=False,
         ytickminor=False,
     )
-    models = [
+    models_all = [
         "MPI_GE_onepct",
         "MPI_GE",
         "CanESM2",
@@ -293,11 +294,13 @@ def mmle_slope_scatter(
         "GFDL_CM3",
     ]
     colors_model = ["tab:red", "C1", "tab:blue", "tab:purple", "tab:cyan", "C4"]
+    model_color = dict(zip(models_all, colors_model))
     ensemble_size = [100, 100, 50, 40, 30, 20]
 
     # Get a list of nine evenly spaced colors from the colormap
     ens_size = np.arange(20, 101, 10)
-
+    extrs = {k: extrs[k] for k in models}
+    tsurfs = {k: tsurfs[k] for k in models} # select the subset of models
     slope_models(
         extrs,
         tsurfs,
