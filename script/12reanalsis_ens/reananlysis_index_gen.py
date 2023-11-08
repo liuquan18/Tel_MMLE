@@ -117,7 +117,7 @@ def standard_period(first_eof, last_eof):
 #%%
 
 class EOF_reanalysis:
-    def __init__(self, model, group_size=40, external_forcing="linear_trend", period_dec = False, **kwargs):
+    def __init__(self, model, group_size=40, external_forcing="quadratic_trend", period_dec = False, **kwargs):
         self.model = model
         self.group_size = group_size
         self.external_forcing = external_forcing
@@ -246,7 +246,7 @@ CR20_40.plot_spatial_index(save=True)
 
 #%%
 # CR20_allens, 1950 - 2015, 40 years
-CR20_allens_40 = EOF_reanalysis("CR20_allens", group_size=40, start_year="1950", end_year="2015")
+CR20_allens_40 = EOF_reanalysis("CR20_allens", group_size=40, start_year="1850", end_year="2015",external_forcing='quadratic_trend',period_dec = False)
 CR20_allens_40.save_eof()
 CR20_allens_40.plot_spatial_index(save=True)
 # %%
