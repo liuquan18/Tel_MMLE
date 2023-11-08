@@ -671,3 +671,29 @@ def extrc_time_line_single(extrcs, extr_type, ax, ylim = (20, 280),mode = 'NAO',
             title = '',
         )
     return ax, lines
+#%%
+# for reananlysis data
+
+def reananlysis_bar(first_extrc, first_err, last_extrc, last_err, ax, 
+                    x = [0.2,0.8],width = 0.4,facecolor = 'none',edgecolor = 'black',linewidth = 1,errcolor = 'black'):
+
+    ax.bar(
+        x =x,
+        height = [first_extrc,last_extrc],
+        width = width,
+        edgecolor = edgecolor,
+        facecolor = facecolor,
+        linewidth = 1,
+        align = 'center',
+        zorder = 9,
+    )
+    ax.errorbar(
+        x = x,
+        y = [first_extrc,last_extrc],
+        yerr = [first_err,last_err],
+        color = errcolor,
+        linewidth = 2,
+        fmt='none',
+        zorder = 10,
+    )
+    return ax
