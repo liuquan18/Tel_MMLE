@@ -741,7 +741,10 @@ def extrc_slope_line(extrcs,ax,tsurfs = None,against = 'time',mode = 'NAO',extr_
     else:
         for ens_size in [20,30,40,50,100]:
             extrc = extrcs[ens_size]
-            tsurf = tsurfs['MPI_GE']
+            try:
+                tsurf = tsurfs[model]
+            except TypeError:
+                tsurf = tsurfs
             slope, conf_int = calc_slope(extrc.sel(mode = mode,extr_type = extr_type),tsurf)
             yerr = np.array([[slope - conf_int[0]], [conf_int[1] - slope]])
 
