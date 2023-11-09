@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 #%%
-nsteps = 9
+nsteps = 4
 npar   = 1
 njobs  = int(nsteps/npar) # 2
 
