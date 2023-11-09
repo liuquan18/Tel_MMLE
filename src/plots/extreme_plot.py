@@ -742,7 +742,7 @@ def extrc_slope_line(extrcs,ax,tsurfs = None,against = 'time',mode = 'NAO',extr_
         for ens_size in [20,30,40,50,100]:
             extrc = extrcs[ens_size]
             try:
-                tsurf = tsurfs[model]
+                tsurf = tsurfs['MPI_GE']
             except TypeError:
                 tsurf = tsurfs
             slope, conf_int = calc_slope(extrc.sel(mode = mode,extr_type = extr_type),tsurf)
