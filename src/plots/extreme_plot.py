@@ -709,7 +709,7 @@ def reananlysis_bar(first_extrc, first_err, last_extrc, last_err, ax,
 #%%
 
 #%%
-def extrc_slope_line(extrcs,ax,tsurfs = None,against = 'time',mode = 'NAO',extr_type = 'pos',
+def extrc_slope_line(extrcs,ax,tsurfs = None,against = 'time',mode = 'NAO',extr_type = 'pos',time = 'all',
                      models = ["MPI_GE_onepct", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],rand = False):
     
     models_all = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
@@ -721,16 +721,26 @@ def extrc_slope_line(extrcs,ax,tsurfs = None,against = 'time',mode = 'NAO',extr_
     bars = []
     if rand == False:
         for model in models[::-1]: # from low to high
-            extrc = extrcs[model]
-            try:
-                tsurf = tsurfs[model]
-            except TypeError:
-                tsurf = tsurfs
-            slope, conf_int = calc_slope(extrc.sel(mode = mode,extr_type = extr_type),tsurf)
+            # select time period
+            if time != "all" and model != "MPI_GE_onepct":
+                time = np.datetime64(time)
+                extr = extrcs[model].sel(mode = mode, extr_type=extr_type, time=slice(time, None))
+                try:
+                    tsurf = tsurfs[model].sel(time=extr.time, method="nearest")
+                except TypeError: # for Nonetype
+                    tsurf = tsurfs
+            else:
+                extr = extrcs[model].sel(mode = mode, extr_type=extr_type)
+                try:
+                    tsurf = tsurfs[model]
+                except TypeError:
+                    tsurf = tsurfs
+
+            slope, conf_int = calc_slope(extr,tsurf)
             yerr = np.array([[slope - conf_int[0]], [conf_int[1] - slope]])
 
             bar = ax.errorbar(
-                x = model_size[model],
+                x = model_size[model] - 1,
                 y = slope,
                 yerr = yerr,
                 fmt = 'o',
@@ -740,31 +750,48 @@ def extrc_slope_line(extrcs,ax,tsurfs = None,against = 'time',mode = 'NAO',extr_
             bars.append(bar)
     else:
         for ens_size in [20,30,40,50,100]:
-            extrc = extrcs[ens_size]
-            try:
-                tsurf = tsurfs['MPI_GE']
-            except TypeError:
-                tsurf = tsurfs
-            slope, conf_int = calc_slope(extrc.sel(mode = mode,extr_type = extr_type),tsurf)
+            # select time period
+            if time != "all":
+                time = np.datetime64(time)
+                extr = extrcs[ens_size].sel(mode = mode, extr_type=extr_type, time=slice(time, None))
+                try:
+                    tsurf = tsurfs['MPI_GE'].sel(time=extr.time, method="nearest")
+                except TypeError: # for Nonetype
+                    tsurf = tsurfs
+            else:
+                extr = extrcs[ens_size].sel(mode = mode, extr_type=extr_type)
+                try:
+                    tsurf = tsurfs['MPI_GE']
+                except TypeError:
+                    tsurf = tsurfs
+            slope, conf_int = calc_slope(extr,tsurf)
             yerr = np.array([[slope - conf_int[0]], [conf_int[1] - slope]])
 
             # the position of 100 is 70
             if ens_size == 100:
-                x = 70 + 3
+                x = 70 + 2
             else:
-                x = ens_size + 3
+                x = ens_size + 2
 
             bar = ax.errorbar(
-                x = x,
+                x = x - 1,
                 y = slope,
                 yerr = yerr,
-                fmt = '--',
+                fmt = 'o--',
                 color = model_color['MPI_GE'],
-                alpha = 0.5,
+                alpha = 0.9,
             )
             bars.append(bar)
+            if x < 70:
+                bar[-1][0].set_linestyle('--')
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(format_ens_size))
 
     return ax,bars
     
-
+def format_ens_size(ens_size,tick_number):
+    if ens_size == 70:
+        formater = '100'
+    else:
+        formater = str(ens_size )
+    return formater
 
