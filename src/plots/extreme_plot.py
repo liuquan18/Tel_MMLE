@@ -724,7 +724,7 @@ def extrc_slope_line(extrcs,ax,tsurfs = None,against = 'time',mode = 'NAO',extr_
             extrc = extrcs[model]
             try:
                 tsurf = tsurfs[model]
-            except KeyError:
+            except TypeError:
                 tsurf = tsurfs
             slope, conf_int = calc_slope(extrc.sel(mode = mode,extr_type = extr_type),tsurf)
             yerr = np.array([[slope - conf_int[0]], [conf_int[1] - slope]])
