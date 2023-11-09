@@ -292,7 +292,9 @@ def extreme_count_xr(pc, ci="AR1"):
 
         extr_count = xr.concat([pos_count, neg_count], dim="extr_type")
         extr_count["extr_type"] = ["pos", "neg"]
-
+    elif ci == None:
+        extr_count = xr.concat([pos_count_true, neg_count_true], dim="extr_type")
+        extr_count["extr_type"] = ["pos", "neg"]
     return extr_count
 
 # %%
