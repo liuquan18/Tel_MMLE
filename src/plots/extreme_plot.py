@@ -186,7 +186,10 @@ def calc_slope( extreme_count,tsurf):
         x = tsurf.squeeze().values
     else:
         x = np.arange(len(extreme_count.time))
-    y = extreme_count.sel(confidence="true").pc.values
+    try:
+        y = extreme_count.sel(confidence="true").values
+    except KeyError:
+        y = extreme_count.values
 
     model = sm.OLS(y, sm.add_constant(x)).fit()
     slope = model.params[1]
@@ -674,6 +677,9 @@ def extrc_time_line_single(extrcs, extr_type, ax, ylim = (20, 280),mode = 'NAO',
             title = '',
         )
     return ax, lines
+
+
+
 #%%
 # for reananlysis data
 
@@ -700,3 +706,60 @@ def reananlysis_bar(first_extrc, first_err, last_extrc, last_err, ax,
         zorder = 10,
     )
     return ax
+#%%
+
+#%%
+def extrc_slope_line(extrcs,ax,tsurfs = None,against = 'time',mode = 'NAO',extr_type = 'pos',
+                     models = ["MPI_GE_onepct", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],rand = False):
+    
+    models_all = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+    colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
+    ens_size = [70, 70, 50, 40, 30, 20]  # 70 for the position of 100
+    model_color = dict(zip(models_all, colors_model))
+    model_size = dict(zip(models_all, ens_size))
+
+    bars = []
+    if rand == False:
+        for model in models[::-1]: # from low to high
+            extrc = extrcs[model]
+            try:
+                tsurf = tsurfs[model]
+            except KeyError:
+                pass
+            slope, conf_int = calc_slope(extrc.sel(mode = mode,extr_type = extr_type),tsurf)
+            yerr = np.array([[slope - conf_int[0]], [conf_int[1] - slope]])
+
+            bar = ax.errorbar(
+                x = model_size[model],
+                y = slope,
+                yerr = yerr,
+                fmt = 'o',
+                color = model_color[model],
+
+            )
+            bars.append(bar)
+    else:
+        for ens_size in [20,30,40,50,100]:
+            extrc = extrcs[ens_size]
+            tsurf = tsurfs['MPI_GE']
+            slope, conf_int = calc_slope(extrc.sel(mode = mode,extr_type = extr_type),tsurf)
+            yerr = np.array([[slope - conf_int[0]], [conf_int[1] - slope]])
+
+            # the position of 100 is 70
+            x = ens_size
+            if ens_size == 100:
+                x = 70
+            bar = ax.errorbar(
+                x = x,
+                y = slope,
+                yerr = yerr,
+                fmt = '-o-',
+                color = model_color['MPI_GE'],
+                alpha = 0.5,
+            )
+            bars.append(bar)
+
+    return ax,bars
+    
+
+
