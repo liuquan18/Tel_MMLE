@@ -1,5 +1,4 @@
 # %%
-import src.MMLE_TEL.story_line as story_line
 import numpy as np
 import importlib
 import matplotlib.pyplot as plt
@@ -10,13 +9,12 @@ import xarray as xr
 #%%
 import importlib
 
-importlib.reload(story_line)
 
 
 # %%
 def read_data(
     ens_size,
-    model="MPI_GE_onepct",
+    model="MPI_GE",
     plev=50000,
     standard="first",
     tsurf="ens_fld_year_mean",
@@ -24,7 +22,7 @@ def read_data(
     fixedPattern = "decade",
 ):
     print(f"read data of {model} {tsurf} {season} {standard} {str(ens_size)}")
-    eof_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}_random/EOF_result/plev_{plev}_{fixedPattern}_{season}_{standard}_{str(ens_size)}_eof_result.nc"
+    eof_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}_random/EOF_result/plev_{plev}_{fixedPattern}{str(ens_size)}_none_eof_result.nc"
     eof_result = xr.open_dataset(eof_dir)
 
     tsurf_dir = (
@@ -32,7 +30,7 @@ def read_data(
     )
     tsurf = xr.open_dataset(tsurf_dir).tsurf
 
-    extrc_dir = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/plev_{plev}_{fixedPattern}_{season}_{standard}_{str(ens_size)}_extre_counts.nc"
+    extrc_dir = f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_random/extreme_count/plev_{plev}_{fixedPattern}_{season}_{standard}_{str(ens_size)}_extre_counts.nc"
     try:
         extrc = xr.open_dataset(extrc_dir).pc
     except FileNotFoundError:
@@ -75,13 +73,13 @@ def process_data(ens_size, tsurf, standard,season):
     extr_counts, tsurf_mean = extreme_counts(eof_result, temperature, extrc=extrc)
     try:
         extr_counts.to_netcdf(
-            f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/plev_{plev}_{fixed_pattern}_{season}_{standard}_{str(ens_size)}_extre_counts.nc"
+            f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_random/extreme_count/plev_{plev}_{fixed_pattern}_{season}_{standard}_{str(ens_size)}_extre_counts.nc"
         )
     except PermissionError:
         pass
     try:
         tsurf_mean.to_netcdf(
-            f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_onepct_random/extreme_count/{tsurf}.nc"
+            f"/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_random/extreme_count/{tsurf}.nc"
         )
     except PermissionError:
         pass
