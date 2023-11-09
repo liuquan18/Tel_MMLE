@@ -725,7 +725,7 @@ def extrc_slope_line(extrcs,ax,tsurfs = None,against = 'time',mode = 'NAO',extr_
             try:
                 tsurf = tsurfs[model]
             except KeyError:
-                pass
+                tsurf = tsurfs
             slope, conf_int = calc_slope(extrc.sel(mode = mode,extr_type = extr_type),tsurf)
             yerr = np.array([[slope - conf_int[0]], [conf_int[1] - slope]])
 
@@ -746,14 +746,16 @@ def extrc_slope_line(extrcs,ax,tsurfs = None,against = 'time',mode = 'NAO',extr_
             yerr = np.array([[slope - conf_int[0]], [conf_int[1] - slope]])
 
             # the position of 100 is 70
-            x = ens_size
             if ens_size == 100:
-                x = 70
+                x = 70 + 3
+            else:
+                x = ens_size + 3
+
             bar = ax.errorbar(
                 x = x,
                 y = slope,
                 yerr = yerr,
-                fmt = '-o-',
+                fmt = '--',
                 color = model_color['MPI_GE'],
                 alpha = 0.5,
             )
