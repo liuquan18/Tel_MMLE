@@ -11,6 +11,7 @@ import cartopy.crs as ccrs
 import matplotlib.ticker as ticker
 from matplotlib import lines as mlines
 import matplotlib.ticker as ticker
+from matplotlib.lines import Line2D
 
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter, MaxNLocator
 import matplotlib.patches as mpatches
@@ -104,7 +105,17 @@ def read_all_models(variable, fixed_pattern="decade_mpi"):
     elif variable == "gmst":
         all_model_data = {model: read_gmst(model) for model in models}
     return all_model_data
-
+#%%
+# MPI_GE random
+def read_MPI_GE_random_extrc(model = 'MPI_GE'):
+    odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}_random/extreme_count/"
+    random_eofs = {}
+    for ens_size in [20,30,40,50]:
+        filename = odir + f"plev_50000_decade_JJA_first_{ens_size}_extre_counts.nc"
+        ds = xr.open_dataset(filename)
+        ds = ds.pc
+        random_eofs[ens_size] = ds
+    return random_eofs
 
 # %%
 # 20CR
@@ -175,9 +186,11 @@ def y_yerr(extrc):
 
 def format_period_year(period, tick_number):
     if period == 0.2:
-        formater = f"first \n 1950-1979"
+        # formater = f"first \n 1950-1979"
+        formater = 'first40'
     elif period == 0.8:
-        formater = f"last \n 1986-2015"
+        # formater = f"last \n 1986-2015"
+        formater = 'last40'
     else:
         formater = None
         print(period)
@@ -199,14 +212,32 @@ fixed_pattern = "decade_mpi"
 EOFs_decade = read_all_models("eof_decade", fixed_pattern=fixed_pattern)
 EXTRCs = read_all_models("extrc", fixed_pattern=fixed_pattern)
 COMPOSITEs = read_all_models("composite", fixed_pattern=fixed_pattern)
-
 # divided by 100 for each model in EXTRCs
+
+ENS_SIZES = {'MPI_GE':100,
+             'MPI_GE_onepct':100,
+             'CanESM2':50,
+                'CESM1_CAM5':40,
+                'MK36':30,
+                'GFDL_CM3':20,
+                '20CR':79
+             }
 for model in EXTRCs.keys():
-    EXTRCs[model] = EXTRCs[model] / 100
+    EXTRCs[model] = EXTRCs[model]/ENS_SIZES[model]
+
+GMST = read_all_models("gmst")
+
+#%%
+# MPI_GE random
+MPI_GE_random_EXTRCs = read_MPI_GE_random_extrc()
+for ens_size in MPI_GE_random_EXTRCs.keys():
+    MPI_GE_random_EXTRCs[ens_size] = MPI_GE_random_EXTRCs[ens_size]/ens_size
+#%%
+MPI_GE_random_EXTRCs[100] = EXTRCs['MPI_GE']
+
 
 # %%
-GMST = read_all_models("gmst")
-# %%
+# the projected spatial pattern
 first_pattern = xr.open_dataset(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/EOF_result/first_pattern_projected.nc"
 ).__xarray_dataarray_variable__
@@ -223,7 +254,7 @@ CR20_composite = read_composite_rean("CR20_allens", "ts")
 # %%
 CR20_first_extc = CR20_first_extc / (4 * 79)
 CR20_last_extc = CR20_last_extc / (4 * 79)
-# %%
+# %% # put the 20CR_allens into the dict
 COMPOSITEs["20CR"] = CR20_composite
 # %%
 # also read ensemble mean of 20CR
@@ -237,9 +268,7 @@ CR20_ens_last_extc = CR20_ens_last_extc / 4
 # set the font size as 7pt
 fig1 = pplt.figure(figsize=(180 / 25.4, 180 / 25.4), sharex=False, sharey=False)
 fig1.format(
-    abc=True,
-    abcloc="ul",
-    abcstyle="a",
+    abc=False,
 )
 models_legend = [
     "MPI_GE_onepct (100)",
@@ -254,24 +283,27 @@ gs = pplt.GridSpec(
     ncols=4,
     nrows=2,
     hspace=3.5,
-    wspace=(3, 4.5, 1),
+    wspace=(4.5, 4.5, 1),
     hratios=[1, 1],
     wratios=[1.1, 1.1, 0.8, 0.8],
 )
 
-# spatial pattern
+# MPI_GE
+## Spatial pattern and index distribution
 ax1 = fig1.add_subplot(gs[0, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
-ax3 = fig1.add_subplot(gs[0, 1])
+ax2 = fig1.add_subplot(gs[0, 1])
 
-# index distribution
-ax2 = fig1.add_subplot(gs[1, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
-ax4 = fig1.add_subplot(gs[1, 1], sharey=ax3, sharex=ax3)
+## line plot
+ax3 = fig1.add_subplot(gs[0, 2])
+ax4 = fig1.add_subplot(gs[0, 3], sharey=ax3, sharex=ax3)
 
-# line plot for MPI_GE
-ax5 = fig1.add_subplot(gs[0, 2])
-ax6 = fig1.add_subplot(gs[0, 3], sharey=ax5, sharex=ax5)
 
-# line plot for others
+# 20CR
+## Spatial pattern and index distribution
+ax5 = fig1.add_subplot(gs[1, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
+ax6 = fig1.add_subplot(gs[1, 1], sharey=ax2, sharex=ax2)
+
+## bar plot of extreme counts
 ax7 = fig1.add_subplot(gs[1, 2])
 ax8 = fig1.add_subplot(gs[1, 3], sharey=ax7, sharex=ax7)
 
@@ -285,8 +317,8 @@ ax1, fmap_MPI, lmap = stat_overview.spatial_pattern_plot(
     levels=np.arange(-30, 31, 5),
 )
 
-ax2, fmap_20CR, lmap = stat_overview.spatial_pattern_plot(
-    ax2,
+ax5, fmap_20CR, lmap = stat_overview.spatial_pattern_plot(
+    ax5,
     CR20_first_eof.eof.sel(mode="NAO").squeeze(),
     CR20_first_eof.fra.sel(mode="NAO").squeeze(),
     levels=np.arange(-30, 31, 5),
@@ -294,31 +326,31 @@ ax2, fmap_20CR, lmap = stat_overview.spatial_pattern_plot(
 
 # index distribution
 first_eof, last_eof = split_first_last(EOFs_decade["MPI_GE"])
-ax3, hist = stat_overview.index_distribution_plot(
-    ax3,
+ax2, hist = stat_overview.index_distribution_plot(
+    ax2,
     first_eof.pc,
     last_eof.pc,
 )
-ax4, hist = stat_overview.index_distribution_plot(
-    ax4,
+ax6, hist = stat_overview.index_distribution_plot(
+    ax6,
     CR20_first_eof.pc.sel(mode="NAO"),
     CR20_last_eof.pc.sel(mode="NAO"),
 )
 
 # LINE PLOT for MPI_GE
-ax5, lines_pos_MPI = extplt.extrc_time_line_single(
+ax3, lines_pos_MPI = extplt.extrc_time_line_single(
     EXTRCs,
     extr_type="pos",
-    ax=ax5,
+    ax=ax3,
     ylim=(1.5, 4.5),
     ci=True,
     models=["MPI_GE_onepct", "MPI_GE"],
 )
 
-ax6, lines_neg = extplt.extrc_time_line_single(
+ax4, lines_neg = extplt.extrc_time_line_single(
     EXTRCs,
     extr_type="neg",
-    ax=ax6,
+    ax=ax4,
     ylim=(1.5, 4.5),
     ci=True,
     models=["MPI_GE_onepct", "MPI_GE"],
@@ -385,100 +417,206 @@ ax8 = extplt.reananlysis_bar(
 )
 ax8.set_xticks([0.2, 0.8])
 
-
 ax8.xaxis.set_major_formatter(plt.FuncFormatter(format_period_year))
 
-
 #### ax1 ####
-cbar = ax1.colorbar(fmap_MPI, width=0.1, shrink=1, loc="b", pad=0)
-cbar.set_label("Z500/m", labelpad=-40, y=1.05, rotation=0)
+
+cax = fig1.add_axes([0.05, 0.63, 0.23, 0.013], xlocator=MaxNLocator(5))
+cbar = fig1.colorbar(
+    fmap_MPI,
+    cax=cax,
+    orientation="horizontal",
+    ticks=np.arange(-30, 31, 10),
+    label="Z500/m",
+)
+cax.tick_params(axis='x', which='minor', bottom=False)
+# add 'a' label at the top left corner
+ax1.text(
+    0.05,
+    0.985,
+    "a",
+    transform=fig1.transFigure,
+    fontsize=7,
+    fontweight="bold",
+    va="top",
+    ha="left",
+)
 
 #### ax2 ####
-cbar = ax2.colorbar(
-    fmap_20CR,
-    width=0.1,
-    shrink=1,
-    loc="b",
-    pad=0,
-)
-
-cbar.set_label("Z500/m", labelpad=-40, y=1.05, rotation=0)
-
-#### ax3 ####
 # add legend
-f_patch = mpatches.Patch(color="#1f77b4", label="first")
-l_patch = mpatches.Patch(color="#ff7f0e", label="last")
+ax2.axes.set_facecolor("none")
+f_patch_MPI = mpatches.Patch(color="#1f77b4", label="first10")
+l_patch_MPI = mpatches.Patch(color="#ff7f0e", label="last10")
 
+ax2.set_ylabel("probability density", fontsize=7,)
+ax2.set_xlabel("NAO index", fontsize=7)
 
-ax3.set_ylabel("density", fontsize=8, loc="top", labelpad=-15, rotation=0)
-ax3.set_xlabel("NAO index", fontsize=7)
-
-# ax4
-ax4.set_ylabel("density", fontsize=8, loc="top", labelpad=-15, rotation=0)
-ax4.set_xlabel("NAO index", fontsize=7)
-
-ax4.legend(
-    handles=[f_patch, l_patch],
+ax2.legend(
+    handles=[f_patch_MPI, l_patch_MPI],
     loc="b",
     frameon=False,
-    bbox_to_anchor=(
-        0.3,
-        -0.3,
-    ),
     ncol=2,
 )
+# add 'b' to ax2
+ax2.text(
+    0.33,
+    0.985,
+    "b",
+    transform=fig1.transFigure,
+    fontsize=7,
+    fontweight="bold",
+    va="top",
+    ha="left",
+)
 
-#### ax5 ####
+#### ax3 ####
 # set the axis
-ax5.spines["right"].set_visible(False)
-ax5.spines["top"].set_visible(False)
+ax3.spines["right"].set_visible(False)
+ax3.spines["top"].set_visible(False)
 
-ax5.format(
+ax3.format(
     xlabel="",
     xlabelpad=0.8,
     xtickminor=False,
     xrotation=45,
-    ylabel="Extreme occurence / 10 years",
-    ylim=(1.5, 3.5),
+    ylabel="Extreme occurence decade$^{-1}$ realization$^{-1}$",
+    ylim=(1.5, 3.6),
+    facecolor="none",
 )
-ax5.yaxis.set_major_locator(ticker.AutoLocator())
+ax3.set_yticks(np.arange(1.5, 3.5, 0.5))
+
+
+ax3.legend(
+    lines_pos_MPI,
+    models_legend,
+    loc="b",
+    ncols=1,
+    bbox_to_anchor=(
+        1.2,
+        1.15,
+    ),
+    frameon=False,
+    # major tick every 0.5
+)
+
+ax3.text(
+    0.628,
+    0.985,
+    "c",
+    transform=fig1.transFigure,
+    fontsize=7,
+    fontweight="bold",
+    va="top",
+    ha="left",
+)
 
 #### ax4 ####
 # set the axis
-ax6.spines["right"].set_visible(False)
-ax6.spines["top"].set_visible(False)
-ax6.format(
+ax4.spines["right"].set_visible(False)
+ax4.spines["top"].set_visible(False)
+ax4.format(
     xlabel="",
     xlabelpad=0.8,
     xtickminor=False,
     ylabel="",
-    ylim=(1.5, 3.5),
+    ylim=(1.5, 3.6),
     xrotation=45,
+    facecolor="none",
 )
-ax6.yaxis.set_major_locator(ticker.AutoLocator())
+
+ax4.text(
+    0.81,
+    0.985,
+    "d",
+    transform=fig1.transFigure,
+    fontsize=7,
+    fontweight="bold",
+    va="top",
+    ha="left",
+)
+
+#### ax5 ####
+cax = fig1.add_axes([0.05, 0.13, 0.23, 0.013], xlocator=MaxNLocator(5))
+cbar = fig1.colorbar(
+    fmap_20CR,
+    cax=cax,
+    orientation="horizontal",
+    ticks=np.arange(-30, 31, 10),
+    label="Z500/m",
+)
+cax.tick_params(axis='x', which='minor', bottom=False)
+
+ax5.text(
+    0.05,
+    0.47,
+    "e",
+    transform=fig1.transFigure,
+    fontsize=7,
+    fontweight="bold",
+    va="top",
+    ha="left",
+)
 
 
-#### ax7 ####
+# ax6
+ax6.set_ylabel("probability density", fontsize=7)
+ax6.set_xlabel("NAO index", fontsize=7)
+ax6.axes.set_facecolor("none")
+
+ax6.legend(
+    handles=[f_patch_MPI, l_patch_MPI],
+    labels = ["first40", "last40"],
+    loc="b",
+    frameon=False,
+    ncol=2,
+)
+
+ax6.text(
+    0.33,
+    0.47,
+    "f",
+    transform=fig1.transFigure,
+    fontsize=7,
+    fontweight="bold",
+    va="top",
+    ha="left",
+)
+
+#### ax7 ####""
 ax7.format(
     ytickminor=False,
     grid=False,
-    ylabel="Extreme occurence / 10 years",
+    ylabel="Extreme occurence decade$^{-1}$ realization$^{-1}$",
     ylim=(0, 6.5),
     xlim=(0, 1),
     xtickminor=False,
+    facecolor="none",
 )
 ax7.spines["right"].set_visible(False)
 ax7.spines["top"].set_visible(False)
+
+patch_20CR = mpatches.Patch(facecolor="none",edgecolor='black', label="20CR")
+patch_20CR_allens = mpatches.Patch(color="grey", label="20CR_allens (79)")
+
 ax7.legend(
-    lines_pos_MPI[0],
-    models_legend[0],
+    handles=[patch_20CR,patch_20CR_allens],
     loc="b",
-    ncols=1,
     frameon=False,
+    ncol=2,
     bbox_to_anchor=(
-        -0.2,
-        -0.3,
+        1.2,
+        1.1,
     ),
+)
+ax7.text(
+    0.628,
+    0.47,
+    "g",
+    transform=fig1.transFigure,
+    fontsize=7,
+    fontweight="bold",
+    va="top",
+    ha="left",
 )
 
 #### ax8 ####
@@ -489,49 +627,44 @@ ax8.format(
     ylim=(0, 6.5),
     xtickminor=False,
     xlim=(0, 1),
+    facecolor="none",
 )
 ax8.spines["right"].set_visible(False)
 ax8.spines["top"].set_visible(False)
-ax8.legend(
-    lines_pos_MPI[1],
-    models_legend[1],
-    loc="b",
-    ncols=1,
-    frameon=False,
-    bbox_to_anchor=(
-        0.3,
-        -0.3,
-    ),
+
+ax8.text(
+    0.81,
+    0.47,
+    "h",
+    transform=fig1.transFigure,
+    fontsize=7,
+    fontweight="bold",
+    va="top",
+    ha="left",
 )
+
 # set the axis
-plt.setp(ax6.get_yticklabels(), visible=False)
+plt.setp(ax4.get_yticklabels(), visible=False)
 plt.setp(ax8.get_yticklabels(), visible=False)
 
 
 # plt.savefig(
-#     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/imprs_retreat/extrc_change.pdf",
-#     bbox_inches="tight",
+#     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/imprs_retreat/Fig1_MPI_GE_20CR.pdf",
 # )
 # %%
 # Fig 2 line plot for other models, linear regression
 models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3", "20CR"]
-models_legend = [
-    "MPI-GE (100)",
-    "CanESM2 (50)",
-    "CESM1-CAM5 (40)",
-    "MK3.6 (30)",
-    "GFDL-CM3 (20)",
-    "20CR(79)",
-]
 
 fig2, axes = pplt.subplots(
     space=0,
-    width=180 / 25.4,
-    height=180 / 25.4,
-    wspace=0.2,
-    hspace=0.2,
+    width=150 / 25.4,
+    height=150 / 25.4,
+    hspace = 5,
+    wspace = 2,
     nrows=2,
-    ncols=3,
+    ncols=2,
+    sharex=False,
+    sharey=False,
 )
 
 fig2.format(
@@ -551,7 +684,7 @@ ax1, lines_pos_other = extplt.extrc_time_line_single(
     EXTRCs,
     extr_type="pos",
     ax=ax1,
-    ylim=(0, 2),
+    ylim=(1,4.0),
     ci=True,
     models=["CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],
 )
@@ -560,33 +693,121 @@ ax2, lines_neg_other = extplt.extrc_time_line_single(
     EXTRCs,
     extr_type="neg",
     ax=ax2,
-    ylim=(0, 2.5),
+    ylim=(1,4.0),
     ci=True,
     models=["CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],
 )
 
-ext_plot.mmle_slope_scatter(
-    extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf=tsurf, time=time
-)
+ax3,bars = extplt.extrc_slope_line(EXTRCs,ax = ax3,tsurfs = None,extr_type ='pos',time = '1960-06-06')
+ax3,bars_rand = extplt.extrc_slope_line(MPI_GE_random_EXTRCs,ax = ax3,tsurfs = None,extr_type ='pos',rand = True,time = '1960-06-06')
+ax4,bars = extplt.extrc_slope_line(EXTRCs,ax = ax4,tsurfs = None,extr_type ='neg',time = '1960-06-06')
+ax4,bars_rand = extplt.extrc_slope_line(MPI_GE_random_EXTRCs,ax = ax4,tsurfs = None,extr_type ='neg',rand = True,time = '1960-06-06')
 
+# hline at y = 0 for ax3 and ax4
+# ax3.axhline(y=0, color="black", linewidth = ax3.spines['bottom'].get_linewidth())
+# ax4.axhline(y=0, color="black", linewidth = ax4.spines['bottom'].get_linewidth())
+
+ax3.spines['bottom'].set_position(('data', 0))
+ax4.spines['bottom'].set_position(('data', 0))
 
 ###
+for ax in [ax1, ax2, ax3, ax4]:
+    # no right and top axis
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+
+### ax1
 ax1.format(
     ytickminor=False,
     grid=False,
-    ylabel="Extreme occurence / 10 years",
-    ylim=(0, 1.5),
+    ylabel="Extreme occurence decade$^{-1}$ realization$^{-1}$",
+    ylim=(1.0,3.8),
     xtickminor=False,
+    facecolor="none",
 )
+ax1.set_yticks(np.arange(1.0, 3.6, 0.5))
 
 ax2.format(
     ytickminor=False,
     grid=False,
     ylabel="",
-    ylim=(0, 1.5),
+    ylim=(1.0,3.8),
     xtickminor=False,
+    facecolor="none",
 )
 
+ax2.set_yticks(np.arange(1.0, 3.6, 0.5))
+
+ax3.format(
+    ytickminor=False,
+    grid=False,
+    ylabel="increase in occurence decade$^{-1}$ realization$^{-1}$",
+    ylim=(-0.049,0.18),
+    xtickminor=False,
+    facecolor="none",
+)
+ax3.set_xticks([20,30,40,50,70])
+# the xlabel for ax3 at the right bottom
+ax3.text(
+    0.98,
+    0.02,
+    "ensemble size",
+    transform=ax3.transAxes,
+    va="bottom",
+    ha="right",
+)
+
+
+ax4.format(
+    ytickminor=False,
+    grid=False,
+    ylabel="",
+    ylim=(-0.049,0.18),
+    xtickminor=False,
+    facecolor="none",
+)
+ax4.set_xticks([20,30,40,50,70])
+ax4.text(
+    0.98,
+    0.02,
+    "ensemble size",
+    transform=ax4.transAxes,
+    va="bottom",
+    ha="right",
+)
+
+
+plt.setp(ax2.get_yticklabels(), visible=False)
+plt.setp(ax4.get_yticklabels(), visible=False)
+
+models_legend = [
+    "GFDL-CM3 (20)",
+    "MK3.6 (30)",
+    "CESM1-CAM5 (40)",
+    "CanESM2 (50)",
+    "MPI-GE_onepct (100)",
+    "MPI-GE (100)",
+    "MPI-GE resampled"
+]
+colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
+
+legend_lines = [
+    Line2D([0], [0], color=colors_model[5], lw=1.5),
+    Line2D([0], [0], color=colors_model[4], lw=1.5),
+    Line2D([0], [0], color=colors_model[3], lw=1.5),
+    Line2D([0], [0], color=colors_model[2], lw=1.5),
+    Line2D([0], [0], color=colors_model[0], lw=1.5),
+    Line2D([0], [0], color=colors_model[1], lw=1.5),
+    Line2D([0], [0], color=colors_model[1], lw=1.5,linestyle='--'),
+]
+
+
+fig2.legend(
+    legend_lines,
+    models_legend,
+    loc="b",
+    frameon=False,
+)
 
 # %%
 # Fig 3, composite plot of ts for positve extremes
