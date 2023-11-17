@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import statsmodels.api as sm
 
+import matplotlib.patches as patches
+
 #%%
 
 ################### extreme event count v.s surface temperature scatter ###################
@@ -718,14 +720,22 @@ def format_ens_size(ens_size,tick_number):
 
 def plot_errorbar(x,slope,low,high,color,ax,width = 2):
     line = ax.hlines(x1 = x-width,x2 = x,y = slope,color = color,linewidth = 2)
-    bar = ax.fill_between(
-    x = [x-width,x],
-    y1 = low,
-    y2 = high,
-    color = color,
-    alpha = 0.3,
-    zorder = 10,
-    )
+    x1 = x-width
+    x2 = x
+    y1 = low
+    y2 = high
+    rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='none', facecolor=color,alpha = 0.3)
+    bar = ax.add_patch(rect)
+    return line,bar
+
+def plot_unfill_errbar(x,slope,low,high,color,ax,width = 2):
+    line = ax.hlines(x1 = x-width,x2 = x,y = slope,color = color,linewidth = 2)
+    x1 = x-width
+    x2 = x
+    y1 = low
+    y2 = high
+    rect_out = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor=color, facecolor='none',alpha = 0.3)
+    bar = ax.add_patch(rect_out)
     return line,bar
 
 
@@ -769,17 +779,26 @@ def extrc_slope_line(slopes,ax,mode = 'NAO',extr_type = 'pos',
             # the position of 100 is 70
             if ens_size == 100:
                 x = 70 + 2
+                line,bar = plot_errorbar(
+                    x = x,
+                    slope = slope,
+                    low = low,
+                    high = high,
+                    color = model_color['MPI_GE'],
+                    ax = ax,
+                )
             else:
                 x = ens_size + 2
+                line,bar = plot_unfill_errbar(
+                    x = x,
+                    slope = slope,
+                    low = low,
+                    high = high,
+                    color = model_color['MPI_GE'],
+                    ax = ax,
+                )
             
-            line,bar = plot_errorbar(
-                x = x,
-                slope = slope,
-                low = low,
-                high = high,
-                color = model_color['MPI_GE'],
-                ax = ax,
-            )
+
 
     ax.xaxis.set_major_formatter(plt.FuncFormatter(format_ens_size))
 
