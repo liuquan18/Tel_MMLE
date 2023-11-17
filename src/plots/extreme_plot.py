@@ -708,8 +708,29 @@ def reananlysis_bar(first_extrc, first_err, last_extrc, last_err, ax,
     return ax
 #%%
 
+#%%    
+def format_ens_size(ens_size,tick_number):
+    if ens_size == 70:
+        formater = '100'
+    else:
+        formater = str(ens_size )
+    return formater
+
+def plot_errorbar(x,slope,low,high,color,ax,width = 2):
+    line = ax.hlines(x1 = x-width,x2 = x,y = slope,color = color,linewidth = 2)
+    bar = ax.fill_between(
+    x = [x-width,x],
+    y1 = low,
+    y2 = high,
+    color = color,
+    alpha = 0.3,
+    zorder = 10,
+    )
+    return line,bar
+
+
 #%%
-def extrc_slope_line(extrcs,ax,tsurfs = None,against = 'time',mode = 'NAO',extr_type = 'pos',time = 'all',
+def extrc_slope_line(slopes,ax,mode = 'NAO',extr_type = 'pos',
                      models = ["MPI_GE_onepct", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],rand = False):
     
     models_all = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
@@ -718,80 +739,49 @@ def extrc_slope_line(extrcs,ax,tsurfs = None,against = 'time',mode = 'NAO',extr_
     model_color = dict(zip(models_all, colors_model))
     model_size = dict(zip(models_all, ens_size))
 
+    lines = []
     bars = []
     if rand == False:
         for model in models[::-1]: # from low to high
             # select time period
-            if time != "all" and model != "MPI_GE_onepct":
-                time = np.datetime64(time)
-                extr = extrcs[model].sel(mode = mode, extr_type=extr_type, time=slice(time, None))
-                try:
-                    tsurf = tsurfs[model].sel(time=extr.time, method="nearest")
-                except TypeError: # for Nonetype
-                    tsurf = tsurfs
-            else:
-                extr = extrcs[model].sel(mode = mode, extr_type=extr_type)
-                try:
-                    tsurf = tsurfs[model]
-                except TypeError:
-                    tsurf = tsurfs
+            slope = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'true').values
+            low = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'low').values
+            high = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'high').values
 
-            slope, conf_int = calc_slope(extr,tsurf)
-            yerr = np.array([[slope - conf_int[0]], [conf_int[1] - slope]])
-
-            bar = ax.errorbar(
-                x = model_size[model] - 1,
-                y = slope,
-                yerr = yerr,
-                fmt = 'o',
+            line,bar = plot_errorbar(
+                x = model_size[model],
+                slope = slope,
+                low = low,
+                high = high,
                 color = model_color[model],
-
+                ax = ax,
             )
+            lines.append(line)
+
             bars.append(bar)
     else:
         for ens_size in [20,30,40,50,100]:
             # select time period
-            if time != "all":
-                time = np.datetime64(time)
-                extr = extrcs[ens_size].sel(mode = mode, extr_type=extr_type, time=slice(time, None))
-                try:
-                    tsurf = tsurfs['MPI_GE'].sel(time=extr.time, method="nearest")
-                except TypeError: # for Nonetype
-                    tsurf = tsurfs
-            else:
-                extr = extrcs[ens_size].sel(mode = mode, extr_type=extr_type)
-                try:
-                    tsurf = tsurfs['MPI_GE']
-                except TypeError:
-                    tsurf = tsurfs
-            slope, conf_int = calc_slope(extr,tsurf)
-            yerr = np.array([[slope - conf_int[0]], [conf_int[1] - slope]])
+            slope = slopes[ens_size].sel(extr_type = extr_type,mode = mode,slopes = 'true').values
+            low = slopes[ens_size].sel(extr_type = extr_type,mode = mode,slopes = 'low').values
+            high = slopes[ens_size].sel(extr_type = extr_type,mode = mode,slopes = 'high').values
 
             # the position of 100 is 70
             if ens_size == 100:
                 x = 70 + 2
             else:
                 x = ens_size + 2
-
-            bar = ax.errorbar(
-                x = x - 1,
-                y = slope,
-                yerr = yerr,
-                fmt = 'o--',
+            
+            line,bar = plot_errorbar(
+                x = x,
+                slope = slope,
+                low = low,
+                high = high,
                 color = model_color['MPI_GE'],
-                alpha = 0.9,
+                ax = ax,
             )
-            bars.append(bar)
-            if x < 70:
-                bar[-1][0].set_linestyle('--')
+
     ax.xaxis.set_major_formatter(plt.FuncFormatter(format_ens_size))
 
     return ax,bars
-    
-def format_ens_size(ens_size,tick_number):
-    if ens_size == 70:
-        formater = '100'
-    else:
-        formater = str(ens_size )
-    return formater
-
+# %%
