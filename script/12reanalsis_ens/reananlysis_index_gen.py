@@ -169,6 +169,10 @@ class EOF_reanalysis:
         self.last_eof_std.to_netcdf(
             f"/work/mh0033/m300883/Tel_MMLE/data/{self.model}/EOF_result/last_{self.group_size}_eof_std.nc"
         )
+        if not self.period_dec:
+            self.eof.to_netcdf(
+                f"/work/mh0033/m300883/Tel_MMLE/data/{self.model}/EOF_result/all_{self.group_size}_eof.nc"
+            )
 
     def plot_spatial_index(self,levels = np.arange(-2, 2.1, 0.4), save=False):
         

@@ -6,22 +6,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import proplot as pplt
-import seaborn as sns
-import cartopy.crs as ccrs
-import matplotlib.ticker as ticker
-from matplotlib import lines as mlines
-import matplotlib.ticker as ticker
 from matplotlib.lines import Line2D
 
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter, MaxNLocator
+from matplotlib.ticker import MaxNLocator
 import matplotlib.patches as mpatches
-import statsmodels.api as sm
 
 
 import src.plots.composite_plot as composite_plot
 import src.plots.extreme_plot as extplt
 import src.plots.statistical_overview as stat_overview
-import src.plots.utils as utils
 import src.obs.era5_extreme_change as era5_extreme_change
 
 # %%
@@ -888,7 +881,8 @@ legend_lines = [
     Line2D([0], [0], color=colors_model[2], lw=1.5),
     Line2D([0], [0], color=colors_model[0], lw=1.5),
     Line2D([0], [0], color=colors_model[1], lw=1.5),
-    Line2D([0], [0], color=colors_model[1], lw=1.5),
+    # Line2D([0], [0], color=colors_model[1], lw=1.5),
+    mpatches.Patch(facecolor="none", edgecolor="C1"),
     Line2D([0], [0], color='k', lw=1.5, linestyle="dashed"),
     Line2D([0], [0], color='k', lw=1.5, linestyle="dotted"),
 ]
@@ -900,6 +894,7 @@ fig2.legend(
     loc="b",
     frameon=False,
 )
+
 plt.savefig(
 "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig2_SMILEs.pdf",
 )
