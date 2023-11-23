@@ -331,7 +331,7 @@ gs = pplt.GridSpec(
     hspace=3.5,
     wspace=(4.5, 4.5, 1),
     hratios=[1, 1],
-    wratios=[1.1, 1.1, 0.8, 0.8],
+    wratios=[1.3, 1.1, 0.8, 0.8],
 )
 
 # MPI_GE
@@ -467,7 +467,7 @@ ax8.xaxis.set_major_formatter(plt.FuncFormatter(format_period_year))
 
 #### ax1 ####
 
-cax = fig1.add_axes([0.05, 0.63, 0.23, 0.013], xlocator=MaxNLocator(5))
+cax = fig1.add_axes([0.06, 0.62, 0.23, 0.013], xlocator=MaxNLocator(5))
 cbar = fig1.colorbar(
     fmap_MPI,
     cax=cax,
@@ -482,7 +482,7 @@ ax1.text(
     0.985,
     "a",
     transform=fig1.transFigure,
-    fontsize=7,
+    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
@@ -512,7 +512,7 @@ ax2.text(
     0.985,
     "b",
     transform=fig1.transFigure,
-    fontsize=7,
+    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
@@ -553,7 +553,7 @@ ax3.text(
     0.985,
     "c",
     transform=fig1.transFigure,
-    fontsize=7,
+    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
@@ -578,14 +578,14 @@ ax4.text(
     0.985,
     "d",
     transform=fig1.transFigure,
-    fontsize=7,
+    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
 )
 
 #### ax5 ####
-cax = fig1.add_axes([0.05, 0.13, 0.23, 0.013], xlocator=MaxNLocator(5))
+cax = fig1.add_axes([0.06, 0.1, 0.23, 0.013], xlocator=MaxNLocator(5))
 cbar = fig1.colorbar(
     fmap_20CR,
     cax=cax,
@@ -600,7 +600,7 @@ ax5.text(
     0.47,
     "e",
     transform=fig1.transFigure,
-    fontsize=7,
+    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
@@ -625,7 +625,7 @@ ax6.text(
     0.47,
     "f",
     transform=fig1.transFigure,
-    fontsize=7,
+    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
@@ -662,7 +662,7 @@ ax7.text(
     0.47,
     "g",
     transform=fig1.transFigure,
-    fontsize=7,
+    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
