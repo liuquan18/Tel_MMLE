@@ -585,7 +585,7 @@ ax4.text(
 )
 
 #### ax5 ####
-cax = fig1.add_axes([0.06, 0.1, 0.23, 0.013], xlocator=MaxNLocator(5))
+cax = fig1.add_axes([0.06, 0.11, 0.23, 0.013], xlocator=MaxNLocator(5))
 cbar = fig1.colorbar(
     fmap_20CR,
     cax=cax,
