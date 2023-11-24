@@ -148,12 +148,13 @@ def rate_increase(fixed_pattern = "decade_mpi",x = 'tsurf',time = "1950-06-01"):
             pass
         slopes = SMILE_slope(extrc,tsurf=tsurf)
 
-    # save the result
+        # save the result
         sodir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/extreme_slope/"
-    # create the directory if it does not exist
+        # create the directory if it does not exist
         if not os.path.exists(sodir):
             os.makedirs(sodir)
         filename = f"plev_50000_{fixed_pattern}_first_JJA_extre_slope_{x}.nc"
+        slopes.name = "pc"
         slopes.to_netcdf(sodir + filename)
 
 #%%
@@ -171,20 +172,21 @@ def resample_rate_increase(x = 'tsurf',time = "1950-06-01"):
         ds = xr.open_dataset(filename)
         start_time = np.datetime64(time)
         ds = ds.sel(time=slice(start_time, None))
-    if x == 'tsurf':
-        tsurf = read_tsurf('MPI_GE')
-        tsurf = tsurf.sel(time=slice(start_time, None))
-        tsurf['time'] = ds['time']
-    else:
-        tsurf = None
+        if x == 'tsurf':
+            tsurf = read_tsurf('MPI_GE')
+            tsurf = tsurf.sel(time=slice(start_time, None))
+            tsurf['time'] = ds['time']
+        else:
+            tsurf = None
 
-    # divide the ensemble size
+        # divide the ensemble size
         ds = ds.pc / ens_size
         sodir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_random/extreme_slope/"
         sfilename = f"plev_50000_decade_JJA_first_{ens_size}_extre_slope_{x}.nc"
         slope = SMILE_slope(ds,tsurf)
         if not os.path.exists(sodir):
             os.makedirs(sodir)
+        slope.name = "pc"
         slope.to_netcdf(sodir + sfilename)
 #%%
 resample_rate_increase(x = 'tsurf',time = "1950-06-01")
