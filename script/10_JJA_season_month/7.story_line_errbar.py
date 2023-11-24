@@ -482,7 +482,6 @@ ax1.text(
     0.985,
     "a",
     transform=fig1.transFigure,
-    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
@@ -496,7 +495,6 @@ l_patch_MPI = mpatches.Patch(color="#ff7f0e", label="last10")
 
 ax2.set_ylabel(
     "probability density",
-    fontsize=7,
 )
 ax2.set_xlabel("NAO index", fontsize=7)
 
@@ -512,7 +510,6 @@ ax2.text(
     0.985,
     "b",
     transform=fig1.transFigure,
-    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
@@ -553,7 +550,6 @@ ax3.text(
     0.985,
     "c",
     transform=fig1.transFigure,
-    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
@@ -578,7 +574,6 @@ ax4.text(
     0.985,
     "d",
     transform=fig1.transFigure,
-    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
@@ -600,7 +595,6 @@ ax5.text(
     0.47,
     "e",
     transform=fig1.transFigure,
-    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
@@ -608,7 +602,7 @@ ax5.text(
 
 
 # ax6
-ax6.set_ylabel("probability density", fontsize=7)
+ax6.set_ylabel("probability density")
 ax6.set_xlabel("NAO index", fontsize=7)
 ax6.axes.set_facecolor("none")
 
@@ -625,7 +619,6 @@ ax6.text(
     0.47,
     "f",
     transform=fig1.transFigure,
-    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
@@ -662,7 +655,6 @@ ax7.text(
     0.47,
     "g",
     transform=fig1.transFigure,
-    fontsize=8,
     fontweight="bold",
     va="top",
     ha="left",
@@ -686,7 +678,6 @@ ax8.text(
     0.47,
     "h",
     transform=fig1.transFigure,
-    fontsize=7,
     fontweight="bold",
     va="top",
     ha="left",
@@ -784,11 +775,31 @@ slope_neg_ens, slope_neg_high_ens, slope_neg_low_ens = rean_slope(
     CR20_ens_first_extc, CR20_ens_last_extc, extr_type="neg"
 )
 
-ax3.hlines(x1=20, x2=70, y=slope_pos, color="black", linestyle="dashed",zorder = 0,linewidth=1)
-ax3.hlines(x1=20, x2=70, y=slope_pos_ens, color="black", linestyle="dotted",zorder = 0,linewidth=1)
+ax3.hlines(
+    x1=20, x2=70, y=slope_pos, color="black", linestyle="dashed", zorder=0, linewidth=1
+)
+ax3.hlines(
+    x1=20,
+    x2=70,
+    y=slope_pos_ens,
+    color="black",
+    linestyle="dotted",
+    zorder=0,
+    linewidth=1,
+)
 
-ax4.hlines(x1=20, x2=70, y=slope_neg, color="black", linestyle="dashed",zorder = 0,linewidth=1)
-ax4.hlines(x1=20, x2=70, y=slope_neg_ens, color="black", linestyle="dotted",zorder = 0,linewidth=1)
+ax4.hlines(
+    x1=20, x2=70, y=slope_neg, color="black", linestyle="dashed", zorder=0, linewidth=1
+)
+ax4.hlines(
+    x1=20,
+    x2=70,
+    y=slope_neg_ens,
+    color="black",
+    linestyle="dotted",
+    zorder=0,
+    linewidth=1,
+)
 
 
 ###
@@ -883,8 +894,8 @@ legend_lines = [
     Line2D([0], [0], color=colors_model[1], lw=1.5),
     # Line2D([0], [0], color=colors_model[1], lw=1.5),
     mpatches.Patch(facecolor="none", edgecolor="C1"),
-    Line2D([0], [0], color='k', lw=1.5, linestyle="dashed"),
-    Line2D([0], [0], color='k', lw=1.5, linestyle="dotted"),
+    Line2D([0], [0], color="k", lw=1.5, linestyle="dashed"),
+    Line2D([0], [0], color="k", lw=1.5, linestyle="dotted"),
 ]
 
 
@@ -896,7 +907,7 @@ fig2.legend(
 )
 
 plt.savefig(
-"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig2_SMILEs.pdf",
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig2_SMILEs.pdf",
 )
 # %%
 # Fig 3, composite plot of ts for positve extremes
@@ -937,11 +948,11 @@ axes.format(
 )
 
 axes, maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes)
-fig3.colorbar(maps[0], loc="b", pad=1, title=f"tsurf / K", width=0.1, shrink=1)
+fig3.colorbar(maps[0], loc="b", pad=1, title=f"(near) surface temperature / K", width=0.1, shrink=1)
 
 plt.savefig(
-"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig3composite_pos.pdf",
-layout="tight",
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig3composite_pos.pdf",
+    layout="tight",
 )
 
 
@@ -986,11 +997,11 @@ axes.format(
 axes, maps = composite_plot.plot_composite_single_ext(
     COMPOSITEs, models, axes, extr_type="neg"
 )
-fig4.colorbar(maps[0], loc="b", pad=1, title=f"tsurf / K", width=0.1, shrink=1)
+fig4.colorbar(maps[0], loc="b", pad=1, title=f"(near) surface temperature / K", width=0.1, shrink=1)
 
 plt.savefig(
-"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig4composite_neg.pdf",
-layout="tight",
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig4composite_neg.pdf",
+    layout="tight",
 )
 
 # %%
