@@ -187,7 +187,7 @@ def spatial_pattern_plot(
             nozero=True,
             labels=True,
             levels=np.delete(levels, int((len(levels) - 1) / 2)),
-            labels_kw={"fontsize": "x-small"},
+            labels_kw={"fontsize": "x-small","color":"grey7"},
             add_colorbar=False,
             lw = 0.8,
         )
