@@ -289,7 +289,6 @@ GMST = read_all_models("gmst")
 
 # %%
 SLOPEs_time = read_all_models("slope_time", fixed_pattern=fixed_pattern)
-
 RATEs_time = SMILE_rate_increase(SLOPEs_time, EXTRCs)
 # %%
 SLOPEs_tsurf = read_all_models("slope_tsurf", fixed_pattern=fixed_pattern)
@@ -798,7 +797,7 @@ ax2, lines_neg_other = extplt.extrc_time_line_single(
     models=["CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],
 )
 
-ax3, bars = extplt.extrc_slope_line(SLOPEs_time, ax=ax3, extr_type="pos")
+ax3, bars = extplt.extrc_slope_line(RATEs_time, ax=ax3, extr_type="pos")
 ax3, bars_rand = extplt.extrc_slope_line(
     MPI_GE_random_SLOPEs_time,
     ax=ax3,

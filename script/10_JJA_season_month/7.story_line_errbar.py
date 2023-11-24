@@ -94,9 +94,9 @@ def read_gmst(model, tsurf="ens_fld_year_mean"):
 
 
 # read slope data
-def read_slope(model, fixed_pattern="decade_mpi"):
+def read_slope(model, x="tsurf", fixed_pattern="decade_mpi"):
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_slope/"
-    filename = f"plev_50000_{fixed_pattern}_first_JJA_extre_slope.nc"
+    filename = f"plev_50000_{fixed_pattern}_first_JJA_extre_slope_{x}.nc"
     ds = xr.open_dataset(odir + filename).pc
     return ds
 
@@ -117,8 +117,10 @@ def read_all_models(variable, fixed_pattern="decade_mpi"):
         }
     elif variable == "gmst":
         all_model_data = {model: read_gmst(model) for model in models}
-    elif variable == "slope":
-        all_model_data = {model: read_slope(model) for model in models}
+    elif variable == "slope_time":
+        all_model_data = {model: read_slope(model, "time") for model in models}
+    elif variable == "slope_tsurf":
+        all_model_data = {model: read_slope(model, "tsurf") for model in models}
     return all_model_data
 
 
@@ -137,11 +139,11 @@ def read_MPI_GE_random_extrc(model="MPI_GE"):
     return random_eofs
 
 
-def read_MPI_GE_random_slope(model="MPI_GE"):
+def read_MPI_GE_random_slope(model="MPI_GE", x="tsurf"):
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}_random/extreme_slope/"
     random_eofs = {}
     for ens_size in [20, 30, 40, 50, 80]:
-        filename = odir + f"plev_50000_decade_JJA_first_{ens_size}_extre_slope.nc"
+        filename = odir + f"plev_50000_decade_JJA_first_{ens_size}_extre_slope_{x}.nc"
         ds = xr.open_dataset(filename).pc
 
         random_eofs[ens_size] = ds
@@ -228,7 +230,16 @@ def format_period_year(period, tick_number):
     return formater
 
 
-def rean_slope(first_extrc, last_extrc, extr_type="pos"):
+def SMILE_rate_increase(SLOPEs, EXTRCs):
+    RATEs = SLOPEs.copy()
+    for key, slope in SLOPEs.items():
+        first_extrc = EXTRCs[key].sel(time="1950", confidence="true")
+        rate = slope / first_extrc * 100
+        RATEs[key] = rate
+    return RATEs
+
+
+def rean_slope(first_extrc, last_extrc, extr_type="pos", rate=True):
     first = first_extrc.sel(
         mode="NAO", confidence="true", extr_type=extr_type
     ).pc.values
@@ -251,6 +262,10 @@ def rean_slope(first_extrc, last_extrc, extr_type="pos"):
 
     slope_high = (last_high - first_low) / ((1976 - 1850) / 10)
     slope_low = (last_low - first_high) / ((1976 - 1850) / 10)
+    if rate:
+        slope = slope / first * 100
+        slope_high = slope_high / first * 100
+        slope_low = slope_low / first * 100
 
     return slope, slope_high, slope_low
 
@@ -271,17 +286,26 @@ EOFs_decade = read_all_models("eof_decade", fixed_pattern=fixed_pattern)
 EXTRCs = read_all_models("extrc", fixed_pattern=fixed_pattern)
 COMPOSITEs = read_all_models("composite", fixed_pattern=fixed_pattern)
 GMST = read_all_models("gmst")
-SLOPEs = read_all_models("slope", fixed_pattern=fixed_pattern)
+
+# %%
+SLOPEs_time = read_all_models("slope_time", fixed_pattern=fixed_pattern)
+
+RATEs_time = SMILE_rate_increase(SLOPEs_time, EXTRCs)
+# %%
+SLOPEs_tsurf = read_all_models("slope_tsurf", fixed_pattern=fixed_pattern)
+RATEs_tsurf = SMILE_rate_increase(SLOPEs_tsurf, EXTRCs)
 
 # %%
 # MPI_GE random
 MPI_GE_random_EXTRCs = read_MPI_GE_random_extrc()
 MPI_GE_random_EXTRCs[100] = EXTRCs["MPI_GE"]
 
-# %%
 # MPI_GE random slope
-MPI_GE_random_SLOPEs = read_MPI_GE_random_slope()
-MPI_GE_random_SLOPEs[100] = SLOPEs["MPI_GE"]
+MPI_GE_random_SLOPEs_time = read_MPI_GE_random_slope(x="time")
+MPI_GE_random_SLOPEs_time[100] = SLOPEs_time["MPI_GE"]
+
+MPI_GE_random_SLOPEs_tsurf = read_MPI_GE_random_slope(x="tsurf")
+MPI_GE_random_SLOPEs_tsurf[100] = SLOPEs_tsurf["MPI_GE"]
 
 # %%
 # the projected spatial pattern
@@ -308,6 +332,39 @@ COMPOSITEs["20CR"] = CR20_composite
 CR20_ens_first_extc, CR20_ens_last_extc = read_extrc_rean("CR20")
 CR20_ens_first_extc = CR20_ens_first_extc / 4
 CR20_ens_last_extc = CR20_ens_last_extc / 4
+
+# %%
+# for 20CR
+slope_pos, slope_pos_high, slope_pos_low = rean_slope(
+    CR20_first_extc, CR20_last_extc, extr_type="pos", rate=False
+)
+slope_neg, slope_neg_high, slope_neg_low = rean_slope(
+    CR20_first_extc, CR20_last_extc, extr_type="neg", rate=False
+)
+
+slope_pos_ens, slope_pos_high_ens, slope_pos_low_ens = rean_slope(
+    CR20_ens_first_extc, CR20_ens_last_extc, extr_type="pos", rate=False
+)
+slope_neg_ens, slope_neg_high_ens, slope_neg_low_ens = rean_slope(
+    CR20_ens_first_extc, CR20_ens_last_extc, extr_type="neg", rate=False
+)
+
+# %%
+rate_pos, rate_pos_high, rate_pos_low = rean_slope(
+    CR20_first_extc, CR20_last_extc, extr_type="pos", rate=True
+)
+rate_neg, rate_neg_high, rate_neg_low = rean_slope(
+    CR20_first_extc, CR20_last_extc, extr_type="neg", rate=True
+)
+
+rate_pos_ens, rate_pos_high_ens, rate_pos_low_ens = rean_slope(
+    CR20_ens_first_extc, CR20_ens_last_extc, extr_type="pos", rate=True
+)
+rate_neg_ens, rate_neg_high_ens, rate_neg_low_ens = rean_slope(
+    CR20_ens_first_extc, CR20_ens_last_extc, extr_type="neg", rate=True
+)
+
+
 # %%
 # Fig 1, spatial pattern chagne, index distribution change, and extreme lines
 # set the fig size as 180mm x 150mm
@@ -692,6 +749,9 @@ plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig1_MPI_GE_20CR.pdf",
 )
 # %%
+# calculate the rate of the increase
+
+# %%
 # Fig 2 line plot for other models, linear regression
 models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3", "20CR"]
 
@@ -738,20 +798,20 @@ ax2, lines_neg_other = extplt.extrc_time_line_single(
     models=["CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],
 )
 
-ax3, bars = extplt.extrc_slope_line(SLOPEs, ax=ax3, extr_type="pos")
+ax3, bars = extplt.extrc_slope_line(SLOPEs_time, ax=ax3, extr_type="pos")
 ax3, bars_rand = extplt.extrc_slope_line(
-    MPI_GE_random_SLOPEs,
+    MPI_GE_random_SLOPEs_time,
     ax=ax3,
     extr_type="pos",
     rand=True,
 )
 ax4, bars = extplt.extrc_slope_line(
-    SLOPEs,
+    SLOPEs_time,
     ax=ax4,
     extr_type="neg",
 )
 ax4, bars_rand = extplt.extrc_slope_line(
-    MPI_GE_random_SLOPEs,
+    MPI_GE_random_SLOPEs_time,
     ax=ax4,
     extr_type="neg",
     rand=True,
@@ -760,20 +820,6 @@ ax4, bars_rand = extplt.extrc_slope_line(
 ax3.spines["bottom"].set_position(("data", 0))
 ax4.spines["bottom"].set_position(("data", 0))
 
-# for 20CR
-slope_pos, slope_pos_high, slope_pos_low = rean_slope(
-    CR20_first_extc, CR20_last_extc, extr_type="pos"
-)
-slope_neg, slope_neg_high, slope_neg_low = rean_slope(
-    CR20_first_extc, CR20_last_extc, extr_type="neg"
-)
-
-slope_pos_ens, slope_pos_high_ens, slope_pos_low_ens = rean_slope(
-    CR20_ens_first_extc, CR20_ens_last_extc, extr_type="pos"
-)
-slope_neg_ens, slope_neg_high_ens, slope_neg_low_ens = rean_slope(
-    CR20_ens_first_extc, CR20_ens_last_extc, extr_type="neg"
-)
 
 ax3.hlines(
     x1=20, x2=70, y=slope_pos, color="black", linestyle="dashed", zorder=0, linewidth=1
@@ -906,9 +952,9 @@ fig2.legend(
     frameon=False,
 )
 
-plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig2_SMILEs.pdf",
-)
+# plt.savefig(
+#     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig2_SMILEs.pdf",
+# )
 # %%
 # Fig 3, composite plot of ts for positve extremes
 models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3", "20CR"]
@@ -948,7 +994,14 @@ axes.format(
 )
 
 axes, maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes)
-fig3.colorbar(maps[0], loc="b", pad=1, title=f"(near) surface temperature / K", width=0.1, shrink=1)
+fig3.colorbar(
+    maps[0],
+    loc="b",
+    pad=1,
+    title=f"(near) surface temperature / K",
+    width=0.1,
+    shrink=1,
+)
 
 plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig3composite_pos.pdf",
@@ -997,7 +1050,14 @@ axes.format(
 axes, maps = composite_plot.plot_composite_single_ext(
     COMPOSITEs, models, axes, extr_type="neg"
 )
-fig4.colorbar(maps[0], loc="b", pad=1, title=f"(near) surface temperature / K", width=0.1, shrink=1)
+fig4.colorbar(
+    maps[0],
+    loc="b",
+    pad=1,
+    title=f"(near) surface temperature / K",
+    width=0.1,
+    shrink=1,
+)
 
 plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig4composite_neg.pdf",
