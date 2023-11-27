@@ -233,10 +233,32 @@ def format_period_year(period, tick_number):
 def SMILE_rate_increase(SLOPEs, EXTRCs):
     RATEs = SLOPEs.copy()
     for key, slope in SLOPEs.items():
-        first_extrc = EXTRCs[key].sel(time="1950", confidence="true")
+        try:
+            first_extrc = EXTRCs[key].sel(time="1950", confidence="true")
+        except KeyError:
+            first_extrc = EXTRCs[key].sel(time="1950")
         rate = slope / first_extrc * 100
         RATEs[key] = rate
     return RATEs
+
+
+def mean_rate(RATEs):
+    # to xarray
+    RATEx = []
+    for key, item in RATEs.items():
+        item = item.squeeze()
+        RATEx.append(item)
+    RATEx = xr.concat(RATEx, dim = 'model',coords='minimal',compat='override')
+    # calculate the mean and std from data with mean and std
+    MEANs = RATEx.sel(slopes = 'true')
+    VARs = (RATEx.sel(slopes = 'high') - RATEx.sel(slopes = 'true'))**2
+    MEANs = MEANs/VARs
+    Weights = 1/VARs
+    MEAN_best = MEANs.sum(dim = 'model')/Weights.sum(dim = 'model')
+
+    STD_best = (Weights.sum(dim = 'model'))**0.5
+
+    return MEAN_best, STD_best
 
 
 def rean_slope(first_extrc, last_extrc, extr_type="pos", rate=True):
@@ -294,6 +316,10 @@ RATEs_time = SMILE_rate_increase(SLOPEs_time, EXTRCs)
 SLOPEs_tsurf = read_all_models("slope_tsurf", fixed_pattern=fixed_pattern)
 RATEs_tsurf = SMILE_rate_increase(SLOPEs_tsurf, EXTRCs)
 
+#%%
+MEAN_rate_time = mean_rate(RATEs_time)
+MEAN_rate_tsurf = mean_rate(RATEs_tsurf)
+
 # %%
 # MPI_GE random
 MPI_GE_random_EXTRCs = read_MPI_GE_random_extrc()
@@ -305,6 +331,16 @@ MPI_GE_random_SLOPEs_time[100] = SLOPEs_time["MPI_GE"]
 
 MPI_GE_random_SLOPEs_tsurf = read_MPI_GE_random_slope(x="tsurf")
 MPI_GE_random_SLOPEs_tsurf[100] = SLOPEs_tsurf["MPI_GE"]
+
+
+#%%
+MPI_GE_random_RATEs_time = SMILE_rate_increase(
+    MPI_GE_random_SLOPEs_time, MPI_GE_random_EXTRCs
+)
+
+MPI_GE_random_RATEs_tsurf = SMILE_rate_increase(
+    MPI_GE_random_SLOPEs_tsurf, MPI_GE_random_EXTRCs
+)
 
 # %%
 # the projected spatial pattern
@@ -799,18 +835,18 @@ ax2, lines_neg_other = extplt.extrc_time_line_single(
 
 ax3, bars = extplt.extrc_slope_line(RATEs_time, ax=ax3, extr_type="pos")
 ax3, bars_rand = extplt.extrc_slope_line(
-    MPI_GE_random_SLOPEs_time,
+    MPI_GE_random_RATEs_time,
     ax=ax3,
     extr_type="pos",
     rand=True,
 )
 ax4, bars = extplt.extrc_slope_line(
-    SLOPEs_time,
+    RATEs_time,
     ax=ax4,
     extr_type="neg",
 )
 ax4, bars_rand = extplt.extrc_slope_line(
-    MPI_GE_random_SLOPEs_time,
+    MPI_GE_random_RATEs_time,
     ax=ax4,
     extr_type="neg",
     rand=True,
@@ -821,12 +857,12 @@ ax4.spines["bottom"].set_position(("data", 0))
 
 
 ax3.hlines(
-    x1=20, x2=70, y=slope_pos, color="black", linestyle="dashed", zorder=0, linewidth=1
+    x1=20, x2=70, y=rate_pos, color="black", linestyle="dashed", zorder=0, linewidth=1
 )
 ax3.hlines(
     x1=20,
     x2=70,
-    y=slope_pos_ens,
+    y=rate_pos_ens,
     color="black",
     linestyle="dotted",
     zorder=0,
@@ -834,12 +870,12 @@ ax3.hlines(
 )
 
 ax4.hlines(
-    x1=20, x2=70, y=slope_neg, color="black", linestyle="dashed", zorder=0, linewidth=1
+    x1=20, x2=70, y=rate_neg, color="black", linestyle="dashed", zorder=0, linewidth=1
 )
 ax4.hlines(
     x1=20,
     x2=70,
-    y=slope_neg_ens,
+    y=rate_neg_ens,
     color="black",
     linestyle="dotted",
     zorder=0,
@@ -852,6 +888,7 @@ for ax in [ax1, ax2, ax3, ax4]:
     # no right and top axis
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
+
 
 ### ax1
 ax1.format(
@@ -878,8 +915,8 @@ ax2.set_yticks(np.arange(1.0, 3.6, 0.5))
 ax3.format(
     ytickminor=False,
     grid=False,
-    ylabel="increase in occurence decade$^{-1}$ realization$^{-1}$",
-    ylim=(-0.049, 0.18),
+    ylabel="rate of increase per decade (%)",
+    ylim=(-2.4,10.7),
     xtickminor=False,
     facecolor="none",
 )
@@ -899,7 +936,7 @@ ax4.format(
     ytickminor=False,
     grid=False,
     ylabel="",
-    ylim=(-0.049, 0.18),
+    ylim=(-2.4,10.7),
     xtickminor=False,
     facecolor="none",
 )
