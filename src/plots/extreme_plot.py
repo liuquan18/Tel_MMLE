@@ -24,7 +24,19 @@ def extCount_tsurf_scatter(
     scatter: extreme_count v.s surface temperature
     hue: different  dataset
     """
-    fig, axes = pplt.subplots(nrows=2, ncols=2, figwidth=8, span=False, share=False)
+    params = {
+        "ytick.color": "w",
+        "xtick.color": "w",
+        "axes.labelcolor": "w",
+        "axes.edgecolor": "w",
+        "tick.labelcolor": "w",
+        "text.color": "w",
+        "font.size": 20,
+    }
+
+    pplt.rc.update(params)
+
+    fig, axes = pplt.subplots(nrows=1, ncols=2, figwidth=8, span=False, sharey = True, sharex = True,facecolor="black")
 
     axes.format(
         abc="a",
@@ -34,19 +46,17 @@ def extCount_tsurf_scatter(
         xlabel=xlabel,
         ylabel="extreme count",
         grid=False,
-        leftlabels=["NAO", "EA"],
+        # leftlabels=["NAO", "EA"],
         toplabels=["pos", "neg"],
         xminorticks="null",
         yminorticks="null",
+        facecolor="black",
         # ylim=ylim,
     )
 
-    _scatter_extrcVStsurf(ext_counts, t_surf, axes)
-
-
-def _scatter_extrcVStsurf(ext_counts, t_surf, axes):
     t_surf = t_surf.sel(time=ext_counts.time, method="nearest")
-    for i, mode in enumerate(ext_counts.mode):
+    t_surf = t_surf - t_surf[0]
+    for i, mode in enumerate(['NAO']):
         for j, extr_type in enumerate(ext_counts.extr_type):
             # data preparation
             true = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="true")
@@ -54,14 +64,13 @@ def _scatter_extrcVStsurf(ext_counts, t_surf, axes):
             high = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="high")
 
             # for the data with plev
-            try:
-                true = true.stack(com=("time", "plev"))
-                low = low.stack(com=("time", "plev"))
-                high = high.stack(com=("time", "plev"))
-                t = t_surf.stack(com=("time", "plev"))
 
-            except KeyError:
-                t = t_surf
+            t = t_surf
+
+            true = true[[0,-1]]
+            t = t[[0,-1]]
+            low = low[[0,-1]]
+            high = high[[0,-1]]
 
             axes[i, j].errorbar(
                 x=t,
@@ -70,10 +79,14 @@ def _scatter_extrcVStsurf(ext_counts, t_surf, axes):
                 fmt="o",
                 linewidth=2,
                 capsize=6,
+                color = 'red',
             )
 
             axes[i, j].set_xlim(-1, 5)
 
+    for ax in axes:
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
 
 #################### extreme event count profile ####################
 #%%
@@ -126,8 +139,9 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
     fig = pplt.figure(
         # space=0,
         refwidth="20em",
+        facecolor="black",
     )
-    axes = fig.subplots(nrows=2, ncols=2)
+    axes = fig.subplots(nrows=1, ncols=2)
     axes.format(
         abc=True,
         abcloc="ul",
@@ -140,7 +154,7 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
         yminorticks="null",
         grid=False,
         toplabels=("pos", "neg"),
-        leftlabels=("NAO", "EA"),
+        # leftlabels=("NAO", "EA"),
         xlocator=20,
     )
 
@@ -162,18 +176,18 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
             colored=colored,
         )
 
-        _plot_extreme_count(
-            extreme_count.sel(mode="EA", extr_type="pos"),
-            axes[1, 0],
-            label=labels[i],
-            colored=colored,
-        )
-        _plot_extreme_count(
-            extreme_count.sel(mode="EA", extr_type="neg"),
-            axes[1, 1],
-            label=labels[i],
-            colored=colored,
-        )
+        # _plot_extreme_count(
+        #     extreme_count.sel(mode="EA", extr_type="pos"),
+        #     axes[1, 0],
+        #     label=labels[i],
+        #     colored=colored,
+        # )
+        # _plot_extreme_count(
+        #     extreme_count.sel(mode="EA", extr_type="neg"),
+        #     axes[1, 1],
+        #     label=labels[i],
+        #     colored=colored,
+        # )
     for ax in axes:
         ax.set_xlim(xlim)
     # add legend
@@ -474,11 +488,12 @@ def mmle_tsurf_line(
         nrows=1,
         ncols=2,
         sharex=True,
-        sharey=False,
+        sharey=True,
         figsize=(18, 12),
         facecolor="k",
         wspace=8,
         # dpi = 300,
+
     )
 
     axs.format(
@@ -520,6 +535,10 @@ def mmle_tsurf_line(
                         mode=mode, extr_type=extr_type, time=slice(time, '2091-01-01')
                     )
                     tsurf = tsurfs[model].sel(time=extrc.time, method="nearest")
+                elif model == "MPI_GE_onepct":
+                    extrc = extrs[model].sel(mode=mode, extr_type=extr_type)
+                    tsurf = tsurfs[model].sel(time=extrc.time, method="nearest")
+                    tsurf['time'] = pd.date_range(time, freq='10Y',periods = 14)
                 else:
                     extrc = extrs[model].sel(mode=mode, extr_type=extr_type)
                     tsurf = tsurfs[model].sel(time=extrc.time, method="nearest")
@@ -536,16 +555,19 @@ def mmle_tsurf_line(
                     axs[r, c],
                     color=colors_model[i],
                     label=f"{model} ({str(ens_size)})",
+                    x_var=x_var,
                 )
     axs[0].format(
         ylabel="extreme occurence",
-        ylim=(0, 118),
+        ylim=(0, 110),
         ylocator=20,
+        xlocator=1,
     )
     axs[1].format(
-        ylim=(0, 98),
+        ylim=(0, 110),
         # yticks every 20
         ylocator=20,
+        # xlocator=1,
     )
     axs[1].legend(
         loc="r",
@@ -562,6 +584,7 @@ def mmle_tsurf_line(
     for ax in axs:
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
+        ax.set_yticks([0, 20, 40, 60, 80, 100])
     return fig
 
 
@@ -571,12 +594,16 @@ def extrc_tsurf_line_single(
     """
     line for just one dataset.
     """
-    tsurf = tsurf.values
+    tsurf = tsurf
     tsurf = tsurf - tsurf[0]
     extrc = extrc.sel(confidence="true").pc.squeeze().values
 
+    if x_var == 'tsurf':
+        x = tsurf.values
+    elif x_var == 'time':
+        x = tsurf.time.dt.year.values
     ax.line(
-        x=tsurf,
+        x = x,
         y=extrc,
         marker="o",
         color=color,

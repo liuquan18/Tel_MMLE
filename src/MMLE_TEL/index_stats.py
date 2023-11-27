@@ -18,9 +18,10 @@ import importlib
 def extreme_counts(
     model,
     fixed_pattern="decade",
-    standard="temporal_ens",
+    standard="first",
+    tsurf="ens_fld_year_mean",
     plev=50000,
-    season="MJJA",
+    season="JJAS",
 ):
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/"
     prefix = f"plev_{plev}_{fixed_pattern}_{standard}_{season}_"

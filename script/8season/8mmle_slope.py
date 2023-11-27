@@ -19,7 +19,7 @@ def read_extreme_counts(**kwargs):
     fixed_pattern = kwargs.get("fixed_pattern", "decade")
     season = kwargs.get("season", "JJAS")
 
-    models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]
+    models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36","GFDL_CM3" ]
     # load data
     # different models
     extrs = {}
@@ -124,8 +124,6 @@ extrs, tsurfs, extrs_rand, tsurfs_rand = read_extreme_counts(
 )
 # %%
 importlib.reload(ext_plot)
-fig = ext_plot.mmle_line_plot(
-    extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean", time="1960-01-01"
-)
-# fig.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/slides_IUGG/mmle_line_plot_GFDL_CM3.png', facecolor=fig.get_facecolor(), edgecolor='none')
+fig = ext_plot.mmle_line_plot(extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean",time = '1960-01-01')
+fig.savefig('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/slides_IUGG/mmle_line_plot_GFDL_CM3.png', facecolor=fig.get_facecolor(), edgecolor='none')
 # %%

@@ -1,10 +1,11 @@
 #%%
 import xarray as xr
 import numpy as np
-
+import pandas as pd
 import src.MMLE_TEL.story_line as story_line
 import src.plots.NAO_EA_hist2d as hist2d
 import src.composite.field_composite as composite
+import matplotlib.pyplot as plt
 
 
 #%%
@@ -32,15 +33,14 @@ MPI_GE_onepct_JJAS.stat_overview()
 #%%
 MPI_GE_onepct_JJAS.composite_analysis(tfield='same',levels_NAO = np.arange(-1,1.1,0.2),levels_EA = np.arange(-1,1.1,0.2))
 #%%
-
-
+MPI_GE_onepct_JJAS.stat_overview()
+#%%
+MPI_GE_onepct_JJAS.extrc_tsurf()
 
 #%%
-MPI_GE_onepct_JJAS.extreme_count_profile(xlim = (40,140))
+MPI_GE_onepct_JJAS.extreme_count_profile(xlim = (40,110))
 #%%
 ###############
-
-
 
 #%%
 def extrc_tsurf_season(season):
@@ -243,4 +243,6 @@ MPI_GE_onepct_JJAS_all = story_line.story_line(
 MPI_GE_onepct_JJAS_all.stat_overview(levels = np.arange(-1.8,1.9,0.3))
 # %%
 MPI_GE_onepct_JJAS_all.extrc_tsurf()
+# %%
+
 # %%

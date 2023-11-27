@@ -33,9 +33,18 @@ def stat_overview(
     last_eof=None,
     levels=np.arange(-2, 2.1, 0.4),
 ):
-
+    params = {
+        "figure.facecolor": "black",
+        "axes.facecolor": "white",
+        "ytick.color": "w",
+        "xtick.color": "w",
+        "axes.labelcolor": "w",
+        "axes.edgecolor": "w",
+        "tick.labelcolor": "w",
+        "text.color": "w",}
+    pplt.rc.update(params)
     # plot
-    fig = pplt.figure(space=0, refwidth="25em", wspace=3, hspace=3)
+    fig = pplt.figure(space=0, refwidth="25em", wspace=5, hspace=3)
     fig.format(
         abc=True,
         abcloc="ul",
@@ -46,11 +55,11 @@ def stat_overview(
 
     gs = pplt.GridSpec(
         ncols=2,
-        nrows=2,
+        nrows=1,
         wspace=2,
         wratios=(1, 1),
     )
-    modes = ["NAO", "EA"]
+    modes = ["NAO",]# "EA"]
 
     for i, mode in enumerate(modes):
         # data preparation
