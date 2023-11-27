@@ -4,7 +4,7 @@ import xarray as xr
 
 import src.Teleconnection.tools as tools
 import src.Teleconnection.vertical_eof as vertical_eof
-
+import glob
 
 ###### high level APIs #################
 def season_eof(
@@ -52,10 +52,12 @@ def read_data(gph_dir, standardize=False):
         zg_data = xr.open_dataset(gph_dir + "allens_zg.nc")
         zg_data = tools.split_ens(zg_data)
     except FileNotFoundError:
+        all_ens_lists = sorted(glob.glob(gph_dir + "*.nc")) # to make sure that the order of ensemble members is fixed
         zg_data = xr.open_mfdataset(
-            gph_dir + "*.nc", combine="nested", concat_dim="ens", join="override"
+            all_ens_lists, combine="nested", concat_dim="ens", join="override"
         )
-        zg_data = tools.split_ens(zg_data)
+        zg_data['ens'] = np.arange(zg_data.ens.size)
+        
     try:
         zg_data = zg_data.var156
     except AttributeError:

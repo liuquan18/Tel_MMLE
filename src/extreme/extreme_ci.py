@@ -149,8 +149,11 @@ def extreme_count_xr(pc, ci="AR1"):
     ci: if True, calculate the confidence interval of extreme events
     return: xarray dataarray
     """
-    stacked_pc = pc.stack(stacked=["time", "ens"])
-
+    if 'ens' in pc.dims:
+        stacked_pc = pc.stack(stacked=["time", "ens"])
+    else:
+        stacked_pc = pc.stack(stacked=["time"])
+    
     # positive extreme events
     pos_count_true = xr.apply_ufunc(
         _pos_count,
@@ -289,11 +292,13 @@ def extreme_count_xr(pc, ci="AR1"):
 
         extr_count = xr.concat([pos_count, neg_count], dim="extr_type")
         extr_count["extr_type"] = ["pos", "neg"]
-
+    elif ci == None:
+        extr_count = xr.concat([pos_count_true, neg_count_true], dim="extr_type")
+        extr_count["extr_type"] = ["pos", "neg"]
     return extr_count
 
 # %%
-def decadal_extrc(index: xr.DataArray, plev=None,ci = 'bootstrap'):
+def decadal_extrc(index: xr.DataArray, plev=None,ci = 'bootstrap',window = 10):
     """
     extract the extreme count and the mean surface temperature every ten years.
     **Arguments**
@@ -308,21 +313,23 @@ def decadal_extrc(index: xr.DataArray, plev=None,ci = 'bootstrap'):
     if plev is not None:
         index = index.sel(plev=plev)
 
+
     # start time
-    time_s = index.time[::10]
+    years = np.unique(index.time.dt.year).astype('str')
+    time_s = years[::window]
     # end time
-    time_e = index.time[9::10]
+    time_e = years[window-1::window]
 
     # create slice for each decade
     decade_slice = [slice(s, e) for s, e in zip(time_s, time_e)]
 
     ext_counts = []
     for time in decade_slice:
-        print(f" extreme counting in the decade of {time.start.dt.year.values} - {time.stop.dt.year.values}")
+        print(f" extreme counting in the decade of {time.start} - {time.stop}")
 
         period_pc = index.sel(time=time)
         # ensure that there are 10 years of data in period_pc
-        if period_pc.time.size != 10:
+        if len(np.unique(period_pc.time.dt.year)) != 10:
             print(f" the length of the period is {len(period_pc.time)}, skip this period")
             # rasing a warning
             warnings.warn(f" the length of the period is {len(period_pc.time)}")
@@ -340,16 +347,20 @@ def decadal_extrc(index: xr.DataArray, plev=None,ci = 'bootstrap'):
     return ext_counts_xr
 
 #%%
-def decade_tsurf(extrc, tsurf):
+def decade_tsurf(tsurf):
 
-    time_s = extrc.time.dt.year.values
-    time_e = extrc.time[1:].dt.year.values - 1
-    time_e = np.append(time_e,2100)
-
+    start = tsurf.time.dt.year.values[0]
+    end = tsurf.time.dt.year.values[-1]
+    
+    time_s = np.arange(start,end,10)
+    time_e = np.arange(start+9,end+1,10)
+    
+    time_tag = pd.date_range(str(time_s[0]) + '-06-16',periods=len(time_s),freq = '10Y')
+    
     decade_slices = [slice(str(s), str(e)) for s, e in zip(time_s, time_e)]
 
     tsurf_dec_mean = [
     tsurf.sel(time=decade_slice).mean(dim="time") for decade_slice in decade_slices
     ]
-    tsurf_dec_mean = xr.concat(tsurf_dec_mean, dim=extrc.time)
+    tsurf_dec_mean = xr.concat(tsurf_dec_mean, dim = time_tag).rename({'concat_dim':'time'})
     return tsurf_dec_mean.squeeze()

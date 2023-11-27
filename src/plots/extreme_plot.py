@@ -7,7 +7,8 @@ import warnings
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import statsmodels.api as sm
-import pandas as pd
+
+import matplotlib.patches as patches
 
 #%%
 
@@ -196,12 +197,15 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
 ########################## MMLEA slope ################################
 # %%
 # calcualte slope
-def calc_slope(extreme_count,tsurf):
+def calc_slope( extreme_count,tsurf):
     if tsurf is not None:
         x = tsurf.squeeze().values
     else:
-        x = np.arange(0, extreme_count.time.size)
-    y = extreme_count.sel(confidence="true").pc.values
+        x = np.arange(len(extreme_count.time))
+    try:
+        y = extreme_count.sel(confidence="true").values
+    except KeyError:
+        y = extreme_count.values
 
     model = sm.OLS(y, sm.add_constant(x)).fit()
     slope = model.params[1]
@@ -211,8 +215,8 @@ def calc_slope(extreme_count,tsurf):
 
 def slope_err(extr, tsurf):
 
-    slope_NAO, conf_int_NAO = calc_slope(extr.sel(mode="NAO"),tsurf)
-    slope_EA, conf_int_EA = calc_slope(extr.sel(mode="EA"),tsurf)
+    slope_NAO, conf_int_NAO = calc_slope(extr.sel(mode="NAO"), tsurf = None)
+    slope_EA, conf_int_EA = calc_slope(extr.sel(mode="EA"), tsurf = None)
 
     yerr = np.array([[slope_NAO - conf_int_NAO[0]], [conf_int_NAO[1] - slope_NAO]])
     xerr = np.array([[slope_EA - conf_int_EA[0]], [conf_int_EA[1] - slope_EA]])
@@ -284,7 +288,8 @@ def handle_label_models(colors, models):
 
 # Create a scatter plot of the slopes for each model and extreme type
 def mmle_slope_scatter(
-    extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean", time="all"
+    extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean", time="all",
+    models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],
 ):
     """
     plot the slope of extreme event count profile for multiple models
@@ -299,7 +304,7 @@ def mmle_slope_scatter(
         xtickminor=False,
         ytickminor=False,
     )
-    models = [
+    models_all = [
         "MPI_GE_onepct",
         "MPI_GE",
         "CanESM2",
@@ -308,11 +313,13 @@ def mmle_slope_scatter(
         "GFDL_CM3",
     ]
     colors_model = ["tab:red", "C1", "tab:blue", "tab:purple", "tab:cyan", "C4"]
+    model_color = dict(zip(models_all, colors_model))
     ensemble_size = [100, 100, 50, 40, 30, 20]
 
     # Get a list of nine evenly spaced colors from the colormap
     ens_size = np.arange(20, 101, 10)
-
+    extrs = {k: extrs[k] for k in models}
+    tsurfs = {k: tsurfs[k] for k in models} # select the subset of models
     slope_models(
         extrs,
         tsurfs,
@@ -462,8 +469,8 @@ def slope_diff_tsurf(extrs, tsurf_gmst, NA_tsurf, tropical_arctic_gradient, time
 
 ############################### MMLE line plot #########################################
 #%%
-def mmle_line_plot(
-    extrs, tsurfs, extrs_rands, tsurfs_rands, tsurf="ens_fld_year_mean", time="all",x_var = 'tsurf'
+def mmle_tsurf_line(
+    extrs, tsurfs, extrs_rands, tsurfs_rands, tsurf="ens_fld_year_mean", time="all"
 ):
     params = {
         "ytick.color": "w",
@@ -542,10 +549,9 @@ def mmle_line_plot(
                 )
 
                 # plot the line
-                im = line_single(
+                im = extrc_tsurf_line_single(
                     extrc,
                     tsurf,
-                    ensemble_size[i],
                     axs[r, c],
                     color=colors_model[i],
                     label=f"{model} ({str(ens_size)})",
@@ -582,8 +588,8 @@ def mmle_line_plot(
     return fig
 
 
-def line_single(
-    extrc, tsurf, ens_size, ax, extrc_rand=None, tsurf_rand=None, color="k", label=None,x_var = 'tsurf'
+def extrc_tsurf_line_single(
+    extrc, tsurf, ax, extrc_rand=None, tsurf_rand=None, color="k", label=None
 ):
     """
     line for just one dataset.
@@ -622,229 +628,206 @@ def line_single(
         )
     else:
         pass
-    # ax.set_xlim(-1, 16)
-
+    ax.set_xlim(-1, 5.6)
 
 #%%
-def mmle_line_sum_plot(
-    extrs, tsurfs, extrs_rands, tsurfs_rands, tsurf="ens_fld_year_mean", time="all"
-):
 
-    fig, axs = pplt.subplots(
-        nrows=1, ncols=2, sharex=False, sharey=False, figsize=(10, 20)
-    )
+def extrc_time_line(extrcs, **kwargs):
+    ylim = kwargs.pop("ylim", (20, 280))
 
-    axs.format(
-        suptitle="Slopes of extreme counts vs. temperature",
-        abc=True,
-        grid=False,
-        xtickminor=False,
-        ytickminor=False,
-    )
-    models = [
-        "MPI_GE_onepct",
-        "MPI_GE",
-        "CanESM2",
-        "CESM1_CAM5",
-        "MK36",
-        "GFDL_CM3",
-    ]
-    # colors_model = ["tab:red", "C1", "tab:blue", "tab:purple", "tab:cyan", "C4"]
-    colors_model = ["tab:black", "#A7554C", "#A776A3", "#44ADC8", "#5FD18D", "#F4D653"]
-    ensemble_size = [100, 100, 50, 40, 30, 20]
+    gs = pplt.GridSpec(nrows=1, ncols=2)
+    fig = pplt.figure(refwidth=2.2, refheight = 5.2, span=False, share="labels")
+    # the right order of the models
+    models_legend = [
+    "MPI_GE_onepct (100)",
+    "MPI-GE (100)",
+    "CanESM2 (50)",
+    "CESM1-CAM5 (40)",
+    "MK3.6 (30)",
+    "GFDL-CM3 (20)",
+]
 
-    # rows for different modes, columns for pos and neg, colors for different models
-    for c, extr_type in enumerate(["pos", "neg"]):
-        for i, model in enumerate(models):
-
-            # the ensemble size for each model
-            ens_size = ensemble_size[i]
-
-            # single data
-            if time != "all" and model != "MPI_GE_onepct":
-                time = np.datetime64(time)
-                extrc = (
-                    extrs[model]
-                    .sum(dim="mode")
-                    .sel(extr_type=extr_type, time=slice(time, None))
-                )
-                tsurf = tsurfs[model].sel(time=extrc.time, method="nearest")
-            else:
-                extrc = extrs[model].sum(dim="mode").sel(extr_type=extr_type)
-                tsurf = tsurfs[model].sel(time=extrc.time, method="nearest")
-
-            extrc_rand = extrs_rands[ens_size].sum(dim="mode").sel(extr_type=extr_type)
-            tsurf_rand = tsurfs_rands[ens_size].sel(
-                time=extrc_rand.time, method="nearest"
-            )
-
-            # plot the line
-            line_single(
-                extrc,
-                tsurf,
-                ensemble_size[i],
-                axs[c],
-                # extrc_rand=extrc_rand,
-                # tsurf_rand=tsurf_rand,
-                color=colors_model[i],
-            )
-
-####################  plot the slope of the line  ####################
-#%%
-def mmle_line_slope_plot(
-    extrs, tsurfs, extr_rands, tsurf_rands, time="all",
-):
-    params = {
-        "ytick.color": "w",
-        "xtick.color": "w",
-        "axes.labelcolor": "w",
-        "axes.edgecolor": "w",
-        "tick.labelcolor": "w",
-        "text.color": "w",
-        "font.size": 20,
-    }
-
-    pplt.rc.update(params)
-
-    fig, axes = pplt.subplots(
-        nrows=1,
-        ncols=2,
-        sharex=True,
-        sharey=True,
-        figsize=(12, 8),
-        facecolor="k",
-        wspace=4,
-        # dpi = 300,
-
-    )
-
-    axes.format(
-        # suptitle="extreme event occurence vs. global mean temperature increase",
-        abc=True,
-        grid=False,
-        xtickminor=False,
-        ytickminor=False,
-        xlabel="ensemble size",
-        ylabel="NAO extreme occur / K",
-        fontsize=25,
-        toplabels=["pos", "neg"],
-        facecolor="k",
-        suptitle_kw = dict(color='w')
-    )
-    models = [
-        "MPI_GE",
-        "CanESM2",
-        "CESM1_CAM5",
-        "MK36",
-        "GFDL_CM3",
-    ]
-    colors_model = ["C1", "tab:purple", "tab:blue", "tab:green", "C4"]
-    # colors_model = ['r','#A7554C','#A776A3','#44ADC8','#5FD18D','#F4D653']
-    ensemble_size = [100, 50, 40, 30, 20]
-
-    # rows for different modes, columns for pos and neg, colors for different models
-    for r, mode in enumerate(['NAO']):#,'EA']):
+    lines = []
+    for r, mode in enumerate(['NAO']):
         for c, extr_type in enumerate(['pos','neg']):
+            ax = fig.subplot(gs[r, c])
+            line = extrc_time_line_single(extrcs,  extr_type, ax,ylim = ylim)
+            lines.append(line)
+    fig.legend(
+    lines,
+    labels=models_legend,
+    ncols=3,
+    loc="b",
+)
 
-            # prepare the data
-            slopes, yerrs, slope_rands, yerrs_rands = slope_err_all_model(
-                extrs, 
-                tsurfs, 
-                extr_rands, 
-                tsurf_rands,
-                mode,
-                extr_type,
-                time = time,
-                ens_size = ensemble_size,
-                )
-            X = np.arange(len(models),0,-1)
-            Y1 = slopes
-            Y2 = slope_rands
-            Yerr1 = np.array(yerrs).T
-            Yerr2 = np.array(yerrs_rands).T
+    return fig
 
-            # plot the data with error bars
-            for i, x in enumerate(X):
-                if x == 5:
-                    x = 6
-                else:
-                    x = x
-                y1 = Y1[i]
-                y2 = Y2[i]
-                yerr1 = Yerr1[:,i]
-                yerr2 = Yerr2[:,i]
-                color = colors_model[i]
-                
-                axes[r,c].errorbar(
-                    x - 0.1,
-                    y1,
-                    yerr = yerr1[0],
-                    fmt="o",
-                    color = color,
-                    linewidth = 3,
-                    markersize = 10,
-                )
+def extrc_time_line_single(extrcs, extr_type, ax, ylim = (20, 280),mode = 'NAO',ci = False,
+                               models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+):
+    models_all = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+    colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
+    model_color = dict(zip(models_all, colors_model))
 
-                randome = axes[r,c].errorbar(
-                    x + 0.1,
-                    y2,
-                    yerr=yerr2[0],
-                    fmt="o",
-                    color = 'white',
-                    linewidth = 3,
-                    markersize = 10,
-                )
-                randome[-1][0].set_linestyle('--')
+    lines = []
+    for model in models:
+        try:
+            extrc = extrcs[models.index(model)]
+        except KeyError:
+            extrc = extrcs[model]
+        line = extrc.sel(extr_type=extr_type,mode = mode,confidence = 'true').plot.line(
+                ax=ax, 
+                label=model_color[model],
+                x = 'time',
+                color = model_color[model],
+                linewidth = 2,)
+        
+        if ci:
+            # fill between the confidence interval ['low','high']
+            ax.fill_between(
+                extrc.time,
+                extrc.sel(extr_type=extr_type,mode = mode,confidence = 'low').values,
+                extrc.sel(extr_type=extr_type,mode = mode,confidence = 'high').values,
+                color = model_color[model],
+                alpha = 0.15,
+            )
+        lines.append(line)
 
-            axes[r,c].set_xlim(0, len(models) + 2)
-            axes[r,c].spines["top"].set_visible(False)
-            axes[r,c].spines["right"].set_visible(False)
-            axes[r,c].spines["bottom"].set_visible(False)
-            axes[r,c].set_xticks([1,2, 3, 4, 6])
-            axes[r,c].set_xticklabels(['20', '30', '40', '50', '100'])
-            axes[r,c].axhline(y=0, color='w',linewidth = 1,linestyle = '-')
-            axes[r,c].set_ylim(-1.8, 12)
+            
+    ax.format(
+            ylim=ylim,
+            ylabel="Extreme counts",
+            xlabel="Year",
+            suptitle="",
+            titleloc="uc",
+            ylocator=20,
+            yminorlocator="null",
+            grid=False,
+            title = '',
+        )
+    return ax, lines
 
 
-def slope_err_all_model(extrs,tsurfs, extr_rands, tsurf_rands,mode,extr_type,time = 'all', ens_size = [100, 100, 50, 40, 30, 20]):
-    """
-    calculate the slope of the line
-    """
-    # calculate the slopes for each model in extrs
-    slopes = []
-    yerrs = []
-    models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36","GFDL_CM3" ]
-    for i, model in enumerate(models):
-        if time == 'all':
-            extr = extrs[model].sel(mode = mode, extr_type = extr_type)
-            tsurf = tsurfs[model].sel(time = extr.time, method = 'nearest')
 
-        else:
-            extr = extrs[model].sel(mode = mode, extr_type = extr_type, time = slice(time,'2091-01-01'))
-            tsurf = tsurfs[model].sel(time = extr.time, method = 'nearest')
+#%%
+# for reananlysis data
 
-        slope, yerr = slope_err(extr, tsurf)
-        slopes.append(slope)
-        yerrs.append(yerr)
+def reananlysis_bar(first_extrc, first_err, last_extrc, last_err, ax, 
+                    x = [0.2,0.8],width = 0.4,facecolor = 'none',edgecolor = 'black',linewidth = 1,errcolor = 'black'):
 
-    slope_rands = []
-    yerrs_rands = []
-    for i, ens_size in enumerate(ens_size):
+    ax.bar(
+        x =x,
+        height = [first_extrc,last_extrc],
+        width = width,
+        edgecolor = edgecolor,
+        facecolor = facecolor,
+        linewidth = 1,
+        align = 'center',
+        zorder = 9,
+    )
+    ax.errorbar(
+        x = x,
+        y = [first_extrc,last_extrc],
+        yerr = [first_err,last_err],
+        color = errcolor,
+        linewidth = 2,
+        fmt='none',
+        zorder = 10,
+    )
+    return ax
+#%%
 
-        extr_rand = extr_rands[ens_size].sel(mode = mode, extr_type = extr_type)
-        tsurf_rand = tsurf_rands[ens_size].sel(time = extr_rand.time, method = 'nearest')
+#%%    
+def format_ens_size(ens_size,tick_number):
+    if ens_size == 70:
+        formater = '100'
+    else:
+        formater = str(ens_size )
+    return formater
 
-        slope_rand, yerr_rand = slope_err(extr_rand, tsurf_rand)
-        slope_rands.append(slope_rand)
-        yerrs_rands.append(yerr_rand)
+def plot_errorbar(x,slope,low,high,color,ax,width = 2):
+    line = ax.hlines(x1 = x-width,x2 = x,y = slope,color = color,linewidth = 2)
+    x1 = x-width
+    x2 = x
+    y1 = low
+    y2 = high
+    rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='none', facecolor=color,alpha = 0.3)
+    bar = ax.add_patch(rect)
+    return line,bar
+
+def plot_unfill_errbar(x,slope,low,high,color,ax,width = 2):
+    line = ax.hlines(x1 = x-width,x2 = x,y = slope,color = color,linewidth = 2)
+    x1 = x-width
+    x2 = x
+    y1 = low
+    y2 = high
+    rect_out = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor=color, facecolor='none',alpha = 0.3)
+    bar = ax.add_patch(rect_out)
+    return line,bar
+
+
+#%%
+def extrc_slope_line(slopes,ax,mode = 'NAO',extr_type = 'pos',
+                     models = ["MPI_GE_onepct", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],rand = False):
     
-    return slopes, np.array(yerrs), slope_rands, np.array(yerrs_rands)
+    models_all = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+    colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
+    ens_size = [70, 70, 50, 40, 30, 20]  # 70 for the position of 100
+    model_color = dict(zip(models_all, colors_model))
+    model_size = dict(zip(models_all, ens_size))
 
-def slope_err(extr, tsurf):
-    extr = extr
-    tsurf = tsurf
-    tsurf = tsurf - tsurf[0]
+    lines = []
+    bars = []
+    if rand == False:
+        for model in models[::-1]: # from low to high
+            # select time period
+            slope = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'true').values
+            low = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'low').values
+            high = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'high').values
 
-    slope, conf_int = calc_slope(extr,tsurf= None)
-    yerr = np.array([slope - conf_int[0], conf_int[1] - slope])
-    return slope, yerr
+            line,bar = plot_errorbar(
+                x = model_size[model],
+                slope = slope,
+                low = low,
+                high = high,
+                color = model_color[model],
+                ax = ax,
+            )
+            lines.append(line)
+
+            bars.append(bar)
+    else:
+        for ens_size in [20,30,40,50,100]:
+            # select time period
+            slope = slopes[ens_size].sel(extr_type = extr_type,mode = mode,slopes = 'true').values
+            low = slopes[ens_size].sel(extr_type = extr_type,mode = mode,slopes = 'low').values
+            high = slopes[ens_size].sel(extr_type = extr_type,mode = mode,slopes = 'high').values
+
+            # the position of 100 is 70
+            if ens_size == 100:
+                x = 70 + 2
+                line,bar = plot_errorbar(
+                    x = x,
+                    slope = slope,
+                    low = low,
+                    high = high,
+                    color = model_color['MPI_GE'],
+                    ax = ax,
+                )
+            else:
+                x = ens_size + 2
+                line,bar = plot_unfill_errbar(
+                    x = x,
+                    slope = slope,
+                    low = low,
+                    high = high,
+                    color = model_color['MPI_GE'],
+                    ax = ax,
+                )
+            
+
+
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(format_ens_size))
+
+    return ax,bars
+# %%

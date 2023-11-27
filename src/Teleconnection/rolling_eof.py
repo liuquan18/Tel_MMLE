@@ -4,9 +4,12 @@ import pandas as pd
 import xarray as xr
 from tqdm.notebook import tqdm, trange
 
+import datetime
 import src.Teleconnection.spatial_pattern as ssp
 import src.Teleconnection.tools as tools
 import src.warming_stage.warming_stage as warming_stage
+import datetime
+import mpi4py.MPI as MPI
 
 #%%
 def rolling_eof(xarr, **kwargs):
@@ -42,7 +45,7 @@ def rolling_eof(xarr, **kwargs):
             tools.stack_ens(xarr, withdim="time"),
             nmode=nmode,
             dim="com",
-            standard=False,
+            standard='pc_temporal_std',
         )
 
     elif fixed_pattern == "warming":
@@ -51,7 +54,7 @@ def rolling_eof(xarr, **kwargs):
         # get the periods where the glmt increases 0K and 4K
         ts_mean = ts_mean
         warming_periods = warming_stage.temp_period(ts_mean)
-        warming_index = xr.IndexVariable("warming", ["0K", "1K", "4K"])
+        warming_index = xr.IndexVariable("warming", ["0K", "2K", "4K"])
 
         eof_results = []
         for period in warming_periods:
@@ -66,17 +69,22 @@ def rolling_eof(xarr, **kwargs):
         print("     decomposing everty ten years")
         eof_result = decompose_decade(xarr, window)
 
+    elif fixed_pattern == 'decade_mpi': # using mpi4py to speed up
+        print("     decomposing everty ten years in parallel")
+        eof_result = decompose_decade_mpi(xarr, window)
+
     return eof_result
 
 def decompose_decade(xarr, window):
     """decompose the data every ten years."""
     # start time
-    time_s = xarr.time[::window]
+    years = np.unique(xarr.time.dt.year).astype('str')
+    time_s = years[::window]
     # end time
-    time_e = xarr.time[window-1::window]
+    time_e = years[window-1::window]
 
     # create slice for each decade
-    decade_slice = [slice(s, e) for s, e in zip(time_s.values, time_e.values)]
+    decade_slice = [slice(s, e) for s, e in zip(time_s, time_e)]
 
     # a list for storing the subarrays
     eofs = []
@@ -84,7 +92,7 @@ def decompose_decade(xarr, window):
     fras = []
 
     for time in decade_slice:
-        print(f"     decomposing the decade of {time.start} - {time.stop}")
+        print(f"     decomposing the decade of {time.start.astype('datetime64[Y]')} - {time.stop.astype('datetime64[Y]')}")
         # slice the time
 
         eof_result_single = decompose_single_decade(xarr, time)
@@ -108,11 +116,79 @@ def decompose_decade(xarr, window):
 
 def decompose_single_decade(xarr, timeslice, nmode=2):
     """decompose a single decade."""
-    field = xarr.sel(time=timeslice)
+    field = xarr.sortby("time") # sort the time
+    field = field.sel(time=timeslice)
     field = field.stack(com=("ens", "time"))
 
     eof_result = ssp.doeof(field, nmode=nmode, dim="com")
 
     return eof_result
 
+
+
+def decompose_decade_mpi(xarr, window):
+    """decompose the data every ten years."""
+    try:
+        comm = MPI.COMM_WORLD
+        rank = comm.Get_rank()
+        size = comm.Get_size()
+    except:
+        print("     mpi4py is not installed, using the serial version")
+        rank = 0
+        size = 1
+
+    # start time
+    years = np.unique(xarr.time.dt.year).astype('str')
+    time_s = years[::window]
+    # end time
+    time_e = years[window-1::window]
+
+    # create slice for each decade
+    decade_slice = [slice(s, e) for s, e in zip(time_s, time_e)]
+
+    # split the decade slices across different processes
+    local_decade_slice = np.array_split(decade_slice, size)[rank]
+
+    # a list for storing the subarrays
+    eofs = []
+    pcs = []
+    fras = []
+
+    for time in local_decade_slice:
+        print(f"     decomposing the decade of {time.start.astype('datetime64[Y]')} - {time.stop.astype('datetime64[Y]')}")
+        # slice the time
+
+        eof_result_single = decompose_single_decade(xarr, time)
+        eof = eof_result_single["eof"]
+        pc = eof_result_single["pc"].copy()
+        fra = eof_result_single["fra"]
+
+        # append eof to eofs if eof is not None
+        eofs.append(eof)
+        pcs.append(pc)
+        fras.append(fra)
+
+    # gather the subarrays from all processes
+    eofs = comm.gather(eofs, root=0)
+    pcs = comm.gather(pcs, root=0)
+    fras = comm.gather(fras, root=0)
+
+    if rank == 0:
+        # flat the lists of eofs, pcs, fras
+        eofs = [item for sublist in eofs for item in sublist]
+        pcs = [item for sublist in pcs for item in sublist]
+        fras = [item for sublist in fras for item in sublist]
+
+        # concat the subarrays together, and make the decade as a new dim
+        EOF = xr.concat(eofs, dim="decade")
+        FRA = xr.concat(fras, dim="decade")
+        PC = xr.concat(pcs, "time")
+
+        # combine EOF, FRA, PC together as a dataset
+        eof_result = xr.Dataset({"eof": EOF, "pc": PC, "fra": FRA})
+        return eof_result
+    else:
+        # no output for other processes
+        eof_result = None
+    
 

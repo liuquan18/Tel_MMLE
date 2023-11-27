@@ -29,6 +29,8 @@ def model_first(model,season):
 MPI_GE_onepct_JJAS = model_first('MPI_GE_onepct','JJAS')
 
 #%%
+MPI_GE_onepct_JJAS.stat_overview()
+#%%
 MPI_GE_onepct_JJAS.composite_analysis(tfield='same',levels_NAO = np.arange(-1,1.1,0.2),levels_EA = np.arange(-1,1.1,0.2))
 #%%
 MPI_GE_onepct_JJAS.stat_overview()

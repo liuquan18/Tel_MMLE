@@ -128,10 +128,7 @@ class story_line:
         try:
             tsurf_arr = tsurf.tsurf.squeeze()
         except AttributeError:
-            try:
-                tsurf_arr = tsurf.ts.squeeze()
-            except AttributeError:
-                tsurf_arr = tsurf.tas.squeeze()
+            tsurf_arr = tsurf.ts.squeeze()
         # change the temp time into datetime64
         try:
             tsurf_arr["time"] = tsurf_arr.indexes["time"].to_datetimeindex()

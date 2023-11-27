@@ -148,3 +148,8 @@ script/8season/seasonmean.o5808103
 
 # all log files
 *.o58*
+*.out
+
+# pickle files
+*.p
+*.pkl
