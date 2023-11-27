@@ -988,9 +988,9 @@ fig2.legend(
     frameon=False,
 )
 
-# plt.savefig(
-#     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig2_SMILEs.pdf",
-# )
+plt.savefig(
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig2_SMILEs.pdf",
+)
 # %%
 # Fig 3, composite plot of ts for positve extremes
 models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3", "20CR"]
