@@ -301,6 +301,13 @@ mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["ps.fonttype"] = 42
 mpl.rcParams["font.family"] = "sans-serif"
 plt.rcParams["hatch.linewidth"] = 0.3
+plt.rcParams["text.color"] = "white"
+plt.rcParams["axes.labelcolor"] = "white"
+plt.rcParams["xtick.color"] = "white"
+plt.rcParams["ytick.color"] = "white"
+plt.rcParams["axes.edgecolor"] = "white"
+plt.rcParams["figure.facecolor"] = "black"
+
 # %%
 # SMILEs
 fixed_pattern = "decade_mpi"
@@ -407,6 +414,7 @@ rate_neg_ens, rate_neg_high_ens, rate_neg_low_ens = rean_slope(
 fig1 = pplt.figure(figsize=(180 / 25.4, 180 / 25.4), sharex=False, sharey=False)
 fig1.format(
     abc=False,
+    facecolor="black",
 )
 models_legend = [
     "MPI_GE_onepct (100)",
@@ -429,6 +437,7 @@ gs = pplt.GridSpec(
 # MPI_GE
 ## Spatial pattern and index distribution
 ax1 = fig1.add_subplot(gs[0, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
+ax1.set_facecolor("white")
 ax2 = fig1.add_subplot(gs[0, 1])
 
 ## line plot
@@ -439,6 +448,7 @@ ax4 = fig1.add_subplot(gs[0, 3], sharey=ax3, sharex=ax3)
 # 20CR
 ## Spatial pattern and index distribution
 ax5 = fig1.add_subplot(gs[1, 0], proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
+ax5.set_facecolor("white")
 ax6 = fig1.add_subplot(gs[1, 1], sharey=ax2, sharex=ax2)
 
 ## bar plot of extreme counts
@@ -450,8 +460,8 @@ ax1, fmap_MPI, lmap = stat_overview.spatial_pattern_plot(
     ax1,
     first_pattern,
     EOFs_decade["MPI_GE"].fra.isel(decade=0),
-    last_pattern,
-    EOFs_decade["MPI_GE"].fra.isel(decade=-1),
+    # last_pattern,
+    # EOFs_decade["MPI_GE"].fra.isel(decade=-1),
     levels=np.arange(-30, 31, 5),
 )
 
@@ -514,6 +524,7 @@ ax7 = extplt.reananlysis_bar(
     x=[0.2, 0.7],
     width=0.2,
     facecolor="grey",
+    errcolor="grey7",
 )
 
 ax7 = extplt.reananlysis_bar(
@@ -526,6 +537,7 @@ ax7 = extplt.reananlysis_bar(
     width=0.2,
     facecolor="none",
     errcolor="grey7",
+    edgecolor="white",
 )
 
 ax7.xaxis.set_major_formatter(plt.FuncFormatter(format_period_year))
@@ -540,6 +552,7 @@ ax8 = extplt.reananlysis_bar(
     x=[0.2, 0.7],
     width=0.2,
     facecolor="grey",
+    errcolor="grey7",
 )
 
 ax8 = extplt.reananlysis_bar(
@@ -552,6 +565,7 @@ ax8 = extplt.reananlysis_bar(
     width=0.2,
     facecolor="none",
     errcolor="grey7",
+    edgecolor="white",
 )
 ax8.set_xticks([0.2, 0.8])
 
@@ -559,7 +573,7 @@ ax8.xaxis.set_major_formatter(plt.FuncFormatter(format_period_year))
 
 #### ax1 ####
 
-cax = fig1.add_axes([0.06, 0.62, 0.23, 0.013], xlocator=MaxNLocator(5))
+cax = fig1.add_axes([0.06, 0.62, 0.23, 0.013], xlocator=MaxNLocator(5),facecolor='none')
 cbar = fig1.colorbar(
     fmap_MPI,
     cax=cax,
@@ -567,6 +581,8 @@ cbar = fig1.colorbar(
     ticks=np.arange(-30, 31, 10),
     label="Z500/m",
 )
+cbar.set_label("Z500/m", color='white')
+cbar.ax.tick_params(labelcolor='white')
 cax.tick_params(axis="x", which="minor", bottom=False)
 # add 'a' label at the top left corner
 ax1.text(
@@ -582,6 +598,7 @@ ax1.text(
 #### ax2 ####
 # add legend
 ax2.axes.set_facecolor("none")
+ax2.tick_params(color='white', labelcolor='white')
 f_patch_MPI = mpatches.Patch(color="#1f77b4", label="first10")
 l_patch_MPI = mpatches.Patch(color="#ff7f0e", label="last10")
 
@@ -606,11 +623,15 @@ ax2.text(
     va="top",
     ha="left",
 )
+ax2.spines["left"].set_color("white")
+ax2.spines["bottom"].set_color("white")
 
 #### ax3 ####
 # set the axis
 ax3.spines["right"].set_visible(False)
 ax3.spines["top"].set_visible(False)
+ax3.spines["left"].set_color("white")
+ax3.spines["bottom"].set_color("white")
 
 ax3.format(
     xlabel="",
@@ -623,6 +644,7 @@ ax3.format(
 )
 ax3.set_yticks(np.arange(1.5, 3.5, 0.5))
 
+ax3.tick_params(color='white', labelcolor='white')
 
 ax3.legend(
     lines_pos_MPI,
@@ -670,9 +692,13 @@ ax4.text(
     va="top",
     ha="left",
 )
+ax4.tick_params(color='white', labelcolor='white')
+
+ax4.spines["left"].set_color("white")
+ax4.spines["bottom"].set_color("white")
 
 #### ax5 ####
-cax = fig1.add_axes([0.06, 0.11, 0.23, 0.013], xlocator=MaxNLocator(5))
+cax = fig1.add_axes([0.06, 0.11, 0.23, 0.013], xlocator=MaxNLocator(5),facecolor='none')
 cbar = fig1.colorbar(
     fmap_20CR,
     cax=cax,
@@ -680,6 +706,8 @@ cbar = fig1.colorbar(
     ticks=np.arange(-30, 31, 10),
     label="Z500/m",
 )
+cbar.set_label("Z500/m", color='white')
+cbar.ax.tick_params(labelcolor='white')
 cax.tick_params(axis="x", which="minor", bottom=False)
 
 ax5.text(
@@ -715,6 +743,9 @@ ax6.text(
     va="top",
     ha="left",
 )
+ax6.spines["left"].set_color("white")
+ax6.spines["bottom"].set_color("white")
+ax6.tick_params(color='white', labelcolor='white')
 
 #### ax7 ####""
 ax7.format(
@@ -751,6 +782,9 @@ ax7.text(
     va="top",
     ha="left",
 )
+ax7.spines["left"].set_color("white")
+ax7.spines["bottom"].set_color("white")
+ax7.tick_params(color='white', labelcolor='white')
 
 #### ax8 ####
 ax8.format(
@@ -774,6 +808,9 @@ ax8.text(
     va="top",
     ha="left",
 )
+ax8.spines["left"].set_color("white")
+ax8.spines["bottom"].set_color("white")
+ax8.tick_params(color='white', labelcolor='white')
 
 # set the axis
 plt.setp(ax4.get_yticklabels(), visible=False)
@@ -781,8 +818,8 @@ plt.setp(ax8.get_yticklabels(), visible=False)
 
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig1_MPI_GE_20CR.pdf",
-)
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/Fig1_MPI_GE_20CR.pdf",
+facecolor=fig1.get_facecolor(),)
 # %%
 # calculate the rate of the increase
 
@@ -806,6 +843,7 @@ fig2.format(
     abc=True,
     abcloc="ul",
     abcstyle="a",
+    facecolor="black",
 )
 
 ax1 = axes[0, 0]
@@ -857,30 +895,30 @@ ax4.spines["bottom"].set_position(("data", 0))
 
 
 ax3.hlines(
-    x1=20, x2=70, y=rate_pos, color="black", linestyle="dashed", zorder=0, linewidth=1
+    x1=20, x2=70, y=rate_pos, color="white", linestyle="dashed", zorder=0, linewidth=1
 )
-ax3.hlines(
-    x1=20,
-    x2=70,
-    y=rate_pos_ens,
-    color="black",
-    linestyle="dotted",
-    zorder=0,
-    linewidth=1,
-)
+# ax3.hlines(
+#     x1=20,
+#     x2=70,
+#     y=rate_pos_ens,
+#     color="black",
+#     linestyle="dotted",
+#     zorder=0,
+#     linewidth=1,
+# )
 
 ax4.hlines(
-    x1=20, x2=70, y=rate_neg, color="black", linestyle="dashed", zorder=0, linewidth=1
+    x1=20, x2=70, y=rate_neg, color="white", linestyle="dashed", zorder=0, linewidth=1
 )
-ax4.hlines(
-    x1=20,
-    x2=70,
-    y=rate_neg_ens,
-    color="black",
-    linestyle="dotted",
-    zorder=0,
-    linewidth=1,
-)
+# ax4.hlines(
+#     x1=20,
+#     x2=70,
+#     y=rate_neg_ens,
+#     color="black",
+#     linestyle="dotted",
+#     zorder=0,
+#     linewidth=1,
+# )
 
 
 ###
@@ -917,10 +955,12 @@ ax3.format(
     grid=False,
     ylabel="rate of increase per decade (%)",
     ylim=(-2.4,10.7),
+    xlim = (16, 72),
     xtickminor=False,
     facecolor="none",
 )
 ax3.set_xticks([20, 30, 40, 50, 70])
+ax3.tick_params(color='white', labelcolor='white')
 # the xlabel for ax3 at the right bottom
 ax3.text(
     0.98,
@@ -939,8 +979,11 @@ ax4.format(
     ylim=(-2.4,10.7),
     xtickminor=False,
     facecolor="none",
+    xlim = (16, 72),
 )
 ax4.set_xticks([20, 30, 40, 50, 70])
+ax4.tick_params(color='white', labelcolor='white')
+
 ax4.text(
     0.98,
     0.02,
@@ -989,7 +1032,8 @@ fig2.legend(
 )
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig2_SMILEs.pdf",
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/Fig2_SMILEs.pdf",
+    facecolor=fig2.get_facecolor(),
 )
 # %%
 # Fig 3, composite plot of ts for positve extremes
@@ -1012,6 +1056,7 @@ fig3, axes = pplt.subplots(
     proj_kw=({"lon_0": -20, "lat_0": 60}),
     nrows=3,
     ncols=6,
+    facecolor="black",
 )
 axes.format(
     latlines=20,
@@ -1022,11 +1067,9 @@ axes.format(
     coastcolor="charcoal",
     leftlabels=["first", "last", "last - first"],
     toplabels=models_legend,
-    toplabels_kw={"fontsize": 7},
-    leftlabels_kw={"fontsize": 7},
-    abc=True,
-    abcloc="ul",
-    abcstyle="a",
+    toplabels_kw={"fontsize": 7, "color": "white"},
+    leftlabels_kw={"fontsize": 7, "color": "white"},
+    facecolor="white",
 )
 
 axes, maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes)
@@ -1040,8 +1083,9 @@ fig3.colorbar(
 )
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig3composite_pos.pdf",
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/Fig3composite_pos.pdf",
     layout="tight",
+    facecolor=fig3.get_facecolor(),
 )
 
 
@@ -1066,6 +1110,7 @@ fig4, axes = pplt.subplots(
     proj_kw=({"lon_0": -20, "lat_0": 60}),
     nrows=3,
     ncols=6,
+    facecolor="black",
 )
 axes.format(
     latlines=20,
@@ -1076,11 +1121,12 @@ axes.format(
     coastcolor="charcoal",
     leftlabels=["first10", "last10", "last10 - first10"],
     toplabels=models_legend,
-    toplabels_kw={"fontsize": 7},
-    leftlabels_kw={"fontsize": 7},
+    toplabels_kw={"fontsize": 7,"color":"white"},
+    leftlabels_kw={"fontsize": 7,"color":"white"},
     abc=True,
     abcloc="ul",
     abcstyle="a",
+    facecolor="white",
 )
 
 axes, maps = composite_plot.plot_composite_single_ext(
@@ -1096,7 +1142,7 @@ fig4.colorbar(
 )
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/draft/Fig4composite_neg.pdf",
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/Fig4composite_neg.pdf",
     layout="tight",
 )
 
