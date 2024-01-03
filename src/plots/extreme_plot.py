@@ -751,7 +751,7 @@ def plot_errorbar(x,slope,low,high,color,ax,width = 2):
     x2 = x
     y1 = low
     y2 = high
-    rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='none', facecolor=color,alpha = 0.7)
+    rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='none', facecolor=color,alpha = 0.5)
     bar = ax.add_patch(rect)
     return line,bar
 
@@ -761,7 +761,7 @@ def plot_unfill_errbar(x,slope,low,high,color,ax,width = 2):
     x2 = x
     y1 = low
     y2 = high
-    rect_out = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor=color, facecolor='none',alpha = 0.7)
+    rect_out = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor=color, facecolor='none',alpha = 0.5)
     bar = ax.add_patch(rect_out)
     return line,bar
 

@@ -740,7 +740,7 @@ ax7.spines["right"].set_visible(False)
 ax7.spines["top"].set_visible(False)
 
 patch_20CR = mpatches.Patch(facecolor="none", edgecolor="black", label="20CR")
-patch_20CR_allens = mpatches.Patch(color="grey", label="20CR_allens (80)")
+patch_20CR_allens = mpatches.Patch(color="grey", label="20CR_all_ensembles (80)")
 
 ax7.legend(
     handles=[patch_20CR, patch_20CR_allens],
@@ -748,7 +748,7 @@ ax7.legend(
     frameon=False,
     ncol=2,
     bbox_to_anchor=(
-        1.2,
+        1,
         1.1,
     ),
 )
@@ -793,8 +793,8 @@ plt.setp(ax8.get_yticklabels(), visible=False)
 
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/Fig1_MPI_GE_20CR.pdf",
-facecolor=fig1.get_facecolor(),)
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/Fig1_MPI_GE_20CR.pdf",
+)
 # %%
 # calculate the rate of the increase
 
@@ -818,7 +818,6 @@ fig2.format(
     abc=True,
     abcloc="ul",
     abcstyle="a",
-    facecolor="black",
 )
 
 ax1 = axes[0, 0]
@@ -870,30 +869,30 @@ ax4.spines["bottom"].set_position(("data", 0))
 
 
 ax3.hlines(
-    x1=20, x2=70, y=rate_pos, color="white", linestyle="dashed", zorder=0, linewidth=1
+    x1=20, x2=70, y=rate_pos, color="black", linestyle="dashed", zorder=0, linewidth=1
 )
-# ax3.hlines(
-#     x1=20,
-#     x2=70,
-#     y=rate_pos_ens,
-#     color="black",
-#     linestyle="dotted",
-#     zorder=0,
-#     linewidth=1,
-# )
+ax3.hlines(
+    x1=20,
+    x2=70,
+    y=rate_pos_ens,
+    color="black",
+    linestyle="dotted",
+    zorder=0,
+    linewidth=1,
+)
 
 ax4.hlines(
-    x1=20, x2=70, y=rate_neg, color="white", linestyle="dashed", zorder=0, linewidth=1
+    x1=20, x2=70, y=rate_neg, color="black", linestyle="dashed", zorder=0, linewidth=1
 )
-# ax4.hlines(
-#     x1=20,
-#     x2=70,
-#     y=rate_neg_ens,
-#     color="black",
-#     linestyle="dotted",
-#     zorder=0,
-#     linewidth=1,
-# )
+ax4.hlines(
+    x1=20,
+    x2=70,
+    y=rate_neg_ens,
+    color="black",
+    linestyle="dotted",
+    zorder=0,
+    linewidth=1,
+)
 
 
 ###
@@ -935,7 +934,6 @@ ax3.format(
     facecolor="none",
 )
 ax3.set_xticks([20, 30, 40, 50, 70])
-ax3.tick_params(color='white', labelcolor='white')
 # the xlabel for ax3 at the right bottom
 ax3.text(
     0.98,
@@ -957,7 +955,6 @@ ax4.format(
     xlim = (16, 72),
 )
 ax4.set_xticks([20, 30, 40, 50, 70])
-ax4.tick_params(color='white', labelcolor='white')
 
 ax4.text(
     0.98,
@@ -980,7 +977,7 @@ models_legend = [
     "MPI-GE_onepct (100)",
     "MPI-GE (100)",
     "MPI-GE (resampled)",
-    "20CR_allens (80)",
+    "20CR_all_ensembles (80)",
     "20CR",
 ]
 colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
@@ -1007,8 +1004,7 @@ fig2.legend(
 )
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/Fig2_SMILEs.pdf",
-    facecolor=fig2.get_facecolor(),
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/Fig2_SMILEs.pdf",
 )
 # %%
 # Fig 3, composite plot of ts for positve extremes
@@ -1031,7 +1027,6 @@ fig3, axes = pplt.subplots(
     proj_kw=({"lon_0": -20, "lat_0": 60}),
     nrows=3,
     ncols=6,
-    facecolor="black",
 )
 axes.format(
     latlines=20,
@@ -1042,9 +1037,8 @@ axes.format(
     coastcolor="charcoal",
     leftlabels=["first", "last", "last - first"],
     toplabels=models_legend,
-    toplabels_kw={"fontsize": 7, "color": "white"},
-    leftlabels_kw={"fontsize": 7, "color": "white"},
-    facecolor="white",
+    toplabels_kw={"fontsize": 7, },
+    leftlabels_kw={"fontsize": 7,},
 )
 
 axes, maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes)
@@ -1058,9 +1052,8 @@ fig3.colorbar(
 )
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/Fig3composite_pos.pdf",
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/Fig3composite_pos.pdf",
     layout="tight",
-    facecolor=fig3.get_facecolor(),
 )
 
 
@@ -1085,7 +1078,6 @@ fig4, axes = pplt.subplots(
     proj_kw=({"lon_0": -20, "lat_0": 60}),
     nrows=3,
     ncols=6,
-    facecolor="black",
 )
 axes.format(
     latlines=20,
@@ -1096,12 +1088,11 @@ axes.format(
     coastcolor="charcoal",
     leftlabels=["first10", "last10", "last10 - first10"],
     toplabels=models_legend,
-    toplabels_kw={"fontsize": 7,"color":"white"},
-    leftlabels_kw={"fontsize": 7,"color":"white"},
+    toplabels_kw={"fontsize": 7},
+    leftlabels_kw={"fontsize": 7},
     abc=True,
     abcloc="ul",
     abcstyle="a",
-    facecolor="white",
 )
 
 axes, maps = composite_plot.plot_composite_single_ext(
@@ -1116,9 +1107,9 @@ fig4.colorbar(
     shrink=1,
 )
 
-plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/Fig4composite_neg.pdf",
-    layout="tight",
-)
+# plt.savefig(
+#     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/Fig4composite_neg.pdf",
+#     layout="tight",
+# )
 
 # %%
