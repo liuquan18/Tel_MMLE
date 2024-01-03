@@ -1,4 +1,8 @@
 #%%
+##### for projecting the spatial patterns using the index standardized by the first 10 years
+
+##### SMILEs
+
 import xarray as xr
 import numpy as np
 from scipy import stats
