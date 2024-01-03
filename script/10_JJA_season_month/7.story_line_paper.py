@@ -1107,9 +1107,9 @@ fig4.colorbar(
     shrink=1,
 )
 
-# plt.savefig(
-#     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/Fig4composite_neg.pdf",
-#     layout="tight",
-# )
+plt.savefig(
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/Fig4composite_neg.pdf",
+    layout="tight",
+)
 
 # %%
