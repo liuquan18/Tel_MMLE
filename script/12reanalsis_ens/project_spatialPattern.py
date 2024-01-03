@@ -23,17 +23,6 @@ def read_zg_data(model):
         data_JJA.append(index_generator.read_data(zg_path, plev = 50000))
     data = xr.concat(data_JJA, dim="time").sortby("time")
     return data
-# %%
-# MPI_GE
-model = 'MPI_GE'
-# %%
-zg_data = read_zg_data(model)
-# %%
-eof_data = read_eof_decade(model,fixed_pattern = 'decade_mpi')
-
-# %%
-zg_data.load()
-eof_data.load()
 
 #%%
 def project(x,y):
@@ -58,9 +47,11 @@ def projected_pattern(p_field, p_pc):
 
 # %%
 def project_period(zg_data, pc_data, period = 'first'):
+    zg_data = zg_data.sortby('time')
+    pc_data = pc_data.sortby('time')
     if period == 'first':
-        p_field = zg_data.sel(time = slice('1850','1949'))
-        p_pc = pc_data.sel(time = slice('1850','1949'))
+        p_field = zg_data.isel(time = slice(0,30)) # the first 10 years, 30 months
+        p_pc = pc_data.sel(time = p_field.time, method = 'nearest')
     elif period == 'last':
         p_field = zg_data.sel(time = slice('2090','2099'))
         p_pc = pc_data.sel(time = slice('2090','2099'))
@@ -68,13 +59,30 @@ def project_period(zg_data, pc_data, period = 'first'):
         raise ValueError("period must be first or last")
     spatial_pattern = projected_pattern(p_field,p_pc)
     return spatial_pattern
-# %%
-pc_data = eof_data.pc
-# %%
-first_pattern = project_period(zg_data,pc_data,period = 'first')
-first_pattern.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/first_pattern_projected.nc")
-# %%
-last_pattern = project_period(zg_data,pc_data,period = 'last')
-last_pattern.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/last_pattern_projected.nc")
+
 
 # %%
+def real_pattern(model):
+    zg_data = read_zg_data(model)
+    eof_data = read_eof_decade(model,fixed_pattern = 'decade_mpi')
+
+    zg_data.load()
+    eof_data.load()
+
+    pc_data = eof_data.pc
+
+    first_pattern = project_period(zg_data,pc_data,period = 'first')
+    first_pattern.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/first_pattern_projected.nc")
+
+    last_pattern = project_period(zg_data,pc_data,period = 'last')
+    last_pattern.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/last_pattern_projected.nc")
+
+# %%
+import sys
+models =  ["CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"] #'MPI_GE"
+mindex = int(sys.argv[1])
+
+model = models[mindex - 1]
+print(f"projecting the spatial pattern of {model} ...")
+real_pattern(model)
+
