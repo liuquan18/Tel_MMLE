@@ -55,6 +55,9 @@ def project_period(zg_data, pc_data, period = 'first'):
     elif period == 'last':
         p_field = zg_data.sel(time = slice('2090','2099'))
         p_pc = pc_data.sel(time = slice('2090','2099'))
+        if p_field.time.size == 0:
+            p_field = zg_data.isel(time = slice(-30,None))
+            p_pc = pc_data.sel(time = p_field.time, method = 'nearest')
     else:
         raise ValueError("period must be first or last")
     spatial_pattern = projected_pattern(p_field,p_pc)
