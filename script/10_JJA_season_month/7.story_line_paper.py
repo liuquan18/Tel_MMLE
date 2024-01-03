@@ -453,8 +453,8 @@ ax1, fmap_MPI, lmap = stat_overview.spatial_pattern_plot(
     ax1,
     first_pattern,
     EOFs_decade["MPI_GE"].fra.isel(decade=0),
-    # last_pattern,
-    # EOFs_decade["MPI_GE"].fra.isel(decade=-1),
+    last_pattern,
+    EOFs_decade["MPI_GE"].fra.isel(decade=-1),
     levels=np.arange(-30, 31, 5),
 )
 
