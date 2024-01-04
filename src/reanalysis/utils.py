@@ -1,3 +1,6 @@
+import glob
+import xarray as xr
+import numpy as np
 
 # %%
 def linear_trend(xarr):
