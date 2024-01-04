@@ -785,8 +785,11 @@ def extrc_slope_line(slopes,ax,mode = 'NAO',extr_type = 'pos',
             low = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'low').values
             high = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'high').values
 
+            model_size['MPI_GE'] = 70+1
+            model_size['MPI_GE_onepct'] = 70-1
+
             line,bar = plot_errorbar(
-                x = model_size[model],
+                x = model_size[model]+1,
                 slope = slope,
                 low = low,
                 high = high,
