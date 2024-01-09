@@ -62,7 +62,10 @@ def read_gph_data(model, external_forcing="quadratic_trend", **kwargs):
         data_JJA.append(data_month)
     data = xr.concat(data_JJA, dim="time").sortby("time")
     # remove the forced trend
-    print("detrending ...")
-    detrended = detrend(data,method = external_forcing)
+    if external_forcing is None:
+        detrended = data
+    else:
+        print("detrending ...")
+        detrended = detrend(data,method = external_forcing)
     return detrended.squeeze()
 
