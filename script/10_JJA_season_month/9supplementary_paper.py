@@ -98,6 +98,13 @@ def SMILE_rate_increase(SLOPEs, EXTRCs):
         rate = slope / first_extrc * 100
         RATEs[key] = rate
     return RATEs
+#%%
+def read_ens_var(model):
+    odir = f"/work/mh0033/m300883/Tel_MMLE/data/CR20_allens/ens_variability/{model}_ens_var_10y.nc"
+    ds = xr.open_dataset(odir)
+    ens_var = ds.zg
+    return ens_var
+
 
 # %%
 First_patterns = {}
@@ -468,33 +475,68 @@ plt.savefig(
 MPI_GE_all = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/EOF_result/plev_50000_all_first_JJA_eof_result.nc")
 MPI_GE_pc = MPI_GE_all.pc.sel(mode = 'NAO', time = slice('1850','2015'))
 MPI_GE_pc.name = 'NAO index'
-#%%
+
 # read the pc of 20CR
 CR20_all = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CR20_allens/EOF_result/all_eof.nc")
 CR20_pc = CR20_all.pc.sel(mode = 'NAO', time = slice('1850','2015'))
 CR20_pc.name = 'NAO index'
-# %%
-fig6, axes = pplt.subplots(ncols = 2, nrows = 1, abc = True,share = True,
-                           figsize=(150 / 25.4, 80 / 25.4))
 
-MPI_GE_pc.plot.line(x = 'time', ax = axes[0], color = 'grey7', lw = 1.,
+#%%
+# read the mean zg at the south center
+MPI_GE_zg_south = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CR20_allens/ens_variability/MPI_GE_zg_south_center.nc")
+MPI_GE_zg_south = MPI_GE_zg_south.var156
+MPI_GE_zg_south = MPI_GE_zg_south.sel(time = slice('1850','2015'))
+MPI_GE_zg_south.name = '500hPa geopotential height (m)'
+
+#%%
+CR20_zg_south = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CR20_allens/ens_variability/CR20_zg_south_center.nc")
+CR20_zg_south = CR20_zg_south.HGT
+CR20_zg_south.name = '500hPa geopotential height (m)'
+
+#%%
+# read the ens_var
+MPI_GE_ens_var = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CR20_allens/ens_variability/MPI_GE_ens_var_10y.nc")
+MPI_GE_ens_var = MPI_GE_ens_var.zg
+MPI_GE_ens_var.name = 'Ensemble standard deviation (m)'
+#%%
+CR20_ens_var = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CR20_allens/ens_variability/CR20_ens_var_10y.nc")
+CR20_ens_var = CR20_ens_var.zg
+CR20_ens_var.name = 'Ensemble standard deviation (m)'
+
+
+#%%
+fig6, axes = pplt.subplots(ncols = 2, nrows = 3, abc = True,sharex= True, sharey = False,
+                           figsize=(150 / 25.4, 180 / 25.4))
+
+MPI_GE_zg_south.plot.line(x = 'time', ax = axes[0,0], lw = 1, add_legend = False)
+CR20_zg_south.plot.line(x = 'time', ax = axes[0,1], lw = 1, add_legend = False)
+
+MPI_GE_ens_var.plot.line(x = 'time', ax = axes[1,0], color = 'k', lw = 1.,
                     add_legend = False)
-CR20_pc.plot.line(x = 'time', ax = axes[1], color = 'grey7', lw = 1.,
+CR20_ens_var.plot.line(x = 'time', ax = axes[1,1], color = 'k', lw = 1.,
+                    add_legend = False,)
+
+
+MPI_GE_pc.plot.line(x = 'time', ax = axes[2,0],  lw = 1.,
+                    add_legend = False)
+CR20_pc.plot.line(x = 'time', ax = axes[2,1], lw = 1.,
                   add_legend = False,)
-axes[0].set_title('')
-axes[1].set_title('')
 
 
 axes.format(
     grid = False,
     ytickminor=False,
-    ylim = (-4.3,4.3),
     xtickminor=False,
     facecolor="none",
-    ylabel = 'NAO index',
 )
 
+axes[:,1].set_ylabel('')
+axes[0,:].set_ylim(5580, 5851)
+axes[1,:].set_ylim(20.9, 30.9)
+axes[2,:].set_ylim(-4, 4.3)
+
 for ax in axes:
+    ax.set_title('')
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
 
