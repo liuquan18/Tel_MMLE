@@ -778,28 +778,31 @@ def extrc_slope_line(slopes,ax,mode = 'NAO',extr_type = 'pos',
 
     lines = []
     bars = []
-    if rand == False:
-        for model in models[::-1]: # from low to high
-            # select time period
-            slope = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'true').values
-            low = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'low').values
-            high = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'high').values
+    for model in models[::-1]: # from low to high
+        # select time period
+        slope = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'true').values
+        low = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'low').values
+        high = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'high').values
 
-            model_size['MPI_GE'] = 70+1
-            model_size['MPI_GE_onepct'] = 70-1
+        # a shift for the x position
+        # define the shift as 0 when rand = True, and 1 when rand = False
+        shift = 1 if rand else 0
+        model_size['MPI_GE'] = 70+shift
+        model_size['MPI_GE_onepct'] = 70-shift
 
-            line,bar = plot_errorbar(
-                x = model_size[model]+1,
-                slope = slope,
-                low = low,
-                high = high,
-                color = model_color[model],
-                ax = ax,
-            )
-            lines.append(line)
+        line,bar = plot_errorbar(
+            x = model_size[model]+shift,
+            slope = slope,
+            low = low,
+            high = high,
+            color = model_color[model],
+            ax = ax,
+        )
+        lines.append(line)
 
-            bars.append(bar)
-    else:
+        bars.append(bar)
+
+    if rand:
         for ens_size in [20,30,40,50,100]:
             # select time period
             slope = slopes[ens_size].sel(extr_type = extr_type,mode = mode,slopes = 'true').values
