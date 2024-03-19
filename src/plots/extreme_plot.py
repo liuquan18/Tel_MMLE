@@ -25,12 +25,12 @@ def extCount_tsurf_scatter(
     hue: different  dataset
     """
     params = {
-        "ytick.color": "w",
-        "xtick.color": "w",
-        "axes.labelcolor": "w",
-        "axes.edgecolor": "w",
-        "tick.labelcolor": "w",
-        "text.color": "w",
+        "ytick.color": "k",
+        "xtick.color": "k",
+        "axes.labelcolor": "k",
+        "axes.edgecolor": "k",
+        "tick.labelcolor": "k",
+        "text.color": "k",
         "font.size": 20,
     }
 
@@ -50,7 +50,7 @@ def extCount_tsurf_scatter(
         toplabels=["pos", "neg"],
         xminorticks="null",
         yminorticks="null",
-        facecolor="black",
+        facecolor="white",
         # ylim=ylim,
     )
 
@@ -139,7 +139,7 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
     fig = pplt.figure(
         # space=0,
         refwidth="20em",
-        facecolor="black",
+        facecolor="white",
     )
     axes = fig.subplots(nrows=1, ncols=2)
     axes.format(
@@ -155,7 +155,7 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
         grid=False,
         toplabels=("pos", "neg"),
         # leftlabels=("NAO", "EA"),
-        xlocator=20,
+        # xlocator=20,
     )
 
     # plot the extreme event count profile
