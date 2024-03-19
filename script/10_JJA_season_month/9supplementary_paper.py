@@ -502,8 +502,14 @@ MPI_GE_ens_var.name = 'Ensemble standard deviation (m)'
 CR20_ens_var = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CR20_allens/ens_variability/CR20_ens_var_10y.nc")
 CR20_ens_var = CR20_ens_var.zg
 CR20_ens_var.name = 'Ensemble standard deviation (m)'
-
-
+#%%
+CR20_ens_var_40 = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CR20_allens/ens_variability/CR20_ens_var_40y.nc")
+CR20_ens_var_40 = CR20_ens_var_40.__xarray_dataarray_variable__
+CR20_ens_var_40.name = 'Ensemble standard deviation (m)'
+#%%
+MPI_GE_ens_var_40 = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CR20_allens/ens_variability/MPI_GE_ens_var_40y.nc")
+MPI_GE_ens_var_40 = MPI_GE_ens_var_40.__xarray_dataarray_variable__
+MPI_GE_ens_var_40.name = 'Ensemble standard deviation (m)'
 #%%
 fig6, axes = pplt.subplots(ncols = 2, nrows = 3, abc = True,sharex= True, sharey = False,
                            figsize=(150 / 25.4, 180 / 25.4))
@@ -513,9 +519,13 @@ CR20_zg_south.plot.line(x = 'time', ax = axes[0,1], lw = 1, add_legend = False)
 
 MPI_GE_ens_var.plot.line(x = 'time', ax = axes[1,0], color = 'k', lw = 1.,
                     add_legend = False)
+MPI_GE_ens_var_40.plot.line(x = 'time', ax = axes[1,0], color = 'k', lw = 1.,
+                    add_legend = False, linestyle = '--')
+
 CR20_ens_var.plot.line(x = 'time', ax = axes[1,1], color = 'k', lw = 1.,
                     add_legend = False,)
-
+CR20_ens_var_40.plot.line(x = 'time', ax = axes[1,1], color = 'k', lw = 1.,
+                    add_legend = False, linestyle = '--')
 
 MPI_GE_pc.plot.line(x = 'time', ax = axes[2,0],  lw = 1.,
                     add_legend = False)

@@ -739,11 +739,11 @@ ax7.format(
 ax7.spines["right"].set_visible(False)
 ax7.spines["top"].set_visible(False)
 
-patch_20CR = mpatches.Patch(facecolor="none", edgecolor="black", label="20CR")
-patch_20CR_allens = mpatches.Patch(color="grey", label="20CR_all_ensembles (80)")
+patch_20CR = mpatches.Patch(facecolor="none", edgecolor="black", label="20CR_ensemble_mean")
+patch_20CR_allens = mpatches.Patch(color="grey", label="20CR (80)")
 
 ax7.legend(
-    handles=[patch_20CR, patch_20CR_allens],
+    handles=[patch_20CR_allens, patch_20CR],
     loc="b",
     frameon=False,
     ncol=2,
@@ -857,6 +857,7 @@ ax4, bars = extplt.extrc_slope_line(
     ax=ax4,
     extr_type="neg",
 )
+
 ax4, bars_rand = extplt.extrc_slope_line(
     MPI_GE_random_RATEs_time,
     ax=ax4,
@@ -977,8 +978,8 @@ models_legend = [
     "MPI-GE_onepct (100)",
     "MPI-GE (100)",
     "MPI-GE (resampled)",
-    "20CR_all_ensembles (80)",
-    "20CR",
+    "20CR (80)",
+    "20CR_ensemble_mean",
 ]
 colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
 
