@@ -44,7 +44,14 @@ class decompose_troposphere:
 
         # read data
         print(f"reading the gph data of {self.season} ...")
-        data = read_data(self.zg_path)
+        # read gph data
+        data_JJA = []
+        for month in ["Jun", "Jul", "Aug"]:
+            print(f"reading the gph data of {month} ...")
+            zg_path = self.odir + "zg_" + month + "/"
+            data_JJA.append(read_data(zg_path, plev=self.plev))
+        data = xr.concat(data_JJA, dim="time").sortby("time")
+        
         if all_years:
             self.data = data
         else:
