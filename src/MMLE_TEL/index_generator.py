@@ -417,8 +417,9 @@ def read_data(
         glob.glob(gph_dir + "*.nc")
     )  # to make sure that the order of ensemble members is fixed
     zg_data = xr.open_mfdataset(
-        all_ens_lists, combine="nested", concat_dim="ens", join="override"
-    )
+        all_ens_lists, combine="nested", concat_dim="ens", join="override",
+    )  # consider chunks={}, # kz the file size is small (< 3G). 
+
     zg_data["ens"] = np.arange(zg_data.ens.size)
     try:
         zg_data = zg_data.var156
