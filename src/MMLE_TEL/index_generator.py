@@ -80,7 +80,16 @@ class decompose_troposphere:
             independent=self.independence,
         )
         return eof_result
-
+    
+    
+    def select_year(self, data, year_index_start, year_index_end):
+        """
+        select the data of the specific years
+        """
+        years = np.unique(data["time.year"])
+        years = sorted(years)[year_index_start:year_index_end]
+        res = data.sel(time=data["time.year"].isin(years))
+        return res
     # save
     def save_result(self):
         print("saving the result ...")
