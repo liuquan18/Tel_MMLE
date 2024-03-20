@@ -141,7 +141,7 @@ def extreme_counts_profile(model, standard="first", season="MJJA"):
     first_pc = eof_result.pc.isel(time=slice(0, 30))
     last_pc = eof_result.pc.isel(time=slice(-30, None))
 
-    if first_pc.time.size != 10 or last_pc.time.size != 10:
+    if first_pc.time.size != 30 or last_pc.time.size != 30:
         raise ValueError("the time size is not 10")
 
     print("calculating the extreme event count")
