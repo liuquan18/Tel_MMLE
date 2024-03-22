@@ -12,5 +12,6 @@ index_stats.extreme_counts_profile(
     model       = "MPI_GE",
     standard    = "first",
     season      = "JJA",
+    vertical_eof= "dep",
     )
 # %%
