@@ -125,10 +125,10 @@ def split_first_last(eof_result):
 
 
 # %%
-def extreme_counts_profile(model, standard="first", season="MJJA"):
+def extreme_counts_profile(model, standard="first", season="MJJA",vertical_eof = 'ind'):
     eof_dir = (
         f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/"
-        + "troposphere_ind_decade_"
+        + "troposphere_{vertical_eof}_decade_"
         + standard
         + "_"
         + season
