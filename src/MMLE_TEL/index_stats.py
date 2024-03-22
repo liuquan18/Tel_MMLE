@@ -128,7 +128,7 @@ def split_first_last(eof_result):
 def extreme_counts_profile(model, standard="first", season="MJJA",vertical_eof = 'ind'):
     eof_dir = (
         f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/"
-        + "troposphere_{vertical_eof}_decade_"
+        + f"troposphere_{vertical_eof}_decade_"
         + standard
         + "_"
         + season
@@ -151,7 +151,7 @@ def extreme_counts_profile(model, standard="first", season="MJJA",vertical_eof =
 
     # save the result
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/"
-    prefix = f"troposphere_ind_decade_{standard}_{season}_"
+    prefix = f"troposphere_{vertical_eof}_decade_{standard}_{season}_"
     first_count.to_netcdf(odir + prefix + "first_count.nc")
     last_count.to_netcdf(odir + prefix + "last_count.nc")
 
