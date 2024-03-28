@@ -30,7 +30,8 @@ def detrend(data,method = 'linear_trend'):
 # %%
 # read gph data
 def read_gph_data(model, external_forcing="quadratic_trend", **kwargs):
-    plev = 50000
+    plev = kwargs.get("plev", 50000)
+
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
     start_year = kwargs.get("start_year", "1940")
     end_year = kwargs.get("end_year", "2022")
@@ -46,6 +47,7 @@ def read_gph_data(model, external_forcing="quadratic_trend", **kwargs):
         if "allens" in model:
             try:
                 data_month = xr.open_mfdataset(file_names, combine="nested", concat_dim="ens")
+                data_month = data_month.sel(plev = plev)
                 data_month = data_month['HGT']
             except KeyError:
                 data_month = data_month['zg']
