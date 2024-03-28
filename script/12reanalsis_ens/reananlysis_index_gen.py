@@ -25,7 +25,7 @@ class EOF_reanalysis:
         self.start_year = kwargs.get("start_year", "1940")
         self.end_year = kwargs.get("end_year", "2022")
 
-        self.data = read_gph_data(model, external_forcing=external_forcing,
+        self.data = read_gph_data(model, external_forcing=external_forcing,plev = self.plev,
                                   start_year = self.start_year, end_year = self.end_year)
 
         if self.period_dec: # period decomposition
