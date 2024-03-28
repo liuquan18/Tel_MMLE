@@ -1,57 +1,15 @@
 # %%
-import xarray as xr
 import numpy as np
-import pandas as pd
-import random
-import os
 
-import src.warming_stage.warming_stage as warming_stage
-import src.Teleconnection.spatial_pattern as ssp
 import src.MMLE_TEL.index_generator as index_generate
 
-import glob
 
 import proplot as pplt
-import src.plots.extreme_plot as extplt
 import src.plots.statistical_overview as stat_overview
 import matplotlib.pyplot as plt
-import src.Teleconnection.spatial_pattern as ssp
 # %%
-import importlib
-
-importlib.reload(index_generate)
-importlib.reload(ssp)
-
-#%%
+from src.reanalysis.decompose import decompose_period, standard_period
 from src.reanalysis.utils import read_gph_data
-
-# %%
-def decompose_period(xarr, nmode = 2,period = True):
-    xarr = xarr.fillna(0) # fill nan with 0
-    field = xarr.sortby("time")
-    if 'ens' in xarr.dims:
-        field = field.stack(com=("ens", "time"))
-        dim = 'com'
-    else:
-        dim = 'time'
-    standard = 'eof_spatial_std' if period else 'pc_temporal_std'
-    eof_result = ssp.doeof(field, standard=standard,nmode=nmode,dim = dim)
-    return eof_result
-
-
-# %%
-def standard_period(first_eof, last_eof):
-    if 'ens' in first_eof.dims:
-        mean = first_eof["pc"].mean(dim=("time", "ens"))
-        std = first_eof["pc"].std(dim=("time", "ens"))
-    else:
-        mean = first_eof["pc"].mean(dim="time")
-        std = first_eof["pc"].std(dim="time")
-
-    first_eof["pc"] = (first_eof["pc"] - mean) / std
-    last_eof["pc"] = (last_eof["pc"] - mean) / std
-    return first_eof, last_eof
-
 #%%
 
 class EOF_reanalysis:
