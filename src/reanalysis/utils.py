@@ -31,6 +31,7 @@ def detrend(data,method = 'linear_trend'):
 # read gph data
 def read_gph_data(model, external_forcing="quadratic_trend", **kwargs):
     plev = kwargs.get("plev", 50000)
+    variable = kwargs.get("variable", "zg")
 
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
     start_year = kwargs.get("start_year", "1940")
@@ -39,7 +40,7 @@ def read_gph_data(model, external_forcing="quadratic_trend", **kwargs):
     data_JJA = []
     for month in ["Jun", "Jul", "Aug"]:
         print(f"reading the gph data of {month} ...")
-        zg_path = odir + "zg_" + month + "/"
+        zg_path = odir + f"{variable}_" + month + "/"
         file_names = sorted(glob.glob(zg_path + "*.nc"))
         
 
