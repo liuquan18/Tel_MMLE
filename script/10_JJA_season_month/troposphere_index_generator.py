@@ -7,7 +7,6 @@ import logging
 #%%
 import importlib
 # %%
-model = 'MPI_GE'
 # %%
 def index_gene(model, vertical_eof = 'dep'):
     GEN = decompose_troposphere(
@@ -22,5 +21,7 @@ def index_gene(model, vertical_eof = 'dep'):
     logging.critical(f"Start saving {model}...")
     GEN.save_result()
 # %%
-index_gene(model, vertical_eof = 'dep')
+model = 'MPI_GE_onepct'
+vertical_eof = 'ind'
+index_gene(model, vertical_eof = vertical_eof)
 # %%
