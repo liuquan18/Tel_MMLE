@@ -10,4 +10,4 @@
 #SBATCH --output=boot.%j.out
 
 
-python troposphere_reanalysis_index_gen.py $1 
+python troposphere_reanalysis_index_gen.py $1 $2
