@@ -117,6 +117,8 @@ def _plot_extreme_count(ext_count, ax=None, label=None, colored=False):
         ax = plt.gca()
 
     y = ext_count.plev / 100
+    if y < 200:
+        y = ext_count.plev
     true = ext_count.sel(confidence="true").values
     low = ext_count.sel(confidence="low").values
     high = ext_count.sel(confidence="high").values
