@@ -18,7 +18,7 @@ def decompose_period(xarr, nmode = 2,period = True):
     if 'ens' in xarr.dims:
         field = field.stack(com=("ens", "time"))
         dim = 'com'
-    else:
+    else: 
         dim = 'time'
     standard = 'eof_spatial_std' if period else 'pc_temporal_std'
     eof_result = ssp.doeof(field, standard=standard,nmode=nmode,dim = dim)
