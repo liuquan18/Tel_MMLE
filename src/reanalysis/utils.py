@@ -65,7 +65,7 @@ def read_gph_data(model, external_forcing="quadratic_trend", **kwargs):
         else:
             if model == "CR20":
                 data_month = xr.open_dataset(file_names[0])
-                data_month = data_month.sel(level=plev / 100)
+                data_month = data_month.sel(level=plev)
                 data_month = data_month["hgt"]
             elif model == "ERA5":
                 data_month = xr.open_mfdataset(file_names, combine="by_coords")
