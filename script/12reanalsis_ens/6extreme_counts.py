@@ -10,7 +10,7 @@ import importlib
 importlib.reload(extreme)
 # %%
 # read eof 
-def read_eof(model,group_size = 40):
+def read_eof(model,group_size = 40, plev = 50000):
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
     first_eof_path = odir + f"EOF_result/first_{str(group_size)}_eof_std.nc"
     last_eof_path = odir + f"EOF_result/last_{str(group_size)}_eof_std.nc"
@@ -37,4 +37,11 @@ def extreme_count(model,group_size):
 # %%
 CR20_first_extc, CR20_last_extc = extreme_count('CR20',40)
 
+# %% for all the levels
+plevs = [40000, 30000, 20000] #92500, 85000, 70000, 50000, 
+
+#%%
+for plev in plevs:
+    print(f'plev{plev}')
+    CR20_first_extc, CR20_last_extc = extreme_count('CR20_allens',f'plev{plev}')
 # %%

@@ -155,8 +155,8 @@ def read_MPI_GE_random_slope(model="MPI_GE", x="tsurf"):
 # eof
 def read_eof_rean(model, group_size=40):
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
-    first_eof_path = odir + f"EOF_result/first_{str(group_size)}_eof_std.nc"
-    last_eof_path = odir + f"EOF_result/last_{str(group_size)}_eof_std.nc"
+    first_eof_path = odir + f"EOF_result/first_plev50000_eof_std.nc"
+    last_eof_path = odir + f"EOF_result/last_plev50000_eof_std.nc"
 
     first_eof = xr.open_dataset(first_eof_path)
     last_eof = xr.open_dataset(last_eof_path)
@@ -166,8 +166,8 @@ def read_eof_rean(model, group_size=40):
 # read extreme counts
 def read_extrc_rean(model, group_size=40):
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/"
-    first_extc_path = odir + f"first_{str(group_size)}_extc.nc"
-    last_extc_path = odir + f"last_{str(group_size)}_extc.nc"
+    first_extc_path = odir + f"first_plev50000_extc.nc"
+    last_extc_path = odir + f"last_plev50000_extc.nc"
 
     first_extc = xr.open_dataset(first_extc_path)
     last_extc = xr.open_dataset(last_extc_path)
@@ -360,8 +360,8 @@ CR20_first_extc, CR20_last_extc = read_extrc_rean("CR20_allens")
 CR20_composite = read_composite_rean("CR20_allens", "ts")
 
 # %%
-CR20_first_extc = CR20_first_extc / (4 * 79)
-CR20_last_extc = CR20_last_extc / (4 * 79)
+CR20_first_extc = CR20_first_extc / (4 * 80)
+CR20_last_extc = CR20_last_extc / (4 * 80)
 # %% # put the 20CR_allens into the dict
 COMPOSITEs["20CR"] = CR20_composite
 # %%
