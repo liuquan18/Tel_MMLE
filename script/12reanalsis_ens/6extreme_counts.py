@@ -12,8 +12,8 @@ importlib.reload(extreme)
 # read eof 
 def read_eof(model,group_size = 40, plev = 50000):
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
-    first_eof_path = odir + f"EOF_result/first_{str(group_size)}_eof_std.nc"
-    last_eof_path = odir + f"EOF_result/last_{str(group_size)}_eof_std.nc"
+    first_eof_path = odir + f"EOF_result/first_plev{str(plev)}_eof.nc"
+    last_eof_path = odir + f"EOF_result/last_plev{str({plev})}_eof.nc"
 
     first_eof = xr.open_dataset(first_eof_path)
     last_eof = xr.open_dataset(last_eof_path)
