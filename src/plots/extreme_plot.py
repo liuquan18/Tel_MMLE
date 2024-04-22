@@ -92,7 +92,7 @@ def extCount_tsurf_scatter(
 #%%
 # plot function, x-axis is the extreme events count, y-axis is the pressure level
 # vertical line, and fill_betweenx the confidence interval
-def _plot_extreme_count(ext_count, ax=None, label=None, colored=False):
+def plot_extreme_count(ext_count, ax=None, label=None, colored=False):
     """
     plot the vertical profile of extreme event count for a single mode and extreme type
     """
@@ -106,10 +106,10 @@ def _plot_extreme_count(ext_count, ax=None, label=None, colored=False):
             color = "#ff7f0e"
             style = color
     else:
-        if label == "first10":
+        if 'first' in label:
             color = "gray"
             style = "k-"
-        elif label == "last10":
+        elif 'last' in label:
             color = "gray"
             style = "k--"
 
@@ -117,7 +117,7 @@ def _plot_extreme_count(ext_count, ax=None, label=None, colored=False):
         ax = plt.gca()
 
     y = ext_count.plev / 100
-    if y < 200:
+    if y.min() < 200:
         y = ext_count.plev
     true = ext_count.sel(confidence="true").values
     low = ext_count.sel(confidence="low").values
@@ -137,41 +137,43 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
     """
     # parameters from kwargs
     xlim = kwargs.pop("xlim", None)
-
-    fig = pplt.figure(
-        # space=0,
-        refwidth="20em",
-        facecolor="white",
-    )
-    axes = fig.subplots(nrows=1, ncols=2)
-    axes.format(
-        abc=True,
-        abcloc="ul",
-        abcstyle="a",
-        xlabel="Extreme event count",
-        ylabel="Pressure level (hPa)",
-        suptitle="Extreme event count profile",
-        ylim=(1000, 200),
-        xminorticks="null",
-        yminorticks="null",
-        grid=False,
-        toplabels=("pos", "neg"),
-        # leftlabels=("NAO", "EA"),
-        # xlocator=20,
-    )
+    axes = kwargs.pop("axes", None)
+    if axes is None:
+        # build the figure
+        fig = pplt.figure(
+            # space=0,
+            refwidth="20em",
+            facecolor="white",
+        )
+        axes = fig.subplots(nrows=1, ncols=2)
+        axes.format(
+            abc=True,
+            abcloc="ul",
+            abcstyle="a",
+            xlabel="Extreme event count",
+            ylabel="Pressure level (hPa)",
+            suptitle="Extreme event count profile",
+            ylim=(1000, 200),
+            xminorticks="null",
+            yminorticks="null",
+            grid=False,
+            toplabels=("pos", "neg"),
+            # leftlabels=("NAO", "EA"),
+            # xlocator=20,
+        )
 
     # plot the extreme event count profile
     labels = ["first10", "last10"]
     # the default color of matplotlib
 
     for i, extreme_count in enumerate([first_count, last_count]):
-        _plot_extreme_count(
+        plot_extreme_count(
             extreme_count.sel(mode="NAO", extr_type="pos"),
             axes[0, 0],
             label=labels[i],
             colored=colored,
         )
-        _plot_extreme_count(
+        plot_extreme_count(
             extreme_count.sel(mode="NAO", extr_type="neg"),
             axes[0, 1],
             label=labels[i],
@@ -194,6 +196,8 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
         ax.set_xlim(xlim)
     # add legend
     axes[0, 0].legend(loc="lr", ncols=1, frame=True)
+
+    return axes
 
 
 ########################## MMLEA slope ################################

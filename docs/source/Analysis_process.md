@@ -57,7 +57,7 @@ note that here the index of first10 years and last10 years are generated from di
     last10_last = all_last.sel(time = slice(-10,len(all_last)))
     ```
 
-- standard them with the mean and std of `all_all`.
+- standard them with the mean and stPd of `all_all`.
     ```python
     first10_first = Normalize(first10_first,all_all)
     last10_last = Normalize(last10_last, all_all)
