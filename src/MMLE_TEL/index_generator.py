@@ -44,14 +44,19 @@ class decompose_troposphere:
 
         # read data
         print(f"reading the gph data of {self.season} ...")
-        data = read_data(self.zg_path)
+        # read gph data
+        data_JJA = []
+        for month in ["Jun", "Jul", "Aug"]:
+            print(f"reading the gph data of {month} ...")
+            zg_path = self.odir + "zg_" + month + "/"
+            data_JJA.append(read_data(zg_path))
+        data = xr.concat(data_JJA, dim="time").sortby("time")
+        
         if all_years:
             self.data = data
         else:
-            data_first = data.isel(time=slice(0, 10))
-            data_last = data.isel(
-                time=slice(-20, -10)
-            )  # since the last 10 years is not complete (no data in 2100 in MPI_GE, no data in 2000 in MPI_GE_onepct)
+            data_first = self.select_year(data, 0, 10)
+            data_last = self.select_year(data, -20,-10)  # since the last 10 years is not complete (no data in 2100 in MPI_GE, no data in 2000 in MPI_GE_onepct)
             # also to keep the time range the same as the decompose_plev
             self.data = xr.concat([data_first, data_last], dim="time")
 
@@ -73,7 +78,16 @@ class decompose_troposphere:
             independent=self.independence,
         )
         return eof_result
+    
 
+    def select_year(self, data, year_index_start, year_index_end):
+        """
+        select the data of the specific years
+        """
+        years = np.unique(data["time.year"])
+        years = sorted(years)[year_index_start:year_index_end]
+        res = data.sel(time=data["time.year"].isin(years))
+        return res
     # save
     def save_result(self):
         print("saving the result ...")
@@ -403,8 +417,9 @@ def read_data(
         glob.glob(gph_dir + "*.nc")
     )  # to make sure that the order of ensemble members is fixed
     zg_data = xr.open_mfdataset(
-        all_ens_lists, combine="nested", concat_dim="ens", join="override"
-    )
+        all_ens_lists, combine="nested", concat_dim="ens", join="override",
+    )  # consider chunks={}, # kz the file size is small (< 3G). 
+
     zg_data["ens"] = np.arange(zg_data.ens.size)
     try:
         zg_data = zg_data.var156

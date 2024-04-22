@@ -31,7 +31,7 @@ def read_gph_data(model):
 def _ens_std(data):
     return data.std()
 
-def ens_std(data,ax, label, region = None, group_size = 10):
+def ens_std(data, region = None, group_size = 10):
     # select the region and time
     # data = data.sel(time = slice('1850','2015'))
     if region is not None:
@@ -58,8 +58,8 @@ MPI_GE_inter = remove_force.detrend(MPI_GE, method="quadratic_trend")
 # plot the ensemble std
 def compare_ens_std(region = None, save = False,group_size = 10):
     fig,ax = plt.subplots()
-    glm_ens_std_CR20 = ens_std(CR20_inter,ax,label = '20CR', region = region, group_size = group_size)
-    glm_ens_std_MPI_GE = ens_std(MPI_GE_inter,ax,label = 'MPI-GE', region = region, group_size = group_size)
+    glm_ens_std_CR20 = ens_std(CR20_inter,region = region, group_size = group_size)
+    glm_ens_std_MPI_GE = ens_std(MPI_GE_inter, region = region, group_size = group_size)
     ax.set_title('Ensemble standard deviation')
     glm_ens_std_CR20.plot(ax = ax, label = '20CR', color = 'blue')
     glm_ens_std_MPI_GE.plot(ax = ax, label = 'MPI-GE', color = 'red')

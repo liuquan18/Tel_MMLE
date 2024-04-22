@@ -25,12 +25,12 @@ def extCount_tsurf_scatter(
     hue: different  dataset
     """
     params = {
-        "ytick.color": "w",
-        "xtick.color": "w",
-        "axes.labelcolor": "w",
-        "axes.edgecolor": "w",
-        "tick.labelcolor": "w",
-        "text.color": "w",
+        "ytick.color": "k",
+        "xtick.color": "k",
+        "axes.labelcolor": "k",
+        "axes.edgecolor": "k",
+        "tick.labelcolor": "k",
+        "text.color": "k",
         "font.size": 20,
     }
 
@@ -50,7 +50,7 @@ def extCount_tsurf_scatter(
         toplabels=["pos", "neg"],
         xminorticks="null",
         yminorticks="null",
-        facecolor="black",
+        facecolor="white",
         # ylim=ylim,
     )
 
@@ -92,7 +92,7 @@ def extCount_tsurf_scatter(
 #%%
 # plot function, x-axis is the extreme events count, y-axis is the pressure level
 # vertical line, and fill_betweenx the confidence interval
-def _plot_extreme_count(ext_count, ax=None, label=None, colored=False):
+def plot_extreme_count(ext_count, ax=None, label=None, colored=False):
     """
     plot the vertical profile of extreme event count for a single mode and extreme type
     """
@@ -106,10 +106,10 @@ def _plot_extreme_count(ext_count, ax=None, label=None, colored=False):
             color = "#ff7f0e"
             style = color
     else:
-        if label == "first10":
+        if 'first' in label:
             color = "gray"
             style = "k-"
-        elif label == "last10":
+        elif 'last' in label:
             color = "gray"
             style = "k--"
 
@@ -117,6 +117,8 @@ def _plot_extreme_count(ext_count, ax=None, label=None, colored=False):
         ax = plt.gca()
 
     y = ext_count.plev / 100
+    if y.min() < 200:
+        y = ext_count.plev
     true = ext_count.sel(confidence="true").values
     low = ext_count.sel(confidence="low").values
     high = ext_count.sel(confidence="high").values
@@ -135,41 +137,43 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
     """
     # parameters from kwargs
     xlim = kwargs.pop("xlim", None)
-
-    fig = pplt.figure(
-        # space=0,
-        refwidth="20em",
-        facecolor="black",
-    )
-    axes = fig.subplots(nrows=1, ncols=2)
-    axes.format(
-        abc=True,
-        abcloc="ul",
-        abcstyle="a",
-        xlabel="Extreme event count",
-        ylabel="Pressure level (hPa)",
-        suptitle="Extreme event count profile",
-        ylim=(1000, 200),
-        xminorticks="null",
-        yminorticks="null",
-        grid=False,
-        toplabels=("pos", "neg"),
-        # leftlabels=("NAO", "EA"),
-        xlocator=20,
-    )
+    axes = kwargs.pop("axes", None)
+    if axes is None:
+        # build the figure
+        fig = pplt.figure(
+            # space=0,
+            refwidth="20em",
+            facecolor="white",
+        )
+        axes = fig.subplots(nrows=1, ncols=2)
+        axes.format(
+            abc=True,
+            abcloc="ul",
+            abcstyle="a",
+            xlabel="Extreme event count",
+            ylabel="Pressure level (hPa)",
+            suptitle="Extreme event count profile",
+            ylim=(1000, 200),
+            xminorticks="null",
+            yminorticks="null",
+            grid=False,
+            toplabels=("pos", "neg"),
+            # leftlabels=("NAO", "EA"),
+            # xlocator=20,
+        )
 
     # plot the extreme event count profile
     labels = ["first10", "last10"]
     # the default color of matplotlib
 
     for i, extreme_count in enumerate([first_count, last_count]):
-        _plot_extreme_count(
+        plot_extreme_count(
             extreme_count.sel(mode="NAO", extr_type="pos"),
             axes[0, 0],
             label=labels[i],
             colored=colored,
         )
-        _plot_extreme_count(
+        plot_extreme_count(
             extreme_count.sel(mode="NAO", extr_type="neg"),
             axes[0, 1],
             label=labels[i],
@@ -192,6 +196,8 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
         ax.set_xlim(xlim)
     # add legend
     axes[0, 0].legend(loc="lr", ncols=1, frame=True)
+
+    return axes
 
 
 ########################## MMLEA slope ################################
@@ -751,7 +757,7 @@ def plot_errorbar(x,slope,low,high,color,ax,width = 2):
     x2 = x
     y1 = low
     y2 = high
-    rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='none', facecolor=color,alpha = 0.3)
+    rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='none', facecolor=color,alpha = 0.5)
     bar = ax.add_patch(rect)
     return line,bar
 
@@ -761,14 +767,14 @@ def plot_unfill_errbar(x,slope,low,high,color,ax,width = 2):
     x2 = x
     y1 = low
     y2 = high
-    rect_out = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor=color, facecolor='none',alpha = 0.3)
+    rect_out = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor=color, facecolor='none',alpha = 0.5)
     bar = ax.add_patch(rect_out)
     return line,bar
 
 
 #%%
 def extrc_slope_line(slopes,ax,mode = 'NAO',extr_type = 'pos',
-                     models = ["MPI_GE_onepct", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],rand = False):
+                     models = ["MPI_GE_onepct", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],rand = False,shift = 0):
     
     models_all = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
     colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
@@ -778,15 +784,20 @@ def extrc_slope_line(slopes,ax,mode = 'NAO',extr_type = 'pos',
 
     lines = []
     bars = []
-    if rand == False:
+    if not rand:
         for model in models[::-1]: # from low to high
             # select time period
             slope = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'true').values
             low = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'low').values
             high = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'high').values
 
+            # a shift for the x position
+            # define the shift as 0 when rand = True, and 1 when rand = False
+            model_size['MPI_GE'] = 70+shift
+            model_size['MPI_GE_onepct'] = 70-shift
+
             line,bar = plot_errorbar(
-                x = model_size[model],
+                x = model_size[model]+shift,
                 slope = slope,
                 low = low,
                 high = high,
@@ -796,6 +807,7 @@ def extrc_slope_line(slopes,ax,mode = 'NAO',extr_type = 'pos',
             lines.append(line)
 
             bars.append(bar)
+
     else:
         for ens_size in [20,30,40,50,100]:
             # select time period

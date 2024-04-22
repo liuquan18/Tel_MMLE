@@ -125,10 +125,10 @@ def split_first_last(eof_result):
 
 
 # %%
-def extreme_counts_profile(model, standard="first", season="MJJA"):
+def extreme_counts_profile(model, standard="first", season="MJJA",vertical_eof = 'ind'):
     eof_dir = (
         f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/"
-        + "troposphere_ind_decade_"
+        + f"troposphere_{vertical_eof}_decade_"
         + standard
         + "_"
         + season
@@ -138,10 +138,10 @@ def extreme_counts_profile(model, standard="first", season="MJJA"):
     eof_result = xr.open_dataset(eof_dir)
 
     # PCS of the first and last decade
-    first_pc = eof_result.pc.isel(time=slice(0, 10))
-    last_pc = eof_result.pc.isel(time=slice(-10, None))
+    first_pc = eof_result.pc.isel(time=slice(0, 30))
+    last_pc = eof_result.pc.isel(time=slice(-30, None))
 
-    if first_pc.time.size != 10 or last_pc.time.size != 10:
+    if first_pc.time.size != 30 or last_pc.time.size != 30:
         raise ValueError("the time size is not 10")
 
     print("calculating the extreme event count")
@@ -151,7 +151,7 @@ def extreme_counts_profile(model, standard="first", season="MJJA"):
 
     # save the result
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/"
-    prefix = f"troposphere_ind_decade_{standard}_{season}_"
+    prefix = f"troposphere_{vertical_eof}_decade_{standard}_{season}_"
     first_count.to_netcdf(odir + prefix + "first_count.nc")
     last_count.to_netcdf(odir + prefix + "last_count.nc")
 

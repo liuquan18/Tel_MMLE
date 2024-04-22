@@ -55,6 +55,7 @@ def read_extrc(model, fixed_pattern="decade_mpi"):
     """read extreme counts"""
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/extreme_count/"
     filename = f"plev_50000_{fixed_pattern}_first_JJA_extre_counts.nc"
+    print(filename)
     ds = xr.open_dataset(odir + filename).pc
 
     # divide the ensemble size of each model
@@ -132,7 +133,7 @@ def rate_increase(fixed_pattern = "decade_mpi",x = 'tsurf',time = "1950-06-01"):
             tsurf = read_tsurf(model)
         else:
             tsurf = None
-        extrc = read_extrc(model)
+        extrc = read_extrc(model, fixed_pattern=fixed_pattern)
         if time != "all" and model != "MPI_GE_onepct":
             time = np.datetime64(time)
             extrc = extrc.sel(time=slice(time, None))
