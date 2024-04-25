@@ -803,6 +803,83 @@ plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/Fig1_MPI_GE_20CR.pdf",
 )
 # %%
+# Fig 2, profiles
+
+# %%
+fig, axes = pplt.subplots(
+    space=0,
+    width=150 / 25.4,
+    height=150 / 25.4,
+    hspace=5,
+    wspace=2,
+    nrows=2,
+    ncols=2,
+    sharex=False,
+    sharey=False,
+)
+axes.format(
+    abc=True,
+    abcloc="ul",
+    abcstyle="a",
+    xlabel="Extreme event count",
+    ylabel="Pressure level (hPa)",
+    ylim=(1000, 200),
+    xminorticks="null",
+    yminorticks="null",
+    grid=False,
+    toplabels=("pos", "neg"),
+    # leftlabels=("NAO", "EA"),
+    # xlocator=20,
+)
+
+ens_labels = ["first10", "last10"]
+for i, count in enumerate([onepct_first_profile, onepct_last_profile]):
+    extplt.plot_extreme_count(
+        count.sel(mode = 'NAO', extr_type ="pos"),
+        axes[0, 0],
+        label=ens_labels[i],
+    )
+    extplt.plot_extreme_count(
+        count.sel(mode = 'NAO', extr_type ="neg"),
+        axes[0, 1],
+        label=ens_labels[i],
+    )
+
+mean_labels = ["first40", "last40"]
+for i, count in enumerate([CR20_mean_first_profile, CR20_mean_last_profile]):
+    extplt.plot_extreme_count(
+        count.sel(mode = 'NAO', extr_type ="pos"),
+        axes[1, 0],
+        label=mean_labels[i],
+    )
+    extplt.plot_extreme_count(
+        count.sel(mode = 'NAO', extr_type ="neg"),
+        axes[1, 1],
+        label=mean_labels[i],
+    )
+axes[0,0].set_xlim(1,4)
+axes[0,1].set_xlim(1,4)
+
+axes[1,0].set_xlim(0,7)
+axes[1,1].set_xlim(0,7)
+
+# axes[0,0].set_xticks(np.arange(1,4.1,0.5))
+# axes[0,1].set_xticks(np.arange(1,4.1,0.5))
+
+# no yticks ylabel for the second columns
+for ax in axes[:, 1]:
+    ax.format(ylabel="")
+plt.setp(axes[0,1].get_yticklabels(), visible=False)
+plt.setp(axes[1,1].get_yticklabels(), visible=False)
+
+axes[0, 0].legend(loc="lr", ncols=1, frame=True)
+axes[1, 0].legend(loc="lr", ncols=1, frame=True)
+for ax in axes:
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+
+
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/profile.pdf")
 
 
 # %%
