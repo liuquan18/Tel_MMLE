@@ -3,7 +3,19 @@ import xarray as xr
 import numpy as np
 import cartopy.crs as ccrs
 import proplot as pplt
-
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+#%%
+mpl.rcParams["pdf.fonttype"] = 42
+mpl.rcParams["ps.fonttype"] = 42
+mpl.rcParams["font.family"] = "sans-serif"
+plt.rcParams["hatch.linewidth"] = 0.3
+plt.rcParams["text.color"] = "white"
+plt.rcParams["axes.labelcolor"] = "white"
+plt.rcParams["xtick.color"] = "white"
+plt.rcParams["ytick.color"] = "white"
+plt.rcParams["axes.edgecolor"] = "white"
+plt.rcParams["figure.facecolor"] = "black"
 
 # %%
 eof_result = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CR20/EOF_result/first_plev550_eof.nc")
@@ -16,25 +28,25 @@ pc = eof_result.pc.sel(mode = 'NAO')
 # reconstruct feild from pattern and pc
 reconstruct = pattern * pc
 # %%
-fig1 = pplt.figure(figsize=(180 / 25.4, 60 / 25.4), sharex=False, sharey=False)
+fig1 = pplt.figure(figsize=(60 / 25.4, 60 / 25.4), sharex=False, sharey=False)
 fig1.format(
     abc=False,
     facecolor="black",
 )
-gs = pplt.GridSpec(
-    ncols=3,
-    nrows=1,
-    wspace=2,
-    wratios=(1, 1, 1),
-)
+# gs = pplt.GridSpec(
+#     ncols=3,
+#     nrows=1,
+#     wspace=2,
+#     wratios=(1, 1, 1),
+# )
 ## Spatial pattern and index distribution
-ax1 = fig1.add_subplot( gs[0],proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
+ax1 = fig1.add_subplot( proj="ortho", proj_kw={"lon_0": -20, "lat_0": 60})
 ax1.set_facecolor("white")
 
 ax1.contourf(
     reconstruct.lon,
     reconstruct.lat,
-    reconstruct.isel(time = 0),
+    pattern,
     levels=np.arange(-30, 31, 5),
     extend = 'both',
     transform=ccrs.PlateCarree(),
@@ -48,35 +60,22 @@ ax1.format(
     coastcolor="charcoal",
 )
 
-
-
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/positive_NAO_pattern.pdf", facecolor=fig1.get_facecolor())
 # %%
-import matplotlib.animation as animation
+import scipy.stats as stats
 
-# Create a function that generates each frame
-def update(i):
-    ax1.clear()
-    ax1.set_facecolor("white")
-    ax1.contourf(
-        reconstruct.lon,
-        reconstruct.lat,
-        reconstruct.isel(time=i),
-        levels=np.arange(-30, 31, 5),
-        extend='both',
-        transform=ccrs.PlateCarree(),
-        cmap="RdBu_r",
-    )
-    ax1.format(
-        lonlines=20,
-        latlines=30,
-        coast=True,
-        coastlinewidth=0.5,
-        coastcolor="charcoal",
-    )
+# generate random data with normal distribution
+data = np.random.normal(0, 1, 1000)
 
-# Create the animation
-ani = animation.FuncAnimation(fig1, update, frames=120)
+# convert data to percentiles
+percentiles = stats.rankdata(data, "average") / len(data)
 
-# Save the animation
-ani.save('/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/animation.mp4', writer='ffmpeg')
+fig2 = pplt.figure(figsize=(60 / 25.4, 60 / 25.4), sharex=False, sharey=False)
+
+
+# plot the histogram just lines
+ax2 = fig2.add_subplot()
+ax2.hist(percentiles, bins=30, histtype='step', color='white')
+
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/normal_distribution.pdf", facecolor=fig2.get_facecolor())
 # %%
