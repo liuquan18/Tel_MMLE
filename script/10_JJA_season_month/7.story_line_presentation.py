@@ -16,6 +16,7 @@ import src.plots.composite_plot as composite_plot
 import src.plots.extreme_plot as extplt
 import src.plots.statistical_overview as stat_overview
 import src.obs.era5_extreme_change as era5_extreme_change
+import src.extreme.extreme_count_troposphere as ext_profile
 
 # %%
 import importlib
@@ -405,6 +406,12 @@ rate_pos_ens, rate_pos_high_ens, rate_pos_low_ens = rean_slope(
 rate_neg_ens, rate_neg_high_ens, rate_neg_low_ens = rean_slope(
     CR20_ens_first_extc, CR20_ens_last_extc, extr_type="neg", rate=True
 )
+#%%
+# profiles
+CR20_plevs = [1000, 975, 950, 925, 900, 850, 800, 750, 700, 650, 600, 550, 500, 450, 400, 350, 300, 250, 200]
+CR20_mean_first_profile, CR20_mean_last_profile = ext_profile.extreme_count_rean('CR20', CR20_plevs)
+
+onepct_first_profile, onepct_last_profile = ext_profile.extreme_count_MPI('MPI_GE_onepct')
 
 
 # %%
@@ -492,7 +499,7 @@ ax3, lines_pos_MPI = extplt.extrc_time_line_single(
     ax=ax3,
     ylim=(1.5, 4.5),
     ci=True,
-    models=["MPI_GE_onepct", "MPI_GE"],
+    models=[ "MPI_GE"],
 )
 
 ax4, lines_neg = extplt.extrc_time_line_single(
@@ -501,7 +508,7 @@ ax4, lines_neg = extplt.extrc_time_line_single(
     ax=ax4,
     ylim=(1.5, 4.5),
     ci=True,
-    models=["MPI_GE_onepct", "MPI_GE"],
+    models=["MPI_GE"],
 )
 
 # error bar for 20CR
@@ -818,10 +825,101 @@ plt.setp(ax8.get_yticklabels(), visible=False)
 
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/Fig1_MPI_GE_20CR.pdf",
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/Fig1_MPI_GE_20CR_first.pdf",
 facecolor=fig1.get_facecolor(),)
 # %%
 # calculate the rate of the increase
+
+#%%
+fig, axes = pplt.subplots(
+    space=0,
+    width=150 / 25.4,
+    height=150 / 25.4,
+    hspace=5,
+    wspace=2,
+    nrows=2,
+    ncols=2,
+    sharex=False,
+    sharey=False,
+)
+axes.format(
+    abc=True,
+    abcloc="ul",
+    abcstyle="a",
+    xlabel="Extreme event count",
+    ylabel="Pressure level (hPa)",
+    ylim=(1000, 200),
+    xminorticks="null",
+    yminorticks="null",
+    grid=False,
+    toplabels=("pos", "neg"),
+    facecolor="black",
+    # leftlabels=("NAO", "EA"),
+    # xlocator=20,
+)
+
+ens_labels = ["first10", "last10"]
+for i, count in enumerate([onepct_first_profile, onepct_last_profile]):
+    extplt.plot_extreme_count(
+        count.sel(mode = 'NAO', extr_type ="pos"),
+        axes[0, 0],
+        label=ens_labels[i],
+        conf_color='white',
+        line_color='w',
+        linewidth=2,
+    )
+    extplt.plot_extreme_count(
+        count.sel(mode = 'NAO', extr_type ="neg"),
+        axes[0, 1],
+        label=ens_labels[i],
+        conf_color='white',
+        line_color='w',
+        linewidth=2,
+    )
+
+mean_labels = ["first40", "last40"]
+for i, count in enumerate([CR20_mean_first_profile, CR20_mean_last_profile]):
+    extplt.plot_extreme_count(
+        count.sel(mode = 'NAO', extr_type ="pos"),
+        axes[1, 0],
+        label=mean_labels[i],
+        conf_color='white',
+        line_color='w',
+        linewidth=2,
+    )
+    extplt.plot_extreme_count(
+        count.sel(mode = 'NAO', extr_type ="neg"),
+        axes[1, 1],
+        label=mean_labels[i],
+        conf_color='white',
+        line_color='w',
+        linewidth=2,
+    )
+axes[0,0].set_xlim(1,4)
+axes[0,1].set_xlim(1,4)
+
+axes[1,0].set_xlim(0,7)
+axes[1,1].set_xlim(0,7)
+
+# axes[0,0].set_xticks(np.arange(1,4.1,0.5))
+# axes[0,1].set_xticks(np.arange(1,4.1,0.5))
+
+# no yticks ylabel for the second columns
+for ax in axes[:, 1]:
+    ax.format(ylabel="")
+plt.setp(axes[0,1].get_yticklabels(), visible=False)
+plt.setp(axes[1,1].get_yticklabels(), visible=False)
+
+axes[0, 0].legend(loc="lr", ncols=1, frame=False)
+axes[1, 0].legend(loc="lr", ncols=1, frame=False)
+for ax in axes:
+    ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+
+    ax.tick_params(color='white', labelcolor='white')
+
+
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/profile.pdf", facecolor=fig.get_facecolor())
 
 # %%
 # Fig 2 line plot for other models, linear regression

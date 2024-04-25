@@ -92,26 +92,18 @@ def extCount_tsurf_scatter(
 #%%
 # plot function, x-axis is the extreme events count, y-axis is the pressure level
 # vertical line, and fill_betweenx the confidence interval
-def plot_extreme_count(ext_count, ax=None, label=None, colored=False):
+def plot_extreme_count(ext_count, ax=None, label=None, conf_color = 'gray',line_color = 'k', linewidth = 2):
     """
     plot the vertical profile of extreme event count for a single mode and extreme type
     """
     color = None
     style = None
-    if colored:
-        if label == "first10":
-            color = "#1f77b4"
-            style = color
-        elif label == "last10":
-            color = "#ff7f0e"
-            style = color
-    else:
-        if 'first' in label:
-            color = "gray"
-            style = "k-"
-        elif 'last' in label:
-            color = "gray"
-            style = "k--"
+    if 'first' in label:
+        color = conf_color
+        style = f"{line_color}-"
+    elif 'last' in label:
+        color = conf_color
+        style = f"{line_color}--"
 
     if ax is None:
         ax = plt.gca()
@@ -126,7 +118,7 @@ def plot_extreme_count(ext_count, ax=None, label=None, colored=False):
     # plot the confidence interval
     ax.fill_betweenx(y, low, high, color=color, alpha=0.3)
     # plot the true value
-    line = ax.plot(true, y, style, linewidth=1, label=label)
+    line = ax.plot(true, y, style, linewidth=linewidth, label=label)
     return line
 
 
