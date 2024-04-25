@@ -16,7 +16,7 @@ import src.plots.composite_plot as composite_plot
 import src.plots.extreme_plot as extplt
 import src.plots.statistical_overview as stat_overview
 import src.obs.era5_extreme_change as era5_extreme_change
-
+import src.extreme.extreme_count_troposphere as ext_profile
 # %%
 import importlib
 
@@ -155,8 +155,8 @@ def read_MPI_GE_random_slope(model="MPI_GE", x="tsurf"):
 # eof
 def read_eof_rean(model, group_size=40):
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
-    first_eof_path = odir + f"EOF_result/first_plev50000_eof_std.nc"
-    last_eof_path = odir + f"EOF_result/last_plev50000_eof_std.nc"
+    first_eof_path = odir + f"EOF_result/first_plev50000_eof.nc"
+    last_eof_path = odir + f"EOF_result/last_plev50000_eof.nc"
 
     first_eof = xr.open_dataset(first_eof_path)
     last_eof = xr.open_dataset(last_eof_path)
@@ -400,6 +400,13 @@ rate_pos_ens, rate_pos_high_ens, rate_pos_low_ens = rean_slope(
 rate_neg_ens, rate_neg_high_ens, rate_neg_low_ens = rean_slope(
     CR20_ens_first_extc, CR20_ens_last_extc, extr_type="neg", rate=True
 )
+
+#%%
+# profiles
+CR20_plevs = [1000, 975, 950, 925, 900, 850, 800, 750, 700, 650, 600, 550, 500, 450, 400, 350, 300, 250, 200]
+CR20_mean_first_profile, CR20_mean_last_profile = ext_profile.extreme_count_rean('CR20', CR20_plevs)
+
+onepct_first_profile, onepct_last_profile = ext_profile.extreme_count_MPI('MPI_GE_onepct')
 
 
 # %%
@@ -796,7 +803,7 @@ plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/Fig1_MPI_GE_20CR.pdf",
 )
 # %%
-# calculate the rate of the increase
+
 
 # %%
 # Fig 2 line plot for other models, linear regression
