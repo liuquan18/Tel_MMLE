@@ -859,7 +859,7 @@ axes.format(
 )
 
 ens_labels = ["first10", "last10"]
-for i, count in enumerate([onepct_first_profile, onepct_last_profile]):
+for i, count in enumerate([onepct_first_profile]):#, onepct_last_profile]):
     extplt.plot_extreme_count(
         count.sel(mode = 'NAO', extr_type ="pos"),
         axes[0, 0],
@@ -878,7 +878,7 @@ for i, count in enumerate([onepct_first_profile, onepct_last_profile]):
     )
 
 mean_labels = ["first40", "last40"]
-for i, count in enumerate([CR20_mean_first_profile, CR20_mean_last_profile]):
+for i, count in enumerate([CR20_mean_first_profile]):#, CR20_mean_last_profile]):
     extplt.plot_extreme_count(
         count.sel(mode = 'NAO', extr_type ="pos"),
         axes[1, 0],
@@ -919,7 +919,7 @@ for ax in axes:
     ax.tick_params(color='white', labelcolor='white')
 
 
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/profile.pdf", facecolor=fig.get_facecolor())
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/workshop/profile_first.pdf", facecolor=fig.get_facecolor())
 
 # %%
 # Fig 2 line plot for other models, linear regression
