@@ -90,7 +90,7 @@ def standardize(xarr,dim = None):
     **Returns**:
         xarr: standarized DataArray
     """
-    if dim == None:
+    if dim is None:
         try:
             time_mean = xarr.mean(dim="time")
             time_std = xarr.std(dim="time")
