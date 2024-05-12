@@ -185,7 +185,7 @@ def neg_center_box(xarr, blat, tlat, llon, rlon):
     
     return xarr.sel(lat=slice(start_lat, end_lat), lon=slice(start_lon, end_lon))
 
-def project_field(fieldx, eofx, dim="com", standard=True):
+def project_field(fieldx, eofx, dim="com", standard=False):
     """project original field onto eofs to get the temporal index.
 
     Different from python eofs package, here if there are three dimensions in sptial,
@@ -202,11 +202,14 @@ def project_field(fieldx, eofx, dim="com", standard=True):
         projected pcs
     """
     fieldx = fieldx.transpose(dim, ...)
-    neofs = eofx.shape[0]
+    eofx = eofx.squeeze() # remove the 'decade' dim if exists
 
     # weight
-    wgts = tools.sqrtcoslat(fieldx)
-    field = fieldx.values * wgts
+    wgts_f = tools.sqrtcoslat(fieldx)
+    field = fieldx * wgts_f
+
+    wgts_eof = tools.sqrtcoslat(eofx)
+    eofx = eofx * wgts_eof
 
     # fill with nan
     try:
@@ -215,70 +218,19 @@ def project_field(fieldx, eofx, dim="com", standard=True):
         pass
 
     # flat field to [time,lon-lat] or [time,lon-lat,heith]
-    records = field.shape[0]
-    channels = np.product(field.shape[1:3])  # only lat and lon stack here.
-    nspdim = len(tools.detect_spdim(fieldx))  # how many spatial dims
-    if nspdim > 2:
-        heights = eofx.shape[3]
-    try:
-        field_flat = field.reshape([records, channels, heights])
-    except NameError:
-        field_flat = field.reshape([records, channels])
+    field_flat = field.stack(spatial = ('lon','lat'))
 
-    # non missing value check
-    nonMissingIndex = np.where(np.logical_not(np.isnan(field_flat[0])))[0]
-    field_flat = field_flat[:, nonMissingIndex]
+    eof_flat = eofx.stack(spatial = ('lon','lat'))
 
-    # flat eof to [mode, space]
-    try:
-        _flatE = eofx.values.reshape(neofs, channels, heights)
-    except NameError:
-        _flatE = eofx.values.reshape(neofs, channels)
-
-    eofNonMissingIndex = np.where(np.logical_not(np.isnan(_flatE[0])))[0]
-
-    # missing value align check
-    if (
-        eofNonMissingIndex.shape != nonMissingIndex.shape
-        or (eofNonMissingIndex != nonMissingIndex).any()
-    ):
-        raise ValueError("field and EOFs have different " "missing value locations")
-    eofs_flat = _flatE[:, eofNonMissingIndex]
-
-    # for three dimentional space data
-    try:
-        projected_pcs = []  # for all height layers
-        for h in range(heights):
-            field_flat_h = field_flat[:, :, h]
-            eofs_flat_h = eofs_flat[:, :, h]
-            projected_pc = np.dot(field_flat_h, eofs_flat_h.T)
-            projected_pcs.append(projected_pc)
-        projected_pcs = np.array(projected_pcs)
-
-        PPC = xr.DataArray(
-            projected_pcs,
-            dims=[
-                fieldx.dims[-1],
-                fieldx.dims[0],
-                eofx.dims[0],
-            ],  # [height,record,mode]
-            coords={
-                fieldx.dims[-1]: fieldx[fieldx.dims[-1]],
-                fieldx.dims[0]: fieldx[fieldx.dims[0]],
-                eofx.dims[0]: eofx[eofx.dims[0]],
-            },
-        )
-    # for 2-d space
-    except NameError:
-        projected_pcs = np.dot(field_flat, eofs_flat.T)
-        PPC = xr.DataArray(
-            projected_pcs,
-            dims=[fieldx.dims[0], eofx.dims[0]],
-            coords={
-                fieldx.dims[0]: fieldx[fieldx.dims[0]],
-                eofx.dims[0]: eofx[eofx.dims[0]],
-            },
-        )
+    projected_pcs = np.dot(field_flat, eof_flat.T)
+    PPC = xr.DataArray(
+        projected_pcs,
+        dims=[fieldx.dims[0], eofx.dims[0]],
+        coords={
+            fieldx.dims[0]: fieldx[fieldx.dims[0]],
+            eofx.dims[0]: eofx[eofx.dims[0]],
+        },
+    )
     PPC.name = "pc"
 
     # to unstack 'com' to 'time' and 'ens' if 'com' exists.
