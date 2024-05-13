@@ -395,47 +395,6 @@ class decompose_plev_JJA:
             os.remove(stddir)
             self.std_eof_result.to_netcdf(stddir)
 
-# %%
-##########################################
-
-class projected_index:
-
-
-
-    def __init__(
-        self,
-        model,
-        plev=50000,
-        standard="first",
-    ) -> None:
-        self.model = model
-        self.plev = plev
-        self.standard = standard
-        self.season = "JJA"
-
-        self.odir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/"
-        self.eofdir = "/work/mh0033/m300883/Tel_MMLE/data/" + self.model + "/EOF_result/"
-        self.save_path = self.odir + "EOF_result/"
-
-        # read gph data
-        data_JJA = []
-        for month in ["Jun", "Jul", "Aug"]:
-            print(f"reading the gph data of {month} ...")
-            zg_path = self.odir + "zg_" + month + "/"
-            data_JJA.append(read_data(zg_path, plev=self.plev))
-        self.data = xr.concat(data_JJA, dim="time").sortby("time")
-
-        # read eof data
-        eof = xr.open_dataset()
-
-
-        # deompose
-        self.eof_result = self.decompose()
-
-        # standardize
-        self.std_eof_result = standard_index(self.eof_result, self.standard)
-
-
 
 # %%
 ##########################################
