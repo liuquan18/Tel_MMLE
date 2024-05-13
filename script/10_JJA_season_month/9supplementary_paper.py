@@ -271,13 +271,13 @@ axes = np.array(axes).ravel()
 
 for i,ax in enumerate(axes):
     model = models[i]
-    spatial_pattern_plot(
+    spatial_ax, fmap, lmap = spatial_pattern_plot(
         ax,
         All_patterns[model],
         All_fras[model],
         levels = np.arange(-30,31,5),
     )
-
+fig3.colorbar(fmap, loc = 'b')
 plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/figS3_spatial_pattern_all.pdf",
 )
