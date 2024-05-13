@@ -204,6 +204,8 @@ def project_field(fieldx, eofx, dim="com", standard=False):
     fieldx = fieldx.transpose(dim, ...)
     eofx = eofx.squeeze() # remove the 'decade' dim if exists
 
+    nmode = eofx.mode.size
+
     # weight
     wgts_f = tools.sqrtcoslat(fieldx)
     field = fieldx * wgts_f
@@ -222,13 +224,21 @@ def project_field(fieldx, eofx, dim="com", standard=False):
 
     eof_flat = eofx.stack(spatial = ('lon','lat'))
 
+    # dorpna
+    field_flat = field_flat.dropna(dim='spatial')
+    eof_flat = eof_flat.dropna(dim='spatial')
+
     projected_pcs = np.dot(field_flat, eof_flat.T)
+
+    if nmode == 1:
+        projected_pcs = projected_pcs[:, np.newaxis]
+
     PPC = xr.DataArray(
         projected_pcs,
-        dims=[fieldx.dims[0], eofx.dims[0]],
+        dims=[fieldx.dims[0], "mode"],
         coords={
             fieldx.dims[0]: fieldx[fieldx.dims[0]],
-            eofx.dims[0]: eofx[eofx.dims[0]],
+            "mode": [eofx.mode.values],
         },
     )
     PPC.name = "pc"
