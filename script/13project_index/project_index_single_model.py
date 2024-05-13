@@ -4,7 +4,6 @@ import xarray as xr
 import mpi4py.MPI as MPI
 import glob
 from src.Teleconnection.spatial_pattern import project_field
-from src.MMLE_TEL.index_generator import read_data
 from src.MMLE_TEL.index_generator import standard_index
 import pandas as pd
 import sys
@@ -18,6 +17,7 @@ model = sys.argv[2] # get the model name
 plev = 50000
 logging.info(f"Node {num} is working on {model}")
 
+#%%
 # === mpi4py ===
 try:
     from mpi4py import MPI
@@ -33,7 +33,7 @@ except:
 
 #%%
 # define the path
-data_dir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/zg_JJA/"
+data_dir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/zg_JJA/" # just for getting the file names
 index_dir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/EOF_result/"
 
 #%%
@@ -48,11 +48,13 @@ eof = eof_result.eof.sel(mode = 'NAO').squeeze()
 
 files_single_core = np.array_split(files, npro)[rank]
 
+
+#%%
 index_allens = []
 
 for step, file in enumerate(files_single_core):
     filename = file.split("/")[-1]
-    logging.info(f"Processing {filename} on node {num} step {step}/{len(files_single_core)}")
+    logging.info(f"Processing {filename} on node {num} step {step+1}/{len(files_single_core)}")
     # read zg_data
     data = xr.open_dataset(file)
     # select plev
@@ -67,14 +69,28 @@ for step, file in enumerate(files_single_core):
         zg_data["time"] = zg_data.indexes["time"].to_datetimeindex()
     except AttributeError:
         zg_data["time"] = pd.to_datetime(zg_data.time)
+
+    # calcualte the anomaly
+    zg_data = zg_data - zg_data.mean(dim = 'time')
+
     zg_data = zg_data.squeeze()
 
     # project the field
+    # select the same spatial domain
+    try:
+        zg_data = zg_data.sel(lat = eof.lat, lon = eof.lon)
+    except KeyError:
+        # convert longtitude to -180 to 180
+        zg_data = zg_data.assign_coords(lon = (zg_data.lon + 180) % 360 - 180)
+        zg_data = zg_data.sortby(zg_data.lon)
+        zg_data = zg_data.sel(lat = eof.lat, lon = eof.lon)
+
 
     index = project_field(zg_data, eof, dim = 'time', standard=False)
 
     index_allens.append(index)
-
+    break
+#%%
 logging.info ("collecting the index from all processes")
 # gather the index from all processes
 index_allens = comm.gather(index_allens, root=0)
@@ -102,3 +118,4 @@ if rank == 0:
 
 else:
     pass
+# %%
