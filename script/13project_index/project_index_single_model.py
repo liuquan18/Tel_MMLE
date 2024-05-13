@@ -89,7 +89,6 @@ for step, file in enumerate(files_single_core):
     index = project_field(zg_data, eof, dim = 'time', standard=False)
 
     index_allens.append(index)
-    break
 #%%
 logging.info ("collecting the index from all processes")
 # gather the index from all processes
