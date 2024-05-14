@@ -2,6 +2,7 @@
 import xarray as xr
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 import proplot as pplt
 #%%
 from src.plots.statistical_overview import spatial_pattern_plot
