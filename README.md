@@ -70,3 +70,8 @@ To repeat the calculation, I strongly recommend using the same conda environment
 conda env create -f environment.yml
 conda activate Tel_MMLE
 ```
+To make the codes in `scr` directory as importable modules, you need to run the following command:
+```bash
+python3 -m pip install -e .
+```
+Then you can run the scripts in the `script` directory to repeat the calculations and generate the plots.
