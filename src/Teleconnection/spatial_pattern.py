@@ -1,6 +1,5 @@
 ############ imports ###############
 import numpy as np
-import pandas as pd
 import xarray as xr
 from eofs.standard import Eof
 
@@ -185,3 +184,68 @@ def neg_center_box(xarr, blat, tlat, llon, rlon):
 
     
     return xarr.sel(lat=slice(start_lat, end_lat), lon=slice(start_lon, end_lon))
+
+def project_field(fieldx, eofx, dim="com", standard=False):
+    """project original field onto eofs to get the temporal index.
+
+    Different from python eofs package, here if there are three dimensions in sptial,
+    i.e, [lat,lon,height], the projected pc is calculated independently from each height.
+
+    **Arguments:**
+
+        *field*: the DataArray field to be projected
+        *eof*: the eofs
+        *standard*: whether standardize the ppc with its std or not
+
+    **Returns:**
+
+        projected pcs
+    """
+    fieldx = fieldx.transpose(dim, ...)
+    eofx = eofx.squeeze() # remove the 'decade' dim if exists
+
+    nmode = eofx.mode.size
+
+    # weight
+    wgts_f = tools.sqrtcoslat(fieldx)
+    field = fieldx * wgts_f
+
+    wgts_eof = tools.sqrtcoslat(eofx)
+    eofx = eofx * wgts_eof
+
+    # fill with nan
+    try:
+        field = field.filled(fill_value=np.nan)
+    except AttributeError:
+        pass
+
+    # flat field to [time,lon-lat] or [time,lon-lat,heith]
+    field_flat = field.stack(spatial = ('lon','lat'))
+
+    eof_flat = eofx.stack(spatial = ('lon','lat'))
+
+    # dorpna
+    field_flat = field_flat.dropna(dim='spatial')
+    eof_flat = eof_flat.dropna(dim='spatial')
+
+    projected_pcs = np.dot(field_flat, eof_flat.T)
+
+    if nmode == 1:
+        projected_pcs = projected_pcs[:, np.newaxis]
+
+    PPC = xr.DataArray(
+        projected_pcs,
+        dims=[fieldx.dims[0], "mode"],
+        coords={
+            fieldx.dims[0]: fieldx[fieldx.dims[0]],
+            "mode": [eofx.mode.values],
+        },
+    )
+    PPC.name = "pc"
+
+    # to unstack 'com' to 'time' and 'ens' if 'com' exists.
+    PPC = PPC.unstack()
+
+    if standard:
+        PPC = tools.standardize(PPC)
+    return PPC

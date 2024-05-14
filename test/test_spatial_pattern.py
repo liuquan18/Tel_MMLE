@@ -10,8 +10,6 @@ import src.Teleconnection.spatial_pattern as ssp
 import src.Teleconnection.tools as tools
 
 #%%
-import importlib
-
 importlib.reload(ssp)
 
 #%%
