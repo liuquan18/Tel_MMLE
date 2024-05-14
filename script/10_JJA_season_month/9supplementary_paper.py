@@ -192,7 +192,7 @@ axes = np.array(axes).ravel()
 
 for i,ax in enumerate(axes):
     model = models[i]
-    spatial_pattern_plot(
+    spatial_ax, fmap, lmap = spatial_pattern_plot(
         ax,
         First_patterns[model],
         First_fras[model],
@@ -200,6 +200,7 @@ for i,ax in enumerate(axes):
         Last_fras[model],
         levels = np.arange(-30,31,5),
     )
+fig1.colorbar(fmap, loc = 'b', label = '500hPa geopotential height (m)')
 
 plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/figS1_spatial_pattern.pdf",
@@ -277,7 +278,7 @@ for i,ax in enumerate(axes):
         All_fras[model],
         levels = np.arange(-30,31,5),
     )
-fig3.colorbar(fmap, loc = 'b')
+fig3.colorbar(fmap, loc = 'b', label = '500hPa geopotential height (m)')
 plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/figS3_spatial_pattern_all.pdf",
 )
