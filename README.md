@@ -1,6 +1,3 @@
-# Tele_season
-<!-- ![NAO](NAO_cover.png) -->
-
 <p align="center">
   <img src="NAO_cover.png" width="180">
 </p>
