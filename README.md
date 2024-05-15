@@ -1,5 +1,10 @@
 # Tele_season
-![NAO](.NAO_cover.pdf)
+<!-- ![NAO](NAO_cover.png) -->
+
+<p align="center">
+  <img src="NAO_cover.png" width="180">
+</p>
+
 ## 1. Introduction
 This repository contains the code for the project "More extreme summertime North Atlantic Oscillation (NAO) under climate change". 
 
