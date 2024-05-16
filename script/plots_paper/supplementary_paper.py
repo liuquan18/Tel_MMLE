@@ -761,9 +761,6 @@ for model in models:
 
 
 # %%
-diagnose["CESM1_CAM5"]["blocking"] = read_blocking("CESM1_CAM5")["blocking"]
-
-# %%
 # sns scatter plot, x-axis blocking, y-axis zonal wind
 fig, axes = plt.subplots(
     2, 3, figsize=(180 / 25.4, 180 / 25.4), sharex=True, sharey=True
