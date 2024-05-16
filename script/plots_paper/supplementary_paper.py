@@ -799,9 +799,9 @@ for ax in axes:
     ax.axhline(0, color="black", lw=0.5)
     ax.axvline(0, color="black", lw=0.5)
 # add the y-lable "zonal wind (200 hPa)" for the fig
-fig.text(0.04, 0.5, "Zonal wind", va="center", rotation="vertical", fontsize = 10)
+fig.text(0.04, 0.5, "Zonal wind (200 hPa)", va="center", rotation="vertical", fontsize = 10)
 # add the x-lable "Greenland blocking index (500 hPa)" for the fig
-fig.text(0.5, 0.04, "Greenland blocking index", ha="center", fontsize = 10)
+fig.text(0.5, 0.04, "Greenland blocking index (500 hPa)", ha="center", fontsize = 10)
 
 legend_lines = [
     Line2D([0], [0], color=colors[0], lw=1.5, marker="o"),
