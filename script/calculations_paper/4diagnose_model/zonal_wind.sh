@@ -15,7 +15,7 @@ zonal_wind(){
     path_out=/work/mh0033/m300883/Tel_MMLE/data/${model}/zonal_wind_JJA/
     mkdir -p $path_out
     mkdir -p $tmp
-    # calculate zonal wind
+    # calculate average speed of zonal wind at 200 hPa
     echo "Calculating zonal wind for $filename"
     cdo -O -fldmean -sellonlatbox,-180,180,20,60 -sellevel,20000 $infile ${tmp}${filename} # zonal wind follow shaw et al, 2023
 
@@ -29,7 +29,7 @@ export -f zonal_wind
 # a folder to get the name
 # for month in Jun, Jul, Aug
 
-Odir=/work/mh0033/m300883/Tel_MMLE/data/${model}/zg/
+Odir=/work/mh0033/m300883/Tel_MMLE/data/${model}/u/
 ls $Odir/*.nc | parallel --jobs 10 zonal_wind {}
 
 

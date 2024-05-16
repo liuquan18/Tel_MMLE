@@ -26,13 +26,8 @@ blocking_index(){
 
 export -f blocking_index
 
-# a folder to get the name
-# for month in Jun, Jul, Aug
 
 Odir=/work/mh0033/m300883/Tel_MMLE/data/${model}/zg/
 ls $Odir/*.nc | parallel --jobs 10 blocking_index {}
 
-
-# parallel --jobs 10 blocking_index ::: ls $Odir/*.nc ::: {Jun,Jul,Aug}
-# ls $Odir/*.nc | parallel --jobs 10 blocking_index {} ::: Jun Jul Aug
 
