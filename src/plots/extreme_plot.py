@@ -9,6 +9,7 @@ import matplotlib.lines as mlines
 import statsmodels.api as sm
 
 import matplotlib.patches as patches
+import pandas as pd
 
 #%%
 
@@ -468,7 +469,7 @@ def slope_diff_tsurf(extrs, tsurf_gmst, NA_tsurf, tropical_arctic_gradient, time
 ############################### MMLE line plot #########################################
 #%%
 def mmle_tsurf_line(
-    extrs, tsurfs, extrs_rands, tsurfs_rands, tsurf="ens_fld_year_mean", time="all"
+    extrs, tsurfs, extrs_rands, tsurfs_rands, tsurf="ens_fld_year_mean", time="all",x_var = 'time'
 ):
     params = {
         "ytick.color": "w",
@@ -587,7 +588,7 @@ def mmle_tsurf_line(
 
 
 def extrc_tsurf_line_single(
-    extrc, tsurf, ax, extrc_rand=None, tsurf_rand=None, color="k", label=None
+    extrc, tsurf, ax, extrc_rand=None, tsurf_rand=None, color="k", label=None,x_var = 'time'
 ):
     """
     line for just one dataset.
