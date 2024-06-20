@@ -96,7 +96,7 @@ def reduce_var(
         rng = np.random.default_rng(seed=12345)
         sampled_index = rng.choice(n_samples, size=(n_samples, n_resamples), replace=True)
         composite_res = []
-        for i in range(1000):
+        for i in range(n_resamples):
             sample = seled_data.isel(com=sampled_index[:, i])
             composite_res.append(sample.mean(dim=dim))
 
