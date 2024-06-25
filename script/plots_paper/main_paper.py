@@ -1,7 +1,6 @@
 # %%
 import xarray as xr
 import numpy as np
-import pandas as pd
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -155,8 +154,8 @@ def read_MPI_GE_random_slope(model="MPI_GE", x="tsurf"):
 # eof
 def read_eof_rean(model, group_size=40):
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
-    first_eof_path = odir + f"EOF_result/first_plev50000_eof.nc"
-    last_eof_path = odir + f"EOF_result/last_plev50000_eof.nc"
+    first_eof_path = odir + "EOF_result/first_plev50000_eof.nc"
+    last_eof_path = odir + "EOF_result/last_plev50000_eof.nc"
 
     first_eof = xr.open_dataset(first_eof_path)
     last_eof = xr.open_dataset(last_eof_path)
@@ -166,8 +165,8 @@ def read_eof_rean(model, group_size=40):
 # read extreme counts
 def read_extrc_rean(model, group_size=40):
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/"
-    first_extc_path = odir + f"first_plev50000_extc.nc"
-    last_extc_path = odir + f"last_plev50000_extc.nc"
+    first_extc_path = odir + "first_plev50000_extc.nc"
+    last_extc_path = odir + "last_plev50000_extc.nc"
 
     first_extc = xr.open_dataset(first_extc_path)
     last_extc = xr.open_dataset(last_extc_path)
@@ -1131,7 +1130,7 @@ fig3.colorbar(
     maps[0],
     loc="b",
     pad=1,
-    title=f"(near) surface temperature / K",
+    title="(near) surface temperature / K",
     width=0.1,
     shrink=1,
 )
@@ -1187,7 +1186,7 @@ fig4.colorbar(
     maps[0],
     loc="b",
     pad=1,
-    title=f"(near) surface temperature / K",
+    title="(near) surface temperature / K",
     width=0.1,
     shrink=1,
 )
