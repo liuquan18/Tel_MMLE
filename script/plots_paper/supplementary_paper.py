@@ -277,12 +277,14 @@ models_legend = [
 ]
 
 models = ["CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3", "MPI_GE_onepct", "CR20_allens"]
+sig = [False, True, True, False, True, True]
 
 # flat the axes so that we can iterate over them
 axes = np.array(axes).ravel()
 
 for i, ax in enumerate(axes):
     model = models[i]
+    signif = sig[i]
     index_distribution_plot(
         ax,
         First_pcs_decade[model],
@@ -292,10 +294,11 @@ for i, ax in enumerate(axes):
     first_std = First_pcs_decade[model].std().values
     last_std = Last_pcs_decade[model].std().values
 
+    # if signif, then add a star
     ax.set_title(
         "({first_std:0.2f} -> {last_std:0.2f})".format(
             first_std=first_std, last_std=last_std
-        )
+        )+("*" if signif else "")
     )
 
     ax.set_ylabel("Probability density")
