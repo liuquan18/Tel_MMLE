@@ -46,12 +46,12 @@ CR20_first_pc, CR20_last_pc = read_eof_rean("CR20_allens")
 
 ############ KS test ############
 # %%
-def KS_test(first_pc, last_pc, whole = False):
+def KS_test(first_pc, last_pc, whole = True):
     if whole:
         ks_res = stats.kstest(first_pc, last_pc, alternative='two-sided')
     else:
-        first_pc = first_pc[first_pc > 1.5 | first_pc < -1.5]
-        last_pc = last_pc[last_pc > 1.5 | last_pc < -1.5]
+        first_pc = first_pc[(first_pc > 1.5) | (first_pc < -1.5)]
+        last_pc = last_pc[(last_pc > 1.5) | (last_pc < -1.5)]
         ks_res = stats.kstest(first_pc, last_pc, alternative='two-sided')
     return ks_res.pvalue
 
