@@ -47,12 +47,7 @@ CR20_first_pc, CR20_last_pc = read_eof_rean("CR20_allens")
 ############ KS test ############
 # %%
 def KS_test(first_pc, last_pc, whole = True):
-    if whole:
-        ks_res = stats.kstest(first_pc, last_pc, alternative='two-sided')
-    else:
-        first_pc = first_pc[(first_pc > 1.5) | (first_pc < -1.5)]
-        last_pc = last_pc[(last_pc > 1.5) | (last_pc < -1.5)]
-        ks_res = stats.kstest(first_pc, last_pc, alternative='two-sided')
+    ks_res = stats.kstest(first_pc, last_pc, alternative='two-sided')
     return ks_res.pvalue
 
 
@@ -67,6 +62,9 @@ CR20_p = KS_test(CR20_first_pc, CR20_last_pc)
 
 # %%
 MPI_p, CanESM2_p, CESM1_CAM5_p, MK36_p, GFDL_CM3_p, CR20_p
+
+
+
 # %%
 ################# bootstrap test std #################
 def bootstrap(first_pc, last_pc, n_resamples=1000, alpha=0.05):
