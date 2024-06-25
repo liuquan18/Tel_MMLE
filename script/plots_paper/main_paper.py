@@ -619,6 +619,15 @@ ax2.text(
     ha="left",
 )
 
+first_std = first_eof.pc.std().values
+last_std = last_eof.pc.std().values
+ax2.set_title(
+    "({first_std:0.2f} --> {last_std:0.2f})*".format(
+        first_std=first_std, last_std=last_std
+    ),
+    pad=-15
+)
+
 
 #### ax3 ####
 # set the axis
@@ -731,6 +740,17 @@ ax6.text(
     va="top",
     ha="left",
 )
+
+
+first_std_CR20 = CR20_first_eof.pc.std().values
+last_std_CR20 = CR20_last_eof.pc.std().values
+
+ax6.set_title(
+    "({first_std:0.2f} --> {last_std:0.2f})*".format(
+        first_std=first_std_CR20, last_std=last_std_CR20
+    )
+)
+
 
 #### ax7 ####""
 ax7.format(

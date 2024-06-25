@@ -207,7 +207,7 @@ def spatial_pattern_plot(
             coast=True,
             coastlinewidth=0.5,
             coastcolor="charcoal",
-            title=f"({first_fra:.0%}" + f"->{last_fra:.0%})",
+            title=f"({first_fra:.0%}" + f"-->{last_fra:.0%})",
         )
     else:
         spatial_ax.format(
