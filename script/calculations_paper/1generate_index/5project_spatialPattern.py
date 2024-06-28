@@ -7,6 +7,8 @@ import xarray as xr
 import numpy as np
 from scipy import stats
 import pandas as pd
+from dateutil.relativedelta import relativedelta
+
 # %%
 import src.MMLE_TEL.index_generator as index_generator
 # %%
@@ -66,7 +68,24 @@ def project_period(zg_data, pc_data, period = 'first'):
         raise ValueError("period must be first or last")
     spatial_pattern = projected_pattern(p_field,p_pc)
     return spatial_pattern
+#%%
+def projet_all_period(zg_data,eof_data):
+    intervals = eof_data.eof.decade
 
+    real_patterns = []
+
+    for start_year in intervals:
+        start = pd.to_datetime(start_year.values)
+        _end = start + relativedelta(years = 9)
+        end = _end + relativedelta(months = 3)
+
+        p_field = zg_data.sel(time = slice(start,end))
+        p_pc = eof_data.pc.sel(time = slice(start,end))
+
+        spatial_pattern = projected_pattern(p_field,p_pc)
+        real_patterns.append(spatial_pattern)
+    Real_patterns = xr.concat(real_patterns,dim = intervals)
+    return Real_patterns
 
 # %%
 def real_pattern(model):
