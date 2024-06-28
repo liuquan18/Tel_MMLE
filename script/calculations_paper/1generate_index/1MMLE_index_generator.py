@@ -21,7 +21,7 @@ models = ['MPI_GE_onepct','MPI_GE','CESM1_CAM5','CanESM2','MK36']#,'GFDL_CM3'] #
 def index_gene(model):
     GEN = index_generate.decompose_plev_JJA(
         model = model,
-        fixedPattern='all',
+        fixedPattern='decade_mpi',
     )
 
     GEN.save_result()
