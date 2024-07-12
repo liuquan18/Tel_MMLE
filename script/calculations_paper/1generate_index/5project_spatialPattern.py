@@ -8,11 +8,13 @@ import numpy as np
 from scipy import stats
 import pandas as pd
 from dateutil.relativedelta import relativedelta
+import sys
+
 
 # %%
 import src.MMLE_TEL.index_generator as index_generator
 # %%
-def read_eof_decade(model,fixed_pattern = 'decade_mpi'):
+def read_eof_plev_decade(model,fixed_pattern = 'decade_mpi'):
     """read eofs that is decomposed by decade"""
     odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/"
     filename = f"plev_50000_{fixed_pattern}_first_JJA_eof_result.nc"
@@ -20,18 +22,26 @@ def read_eof_decade(model,fixed_pattern = 'decade_mpi'):
     ds = ds.sel(mode="NAO")
     return ds
 
-def read_zg_data(model):
+def read_eof_troposphere(model):
+    eof = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_CMIP6/EOF_result/troposphere_ind_decade_first_JJA_eof_result.nc")
+    eof = eof.sel(mode = 'NAO')
+    return eof
+
+def read_zg_data(model, plev =50000):
     odir =  f"/work/mh0033/m300883/Tel_MMLE/data/{model}/"
     data_JJA = []
     for month in ["Jun", "Jul", "Aug"]:
         print(f"reading the gph data of {month} ...")
         zg_path = odir + "zg_" + month + "/"
-        data_JJA.append(index_generator.read_data(zg_path, plev = 50000))
+        zg_month = index_generator.read_data(zg_path)
+        if plev is not None:
+            zg_month = zg_month.sel(plev = plev)
+        data_JJA.append(zg_month)
     data = xr.concat(data_JJA, dim="time").sortby("time")
     return data
 
 #%%
-def project(x,y):
+def _project(x,y):
     return stats.linregress(x,y)[0]
 
 # %%
@@ -43,7 +53,7 @@ def projected_pattern(p_field, p_pc):
     p_field['temporal'] = np.arange(p_field.temporal.size)
     p_pc['temporal'] = np.arange(p_pc.temporal.size)
 
-    spatial_pattern = xr.apply_ufunc(project,
+    spatial_pattern = xr.apply_ufunc(_project,
                                     p_pc,
                                     p_field,
                                     input_core_dims=[['temporal'],['temporal']],
@@ -55,12 +65,25 @@ def projected_pattern(p_field, p_pc):
 def project_period(zg_data, pc_data, period = 'first'):
     zg_data = zg_data.sortby('time')
     pc_data = pc_data.sortby('time')
+    try:
+        zg_data = zg_data.sortby('plev')
+        pc_data = pc_data.sortby('plev')
+    except KeyError:
+        print("plev is not found")
+        pass
     if period == 'first':
-        p_field = zg_data.isel(time = slice(0,30)) # the first 10 years, 30 months
+        start_year = pc_data.time[0].dt.year.values
+        end_year = start_year + 9
+
+        p_field = zg_data.sel(time = slice(str(start_year), str(end_year))) # the first 10 years, 30 months
         p_pc = pc_data.sel(time = p_field.time, method = 'nearest')
+
     elif period == 'last':
-        p_field = zg_data.sel(time = slice('2090','2099'))
-        p_pc = pc_data.sel(time = slice('2090','2099'))
+        end_year = pc_data.time[-1].dt.year.values
+        start_year = end_year - 9
+        p_field = zg_data.sel(time = slice(str(start_year), str(end_year))) # the first 10 years, 30 months
+        p_pc = pc_data.sel(time = p_field.time, method = 'nearest')
+
         if p_field.time.size == 0:
             p_field = zg_data.isel(time = slice(-30,None))
             p_pc = pc_data.sel(time = p_field.time, method = 'nearest')
@@ -88,9 +111,7 @@ def projet_all_period(zg_data,eof_data):
     return Real_patterns
 
 # %%
-def real_pattern(model):
-    zg_data = read_zg_data(model)
-    eof_data = read_eof_decade(model,fixed_pattern = 'decade_mpi')
+def real_pattern(zg_data, eof_data):
 
     zg_data.load()
     eof_data.load()
@@ -104,11 +125,36 @@ def real_pattern(model):
     last_pattern.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/last_pattern_projected.nc")
 
 # %%
-import sys
+# for models in CMIP5
 models =  ["CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"] #'MPI_GE"
 mindex = int(sys.argv[1])
 
 model = models[mindex - 1]
 print(f"projecting the spatial pattern of {model} ...")
-real_pattern(model)
+zg_data = read_zg_data(model)
+eof_data = read_eof_plev_decade(model,fixed_pattern = 'decade_mpi')
 
+real_pattern(zg_data, eof_data)
+
+#%%
+# for MPI_GE_CMIP6
+zg_data = read_zg_data("MPI_GE_CMIP6", plev = None)
+eof_data = read_eof_troposphere("MPI_GE_CMIP6")
+pc_data = eof_data.pc
+# %%
+zg_data.load()
+pc_data.load()
+#%%
+zg_data = zg_data.sortby('plev')
+pc_data = pc_data.sortby('plev')
+
+# %%
+first_pattern = project_period(zg_data,pc_data,period = 'first')
+
+# %%
+last_pattern = project_period(zg_data,pc_data,period = 'last')
+# %%
+first_pattern.to_netcdf("/work/mh0033/m300883/High_frequecy_flow/data/MPI_GE_CMIP6/season/EOF_result/troposphere_first_pattern_projected.nc")
+# %%
+last_pattern.to_netcdf("/work/mh0033/m300883/High_frequecy_flow/data/MPI_GE_CMIP6/season/EOF_result/troposphere_last_pattern_projected.nc")
+# %%
