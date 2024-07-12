@@ -4,9 +4,6 @@ import xarray as xr
 from src.MMLE_TEL.index_generator import decompose_troposphere
 import logging
 
-#%%
-import importlib
-# %%
 # %%
 def index_gene(model, vertical_eof = 'dep'):
     GEN = decompose_troposphere(
