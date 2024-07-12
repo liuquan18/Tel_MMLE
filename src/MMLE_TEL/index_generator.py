@@ -56,7 +56,10 @@ class decompose_troposphere:
             self.data = data
         else:
             data_first = self.select_year(data, 0, 10)
-            data_last = self.select_year(data, -20,-10)  # since the last 10 years is not complete (no data in 2100 in MPI_GE, no data in 2000 in MPI_GE_onepct)
+            try:
+                data_last = self.select_year(data, -10, None)
+            except KeyError:
+                data_last = self.select_year(data, -20,-10)  # since the last 10 years is not complete (no data in 2100 in MPI_GE, no data in 2000 in MPI_GE_onepct)
             # also to keep the time range the same as the decompose_plev
             self.data = xr.concat([data_first, data_last], dim="time")
 
