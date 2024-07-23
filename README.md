@@ -75,7 +75,7 @@ The codes include `script`, `src` and `test` directories. The `script` directory
 ## 5. Demo
 The analysis follows "index_generate" --> "extreme_count" --> "composite"
 
-1.For "index_generate": go to file `script/calculations_paper/1generate_index/1MMLE_index_generator.py`, a function called `index_gene(model)` can be used to generate index for one model (at specific plev). And `script/calculations_paper/1generate_index/1MMLE_index_generator_submitter.sh` can be used to generate index parallelly for all models using mpi4py. 
+1. For "index_generate": go to file `script/calculations_paper/1generate_index/1MMLE_index_generator.py`, a function called `index_gene(model)` can be used to generate index for one model (at specific plev). And `script/calculations_paper/1generate_index/1MMLE_index_generator_submitter.sh` can be used to generate index parallelly for all models using mpi4py. 
 
 2. For "extreme count": in file `script/calculations_paper/2extreme_count/1MMLE_extreme_count.py`, a function called `extreme_count(model)` can be used to count extreme events for one model (at specific plev).
 
