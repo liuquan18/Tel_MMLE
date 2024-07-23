@@ -91,7 +91,7 @@ python3 -m pip install -e .
 Then you can run the scripts in the `script` directory to repeat the calculations and generate the plots.
 
 ## 6. Demo
-The analysis follows "index_generate" --> "extreme_count" --> "composite"
+The analysis follows "index_generate" --> "extreme_count" --> "composite". For model = 'MPI_GE', a quick calculation could be:
 
 1. For "index_generate": go to file `script/calculations_paper/1generate_index/1MMLE_index_generator.py`, a function called `index_gene(model)` can be used to generate index for one model (at specific plev). And `script/calculations_paper/1generate_index/1MMLE_index_generator_submitter.sh` can be used to generate index parallelly for all models using mpi4py. 
 
