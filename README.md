@@ -42,7 +42,7 @@ In order to use more high-level class objects defined in this project (such as t
 ## 4. Code structure
 The project is mainly written in python. Some of the pre-processing and post-processing are in bash.
 
-The codes include `script` and `src` directories. The `script` directory contains the main scripts for the calculations and ploting, which import some of the functions and class from the `src` directory, which contains the more basic level calculations. The code structure is as follows:
+The codes include `script`, `src` and `test` directories. The `script` directory contains the main scripts for the calculations and ploting, which import some of the functions and class from the `src` directory. The `src` contains the more basic level calculations. The code structure is as follows:
 ```
 ├── script
 │   ├── calculations_paper            # main calculations for the paper
@@ -70,7 +70,7 @@ The codes include `script` and `src` directories. The `script` directory contain
 │   ├── Teleconnection                # source code for decomposing the NAO pattern
 │   └── warming_stage
 ```
-
+`test` directory contains test codes for some basic functions in `src` directory, with (simulated) mini dataset.
 ## 5. How to start
 You can easily copy the code to your local machine / HPC by running the following command:
 ```bash
