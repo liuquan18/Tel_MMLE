@@ -74,7 +74,14 @@ The codes include `script`, `src` and `test` directories. The `script` directory
 `test` directory contains test codes for some basic functions in `src` directory, with (simulated) mini dataset.
 ## 5. Demo
 The analysis follows "index_generate" --> "extreme_count" --> "composite"
-for "index_generate", go to file 
+
+1.For "index_generate": go to file `script/calculations_paper/1generate_index/1MMLE_index_generator.py`, a function called `index_gene(model)` can be used to generate index for one model (at specific plev). And `script/calculations_paper/1generate_index/1MMLE_index_generator_submitter.sh` can be used to generate index parallelly for all models using mpi4py. 
+
+2. For "extreme count": in file `script/calculations_paper/2extreme_count/1MMLE_extreme_count.py`, a function called `extreme_count(model)` can be used to count extreme events for one model (at specific plev).
+
+3. For "composite analysis": in file `script/calculations_paper/3composite_analysis/1MMLE_composite_analysis.py`, a function called `composite` can be used to do composite analysis.
+
+The "index_generate" would take relatively long time, depending on the size of years and ensemble members that used (e.g, 10 years and 100 ensemble members for MPI_GE would take more than half an hour). The "extreme count" can be finished instantly. "composite analysis" would also take very long time to finish.
 
 ## 6. How to start
 You can easily copy the code to your local machine / HPC by running the following command:
