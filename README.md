@@ -38,7 +38,7 @@ In order to use more high-level class objects defined in this project (such as t
 │   ├── ts  
 └── zodes_for_all       # some pre-processing codes that apply to all models
 ```
-Note that the data need to be pre-processed before calculations. Some pre-process codes can be found in `zodes_for_all`. However, I recommend you to request an example data so that the pre-process history can be found using `cdo showattribute`. 
+Note that the data need to be pre-processed before calculations. Some pre-process codes can be found in `zodes_for_all`. However, I recommend you to request an example data from me (the data size is too big for GitHub) so that the pre-process history can be found using `cdo showattribute`. 
 
 ## 4. Code structure
 The project is mainly written in python. Some of the pre-processing and post-processing are in bash.
