@@ -5,7 +5,16 @@
 ## 1. Introduction
 This repository contains the code for the project "More extreme summertime North Atlantic Oscillation (NAO) under climate change". 
 
-## 2. Data
+## 2. System Requirements
+The code has been test on Linux system. 
+`enviroment.yml` provides a list of python dependences. 
+an environment can be created by following code:
+```bash
+conda env create -f environment.yml
+conda activate Tel_MMLE
+```
+
+## 3. Data
 All data used in this study are publicly available. The large ensembles are available at the [MMLE Archive](https://www.cesm.ucar.edu/community-projects/mmlea). The NOAA-CIRES-DOE 20th Century Reanalysis (20CR) data are aviailable at the [NOAA Physical Sciences Laboratory](https://psl.noaa.gov/data/20thC_Rean/). 
 In order to use more high-level class objects defined in this project (such as those defined in `/work/mh0033/m300883/Tel_MMLE/src/MMLE_TEL/index_generator.py`), the data should be put under `data` directory, and the directory structure should be like:
 ```
@@ -30,7 +39,7 @@ In order to use more high-level class objects defined in this project (such as t
 └── zodes_for_all       # some pre-processing codes that apply to all models
 ```
 
-## 3. Code structure
+## 4. Code structure
 The project is mainly written in python. Some of the pre-processing and post-processing are in bash.
 
 The codes include `script` and `src` directories. The `script` directory contains the main scripts for the calculations and ploting, which import some of the functions and class from the `src` directory, which contains the more basic level calculations. The code structure is as follows:
@@ -62,7 +71,7 @@ The codes include `script` and `src` directories. The `script` directory contain
 │   └── warming_stage
 ```
 
-## 4. How to start
+## 5. How to start
 You can easily copy the code to your local machine / HPC by running the following command:
 ```bash
 git clone https://github.com/liuquan18/Tel_MMLE.git
