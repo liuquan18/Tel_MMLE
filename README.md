@@ -72,7 +72,11 @@ The codes include `script`, `src` and `test` directories. The `script` directory
 │   └── warming_stage
 ```
 `test` directory contains test codes for some basic functions in `src` directory, with (simulated) mini dataset.
-## 5. How to start
+## 5. Demo
+The analysis follows "index_generate" --> "extreme_count" --> "composite"
+for "index_generate", go to file 
+
+## 6. How to start
 You can easily copy the code to your local machine / HPC by running the following command:
 ```bash
 git clone https://github.com/liuquan18/Tel_MMLE.git
