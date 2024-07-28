@@ -6,7 +6,8 @@
 This repository contains the code for the project "More extreme summertime North Atlantic Oscillation (NAO) under climate change". 
 
 ## 2. System Requirements
-The code has been test on Linux system. 
+The code has been tested on Linux system. 
+
 `enviroment.yml` provides a list of python dependences. 
 an environment can be created by following code:
 ```bash
