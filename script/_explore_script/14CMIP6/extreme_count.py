@@ -18,7 +18,7 @@ import src.obs.era5_extreme_change as era5_extreme_change
 import src.extreme.extreme_count_troposphere as ext_profile
 #%%
 
-CMIP6_first_profile, CMIP6_last_profile = ext_profile.extreme_count_MPI('MPI_GE_CMIP6')
+CMIP6_first_profile, CMIP6_last_profile = ext_profile.extreme_count_MPI('MPI_GE_CMIP6', 50)
 CR20_plevs = [1000, 975, 950, 925, 900, 850, 800, 750, 700, 650, 600, 550, 500, 450, 400, 350, 300, 250, 200]
 CR20_mean_first_profile, CR20_mean_last_profile = ext_profile.extreme_count_rean('CR20', CR20_plevs)
 
@@ -75,8 +75,8 @@ for i, count in enumerate([CR20_mean_first_profile, CR20_mean_last_profile]):
         axes[1, 1],
         label=mean_labels[i],
     )
-axes[0,0].set_xlim(0,2.5)
-axes[0,1].set_xlim(0,2.5)
+axes[0,0].set_xlim(1, 4)
+axes[0,1].set_xlim(1, 4)
 
 axes[1,0].set_xlim(0,7)
 axes[1,1].set_xlim(0,7)
