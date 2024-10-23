@@ -39,13 +39,13 @@ def extreme_count_rean(model, plevs):
         last_count = Last.pc/(4)
     return first_count, last_count
 
-def extreme_count_MPI(model):
+def extreme_count_MPI(model, ens_size=100):
     vertical_eof = 'ind'
     prefix = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/extreme_count/troposphere_{vertical_eof}_decade_first_JJA_"
     first = xr.open_dataset(f"{prefix}first_count.nc")
     last = xr.open_dataset(f"{prefix}last_count.nc")
 
     # divided by ensemble size
-    first_count = first.pc/100
-    last_count = last.pc/100
+    first_count = first.pc/ens_size
+    last_count = last.pc/ens_size
     return first_count, last_count
