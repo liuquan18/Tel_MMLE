@@ -95,7 +95,8 @@ def decade_sub(JetStream, JetStream_clim):
 
     return JetStream_anomaly
 #%%
-def decade_jet_NS(jet_loc, jet_loc_clim, jet_loc_std):
+def decade_jet_NS(jet_loc, jet_loc_clim, jet_loc_std, scale = 1, fix_clim = False):
+
     jet_loc_north = jet_loc.copy()
     jet_loc_south = jet_loc.copy()
 
@@ -105,8 +106,15 @@ def decade_jet_NS(jet_loc, jet_loc_clim, jet_loc_std):
 
         decade_years = jet_loc.sel(time=slice(f"{start_year}", f"{end_year}"))
 
-        jet_loc_north.loc[dict(time=decade_years.time)] = decade_years.where(decade_years > jet_loc_clim.isel(time=i) + jet_loc_std.isel(time=i))
-        jet_loc_south.loc[dict(time=decade_years.time)] = decade_years.where(decade_years < jet_loc_clim.isel(time=i) - jet_loc_std.isel(time=i))
+        if fix_clim:
+            clim_mean = jet_loc_clim.isel(time=0)
+            clim_std = jet_loc_std.isel(time=0)
+        else:
+            clim_mean = jet_loc_clim.isel(time=i)
+            clim_std = jet_loc_std.isel(time=i)
+
+        jet_loc_north.loc[dict(time=decade_years.time)] = decade_years.where(decade_years > clim_mean + scale * clim_std)
+        jet_loc_south.loc[dict(time=decade_years.time)] = decade_years.where(decade_years < clim_mean - scale * clim_std)
 
     return jet_loc_north, jet_loc_south
 
@@ -119,6 +127,16 @@ jet_loc = Jet_location(jet_stream)
 jet_loc_clim = Jet_climatology(jet_loc)
 #%%
 jet_loc_std = Jet_climatology(jet_loc, stat = 'std')
+
+# %%
+jet_loc_north, jet_loc_south = decade_jet_NS(jet_loc, jet_loc_clim, jet_loc_std, fix_clim=True)
+# %%
+# above 1 std clim
+# %%
+jet_north_decade = jet_loc_north.resample(time="10Y", closed = 'left').count().sum(dim = 'ens')
+# %%
+jet_south_decade = jet_loc_south.resample(time="10Y", closed = 'left').count().sum(dim = 'ens')
+
 #%%
 fig, ax = plt.subplots()
 jet_loc_clim.plot(ax=ax)
@@ -128,11 +146,30 @@ ax.fill_between(jet_loc_clim.time, jet_loc_clim - jet_loc_std, jet_loc_clim + je
 jet_loc_north.plot.scatter(x = 'time', ax = ax)
 jet_loc_south.plot.scatter(x = 'time', ax = ax)
 # %%
-jet_loc_north, jet_loc_south = decade_jet_NS(jet_loc, jet_loc_clim, jet_loc_std)
+jet_north_decade.plot()
 # %%
-# above 1 std clim
+jet_south_decade.plot()
+#%%
+
 # %%
-jet_north_decade = jet_loc_north.resample(time="10Y", closed = 'left').count().sum(dim = 'ens')
-# %%
-jet_south_decade = jet_loc_south.resample(time="10Y", closed = 'left').count().sum(dim = 'ens')
+fig, ax = plt.subplots()
+jet_loc_clim.drop_vars('lon').plot(ax=ax, label='Climatology',x = 'time', add_legend = False)
+# clean the tile of ax
+ax.set_title('')
+
+ax.fill_between(jet_loc_clim.time, jet_loc_clim - jet_loc_std, jet_loc_clim + jet_loc_std, color='gray', alpha=0.5, label = 'std')
+ax.set_ylim(42,57)
+ax_twin = ax.twinx()
+jet_north_decade.drop_vars('lon').plot(ax = ax_twin, color = 'red', label = 'count of jet Norther than 1 std')
+ax_twin.set_ylim(-800, 1000)
+
+lines, labels = ax.get_legend_handles_labels()
+lines2, labels2 = ax_twin.get_legend_handles_labels()
+ax.legend(lines + lines2, labels + labels2, loc='upper left', frameon=False)
+
+ax.set_ylabel('Latitude')
+ax_twin.set_ylabel('count')
+ax.set_title('Eddy-driven jet stream location')
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/jet_stream.png", dpi = 300)
+
 # %%
