@@ -23,7 +23,7 @@ def read_NAO_extremes(
     return pos, neg
 
 def to_dataframe(arr, name = 'pc'):
-    df = arr.to_dataframe().reset_index()
+    df = arr.to_dataframe(name).reset_index()
     df = df.dropna(subset=[name])
     return df
 # %%
