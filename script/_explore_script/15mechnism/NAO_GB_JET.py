@@ -1,13 +1,13 @@
 # %%
 import xarray as xr
 import pandas as pd
+import numpy as np
 import seaborn as sns
 from src.mechnisms.mechisms import (
     read_jetStream,
     Jet_location,
     read_greenland_blocking,
     read_NAO_extremes,
-    to_dataframe,
 )
 
 import matplotlib.pyplot as plt
@@ -34,6 +34,17 @@ GB_pos = xr.open_dataset(
 GB_neg = xr.open_dataset(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/GB_neg.nc"
 ).GB
+# %%
+jet_clim = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/jet_loc_clim.nc").lat
+jet_std = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/jet_loc_std.nc").lat
+
+jet_upper = jet_clim + jet_std
+jet_lower = jet_clim - jet_std
+#%%
+jet_clim_df = jet_clim.to_dataframe( "jet_clim").reset_index()[['time', 'jet_clim']]
+jet_upper_df = jet_upper.to_dataframe( "jet_upper").reset_index()[['time', 'jet_upper']]
+jet_lower_df = jet_lower.to_dataframe( "jet_lower").reset_index()[['time', 'jet_lower']]
+
 
 # %%
 # select jet_loc based on NAO, nan to nan
@@ -46,6 +57,18 @@ jet_loc_north_NAO_neg = jet_loc_north.where(NAO_neg.notnull())
 jet_loc_south_NAO_pos = jet_loc_south.where(NAO_pos.notnull())
 jet_loc_south_NAO_neg = jet_loc_south.where(NAO_neg.notnull())
 # %%
+GB_clim = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/GB_clim.nc").var156
+GB_std = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/GB_std.nc").var156
+
+GB_upper = GB_clim + GB_std
+GB_lower = GB_clim - GB_std
+
+#%%
+GB_clim_df = GB_clim.to_dataframe( "GB_clim").reset_index()[['time', 'GB_clim']]
+GB_upper_df = GB_upper.to_dataframe( "GB_upper").reset_index()[['time', 'GB_upper']]
+GB_lower_df = GB_lower.to_dataframe( "GB_lower").reset_index()[['time', 'GB_lower']]
+
+#%%
 blocking_NAO_pos = blocking.where(NAO_pos.notnull())
 blocking_NAO_neg = blocking.where(NAO_neg.notnull())
 
@@ -186,6 +209,12 @@ NAO_pos_all_df = (
     .join(blocking_NAO_pos_df.set_index("time"), on="time")
     .join(GB_pos_NAO_pos_df.set_index("time"), on="time")
     .join(GB_neg_NAO_pos_df.set_index("time"), on="time")
+    .join(jet_clim_df.set_index("time"), on="time")
+    .join(jet_upper_df.set_index("time"), on="time")
+    .join(jet_lower_df.set_index("time"), on="time")
+    .join(GB_clim_df.set_index("time"), on="time")
+    .join(GB_upper_df.set_index("time"), on="time")
+    .join(GB_lower_df.set_index("time"), on="time")
 )
 
 # %%
@@ -196,36 +225,283 @@ NAO_neg_all_df = (
     .join(blocking_NAO_neg_df.set_index("time"), on="time")
     .join(GB_pos_NAO_neg_df.set_index("time"), on="time")
     .join(GB_neg_NAO_neg_df.set_index("time"), on="time")
+    .join(jet_clim_df.set_index("time"), on="time")
+    .join(jet_upper_df.set_index("time"), on="time")
+    .join(jet_lower_df.set_index("time"), on="time")
+    .join(GB_clim_df.set_index("time"), on="time")
+    .join(GB_upper_df.set_index("time"), on="time")
+    .join(GB_lower_df.set_index("time"), on="time")
 )
 
-#%%
-NAO_pos_all_df['NAO_phase'] = 'positive'
-NAO_neg_all_df['NAO_phase'] = 'negative'
-#%%
+# %%
+NAO_pos_all_df["NAO_phase"] = "positive"
+NAO_neg_all_df["NAO_phase"] = "negative"
+# %%
 # create column called decade, infer from time
-NAO_pos_all_df['decade'] = NAO_pos_all_df['time'].dt.year // 10 * 10
-NAO_neg_all_df['decade'] = NAO_neg_all_df['time'].dt.year // 10 * 10
-#%%
+NAO_pos_all_df["decade"] = NAO_pos_all_df["time"].dt.year // 10 * 10
+NAO_neg_all_df["decade"] = NAO_neg_all_df["time"].dt.year // 10 * 10
+# %%
 NAO_all_df = pd.concat([NAO_pos_all_df, NAO_neg_all_df], ignore_index=True)
 
+#%%
+# new column 'extreme_count', value equals to 'NAO_pos' if NAO_phase is positive, else 'NAO_neg'
+NAO_all_df["extreme_count"] = NAO_all_df.apply(
+    lambda x: x["NAO_pos"] if x["NAO_phase"] == "positive" else x["NAO_neg"], axis=1
+)
+# %%
+# new column, called jet_north/south, value equals to 'jet_north' if NAO_phase is positive, else -1 * 'jet_south'
+NAO_all_df["jet_north_south"] = NAO_all_df.apply(
+    lambda x: x["jet_north"] if x["NAO_phase"] == "positive" else -1 * x["jet_south"],
+    axis=1,
+)
+
+# %%
+jet_loc_df = jet_loc.to_dataframe("jet_loc").reset_index()[['ens','time', 'jet_loc']]
+bloocking_df = blocking.to_dataframe("GB").reset_index()[['ens','time', 'GB']]
+jet_blocking_df = jet_loc_df.join(bloocking_df.set_index(['ens', 'time']), on = ['ens', 'time'])
+# %%
+
+
+# %%
+fig, axes = plt.subplots(2,1, figsize=(8, 10))
+ax1 = axes[0]
+scatter1 = sns.scatterplot(
+    data=NAO_all_df,
+    x="jet_north",
+    y="NAO_pos",
+    size="decade",
+    sizes=(10, 400),
+    legend="brief",
+    ax=ax1,
+    alpha = 0.7
+)
+scatter2 = sns.scatterplot(
+    data=NAO_all_df,
+    x="jet_north",
+    y="NAO_neg",
+    size="decade",
+    sizes=(10, 400),
+    legend=False,
+    ax=ax1,
+    marker="^",
+    alpha = 0.7
+)
+ax2 = axes[1]
+sns.scatterplot(
+    data=NAO_all_df,
+    x="GB_above",
+    y="NAO_pos",
+    size="decade",
+    sizes=(10, 400),
+    legend="brief",
+    ax=ax2,
+    palette="flare",
+)
+sns.scatterplot(
+    data=NAO_all_df,
+    x="GB_above",
+    y="NAO_neg",
+    size="decade",
+    sizes=(10, 400),
+    legend=False,
+    ax=ax2,
+    marker="^",
+    palette="flare",
+)
+
+# %%
+fig, axes = plt.subplots(2,1, figsize=(8, 10))
+ax1 = axes[0]
+scatter1 = sns.scatterplot(
+    data=NAO_all_df,
+    x="jet_loc_compmean",
+    y="NAO_pos",
+    hue="decade",
+    size="decade",
+    sizes=(200, 200),
+    legend="brief",
+    ax=ax1,
+    palette="flare",
+)
+scatter2 = sns.scatterplot(
+    data=NAO_all_df,
+    x="jet_loc_compmean",
+    y="NAO_neg",
+    hue="decade",
+    size="decade",
+    sizes=(200, 200),
+    legend=False,
+    ax=ax1,
+    marker="x",
+    palette="flare",
+)
+ax2 = axes[1]
+sns.scatterplot(
+    data=NAO_all_df,
+    x="GB_compmean",
+    y="NAO_pos",
+    hue="decade",
+    size="decade",
+    sizes=(200, 200),
+    legend="brief",
+    ax=ax2,
+    palette="flare",
+)
+sns.scatterplot(
+    data=NAO_all_df,
+    x="GB_compmean",
+    y="NAO_neg",
+    hue="decade",
+    size="decade",
+    sizes=(200, 200),
+    legend=False,
+    ax=ax2,
+    marker="x",
+    palette="flare",
+)
+# Move the legend to the bottom right
+ax2.legend(loc='lower right')
+# %%
+
+
+
+#%%
+fig, ax = plt.subplots()
+sns.scatterplot(
+    data=NAO_all_df,
+    x="jet_loc_compmean",
+    y="decade",
+    hue="NAO_phase",
+    legend="brief",
+    palette="flare",
+    size="extreme_count",
+    sizes = (20, 200),
+    ax=ax
+)
+
+sns.lineplot(
+    data=NAO_all_df,
+    x="jet_clim",
+    y="decade",
+    color="gray",
+    ax=ax
+)
+
+sns.lineplot(
+    data=NAO_all_df,
+    x="jet_upper",
+    y="decade",
+    color="gray",
+    ax=ax
+)
+
+sns.lineplot(
+    data=NAO_all_df,
+    x="jet_lower",
+    y="decade",
+    color="gray",
+    ax=ax
+)
+
+# %%
+sns.scatterplot(
+    data=NAO_all_df,
+    x="jet_loc_compmean",
+    y="GB_compmean",
+    hue="NAO_phase",
+    legend="brief",
+    palette="flare",
+    size="extreme_count",
+    sizes = (20, 200),
+)
+# %%
+sns.scatterplot(
+    data=NAO_all_df,
+    x="jet_north_south",
+    y="GB_above",
+    hue="NAO_phase",
+    legend="brief",
+    palette="flare",
+    size="extreme_count",
+    sizes = (20, 200),
+)
+# %%
+sns.scatterplot(
+    data=NAO_all_df,
+    x="jet_north_south",
+    y="GB_above",
+    style="NAO_phase",
+    legend=False,
+    palette="flare",
+    size="extreme_count",
+    hue="decade",
+    sizes = (20, 500),
+    alpha = 0.7,
+)
 # %%
 fig, ax = plt.subplots()
-scatter1 = sns.scatterplot(data=NAO_all_df, x="jet_north", y='NAO_pos', hue='decade', size='decade', sizes=(20, 200), legend="full", ax=ax)
-scatter2 = sns.scatterplot(data=NAO_all_df, x="jet_north", y='NAO_neg', hue='decade', size='decade', sizes=(20, 200), legend="full", ax=ax, marker='x')
+sns.scatterplot(
+    data=NAO_all_df[NAO_all_df['decade'].isin(np.arange(1850, 1910, 10))],
+    x="jet_loc_compmean",
+    y="GB_compmean",
+    style="NAO_phase",
+    legend=False,
+    palette="flare",
+    size="extreme_count",
+    hue="decade",
+    sizes=(20, 500),
+    alpha=0.7,
+    ax=ax,
+    edgecolor='black',  # Add edge color to the markers
+    linewidth=1,  # Set the width of the edge
+)
 
-# add colorbar at the bottom for hue
-norm = plt.Normalize(NAO_all_df['decade'].min(), NAO_all_df['decade'].max())
-sm = plt.cm.ScalarMappable(cmap="deep", norm=norm)
-sm.set_array([])
-cbar = fig.colorbar(sm, ax=ax, orientation='horizontal', pad=0.2)
-cbar.set_label('Decade')
+sns.scatterplot(
+    data=NAO_all_df,
+    x="jet_loc_compmean",
+    y="GB_compmean",
+    style="NAO_phase",
+    legend='brief',
+    palette="flare",
+    size="extreme_count",
+    hue="decade",
+    sizes=(20, 500),
+    alpha=0.7,
+    ax=ax,
+)
 
 
-# %%
-fig, ax = plt.subplots()
-sns.scatterplot(data=NAO_all_df, x="GB_above", y = 'NAO_pos', hue = 'decade', size = 'decade',sizes = (20, 200), legend="full", ax = ax)
-sns.scatterplot(data=NAO_all_df, x="GB_above", y = 'NAO_neg', hue = 'decade', size = 'decade',sizes = (20, 200), legend="full", ax = ax, marker = 'x')
-# %%
-sns.scatterplot(data=NAO_all_df, x="jet_south", y = 'NAO_neg', hue = 'decade', size = 'decade',sizes = (20, 200), legend="full", marker = 'x')
+sns.lineplot(
+    x = 'jet_clim',
+    y = 'GB_clim',
+    data = NAO_all_df,
+    color = 'k',
+    label = 'climatology',
+    ax = ax
+)
+
+sns.lineplot(
+    x = 'jet_loc',
+    y = 'GB',
+    data = jet_blocking_df[jet_blocking_df['time'].dt.year.isin(np.arange(1850, 1910))],
+    color = 'k',
+    ax = ax
+)
+
+sns.lineplot(
+    x = 'jet_loc',
+    y = 'GB',
+    data = jet_blocking_df[jet_blocking_df['time'].dt.year.isin(np.arange(2040, 2100))],
+    color = 'r',
+    ax = ax
+)
+
+
+ax.set_xlabel(r"Eddy-driven jet stream location ($\degree$N)")
+ax.set_ylabel("Greenland Blocking Index proxy (km)")
+
+# move the legend to the outside using bbox_to_anchor
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_JET.png")
 
 # %%
