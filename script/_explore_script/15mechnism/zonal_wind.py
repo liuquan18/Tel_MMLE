@@ -4,66 +4,8 @@ import pandas as pd
 import seaborn as sns
 import glob
 import matplotlib.pyplot as plt
+from src.mechnisms.mechisms import read_jetStream, Jet_location
 # %%
-
-
-############## read NAO ###################
-def read_NAO_extremes(
-    model, standard="first", season="JJA", vertical_eof="ind", plev=50000
-):
-    eof_dir = (
-        f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/"
-        + f"troposphere_{vertical_eof}_decade_"
-        + standard
-        + "_"
-        + season
-        + "_eof_result.nc"
-    )
-
-    eof_result = xr.open_dataset(eof_dir)
-
-    pc = eof_result.pc.sel(mode="NAO", plev=plev)
-
-    # extremes
-    pos = pc.where(pc > 1.5)
-    pos_df = pos.to_dataframe().reset_index()
-    pos_df = pos_df.dropna(subset=["pc"])
-
-    neg = pc.where(pc < -1.5)
-    neg_df = neg.to_dataframe().reset_index()
-    neg_df = neg_df.dropna(subset=["pc"])
-
-    return pos_df, neg_df
-
-
-# %%
-NAO_pos, NAO_neg = read_NAO_extremes("MPI_GE")
-
-
-# %%
-def read_jetStream(model):
-    JetStream = []
-    jet_dir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/NA_EJ_"
-    for month in ["Jun", "Jul", "Aug"]:
-        all_ens_lists = sorted(glob.glob(jet_dir + month + "/*.nc"))
-        jet = xr.open_mfdataset(all_ens_lists, combine="nested", concat_dim="ens")
-        JetStream.append(jet)
-
-    JetStream = xr.concat(JetStream, dim="time")
-    # sort by time
-    JetStream = JetStream.sortby("time")
-    # exclude lon dim
-    JetStream = JetStream.isel(lon=0).var131
-    # exclude data of 2100
-    JetStream = JetStream.sel(time=slice("1850", "2099"))
-    return JetStream
-
-
-# %%
-def Jet_location(JetStream):
-    jet_loc = JetStream.lat[JetStream.argmax(dim="lat")]
-    return jet_loc
-
 
 # %%
 def Jet_climatology(JetStream, stat = 'mean'):
@@ -125,8 +67,10 @@ jet_stream = jet_stream.compute()
 jet_loc = Jet_location(jet_stream)
 # %%
 jet_loc_clim = Jet_climatology(jet_loc)
+jet_loc_clim = jet_loc_clim.drop_vars('lon')
 #%%
 jet_loc_std = Jet_climatology(jet_loc, stat = 'std')
+jet_loc_std = jet_loc_std.drop_vars('lon')
 
 # %%
 jet_loc_north, jet_loc_south = decade_jet_NS(jet_loc, jet_loc_clim, jet_loc_std, fix_clim=True)
@@ -153,7 +97,7 @@ jet_south_decade.plot()
 
 # %%
 fig, ax = plt.subplots()
-jet_loc_clim.drop_vars('lon').plot(ax=ax, label='Climatology',x = 'time', add_legend = False)
+jet_loc_clim.plot(ax=ax, label='Climatology',x = 'time', add_legend = False)
 # clean the tile of ax
 ax.set_title('')
 
@@ -173,3 +117,21 @@ ax.set_title('Eddy-driven jet stream location')
 plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/jet_stream.png", dpi = 300)
 
 # %%
+jet_loc_clim_perc = (jet_loc_clim - jet_loc_clim.isel(time=0))/jet_loc_clim.isel(time=0) * 100
+jet_loc_upper = jet_loc_clim + jet_loc_std
+jet_loc_lower = jet_loc_clim - jet_loc_std
+
+jet_loc_upper_perc = (jet_loc_upper - jet_loc_upper.isel(time=0))/jet_loc_upper.isel(time=0) * 100
+jet_loc_lower_perc = (jet_loc_lower - jet_loc_lower.isel(time=0))/jet_loc_lower.isel(time=0) * 100
+
+#%%
+fig, ax = plt.subplots()
+jet_loc_clim_perc.plot(ax=ax, label='Climatology')
+ax.fill_between(jet_loc_clim_perc.time, jet_loc_lower_perc, jet_loc_upper_perc, color='gray', alpha=0.5, label = 'std')
+
+ax.set_ylabel('Latitude anomaly (%)')
+ax.set_title('eddy-driven Jet stream location')
+
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/jet_stream_anomaly.png", dpi = 300)
+
+#%%
