@@ -74,6 +74,13 @@ jet_loc_std = jet_loc_std.drop_vars('lon')
 
 # %%
 jet_loc_north, jet_loc_south = decade_jet_NS(jet_loc, jet_loc_clim, jet_loc_std, fix_clim=True)
+
+#%%
+jet_loc_north.name = 'jet_loc'
+jet_loc_south.name = 'jet_loc'
+
+jet_loc_north.to_netcdf('/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/jet_loc_north.nc')
+jet_loc_south.to_netcdf('/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/jet_loc_south.nc')
 # %%
 # above 1 std clim
 # %%

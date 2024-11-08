@@ -72,6 +72,12 @@ GB_clim = GB_clim.drop_vars(('lat','lon', 'plev'))
 GB_std = GB_std.drop_vars(('lat','lon', 'plev'))
 # %%
 GB_pos, GB_neg = decade_jet_NS(GB, GB_clim, GB_std, scale = 1, fix_clim = True)
+#%%
+GB_pos.name = 'GB'
+GB_neg.name = 'GB'
+
+GB_pos.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/GB_pos.nc")
+GB_neg.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/GB_neg.nc")
 # %%
 GB_pos_decade = GB_pos.resample(time="10Y", closed='left').count(dim=('time')).sum(dim = 'ens')
 GB_neg_decade = GB_neg.resample(time="10Y", closed='left').count(dim=('time')).sum(dim = 'ens')
