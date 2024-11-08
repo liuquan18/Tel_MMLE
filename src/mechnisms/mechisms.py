@@ -6,31 +6,26 @@ import glob
 
 ############## read NAO ###################
 def read_NAO_extremes(
-    model, standard="first", season="JJA", vertical_eof="ind", plev=50000
+    model, 
 ):
-    eof_dir = (
-        f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/"
-        + f"troposphere_{vertical_eof}_decade_"
-        + standard
-        + "_"
-        + season
-        + "_eof_result.nc"
+    eof_dir = (f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/plev_50000_decade_mpi_first_JJA_eof_result.nc"
     )
 
     eof_result = xr.open_dataset(eof_dir)
 
-    pc = eof_result.pc.sel(mode="NAO", plev=plev)
+    pc = eof_result.pc.sel(mode="NAO")
 
     # extremes
     pos = pc.where(pc > 1.5)
-    pos_df = pos.to_dataframe().reset_index()
-    pos_df = pos_df.dropna(subset=["pc"])
 
     neg = pc.where(pc < -1.5)
-    neg_df = neg.to_dataframe().reset_index()
-    neg_df = neg_df.dropna(subset=["pc"])
 
-    return pos_df, neg_df
+    return pos, neg
+
+def to_dataframe(arr, name = 'pc'):
+    df = arr.to_dataframe().reset_index()
+    df = df.dropna(subset=[name])
+    return df
 # %%
 def read_jetStream(model):
     JetStream = []
