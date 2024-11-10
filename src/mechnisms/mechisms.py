@@ -70,3 +70,54 @@ def read_greenland_blocking(model):
     GreenlandBlocking = GreenlandBlocking / 1000
     return GreenlandBlocking
 
+# %%
+def decade_climatology(var, stat='mean'):
+    if stat == 'mean':
+        var_clim = var.resample(time="10Y", closed='left').mean(dim=('time', 'ens'))
+    else:
+        var_clim = var.resample(time="10Y", closed='left').std(dim=('time', 'ens'))
+
+    return var_clim
+# %%
+# %%
+def decade_sub(JetStream, JetStream_clim):
+
+    # Initialize an empty array to store the results
+    JetStream_anomaly = JetStream.copy()
+
+    # Iterate over each decade
+    for i in range(len(JetStream_clim.time)):
+        # Get the start and end of the decade
+        end_year = JetStream_clim.time[i].dt.year.item()
+        start_year = end_year - 9
+
+        # Select the years within the current decade
+        decade_years = JetStream.sel(time=slice(f"{start_year}", f"{end_year}"))
+
+        # Subtract the climatology of the decade from each year in the decade
+        JetStream_anomaly.loc[dict(time=decade_years.time)] = decade_years - JetStream_clim.isel(time=i)
+
+    return JetStream_anomaly
+# %%
+def decade_classify(var, var_clim, var_std, scale = 1, fix_clim = True):
+    
+        var_north = var.copy()
+        var_south = var.copy()
+    
+        for i in range (len(var_clim.time)):
+            end_year = var_clim.time[i].dt.year.item()
+            start_year = end_year - 9
+    
+            decade_years = var.sel(time=slice(f"{start_year}", f"{end_year}"))
+    
+            if fix_clim:
+                clim_mean = var_clim.isel(time=0)
+                clim_std = var_std.isel(time=0)
+            else:
+                clim_mean = var_clim.isel(time=i)
+                clim_std = var_std.isel(time=i)
+    
+            var_north.loc[dict(time=decade_years.time)] = decade_years.where(decade_years > clim_mean + scale * clim_std)
+            var_south.loc[dict(time=decade_years.time)] = decade_years.where(decade_years < clim_mean - scale * clim_std)
+    
+        return var_north, var_south
