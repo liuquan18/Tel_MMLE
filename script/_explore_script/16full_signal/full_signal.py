@@ -50,17 +50,28 @@ data_last = data_last.stack(com = ('time','ens'))
 # %%
 ppc_first = project_field(data_first, eof_first)
 # %%
-ppc_last = project_field(data_last, eof_last)
+ppc_last = project_field(data_last, eof_first)
 # %%
 fig, ax = plt.subplots()
 ppc_first.plot.hist(ax = ax)
 ppc_last.plot.hist(ax = ax)
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_full_signal.png")
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_full_signal.png")
 
 # %%
 ppc_first.name = 'pc'
 ppc_last.name = 'pc'
 
-ppc_first.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/full_signal/first_pattern_projected.nc")
-ppc_last.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/full_signal/last_pattern_projected.nc")
+# ppc_first.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/full_signal/first_pattern_projected.nc")
+# ppc_last.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/full_signal/last_pattern_projected.nc")
+# %%
+first_ano = (ppc_first - ppc_first.mean())/ppc_first.std()
+last_ano = (ppc_last - ppc_first.mean())/ppc_first.std()
+# %%
+fig, ax = plt.subplots()
+first_ano.plot.hist(ax = ax, alpha = 0.5,bins=np.arange(-4, 4.1, 0.5), label = 'first10')
+last_ano.plot.hist(ax = ax, alpha = 0.7, bins=np.arange(-4, 4.1, 0.5), label = 'last10')
+
+plt.legend()
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_full_signal_ano.png")
+
 # %%
