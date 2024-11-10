@@ -68,8 +68,15 @@ first_ano = (ppc_first - ppc_first.mean())/ppc_first.std()
 last_ano = (ppc_last - ppc_first.mean())/ppc_first.std()
 # %%
 fig, ax = plt.subplots()
-first_ano.plot.hist(ax = ax, alpha = 0.5,bins=np.arange(-4, 4.1, 0.5), label = 'first10')
-last_ano.plot.hist(ax = ax, alpha = 0.7, bins=np.arange(-4, 4.1, 0.5), label = 'last10')
+first_ano.plot.hist(ax = ax, alpha = 0.7,bins=np.arange(-4, 4.1, 0.5),color = 'k', label = 'first10')
+last_ano.plot.hist(ax = ax, alpha = 0.7, bins=np.arange(-4, 4.1, 0.5),color = 'r', label = 'last10')
+
+# vline at mean
+plt.axvline(first_ano.mean(), color='k', linestyle='dashed', linewidth=1.5)
+plt.axvline(last_ano.mean(), color='r', linestyle='dashed', linewidth=1.5)
+
+# title
+plt.title("full change in NAO")
 
 plt.legend()
 plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_full_signal_ano.png")
