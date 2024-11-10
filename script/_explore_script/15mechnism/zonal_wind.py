@@ -37,7 +37,7 @@ def decade_sub(JetStream, JetStream_clim):
 
     return JetStream_anomaly
 #%%
-def decade_jet_NS(jet_loc, jet_loc_clim, jet_loc_std, scale = 1, fix_clim = False):
+def decade_jet_NS(jet_loc, jet_loc_clim, jet_loc_std, scale = 1.5, fix_clim = False):
 
     jet_loc_north = jet_loc.copy()
     jet_loc_south = jet_loc.copy()
