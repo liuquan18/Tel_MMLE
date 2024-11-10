@@ -228,7 +228,7 @@ NAO_neg_jet_GB_plot["GB_std"] = NAO_neg_jet_GB_plot.apply(
 
 
 # %%
-fig, ax = plt.subplots(figsize=(8, 6))
+fig, ax = plt.subplots(figsize=(8, 8))
 sns.kdeplot(
     data=NAO_pos_jet_GB_plot,
     x="jet_loc",
@@ -286,12 +286,12 @@ legend_elements = [
 ]
 
 
-ax.legend(handles=legend_elements, loc="upper right", bbox_to_anchor=(1.35, 1))
-
-# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_jet_loc.png")
+ax.legend(handles=legend_elements, loc="upper right")
+plt.tight_layout()
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_jet_loc.png")
 
 # %%
-fig, ax = plt.subplots(figsize=(8, 6))
+fig, ax = plt.subplots(figsize=(8, 8))
 sns.kdeplot(
     data=NAO_pos_jet_GB_plot,
     x="jet_loc_std",
@@ -335,7 +335,7 @@ legend_elements = [
 
 
 ax.legend(handles=legend_elements, loc="upper right", bbox_to_anchor=(1.35, 1))
-
+plt.tight_layout()
 # plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_jet_loc.png")
 
 
