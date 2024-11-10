@@ -3,6 +3,7 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import seaborn as sns
+from matplotlib.lines import Line2D
 from src.mechnisms.mechisms import (
     read_jetStream,
     Jet_location,
@@ -248,6 +249,49 @@ NAO_neg_all_df["NAO_phase"] = "negative"
 # create column called decade, infer from time
 NAO_pos_all_df["decade"] = NAO_pos_all_df["time"].dt.year // 10 * 10
 NAO_neg_all_df["decade"] = NAO_neg_all_df["time"].dt.year // 10 * 10
+
+
+# %%
+# correspondence between NAO and background state
+fig, axes = plt.subplots()
+
+axes.plot(
+    NAO_pos_all_df["decade"],
+    (NAO_pos_all_df["jet_north"] / NAO_pos_all_df["NAO_pos"]),
+    color='C1', linestyle='-'
+)
+axes.plot(
+    NAO_neg_all_df["decade"],
+    (NAO_neg_all_df["jet_north"] / NAO_neg_all_df["NAO_neg"]),
+    color='C0', linestyle='-'
+)
+axes.plot(
+    NAO_pos_all_df["decade"],
+    (NAO_pos_all_df["GB_above"] / NAO_pos_all_df["NAO_pos"]),
+    color='C1', linestyle='--'
+)
+axes.plot(
+    NAO_neg_all_df["decade"],
+    (NAO_neg_all_df["GB_above"] / NAO_neg_all_df["NAO_neg"]),
+    color='C0', linestyle='--'
+)
+# Create custom legend
+
+# Custom legend elements
+legend_elements = [
+    Line2D([0], [0], color='C1', linestyle='-', label='Positive NAO'),
+    Line2D([0], [0], color='C1', linestyle='-', label='Negative NAO'),
+    Line2D([0], [0], color='k',linestyle='-', label='eddy-driven jet stream'),
+    Line2D([0], [0],color='k', linestyle='--', label='greenland blocking'),
+]
+
+# Add the legend to the plot
+axes.legend(handles=legend_elements, loc='upper left')
+
+axes.set_title('Correspondence between NAO and background state')
+
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_background_state.png", dpi = 300)
+
 # %%
 NAO_all_df = pd.concat([NAO_pos_all_df, NAO_neg_all_df], ignore_index=True)
 
@@ -496,7 +540,6 @@ sns.lineplot(
 )
 
 
-
 ax.set_xlabel(r"Eddy-driven jet stream location ($\degree$N)")
 ax.set_ylabel("Greenland Blocking Index proxy (km)")
 
@@ -527,14 +570,14 @@ sns.scatterplot(
 
 # Apply a linearly fitted line to the scatter plot
 sns.regplot(
-    data=NAO_all_df[NAO_all_df['NAO_phase'] == 'negative'],
+    data=NAO_all_df[NAO_all_df["NAO_phase"] == "negative"],
     x="jet_loc_compmean",
     y="GB_compmean",
     scatter=False,
     ax=ax,
     color="blue",
     line_kws={"label": "Linear Fit"},
-    ci=None  # Disable uncertainty shading
+    ci=None,  # Disable uncertainty shading
 )
 
 sns.scatterplot(
@@ -552,14 +595,14 @@ sns.scatterplot(
 )
 
 sns.regplot(
-    data=NAO_all_df[NAO_all_df['NAO_phase'] == 'positive'],
+    data=NAO_all_df[NAO_all_df["NAO_phase"] == "positive"],
     x="jet_loc_compmean",
     y="GB_compmean",
     scatter=False,
     ax=ax,
     color="blue",
     line_kws={"label": "Linear Fit"},
-    ci=None  # Disable uncertainty shading
+    ci=None,  # Disable uncertainty shading
 )
 
 
@@ -575,7 +618,7 @@ non_extreme_first = sns.lineplot(
     ],
     color="k",
     ax=ax,
-    alpha = 0.2,
+    alpha=0.2,
 )
 
 non_extreme_last = sns.lineplot(
@@ -586,7 +629,7 @@ non_extreme_last = sns.lineplot(
     ],
     color="r",
     ax=ax,
-    alpha = 0.2,
+    alpha=0.2,
 )
 # extremes only
 extreme_first = sns.lineplot(
@@ -597,7 +640,7 @@ extreme_first = sns.lineplot(
     ],
     color="k",
     ax=ax,
-    alpha = 0.2,
+    alpha=0.2,
 )
 
 extreme_last = sns.lineplot(
@@ -608,7 +651,7 @@ extreme_last = sns.lineplot(
     ],
     color="r",
     ax=ax,
-    alpha = 0.2,
+    alpha=0.2,
 )
 
 
