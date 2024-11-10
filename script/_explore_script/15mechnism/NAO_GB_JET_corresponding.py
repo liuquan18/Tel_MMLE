@@ -269,6 +269,7 @@ legend_elements = [
 ax.legend(handles=legend_elements, loc='upper right')
 
 ax.set_xlim(36, 62)
+ax.set_ylim(5.35, 5.835)
 ax.set_title('extreme NAO under different background of jet stream and Greenland Blocking')
 
 plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_jet_loc.png")
