@@ -140,9 +140,9 @@ NAO_pos_jet_GB = NAO_pos_df.join(
 NAO_neg_jet_GB = NAO_neg_df.join(
     jet_loc_NAO_neg_df.set_index(["ens", "time"]), on=["ens", "time"]
 ).join(blocking_NAO_neg_df.set_index(["ens", "time"]), on=["ens", "time"])
-#%%
-NAO_pos_jet_GB['decade'] = NAO_pos_jet_GB['time'].dt.year // 10 * 10
-NAO_neg_jet_GB['decade'] = NAO_neg_jet_GB['time'].dt.year // 10 * 10
+# %%
+NAO_pos_jet_GB["decade"] = NAO_pos_jet_GB["time"].dt.year // 10 * 10
+NAO_neg_jet_GB["decade"] = NAO_neg_jet_GB["time"].dt.year // 10 * 10
 
 # %%
 jet_loc_non_extreme_NAO = jet_loc.where((NAO_pos.isnull()) & (NAO_neg.isnull()))
@@ -161,39 +161,84 @@ jet_blocking_non_extreme_NAO_df = jet_loc_non_extreme_NAO_df.join(
 
 # %%
 # add decade column
-jet_blocking_non_extreme_NAO_df["decade"] = jet_blocking_non_extreme_NAO_df[
-    "time"].dt.year // 10 * 10
-
-#%%
-NAO_pos_jet_GB_plot = NAO_pos_jet_GB[NAO_pos_jet_GB['decade'].isin([1850, 2090])]
-# add column called period, value equals to 'first10' if decade is 1850, else 'last10'
-NAO_pos_jet_GB_plot['period'] = NAO_pos_jet_GB_plot['decade'].apply(    
-    lambda x: 'first10' if x == 1850 else 'last10'
+jet_blocking_non_extreme_NAO_df["decade"] = (
+    jet_blocking_non_extreme_NAO_df["time"].dt.year // 10 * 10
 )
-#%%
-NAO_neg_jet_GB_plot = NAO_neg_jet_GB[NAO_neg_jet_GB['decade'].isin([1850, 2090])]
-# add column called period, value equals to 'first10' if decade is 1850, else 'last10'
-NAO_neg_jet_GB_plot['period'] = NAO_neg_jet_GB_plot['decade'].apply(
-    lambda x: 'first10' if x == 1850 else 'last10'
-)
-#%%
-jet_clim_first10 = jet_clim.sel(time = '1859')
-jet_clim_last10 = jet_clim.sel(time = '2099')
 
-GB_clim_first10 = GB_clim.sel(time = '1859')
-GB_clim_last10 = GB_clim.sel(time = '2099')
-#%%
+# %%
+NAO_pos_jet_GB_plot = NAO_pos_jet_GB[NAO_pos_jet_GB["decade"].isin([1850, 2090])]
+# add column called period, value equals to 'first10' if decade is 1850, else 'last10'
+NAO_pos_jet_GB_plot["period"] = NAO_pos_jet_GB_plot["decade"].apply(
+    lambda x: "first10" if x == 1850 else "last10"
+)
+# %%
+NAO_neg_jet_GB_plot = NAO_neg_jet_GB[NAO_neg_jet_GB["decade"].isin([1850, 2090])]
+# add column called period, value equals to 'first10' if decade is 1850, else 'last10'
+NAO_neg_jet_GB_plot["period"] = NAO_neg_jet_GB_plot["decade"].apply(
+    lambda x: "first10" if x == 1850 else "last10"
+)
+# %%
+jet_clim_first10 = jet_clim.sel(time="1859")
+jet_clim_last10 = jet_clim.sel(time="2099")
+# %%
+jet_std_first10 = jet_std.sel(time="1859")
+jet_std_last10 = jet_std.sel(time="2099")
+# %%
+GB_clim_first10 = GB_clim.sel(time="1859")
+GB_clim_last10 = GB_clim.sel(time="2099")
+
+GB_std_first10 = GB_std.sel(time="1859")
+GB_std_last10 = GB_std.sel(time="2099")
+
+# %%
+NAO_pos_jet_GB_plot["jet_loc_std"] = NAO_pos_jet_GB_plot.apply(
+    lambda row: (
+        (row["jet_loc"] - jet_clim_first10.values[0]) / jet_std_first10.values[0]
+        if row["period"] == "first10"
+        else (row["jet_loc"] - jet_clim_last10.values[0]) / jet_std_last10.values[0]
+    ),
+    axis=1,
+)
+NAO_neg_jet_GB_plot["jet_loc_std"] = NAO_neg_jet_GB_plot.apply(
+    lambda row: (
+        (row["jet_loc"] - jet_clim_first10.values[0]) / jet_std_first10.values[0]
+        if row["period"] == "first10"
+        else (row["jet_loc"] - jet_clim_last10.values[0]) / jet_std_last10.values[0]
+    ),
+    axis=1,
+)
+
+NAO_pos_jet_GB_plot["GB_std"] = NAO_pos_jet_GB_plot.apply(
+    lambda row: (
+        (row["GB"] - GB_clim_first10.values[0]) / GB_std_first10.values[0]
+        if row["period"] == "first10"
+        else (row["GB"] - GB_clim_last10.values[0]) / GB_std_last10.values[0]
+    ),
+    axis=1,
+)
+
+NAO_neg_jet_GB_plot["GB_std"] = NAO_neg_jet_GB_plot.apply(
+    lambda row: (
+        (row["GB"] - GB_clim_first10.values[0]) / GB_std_first10.values[0]
+        if row["period"] == "first10"
+        else (row["GB"] - GB_clim_last10.values[0]) / GB_std_last10.values[0]
+    ),
+    axis=1,
+)
+
+
+# %%
 fig, ax = plt.subplots(figsize=(8, 6))
 sns.kdeplot(
     data=NAO_pos_jet_GB_plot,
     x="jet_loc",
     y="GB",
     ax=ax,
-    hue = 'period',
+    hue="period",
     fill=True,
     alpha=0.5,
     common_norm=True,
-    legend=False
+    legend=False,
 )
 
 sns.kdeplot(
@@ -201,209 +246,279 @@ sns.kdeplot(
     x="jet_loc",
     y="GB",
     ax=ax,
-    hue = 'period',
+    hue="period",
     fill=False,
     alpha=0.7,
     common_norm=True,
-    legend=False
+    legend=False,
 )
 
 
 ax.set_xlabel(r"Eddy-driven jet stream location ($\degree$N)")
 ax.set_ylabel("Greenland Blocking Index proxy (km)")
 
-ax.set_title('extreme NAO under different background states')
+ax.set_title("extreme NAO under different background states")
 
 
 # vline for jet_clim_first10 and jet_clim_last10
-ax.axvline(jet_clim_first10, linestyle='--', label='jet climatology (1850-1859)', color = 'C0')
-ax.axvline(jet_clim_last10, linestyle='--', label='jet climatology (2090-2099)', color = 'C1')
+ax.axvline(
+    jet_clim_first10, linestyle="--", label="jet climatology (1850-1859)", color="C0"
+)
+ax.axvline(
+    jet_clim_last10, linestyle="--", label="jet climatology (2090-2099)", color="C1"
+)
 # hline for GB_clim_first10 and GB_clim_last10
-ax.axhline(GB_clim_first10, linestyle='--', label='GB climatology (1850-1859)', color = 'C0')
-ax.axhline(GB_clim_last10, linestyle='--', label='GB climatology (2090-2099)', color = 'C1')
-
-# Create custom legend
-legend_elements = [
-    Line2D([0], [0], color='C0', lw=2, label='first10 (1850-1859)', linestyle='-'),
-    Line2D([0], [0], color='C1', lw=2, label='last10 (2090-2099)', linestyle='-'),
-    Patch(facecolor='C0', edgecolor='k', label='NAO (positive)', alpha=0.5),
-    Patch(facecolor='none', edgecolor='k', label='NAO (negative)', alpha=0.5),
-    Line2D([0], [0], color='C0', lw=2, label='first10 climatology', linestyle='--'),
-    Line2D([0], [0], color='C1', lw=2, label='last10 climatology', linestyle='--'),
-]
-
-
-ax.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.35, 1))
-
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_jet_loc.png")
-
-
-#%%
-fig, ax = plt.subplots()
-sns.kdeplot(
-    data=NAO_pos_jet_GB[NAO_pos_jet_GB['decade'] == 1850],
-    x="jet_loc",
-    y="GB",
-    ax=ax,
-    fill=True,
-    alpha=0.5,
-    color='C1',
+ax.axhline(
+    GB_clim_first10, linestyle="--", label="GB climatology (1850-1859)", color="C0"
 )
-
-# Apply a linearly fitted line to the scatter plot
-sns.regplot(
-    data=NAO_pos_jet_GB[NAO_pos_jet_GB['decade'] == 1850],
-    x="jet_loc",
-    y="GB",
-    scatter=False,
-    ax=ax,
-    color="C1",
-    line_kws={"label": "Linear Fit", "linewidth": 1, "linestyle": "-"},
-    ci=None,  # Disable uncertainty shading
-)
-
-sns.kdeplot(
-    data=NAO_pos_jet_GB[NAO_pos_jet_GB['decade'] == 2090],
-    x="jet_loc",
-    y="GB",
-    ax=ax,
-    fill=False,
-    alpha=0.7,
-    color='C1',
-)
-
-# Apply a linearly fitted line to the scatter plot
-sns.regplot(
-    data=NAO_pos_jet_GB[NAO_pos_jet_GB['decade'] == 2090],
-    x="jet_loc",
-    y="GB",
-    scatter=False,
-    ax=ax,
-    color="C1",
-    line_kws={"label": "Linear Fit", "linewidth": 1, "linestyle": "--"},
-    ci=None,  # Disable uncertainty shading
-)
-
-sns.kdeplot(
-    data=NAO_neg_jet_GB[NAO_neg_jet_GB['decade'] == 1850],
-    x="jet_loc",
-    y="GB",
-    ax=ax,
-    fill=True,
-    alpha=0.5,
-    color='C0',
-    linestyle='--',
-)
-
-# Apply a linearly fitted line to the scatter plot
-sns.regplot(
-    data=NAO_neg_jet_GB[NAO_neg_jet_GB['decade'] == 1850],
-    x="jet_loc",
-    y="GB",
-    scatter=False,
-    ax=ax,
-    color="C0",
-    line_kws={"label": "Linear Fit", "linewidth": 1, "linestyle": "-"},
-    ci=None,  # Disable uncertainty shading
-)
-
-sns.kdeplot(
-    data=NAO_neg_jet_GB[NAO_neg_jet_GB['decade'] == 2090],
-    x="jet_loc",
-    y="GB",
-    ax=ax,
-    fill=False,
-    alpha=0.7,
-    color='C0',
-    linestyle='--',
-)
-
-# Apply a linearly fitted line to the scatter plot
-sns.regplot(
-    data=NAO_neg_jet_GB[NAO_neg_jet_GB['decade'] == 2090],
-    x="jet_loc",
-    y="GB",
-    scatter=False,
-    ax=ax,
-    color="C0",
-    line_kws={"label": "Linear Fit", "linewidth": 1, "linestyle": "--"},
-    ci=None,  # Disable uncertainty shading
+ax.axhline(
+    GB_clim_last10, linestyle="--", label="GB climatology (2090-2099)", color="C1"
 )
 
 # Create custom legend
 legend_elements = [
-    Line2D([0], [0], color='C0', lw=2, label='NAO negative', linestyle='-'),
-    Line2D([0], [0], color='C1', lw=2, label='NAO Positive', linestyle='-'),
-    Patch(facecolor='C0', edgecolor='k', label='first10 (1850-1859)', alpha=0.5),
-    Patch(facecolor='none', edgecolor='k', label='last10 (2090-2099)', alpha=0.5),
+    Line2D([0], [0], color="C0", lw=2, label="first10 (1850-1859)", linestyle="-"),
+    Line2D([0], [0], color="C1", lw=2, label="last10 (2090-2099)", linestyle="-"),
+    Patch(facecolor="C0", edgecolor="k", label="NAO (positive)", alpha=0.5),
+    Patch(facecolor="none", edgecolor="k", label="NAO (negative)", alpha=0.5),
+    Line2D([0], [0], color="C0", lw=2, label="first10 climatology", linestyle="--"),
+    Line2D([0], [0], color="C1", lw=2, label="last10 climatology", linestyle="--"),
 ]
 
 
-ax.legend(handles=legend_elements, loc='upper right')
-
-ax.set_xlim(36, 62)
-ax.set_ylim(5.35, 5.835)
-ax.set_title('extreme NAO under different background of jet stream and Greenland Blocking')
+ax.legend(handles=legend_elements, loc="upper right", bbox_to_anchor=(1.35, 1))
 
 # plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_jet_loc.png")
 
-#%%
+# %%
+fig, ax = plt.subplots(figsize=(8, 6))
+sns.kdeplot(
+    data=NAO_pos_jet_GB_plot,
+    x="jet_loc_std",
+    y="GB_std",
+    ax=ax,
+    hue="period",
+    fill=True,
+    alpha=0.5,
+    common_norm=True,
+    legend=False,
+)
+
+sns.kdeplot(
+    data=NAO_neg_jet_GB_plot,
+    x="jet_loc_std",
+    y="GB_std",
+    ax=ax,
+    hue="period",
+    fill=False,
+    alpha=0.7,
+    common_norm=True,
+    legend=False,
+)
+
+
+ax.set_xlabel(r"Eddy-driven jet stream location ($\degree$N)")
+ax.set_ylabel("Greenland Blocking Index proxy (km)")
+
+ax.set_title("extreme NAO under different background states")
+
+
+# Create custom legend
+legend_elements = [
+    Line2D([0], [0], color="C0", lw=2, label="first10 (1850-1859)", linestyle="-"),
+    Line2D([0], [0], color="C1", lw=2, label="last10 (2090-2099)", linestyle="-"),
+    Patch(facecolor="C0", edgecolor="k", label="NAO (positive)", alpha=0.5),
+    Patch(facecolor="none", edgecolor="k", label="NAO (negative)", alpha=0.5),
+    Line2D([0], [0], color="C0", lw=2, label="first10 climatology", linestyle="--"),
+    Line2D([0], [0], color="C1", lw=2, label="last10 climatology", linestyle="--"),
+]
+
+
+ax.legend(handles=legend_elements, loc="upper right", bbox_to_anchor=(1.35, 1))
+
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_jet_loc.png")
+
+
+# %%
+fig, ax = plt.subplots()
+sns.kdeplot(
+    data=NAO_pos_jet_GB[NAO_pos_jet_GB["decade"] == 1850],
+    x="jet_loc",
+    y="GB",
+    ax=ax,
+    fill=True,
+    alpha=0.5,
+    color="C1",
+)
+
+# Apply a linearly fitted line to the scatter plot
+sns.regplot(
+    data=NAO_pos_jet_GB[NAO_pos_jet_GB["decade"] == 1850],
+    x="jet_loc",
+    y="GB",
+    scatter=False,
+    ax=ax,
+    color="C1",
+    line_kws={"label": "Linear Fit", "linewidth": 1, "linestyle": "-"},
+    ci=None,  # Disable uncertainty shading
+)
+
+sns.kdeplot(
+    data=NAO_pos_jet_GB[NAO_pos_jet_GB["decade"] == 2090],
+    x="jet_loc",
+    y="GB",
+    ax=ax,
+    fill=False,
+    alpha=0.7,
+    color="C1",
+)
+
+# Apply a linearly fitted line to the scatter plot
+sns.regplot(
+    data=NAO_pos_jet_GB[NAO_pos_jet_GB["decade"] == 2090],
+    x="jet_loc",
+    y="GB",
+    scatter=False,
+    ax=ax,
+    color="C1",
+    line_kws={"label": "Linear Fit", "linewidth": 1, "linestyle": "--"},
+    ci=None,  # Disable uncertainty shading
+)
+
+sns.kdeplot(
+    data=NAO_neg_jet_GB[NAO_neg_jet_GB["decade"] == 1850],
+    x="jet_loc",
+    y="GB",
+    ax=ax,
+    fill=True,
+    alpha=0.5,
+    color="C0",
+    linestyle="--",
+)
+
+# Apply a linearly fitted line to the scatter plot
+sns.regplot(
+    data=NAO_neg_jet_GB[NAO_neg_jet_GB["decade"] == 1850],
+    x="jet_loc",
+    y="GB",
+    scatter=False,
+    ax=ax,
+    color="C0",
+    line_kws={"label": "Linear Fit", "linewidth": 1, "linestyle": "-"},
+    ci=None,  # Disable uncertainty shading
+)
+
+sns.kdeplot(
+    data=NAO_neg_jet_GB[NAO_neg_jet_GB["decade"] == 2090],
+    x="jet_loc",
+    y="GB",
+    ax=ax,
+    fill=False,
+    alpha=0.7,
+    color="C0",
+    linestyle="--",
+)
+
+# Apply a linearly fitted line to the scatter plot
+sns.regplot(
+    data=NAO_neg_jet_GB[NAO_neg_jet_GB["decade"] == 2090],
+    x="jet_loc",
+    y="GB",
+    scatter=False,
+    ax=ax,
+    color="C0",
+    line_kws={"label": "Linear Fit", "linewidth": 1, "linestyle": "--"},
+    ci=None,  # Disable uncertainty shading
+)
+
+# Create custom legend
+legend_elements = [
+    Line2D([0], [0], color="C0", lw=2, label="NAO negative", linestyle="-"),
+    Line2D([0], [0], color="C1", lw=2, label="NAO Positive", linestyle="-"),
+    Patch(facecolor="C0", edgecolor="k", label="first10 (1850-1859)", alpha=0.5),
+    Patch(facecolor="none", edgecolor="k", label="last10 (2090-2099)", alpha=0.5),
+]
+
+
+ax.legend(handles=legend_elements, loc="upper right")
+
+ax.set_xlim(36, 62)
+ax.set_ylim(5.35, 5.835)
+ax.set_title(
+    "extreme NAO under different background of jet stream and Greenland Blocking"
+)
+
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_jet_loc.png")
+
+# %%
 # non extreme
 fig, ax = plt.subplots()
 # scatter plot
 sns.kdeplot(
-    data=jet_blocking_non_extreme_NAO_df[jet_blocking_non_extreme_NAO_df['decade'] == 1850],
-    x='jet_loc',
-    y='GB',
+    data=jet_blocking_non_extreme_NAO_df[
+        jet_blocking_non_extreme_NAO_df["decade"] == 1850
+    ],
+    x="jet_loc",
+    y="GB",
     ax=ax,
     alpha=0.5,
-    color='C0',
-    label='first10 (1850-1859)',
+    color="C0",
+    label="first10 (1850-1859)",
 )
 
 sns.regplot(
-    data = jet_blocking_non_extreme_NAO_df[jet_blocking_non_extreme_NAO_df['decade'] == 1850],
-    x = 'jet_loc',
-    y = 'GB',
-    scatter = False,
-    ax = ax,
-    color = 'C0',
-    line_kws = {'label': 'Non-extreme NAO', 'linewidth': 1, 'linestyle': '-'},
+    data=jet_blocking_non_extreme_NAO_df[
+        jet_blocking_non_extreme_NAO_df["decade"] == 1850
+    ],
+    x="jet_loc",
+    y="GB",
+    scatter=False,
+    ax=ax,
+    color="C0",
+    line_kws={"label": "Non-extreme NAO", "linewidth": 1, "linestyle": "-"},
 )
 
 sns.kdeplot(
-    data=jet_blocking_non_extreme_NAO_df[jet_blocking_non_extreme_NAO_df['decade'] == 2090],
-    x='jet_loc',
-    y='GB',
+    data=jet_blocking_non_extreme_NAO_df[
+        jet_blocking_non_extreme_NAO_df["decade"] == 2090
+    ],
+    x="jet_loc",
+    y="GB",
     ax=ax,
     alpha=0.5,
-    color='C1',
-    label='last10 (2090-2099)',
+    color="C1",
+    label="last10 (2090-2099)",
 )
 
 
 sns.regplot(
-    data = jet_blocking_non_extreme_NAO_df[jet_blocking_non_extreme_NAO_df['decade'] == 2090],
-    x = 'jet_loc',
-    y = 'GB',
-    scatter = False,
-    ax = ax,
-    color = 'C1',
-    line_kws = {'label': 'Non-extreme NAO', 'linewidth': 1, 'linestyle': '--'},
+    data=jet_blocking_non_extreme_NAO_df[
+        jet_blocking_non_extreme_NAO_df["decade"] == 2090
+    ],
+    x="jet_loc",
+    y="GB",
+    scatter=False,
+    ax=ax,
+    color="C1",
+    line_kws={"label": "Non-extreme NAO", "linewidth": 1, "linestyle": "--"},
 )
 
-#legend
+# legend
 legend_elements = [
-    Line2D([0], [0], color='C0', lw=2, label='first10 (1850-1859)', linestyle='-'),
-    Line2D([0], [0], color='C1', lw=2, label='last10 (2090-2099)', linestyle='-'),
+    Line2D([0], [0], color="C0", lw=2, label="first10 (1850-1859)", linestyle="-"),
+    Line2D([0], [0], color="C1", lw=2, label="last10 (2090-2099)", linestyle="-"),
 ]
 
-ax.legend(handles=legend_elements, loc='upper right')
+ax.legend(handles=legend_elements, loc="upper right")
 ax.set_xlim(36, 62)
 
-ax.set_title("Non-extreme NAO under different background of jet stream and Greenland Blocking")
+ax.set_title(
+    "Non-extreme NAO under different background of jet stream and Greenland Blocking"
+)
 
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/non_extreme_NAO_GB_jet_loc.png")
+plt.savefig(
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/non_extreme_NAO_GB_jet_loc.png"
+)
 
 
 # %%
@@ -765,7 +880,6 @@ blocking_extreme_NAO_df = blocking_extreme_NAO.to_dataframe("GB").reset_index()[
 jet_blocking_extreme_NAO_df = jet_loc_extreme_NAO_df.join(
     blocking_extreme_NAO_df.set_index(["ens", "time"]), on=["ens", "time"]
 )
-
 
 
 # %%
