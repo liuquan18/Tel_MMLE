@@ -35,15 +35,19 @@ GB_neg = xr.open_dataset(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/GB_neg.nc"
 ).GB
 # %%
-jet_clim = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/jet_loc_clim.nc").lat
-jet_std = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/jet_loc_std.nc").lat
+jet_clim = xr.open_dataset(
+    "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/jet_loc_clim.nc"
+).lat
+jet_std = xr.open_dataset(
+    "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/jet_loc_std.nc"
+).lat
 
 jet_upper = jet_clim + jet_std
 jet_lower = jet_clim - jet_std
-#%%
-jet_clim_df = jet_clim.to_dataframe( "jet_clim").reset_index()[['time', 'jet_clim']]
-jet_upper_df = jet_upper.to_dataframe( "jet_upper").reset_index()[['time', 'jet_upper']]
-jet_lower_df = jet_lower.to_dataframe( "jet_lower").reset_index()[['time', 'jet_lower']]
+# %%
+jet_clim_df = jet_clim.to_dataframe("jet_clim").reset_index()[["time", "jet_clim"]]
+jet_upper_df = jet_upper.to_dataframe("jet_upper").reset_index()[["time", "jet_upper"]]
+jet_lower_df = jet_lower.to_dataframe("jet_lower").reset_index()[["time", "jet_lower"]]
 
 
 # %%
@@ -57,18 +61,22 @@ jet_loc_north_NAO_neg = jet_loc_north.where(NAO_neg.notnull())
 jet_loc_south_NAO_pos = jet_loc_south.where(NAO_pos.notnull())
 jet_loc_south_NAO_neg = jet_loc_south.where(NAO_neg.notnull())
 # %%
-GB_clim = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/GB_clim.nc").var156
-GB_std = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/GB_std.nc").var156
+GB_clim = xr.open_dataset(
+    "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/GB_clim.nc"
+).var156
+GB_std = xr.open_dataset(
+    "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/GB_std.nc"
+).var156
 
 GB_upper = GB_clim + GB_std
 GB_lower = GB_clim - GB_std
 
-#%%
-GB_clim_df = GB_clim.to_dataframe( "GB_clim").reset_index()[['time', 'GB_clim']]
-GB_upper_df = GB_upper.to_dataframe( "GB_upper").reset_index()[['time', 'GB_upper']]
-GB_lower_df = GB_lower.to_dataframe( "GB_lower").reset_index()[['time', 'GB_lower']]
+# %%
+GB_clim_df = GB_clim.to_dataframe("GB_clim").reset_index()[["time", "GB_clim"]]
+GB_upper_df = GB_upper.to_dataframe("GB_upper").reset_index()[["time", "GB_upper"]]
+GB_lower_df = GB_lower.to_dataframe("GB_lower").reset_index()[["time", "GB_lower"]]
 
-#%%
+# %%
 blocking_NAO_pos = blocking.where(NAO_pos.notnull())
 blocking_NAO_neg = blocking.where(NAO_neg.notnull())
 
@@ -243,7 +251,7 @@ NAO_neg_all_df["decade"] = NAO_neg_all_df["time"].dt.year // 10 * 10
 # %%
 NAO_all_df = pd.concat([NAO_pos_all_df, NAO_neg_all_df], ignore_index=True)
 
-#%%
+# %%
 # new column 'extreme_count', value equals to 'NAO_pos' if NAO_phase is positive, else 'NAO_neg'
 NAO_all_df["extreme_count"] = NAO_all_df.apply(
     lambda x: x["NAO_pos"] if x["NAO_phase"] == "positive" else x["NAO_neg"], axis=1
@@ -254,16 +262,8 @@ NAO_all_df["jet_north_south"] = NAO_all_df.apply(
     lambda x: x["jet_north"] if x["NAO_phase"] == "positive" else -1 * x["jet_south"],
     axis=1,
 )
-
 # %%
-jet_loc_df = jet_loc.to_dataframe("jet_loc").reset_index()[['ens','time', 'jet_loc']]
-bloocking_df = blocking.to_dataframe("GB").reset_index()[['ens','time', 'GB']]
-jet_blocking_df = jet_loc_df.join(bloocking_df.set_index(['ens', 'time']), on = ['ens', 'time'])
-# %%
-
-
-# %%
-fig, axes = plt.subplots(2,1, figsize=(8, 10))
+fig, axes = plt.subplots(2, 1, figsize=(8, 10))
 ax1 = axes[0]
 scatter1 = sns.scatterplot(
     data=NAO_all_df,
@@ -273,7 +273,7 @@ scatter1 = sns.scatterplot(
     sizes=(10, 400),
     legend="brief",
     ax=ax1,
-    alpha = 0.7
+    alpha=0.7,
 )
 scatter2 = sns.scatterplot(
     data=NAO_all_df,
@@ -284,7 +284,7 @@ scatter2 = sns.scatterplot(
     legend=False,
     ax=ax1,
     marker="^",
-    alpha = 0.7
+    alpha=0.7,
 )
 ax2 = axes[1]
 sns.scatterplot(
@@ -310,7 +310,7 @@ sns.scatterplot(
 )
 
 # %%
-fig, axes = plt.subplots(2,1, figsize=(8, 10))
+fig, axes = plt.subplots(2, 1, figsize=(8, 10))
 ax1 = axes[0]
 scatter1 = sns.scatterplot(
     data=NAO_all_df,
@@ -360,12 +360,11 @@ sns.scatterplot(
     palette="flare",
 )
 # Move the legend to the bottom right
-ax2.legend(loc='lower right')
+ax2.legend(loc="lower right")
 # %%
 
 
-
-#%%
+# %%
 fig, ax = plt.subplots()
 sns.scatterplot(
     data=NAO_all_df,
@@ -375,33 +374,15 @@ sns.scatterplot(
     legend="brief",
     palette="flare",
     size="extreme_count",
-    sizes = (20, 200),
-    ax=ax
+    sizes=(20, 200),
+    ax=ax,
 )
 
-sns.lineplot(
-    data=NAO_all_df,
-    x="jet_clim",
-    y="decade",
-    color="gray",
-    ax=ax
-)
+sns.lineplot(data=NAO_all_df, x="jet_clim", y="decade", color="gray", ax=ax)
 
-sns.lineplot(
-    data=NAO_all_df,
-    x="jet_upper",
-    y="decade",
-    color="gray",
-    ax=ax
-)
+sns.lineplot(data=NAO_all_df, x="jet_upper", y="decade", color="gray", ax=ax)
 
-sns.lineplot(
-    data=NAO_all_df,
-    x="jet_lower",
-    y="decade",
-    color="gray",
-    ax=ax
-)
+sns.lineplot(data=NAO_all_df, x="jet_lower", y="decade", color="gray", ax=ax)
 
 # %%
 sns.scatterplot(
@@ -412,7 +393,7 @@ sns.scatterplot(
     legend="brief",
     palette="flare",
     size="extreme_count",
-    sizes = (20, 200),
+    sizes=(20, 200),
 )
 # %%
 sns.scatterplot(
@@ -423,7 +404,7 @@ sns.scatterplot(
     legend="brief",
     palette="flare",
     size="extreme_count",
-    sizes = (20, 200),
+    sizes=(20, 200),
 )
 # %%
 sns.scatterplot(
@@ -435,13 +416,52 @@ sns.scatterplot(
     palette="flare",
     size="extreme_count",
     hue="decade",
-    sizes = (20, 500),
-    alpha = 0.7,
+    sizes=(20, 500),
+    alpha=0.7,
 )
+
+
+# %%
+jet_loc_df = jet_loc.to_dataframe("jet_loc").reset_index()[["ens", "time", "jet_loc"]]
+bloocking_df = blocking.to_dataframe("GB").reset_index()[["ens", "time", "GB"]]
+jet_blocking_df = jet_loc_df.join(
+    bloocking_df.set_index(["ens", "time"]), on=["ens", "time"]
+)
+# %%
+jet_loc_extreme_NAO = jet_loc.where((NAO_pos.notnull()) | (NAO_neg.notnull()))
+blocking_extreme_NAO = blocking.where((NAO_pos.notnull()) | (NAO_neg.notnull()))
+
+jet_loc_extreme_NAO_df = jet_loc_extreme_NAO.to_dataframe("jet_loc").reset_index()[
+    ["ens", "time", "jet_loc"]
+]
+blocking_extreme_NAO_df = blocking_extreme_NAO.to_dataframe("GB").reset_index()[
+    ["ens", "time", "GB"]
+]
+
+jet_blocking_extreme_NAO_df = jet_loc_extreme_NAO_df.join(
+    blocking_extreme_NAO_df.set_index(["ens", "time"]), on=["ens", "time"]
+)
+
+# %%
+jet_loc_non_extreme_NAO = jet_loc.where((NAO_pos.isnull()) & (NAO_neg.isnull()))
+blocking_non_extreme_NAO = blocking.where((NAO_pos.isnull()) & (NAO_neg.isnull()))
+
+jet_loc_non_extreme_NAO_df = jet_loc_non_extreme_NAO.to_dataframe(
+    "jet_loc"
+).reset_index()[["ens", "time", "jet_loc"]]
+blocking_non_extreme_NAO_df = blocking_non_extreme_NAO.to_dataframe("GB").reset_index()[
+    ["ens", "time", "GB"]
+]
+
+jet_blocking_non_extreme_NAO_df = jet_loc_non_extreme_NAO_df.join(
+    blocking_non_extreme_NAO_df.set_index(["ens", "time"]), on=["ens", "time"]
+)
+
+
 # %%
 fig, ax = plt.subplots()
 sns.scatterplot(
-    data=NAO_all_df[NAO_all_df['decade'].isin(np.arange(1850, 1910, 10))],
+    data=NAO_all_df[NAO_all_df["decade"].isin(np.arange(1850, 1910, 10))],
     x="jet_loc_compmean",
     y="GB_compmean",
     style="NAO_phase",
@@ -452,7 +472,7 @@ sns.scatterplot(
     sizes=(20, 500),
     alpha=0.7,
     ax=ax,
-    edgecolor='black',  # Add edge color to the markers
+    edgecolor="black",  # Add edge color to the markers
     linewidth=1,  # Set the width of the edge
 )
 
@@ -461,7 +481,7 @@ sns.scatterplot(
     x="jet_loc_compmean",
     y="GB_compmean",
     style="NAO_phase",
-    legend='brief',
+    legend="brief",
     palette="flare",
     size="extreme_count",
     hue="decade",
@@ -472,36 +492,133 @@ sns.scatterplot(
 
 
 sns.lineplot(
-    x = 'jet_clim',
-    y = 'GB_clim',
-    data = NAO_all_df,
-    color = 'k',
-    label = 'climatology',
-    ax = ax
+    x="jet_clim", y="GB_clim", data=NAO_all_df, color="k", label="climatology", ax=ax
 )
 
-sns.lineplot(
-    x = 'jet_loc',
-    y = 'GB',
-    data = jet_blocking_df[jet_blocking_df['time'].dt.year.isin(np.arange(1850, 1910))],
-    color = 'k',
-    ax = ax
+
+
+ax.set_xlabel(r"Eddy-driven jet stream location ($\degree$N)")
+ax.set_ylabel("Greenland Blocking Index proxy (km)")
+
+ax.set_xlim(40.5, 60.5)
+
+# move the legend to the outside using bbox_to_anchor
+plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_JET.png")
+
+
+# %%
+fig, ax = plt.subplots()
+sns.scatterplot(
+    data=NAO_all_df[NAO_all_df["decade"].isin(np.arange(1850, 1910, 10))],
+    x="jet_loc_compmean",
+    y="GB_compmean",
+    style="NAO_phase",
+    legend=False,
+    palette="flare",
+    size="extreme_count",
+    hue="decade",
+    sizes=(20, 500),
+    alpha=0.7,
+    ax=ax,
+    edgecolor="black",  # Add edge color to the markers
+    linewidth=1,  # Set the width of the edge
 )
 
-sns.lineplot(
-    x = 'jet_loc',
-    y = 'GB',
-    data = jet_blocking_df[jet_blocking_df['time'].dt.year.isin(np.arange(2040, 2100))],
-    color = 'r',
-    ax = ax
+# Apply a linearly fitted line to the scatter plot
+sns.regplot(
+    data=NAO_all_df[NAO_all_df['NAO_phase'] == 'negative'],
+    x="jet_loc_compmean",
+    y="GB_compmean",
+    scatter=False,
+    ax=ax,
+    color="blue",
+    line_kws={"label": "Linear Fit"},
+    ci=None  # Disable uncertainty shading
+)
+
+sns.scatterplot(
+    data=NAO_all_df,
+    x="jet_loc_compmean",
+    y="GB_compmean",
+    style="NAO_phase",
+    legend="brief",
+    palette="flare",
+    size="extreme_count",
+    hue="decade",
+    sizes=(20, 500),
+    alpha=0.7,
+    ax=ax,
+)
+
+sns.regplot(
+    data=NAO_all_df[NAO_all_df['NAO_phase'] == 'positive'],
+    x="jet_loc_compmean",
+    y="GB_compmean",
+    scatter=False,
+    ax=ax,
+    color="blue",
+    line_kws={"label": "Linear Fit"},
+    ci=None  # Disable uncertainty shading
+)
+
+
+global_warming = sns.lineplot(
+    x="jet_clim", y="GB_clim", data=NAO_all_df, color="k", label="climatology", ax=ax
+)
+
+non_extreme_first = sns.lineplot(
+    x="jet_loc",
+    y="GB",
+    data=jet_blocking_non_extreme_NAO_df[
+        jet_blocking_non_extreme_NAO_df["time"].dt.year.isin(np.arange(1850, 1910))
+    ],
+    color="k",
+    ax=ax,
+    alpha = 0.2,
+)
+
+non_extreme_last = sns.lineplot(
+    x="jet_loc",
+    y="GB",
+    data=jet_blocking_non_extreme_NAO_df[
+        jet_blocking_non_extreme_NAO_df["time"].dt.year.isin(np.arange(2040, 2100))
+    ],
+    color="r",
+    ax=ax,
+    alpha = 0.2,
+)
+# extremes only
+extreme_first = sns.lineplot(
+    x="jet_loc",
+    y="GB",
+    data=jet_blocking_extreme_NAO_df[
+        jet_blocking_extreme_NAO_df["time"].dt.year.isin(np.arange(1850, 1980))
+    ],
+    color="k",
+    ax=ax,
+    alpha = 0.2,
+)
+
+extreme_last = sns.lineplot(
+    x="jet_loc",
+    y="GB",
+    data=jet_blocking_extreme_NAO_df[
+        jet_blocking_extreme_NAO_df["time"].dt.year.isin(np.arange(2070, 2100))
+    ],
+    color="r",
+    ax=ax,
+    alpha = 0.2,
 )
 
 
 ax.set_xlabel(r"Eddy-driven jet stream location ($\degree$N)")
 ax.set_ylabel("Greenland Blocking Index proxy (km)")
 
+ax.set_xlim(40.5, 60.5)
+
 # move the legend to the outside using bbox_to_anchor
-plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
 # plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_JET.png")
 
 # %%
