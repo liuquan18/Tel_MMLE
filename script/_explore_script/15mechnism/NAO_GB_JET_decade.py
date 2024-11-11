@@ -314,21 +314,22 @@ scatter1 = sns.scatterplot(
     x="jet_north",
     y="NAO_pos",
     size="decade",
-    sizes=(10, 400),
+    sizes=(10, 500),
     legend="brief",
     ax=ax1,
     alpha=0.7,
+    color = 'C1'
 )
 scatter2 = sns.scatterplot(
     data=NAO_all_df,
     x="jet_north",
     y="NAO_neg",
     size="decade",
-    sizes=(10, 400),
+    sizes=(10, 500),
     legend=False,
     ax=ax1,
-    marker="^",
     alpha=0.7,
+    color = 'C0'
 )
 ax2 = axes[1]
 sns.scatterplot(
@@ -336,23 +337,31 @@ sns.scatterplot(
     x="GB_above",
     y="NAO_pos",
     size="decade",
-    sizes=(10, 400),
+    sizes=(10, 500),
     legend="brief",
     ax=ax2,
-    palette="flare",
+    alpha = 0.7,
+    color = 'C1'
 )
 sns.scatterplot(
     data=NAO_all_df,
     x="GB_above",
     y="NAO_neg",
     size="decade",
-    sizes=(10, 400),
+    sizes=(10, 500),
     legend=False,
     ax=ax2,
-    marker="^",
-    palette="flare",
+    alpha = 0.7,
+    color = 'C0'
 )
 
+ax1.set_xlabel("count of jet stream location (> 1.5 std)")
+ax1.set_ylabel("count of NAO extremes (> 1.5 std)")
+
+ax2.set_xlabel("count of blocking (> 1.5 std)")
+ax2.set_ylabel("count of NAO extremes (> 1.5 std)")
+
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_JET_count.png", dpi = 300)
 # %%
 fig, axes = plt.subplots(2, 1, figsize=(8, 10))
 ax1 = axes[0]
@@ -363,7 +372,7 @@ scatter1 = sns.scatterplot(
     hue="decade",
     size="decade",
     sizes=(200, 200),
-    legend="brief",
+    legend=False,
     ax=ax1,
     palette="flare",
 )
@@ -405,28 +414,101 @@ sns.scatterplot(
 )
 # Move the legend to the bottom right
 ax2.legend(loc="lower right")
+
+ax1.set_xlabel(r"Eddy-driven jet stream location ($\degree$N)")
+ax1.set_ylabel("NAO extremes (> 1.5 std)")
+
+ax2.set_xlabel("Greenland Blocking Index proxy (km)")
+ax2.set_ylabel("NAO extremes (> 1.5 std)")
+
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_JET_compmean.png", dpi = 300)
+
+
 # %%
 
 
 # %%
-fig, ax = plt.subplots()
+fig, axes = plt.subplots(2,1, figsize=(10, 10))
+
+ax1 = axes[0]
 sns.scatterplot(
     data=NAO_all_df,
-    x="jet_loc_compmean",
-    y="decade",
+    x="decade",
+    y='jet_loc_compmean',
     hue="NAO_phase",
     legend="brief",
     palette="flare",
     size="extreme_count",
-    sizes=(20, 200),
-    ax=ax,
+    sizes=(10, 500),
+    ax=ax1,
 )
 
-sns.lineplot(data=NAO_all_df, x="jet_clim", y="decade", color="gray", ax=ax)
+sns.lineplot(data=NAO_all_df, x="decade", y="jet_clim", color="gray", ax=ax1)
 
-sns.lineplot(data=NAO_all_df, x="jet_upper", y="decade", color="gray", ax=ax)
+sns.lineplot(data=NAO_all_df, x="decade", y="jet_upper", color="gray", ax=ax1)
 
-sns.lineplot(data=NAO_all_df, x="jet_lower", y="decade", color="gray", ax=ax)
+sns.lineplot(data=NAO_all_df, x="decade", y="jet_lower", color="gray", ax=ax1)
+
+ax2 = axes[1]
+sns.scatterplot(
+    data=NAO_all_df,
+    x="decade",
+    y="GB_compmean",
+    hue="NAO_phase",
+    legend="brief",
+    palette="flare",
+    size="extreme_count",
+    sizes=(10, 500),
+    ax=ax2,
+)
+
+sns.lineplot(data=NAO_all_df, x="decade", y="GB_clim", color="gray", ax=ax2)
+
+sns.lineplot(data=NAO_all_df, x="decade", y="GB_upper", color="gray", ax=ax2)
+
+sns.lineplot(data=NAO_all_df, x="decade", y="GB_lower", color="gray", ax=ax2)
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/temporal_NAO_JET_GB.png", dpi = 300)
+#%%
+
+fig, axes = plt.subplots(2,1, figsize=(10, 10))
+
+ax1 = axes[0]
+sns.scatterplot(
+    data=NAO_all_df,
+    x="extreme_count",
+    y='jet_north',
+    hue="decade",
+    style="NAO_phase",
+    legend="brief",
+    palette="flare",
+    size="extreme_count",
+    sizes=(10, 500),
+    ax=ax1,
+)
+
+ax2 = axes[1]
+sns.scatterplot(
+    data=NAO_all_df,
+    x="extreme_count",
+    y="GB_above",
+    hue="decade",
+    style="NAO_phase",
+    legend="brief",
+    palette="flare",
+    size="extreme_count",
+    sizes=(10, 500),
+    ax=ax2,
+)
+
+# move legend to the outside
+ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+ax2.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+# 45 degree line
+ax1.plot([150, 250], [150, 250], ls="--", c=".3")
+ax2.plot([150, 250], [150, 250], ls="--", c=".3")
+
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_JET_extreme_count_vs.png", dpi = 300)
 
 # %%
 sns.scatterplot(
