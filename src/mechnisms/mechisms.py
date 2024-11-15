@@ -29,7 +29,7 @@ def to_dataframe(arr, name = 'pc'):
 # %%
 def read_jetStream(model):
     JetStream = []
-    jet_dir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/NA_EJ_"
+    jet_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/NA_EJ_"
     for month in ["Jun", "Jul", "Aug"]:
         all_ens_lists = sorted(glob.glob(jet_dir + month + "/*.nc"))
         jet = xr.open_mfdataset(all_ens_lists, combine="nested", concat_dim="ens")
