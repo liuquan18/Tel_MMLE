@@ -39,7 +39,19 @@ def read_jetStream(model):
     # sort by time
     JetStream = JetStream.sortby("time")
     # exclude lon dim
-    JetStream = JetStream.isel(lon=0).var131
+    JetStream = JetStream.isel(lon=0)
+
+    try:
+        JetStream = JetStream.var131
+    except AttributeError:
+        JetStream = JetStream.ua
+
+    # time format
+    try:
+        JetStream["time"] = JetStream.indexes["time"].to_datetimeindex()
+    except:
+        pass
+
     # exclude data of 2100
     JetStream = JetStream.sel(time=slice("1850", "2099"))
     return JetStream
