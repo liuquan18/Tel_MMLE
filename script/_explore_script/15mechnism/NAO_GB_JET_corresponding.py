@@ -40,10 +40,10 @@ GB_neg = xr.open_dataset(
 # %%
 jet_clim = xr.open_dataset(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/jet_loc_clim.nc"
-).lat
+).jet_loc
 jet_std = xr.open_dataset(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/jet_loc_std.nc"
-).lat
+).jet_loc
 
 jet_upper = jet_clim + jet_std
 jet_lower = jet_clim - jet_std
@@ -66,10 +66,10 @@ jet_loc_south_NAO_neg = jet_loc_south.where(NAO_neg.notnull())
 # %%
 GB_clim = xr.open_dataset(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/GB_clim.nc"
-).var156
+).GB
 GB_std = xr.open_dataset(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/mechnisms/GB_std.nc"
-).var156
+).GB
 
 GB_upper = GB_clim + GB_std
 GB_lower = GB_clim - GB_std
@@ -289,7 +289,7 @@ legend_elements = [
 
 ax.legend(handles=legend_elements, loc="upper right")
 plt.tight_layout()
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_jet_loc.png")
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_jet_loc.png")
 
 # %%
 fig, ax = plt.subplots(figsize=(8, 8))

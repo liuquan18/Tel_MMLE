@@ -1,20 +1,13 @@
 # %%
-import importlib
 import matplotlib.pyplot as plt
 import xarray as xr
-import os
-import src.extreme.extreme_ci as extreme
-import src.composite.composite as composite
-import numpy as np
-import glob
-import scipy.stats as stats
 import matplotlib.pyplot as plt
 # %%
 from src.mechnisms.mechisms import *
 
 
 # %%
-model = "MPI_GE"
+model = "CESM1_CAM5"
 
 # %%
 jet_stream = read_jetStream(model)
@@ -119,5 +112,5 @@ ax3.grid(False)
 ax3.set_ylim(-0.5, 0)
 plt.tight_layout()
 
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/jet_GB_index_evolve.png")
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/jet_GB_index_evolve.png")
 # %%
