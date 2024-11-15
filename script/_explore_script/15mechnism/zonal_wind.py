@@ -68,6 +68,8 @@ def zonal_wind_process(model):
 
     jet_loc = Jet_location(jet_stream)
 
+    jet_loc.name = 'jet_loc'
+
     jet_loc_clim = Jet_climatology(jet_loc)
     jet_loc_clim = jet_loc_clim.drop_vars('lon')
 
@@ -78,9 +80,6 @@ def zonal_wind_process(model):
 
     jet_loc_north, jet_loc_south = decade_jet_NS(jet_loc, jet_loc_clim, jet_loc_std, fix_clim=True)
 
-
-    jet_loc_north.name = 'jet_loc'
-    jet_loc_south.name = 'jet_loc'
 
     jet_north_decade = jet_loc_north.resample(time="10Y", closed = 'left').count().sum(dim = 'ens')
 
@@ -101,7 +100,7 @@ def zonal_wind_process(model):
 
 
 # %%
-jet_loc_clim, jet_loc_std, jet_north_decade = zonal_wind_process('MPI_GE')
+jet_loc_clim, jet_loc_std, jet_north_decade = zonal_wind_process('CanESM2')
 
 
 fig, ax = plt.subplots()
@@ -125,6 +124,6 @@ ax.set_title('Eddy-driven jet stream location')
 # plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/jet_stream.png", dpi = 300)
 
 # %%
-for model in ["CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]:
+for model in ["MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]:
     zonal_wind_process(model)
 # %%
