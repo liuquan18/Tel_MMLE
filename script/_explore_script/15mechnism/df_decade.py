@@ -16,6 +16,7 @@ import numpy as np
 def decade_df(NAO_dec, jet_dec, GB_dec, phase):
     df = pd.DataFrame(
         {
+            "decade": NAO_dec.time.dt.year// 10 * 10,
             "extreme_count": NAO_dec.values,
             "jet_loc_north": jet_dec.values,
             "GB_above": GB_dec.values,
@@ -84,4 +85,6 @@ def save_results(model):
 for model in ["MPI_GE", "CanESM2", "CESM1_CAM5", "GFDL_CM3", "MK36"]:
     print(model)
     save_results(model)
+# %%
+save_results('CanESM2')
 # %%
