@@ -25,6 +25,7 @@ def read_clim(model = 'MPI_GE', extreme = False):
 # %%
 def calculate_slope_and_confidence_interval(var_clim):
 
+
     # standardize the data
     # var_clim = (var_clim - var_clim.mean()) / var_clim.std()
 
@@ -36,9 +37,8 @@ def calculate_slope_and_confidence_interval(var_clim):
     # Calculate the 5%-95% confidence interval
     confidence_interval = 1.96 * std_err
 
-    # into decade (*10)
-    slope = slope * 10
-    confidence_interval = confidence_interval * 10
+    slope = slope 
+    confidence_interval = confidence_interval 
     
     return slope, (slope - confidence_interval, slope + confidence_interval)
 
@@ -70,11 +70,25 @@ flow_regimes_df['GB_CI'] = flow_regimes_df.index.map(GB_confidence_intervals)
 #%%
 flow_regimes_df = flow_regimes_df.reset_index().rename(columns = {'index':'model'})
 # %%
+
+models_all = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+colors_model = {"MPI_GE": "C1", "CanESM2": "tab:purple", "CESM1_CAM5": "tab:blue", "MK36": "tab:green", "GFDL_CM3": "yellow"}
+
+models_legend = {"MPI_GE": "MPI-GE (100)", "CanESM2": "CanESM2 (50)", "CESM1_CAM5": "CESM1-CAM5 (40)", "MK36": "MK3.6 (30)", "GFDL_CM3": "GFDL-CM3 (20)"}
+
 fig, ax = plt.subplots()
-# plot scatter of x-jet_loc and y-GB
-sns.scatterplot(data = flow_regimes_df, x = 'jet_loc', y = 'GB', ax = ax, hue = 'model')
-# plot the confidence interval
-for i, row in flow_regimes_df.iterrows():
-    ax.plot([row.jet_loc_CI[0], row.jet_loc_CI[1]], [row.GB, row.GB], color = 'gray')
-    ax.plot([row.jet_loc, row.jet_loc], [row.GB_CI[0], row.GB_CI[1]], color = 'gray')
+for model in models_all:
+    data = flow_regimes_df[flow_regimes_df.model == model]
+    color = colors_model[model]
+    label = models_legend[model]
+
+    sns.scatterplot(data=data, x='jet_loc', y='GB', ax=ax, color=color, label=label, s=100)
+    ax.plot([data.jet_loc_CI.iloc[0][0], data.jet_loc_CI.iloc[0][1]], [data.GB.iloc[0], data.GB.iloc[0]], color=color)
+    ax.plot([data.jet_loc.iloc[0], data.jet_loc.iloc[0]], [data.GB_CI.iloc[0][0], data.GB_CI.iloc[0][1]], color=color)
+
+
+
+ax.legend(loc = 'lower right', frameon=False)
+plt.show()
+
 # %%
