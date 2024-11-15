@@ -65,7 +65,7 @@ def Jet_location(JetStream):
 # %%
 def read_greenland_blocking(model):
     GreenlandBlocking = []
-    gb_dir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/GB_"
+    gb_dir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/GB_"
     for month in ["Jun", "Jul", "Aug"]:
         all_ens_lists = sorted(glob.glob(gb_dir + month + "/*.nc"))
         gb = xr.open_mfdataset(all_ens_lists, combine="nested", concat_dim="ens")
@@ -75,7 +75,14 @@ def read_greenland_blocking(model):
     # sort by time
     GreenlandBlocking = GreenlandBlocking.sortby("time")
     # exclude lon dim
-    GreenlandBlocking = GreenlandBlocking.var156.isel(lat = 0, lon = 0, plev = 0)
+    GreenlandBlocking = GreenlandBlocking.isel(lat = 0, lon = 0, plev = 0)
+    try:
+        GreenlandBlocking = GreenlandBlocking.var156
+    except AttributeError:
+        try:
+            GreenlandBlocking = GreenlandBlocking.zg
+        except AttributeError:
+            GreenlandBlocking = GreenlandBlocking.gph
     # exclude data of 2100
     GreenlandBlocking = GreenlandBlocking.sel(time=slice("1850", "2099"))
     # chagne from m to km
