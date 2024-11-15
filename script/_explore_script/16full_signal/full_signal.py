@@ -16,7 +16,7 @@ client, cluster = init_dask_slurm_cluster(scale = 10, processes = 2, walltime="0
 
 
 # %%
-model = 'MPI_GE'
+model = 'CanESM2'
 #%%
 def read_zg_data(model, plev = 50000):
         # read gph data
@@ -34,15 +34,15 @@ def read_zg_data(model, plev = 50000):
 data = read_zg_data(model)
 # %%
 
-eof_first = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/EOF_result/first_pattern_projected.nc").__xarray_dataarray_variable__
-eof_last = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/EOF_result/last_pattern_projected.nc").__xarray_dataarray_variable__
+eof_first = xr.open_dataset(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/first_pattern_projected.nc").__xarray_dataarray_variable__
+eof_last = xr.open_dataset(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/EOF_result/last_pattern_projected.nc").__xarray_dataarray_variable__
 
 #%%
 eof_first.load()
 eof_last.load()
 
 # %%
-data_first = data.sel(time = slice('1850-06-01', '1859-08-31'))
+data_first = data.sel(time = slice('1850-06-01', '1859-08-31')) # time may be different
 data_last = data.sel(time = slice('2090-06-01', '2099-08-31'))
 #%%
 data_first = data_first.stack(com = ('time','ens'))
@@ -55,14 +55,14 @@ ppc_last = project_field(data_last, eof_first)
 fig, ax = plt.subplots()
 ppc_first.plot.hist(ax = ax)
 ppc_last.plot.hist(ax = ax)
-# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_full_signal.png")
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_full_signal_{model}.png")
 
 # %%
 ppc_first.name = 'pc'
 ppc_last.name = 'pc'
 
-# ppc_first.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/full_signal/first_pattern_projected.nc")
-# ppc_last.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/full_signal/last_pattern_projected.nc")
+ppc_first.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/full_signal/first_pattern_projected.nc")
+ppc_last.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/full_signal/last_pattern_projected.nc")
 # %%
 first_ano = (ppc_first - ppc_first.mean())/ppc_first.std()
 last_ano = (ppc_last - ppc_first.mean())/ppc_first.std()
@@ -79,6 +79,6 @@ plt.axvline(last_ano.mean(), color='r', linestyle='dashed', linewidth=1.5)
 plt.title("full change in NAO")
 
 plt.legend()
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_full_signal_ano.png")
+plt.savefig(f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_full_signal_ano_{model}.png")
 
 # %%
