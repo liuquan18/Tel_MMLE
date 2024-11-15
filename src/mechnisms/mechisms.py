@@ -83,6 +83,11 @@ def read_greenland_blocking(model):
             GreenlandBlocking = GreenlandBlocking.zg
         except AttributeError:
             GreenlandBlocking = GreenlandBlocking.gph
+
+    try:
+        GreenlandBlocking["time"] = GreenlandBlocking.indexes["time"].to_datetimeindex()
+    except:
+        pass
     # exclude data of 2100
     GreenlandBlocking = GreenlandBlocking.sel(time=slice("1850", "2099"))
     # chagne from m to km
