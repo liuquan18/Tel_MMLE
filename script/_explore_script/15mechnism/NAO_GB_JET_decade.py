@@ -507,6 +507,13 @@ ax2.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 # 45 degree line
 ax1.plot([150, 250], [150, 250], ls="--", c=".3")
 ax2.plot([150, 250], [150, 250], ls="--", c=".3")
+ax1.set_ylabel("count of jet stream location (> 1.5 std)")
+ax1.set_xlabel("count of NAO extremes (> 1.5 std)")
+
+ax2.set_ylabel("count of Greenland blocking (> 1.5 std)")
+ax2.set_xlabel("count of NAO extremes (> 1.5 std)")
+
+plt.tight_layout()
 
 plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_GB_JET_extreme_count_vs.png", dpi = 300)
 
@@ -522,16 +529,26 @@ sns.scatterplot(
     sizes=(20, 200),
 )
 # %%
+fig, ax = plt.subplots(figsize=(7, 7))
 sns.scatterplot(
     data=NAO_all_df,
-    x="jet_north_south",
+    x="jet_north",
     y="GB_above",
-    hue="NAO_phase",
+    hue="decade",
+    style="NAO_phase",
     legend="brief",
     palette="flare",
     size="extreme_count",
-    sizes=(20, 200),
+    sizes=(10, 500),
+    ax = ax
 )
+ax.set_xlabel("count of jet stream location (> 1.5 std)")
+ax.set_ylabel("count of Greenland blocking (> 1.5 std)")
+
+ax.legend(loc='upper right', ncol=2, frameon=False)
+plt.tight_layout()
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/jet_vs_GB_NAO_decade.png", dpi = 300)
+
 # %%
 sns.scatterplot(
     data=NAO_all_df,

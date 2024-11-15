@@ -116,7 +116,7 @@ ax3.set_ylabel("Correlation")
 ax3.set_title("Jet Stream location and Blocking correlation")
 # without grids
 ax3.grid(False)
-
+ax3.set_ylim(-0.5, 0)
 plt.tight_layout()
 
 plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/jet_GB_index_evolve.png")
