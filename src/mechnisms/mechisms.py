@@ -141,3 +141,74 @@ def decade_classify(var, var_clim, var_std, scale = 1, fix_clim = True):
             var_south.loc[dict(time=decade_years.time)] = decade_years.where(decade_years < clim_mean - scale * clim_std)
     
         return var_north, var_south
+
+# %%
+def NAO_correspond(NAO_pos, NAO_neg, var):
+    var_NAO_pos = var.where(NAO_pos.notnull())
+    var_NAO_neg = var.where(NAO_neg.notnull())
+    return var_NAO_pos, var_NAO_neg
+
+# %%
+def process_jet(model):
+
+    jet_stream = read_jetStream(model)
+    jet_stream = jet_stream.load()
+
+    jet_loc = Jet_location(jet_stream)
+    jet_loc_clim = decade_climatology(jet_loc)
+    jet_loc_clim = jet_loc_clim.drop_vars("lon")
+
+    jet_loc_std = decade_climatology(jet_loc, stat="std")
+    jet_loc_std = jet_loc_std.drop_vars("lon")
+
+    jet_loc_north, jet_loc_south = decade_classify(
+        jet_loc, jet_loc_clim, jet_loc_std, scale=1.5, fix_clim=True
+    )
+
+    jet_loc_north.drop_vars("lon")
+    jet_loc_south.drop_vars("lon")
+
+    jet_north_decade = (
+        jet_loc_north.resample(time="10Y", closed="left").count().sum(dim="ens")
+    )
+
+    return jet_loc, jet_loc_clim, jet_loc_std, jet_loc_north, jet_north_decade
+
+
+# %%
+def process_GB(model):
+    GB = read_greenland_blocking(model)
+    GB.load()
+
+    GB_clim = decade_climatology(GB)
+    GB_clim = GB_clim.drop_vars(["lon", "lat", "plev"])
+
+    GB_std = decade_climatology(GB, stat="std")
+    GB_std = GB_std.drop_vars(["lon", "lat", "plev"])
+    #
+    GB_above, GB_below = decade_classify(GB, GB_clim, GB_std, scale=1.5, fix_clim=True)
+    GB_above = GB_above.drop_vars(["lon", "lat", "plev"])
+
+    GB_above_decade = (
+        GB_above.resample(time="10Y", closed="left").count().sum(dim="ens")
+    )
+
+    return GB, GB_clim, GB_std, GB_above, GB_above_decade
+
+# %%
+def decade_corr(x, y):
+    x = x.stack(com=("time", "ens"))
+    y = y.stack(com=("time", "ens"))
+    corr = xr.corr(x, y, dim="com")
+    return corr
+
+
+# %%
+def correlate_jet_GB(jet_loc, GB):
+    jet_GB_corr = jet_loc.resample(time="10Y", closed="left").apply(
+        lambda x: decade_corr(x, GB.sel(time=x.time))
+    )
+    jet_GB_corr = jet_GB_corr.drop_vars(("lon", "lat", "plev"))
+    return jet_GB_corr
+
+
