@@ -55,8 +55,8 @@ ppc_first_ano.plot.hist(ax = axes[0], alpha = 0.7,bins=np.arange(-4, 4.1, 0.5),c
 ppc_last_ano.plot.hist(ax = axes[0], alpha = 0.7, bins=np.arange(-4, 4.1, 0.5),color = 'r', label = 'last10')
 
 # vline at mean
-axes[0].axvline(ppc_first_ano.mean(), color='k', linestyle='dashed', linewidth=1.5, label = 'first 10 climatology')
-axes[0].axvline(ppc_last_ano.mean(), color='r', linestyle='dashed', linewidth=1.5, label = 'last 10 climatology')
+axes[0].axvline(ppc_first_ano.mean(), color='k', linestyle='dashed', linewidth=1.5)
+axes[0].axvline(ppc_last_ano.mean(), color='r', linestyle='dashed', linewidth=1.5)
 
 
 first_NAO_jet_north.plot.hist(ax = axes[1], alpha = 0.7,bins=np.arange(-4, 4.1, 0.5),color = 'k', label = 'first10')
@@ -84,6 +84,10 @@ axes[2].set_title("NAO with GB index higher than climatology")
 
 axes[0].legend(frameon = False)
 
+# a, b, c
+axes[0].text(-5.5, 550, f"{chr(97)}", fontsize=12, fontweight='bold')
+axes[1].text(-5.5, 550, f"{chr(98)}", fontsize=12, fontweight='bold')
+axes[2].text(-5.5, 550, f"{chr(99)}", fontsize=12, fontweight='bold')
 
 plt.tight_layout()
 plt.savefig(f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_full_signal_ano_{model}.pdf")
