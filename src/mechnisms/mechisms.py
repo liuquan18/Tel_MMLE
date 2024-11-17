@@ -29,6 +29,7 @@ def read_jetStream(model):
     for month in ["Jun", "Jul", "Aug"]:
         all_ens_lists = sorted(glob.glob(jet_dir + month + "/*.nc"))
         jet = xr.open_mfdataset(all_ens_lists, combine="nested", concat_dim="ens")
+        jet['ens'] = range(len(all_ens_lists))
         JetStream.append(jet)
 
     JetStream = xr.concat(JetStream, dim="time")
@@ -65,6 +66,7 @@ def read_greenland_blocking(model):
     for month in ["Jun", "Jul", "Aug"]:
         all_ens_lists = sorted(glob.glob(gb_dir + month + "/*.nc"))
         gb = xr.open_mfdataset(all_ens_lists, combine="nested", concat_dim="ens")
+        gb['ens'] = range(len(all_ens_lists))
         GreenlandBlocking.append(gb)
 
     GreenlandBlocking = xr.concat(GreenlandBlocking, dim="time")
