@@ -16,7 +16,7 @@ client, cluster = init_dask_slurm_cluster(scale = 10, processes = 2, walltime="0
 
 
 # %%
-model = 'CanESM2'
+model = 'MPI_GE'
 #%%
 def read_zg_data(model, plev = 50000):
         # read gph data
@@ -66,6 +66,11 @@ ppc_last.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/full_signal/last
 # %%
 first_ano = (ppc_first - ppc_first.mean())/ppc_first.std()
 last_ano = (ppc_last - ppc_first.mean())/ppc_first.std()
+
+#%%
+first_ano.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/full_signal/first_pattern_projected_ano.nc")
+last_ano.to_netcdf(f"/work/mh0033/m300883/Tel_MMLE/data/{model}/full_signal/last_pattern_projected_ano.nc")
+
 # %%
 fig, ax = plt.subplots()
 first_ano.plot.hist(ax = ax, alpha = 0.7,bins=np.arange(-4, 4.1, 0.5),color = 'k', label = 'first10')
@@ -79,6 +84,6 @@ plt.axvline(last_ano.mean(), color='r', linestyle='dashed', linewidth=1.5)
 plt.title("full change in NAO")
 
 plt.legend()
-plt.savefig(f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_full_signal_ano_{model}.png")
+# plt.savefig(f"/work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/NAO_full_signal_ano_{model}.png")
 
 # %%
