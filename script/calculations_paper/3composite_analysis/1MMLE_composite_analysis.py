@@ -16,7 +16,7 @@ importlib.reload(extrc_tsurf)
 importlib.reload(composite)
 
 #%%
-def read_var_months(model,var_name='ts',remove_ensmean = True):
+def read_var_months(model,var_name='ts',remove_ensmean = True, **kwargs):
     odir = f'/work/mh0033/m300883/Tel_MMLE/data/{model}/'
     Jun_fl = odir + f'{var_name}_Jun/'
     Jul_fl = odir + f'{var_name}_Jul/'
@@ -50,6 +50,10 @@ def read_var_months(model,var_name='ts',remove_ensmean = True):
     elif var_name == 'bDays':
         JJA_f = JJA_f['IB index']
         JJA_f = JJA_f.drop('plev')
+
+    elif var_name == 'u':
+        JJA_f = JJA_f.var131
+
 
     return JJA_f
 #%%
