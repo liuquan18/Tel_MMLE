@@ -63,8 +63,8 @@ class decompose_troposphere:
                 print(f"data_first time range: {data_first.time.min().values} - {data_first.time.max().values}")
                 print(f"data_last time range: {data_last.time.min().values} - {data_last.time.max().values}")
             else:
-                data_first = data.sel(time = slice(self.decades[0], self.decades[0]+9))
-                data_last = data.sel(time = slice(self.decades[1], self.decades[1]+9))
+                data_first = data.sel(time = slice(str(self.decades[0]), str(self.decades[0]+9)))
+                data_last = data.sel(time = slice(str(self.decades[1]), str(self.decades[1]+9)))
                 print(f"data_first time range: {data_first.time.min().values} - {data_first.time.max().values}")
                 print(f"data_last time range: {data_last.time.min().values} - {data_last.time.max().values}")
             # also to keep the time range the same as the decompose_plev
