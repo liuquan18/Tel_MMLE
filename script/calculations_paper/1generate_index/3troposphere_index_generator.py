@@ -16,6 +16,7 @@ def index_gene(model, vertical_eof = 'dep'):
         season = 'JJA',
         all_years=False,
         vertical_eof = vertical_eof,
+        decades = [1850, 2090]
     )
     
     logging.critical(f"Start saving {model}...")
