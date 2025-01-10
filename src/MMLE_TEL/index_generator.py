@@ -31,6 +31,7 @@ class decompose_troposphere:
         standard="temporal_ens",
         season="DJFM",
         all_years=False,
+        decades = None
     ) -> None:
         self.vertical_eof = vertical_eof
         self.independence = self.vertical_eof == "ind"
@@ -55,8 +56,12 @@ class decompose_troposphere:
         if all_years:
             self.data = data
         else:
-            data_first = self.select_year(data, 0, 10)
-            data_last = self.select_year(data, -20,-10)  # since the last 10 years is not complete (no data in 2100 in MPI_GE, no data in 2000 in MPI_GE_onepct)
+            if self.decades is None:
+                data_first = self.select_year(data, 0, 10)
+                data_last = self.select_year(data, -20,-10)  # since the last 10 years is not complete (no data in 2100 in MPI_GE, no data in 2000 in MPI_GE_onepct)
+            else:
+                data_first = data.sel(time = slice(self.decades[0], self.decades[0]+9))
+                data_last = data.sel(time = slice(self.decades[1], self.decades[1]+9))
             # also to keep the time range the same as the decompose_plev
             self.data = xr.concat([data_first, data_last], dim="time")
 
