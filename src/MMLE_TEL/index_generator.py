@@ -42,6 +42,7 @@ class decompose_troposphere:
         self.standard = standard  # 'temporal', 'temporal_ens'
         self.season = season
         self.zg_path = self.odir + "zg_" + self.season + "/"
+        self.decades = decades
 
         # read data
         print(f"reading the gph data of {self.season} ...")
@@ -59,9 +60,13 @@ class decompose_troposphere:
             if self.decades is None:
                 data_first = self.select_year(data, 0, 10)
                 data_last = self.select_year(data, -20,-10)  # since the last 10 years is not complete (no data in 2100 in MPI_GE, no data in 2000 in MPI_GE_onepct)
+                print(f"data_first time range: {data_first.time.min().values} - {data_first.time.max().values}")
+                print(f"data_last time range: {data_last.time.min().values} - {data_last.time.max().values}")
             else:
                 data_first = data.sel(time = slice(self.decades[0], self.decades[0]+9))
                 data_last = data.sel(time = slice(self.decades[1], self.decades[1]+9))
+                print(f"data_first time range: {data_first.time.min().values} - {data_first.time.max().values}")
+                print(f"data_last time range: {data_last.time.min().values} - {data_last.time.max().values}")
             # also to keep the time range the same as the decompose_plev
             self.data = xr.concat([data_first, data_last], dim="time")
 
