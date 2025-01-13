@@ -27,7 +27,6 @@ def glmean(xarr):
 
 # anomaly to 1940-1979
 def _anomaly(xarr):
-    xarr_yearly = xarr.copy()
     return xarr - xarr.sel(time=slice("1979", "2000")).mean("time")
 def anomaly(xarr):
     return xarr.groupby("time.month").apply(_anomaly)
@@ -90,7 +89,7 @@ def plot_series(ERA5_mean, Allens_mean, ens_mean, ens_mean_rm, ens_mean_fit, per
     ax.legend()
 # %%
 # temperature
-TERA5 = read_data("CR20")
+TERA5 = read_data("ERA5", var = 'zg')
 
 #%%
 TAllens = read_data("CR20_allens")
