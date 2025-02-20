@@ -90,20 +90,14 @@ t1 = int(sys.argv[2])
 t2 = int(sys.argv[3])
 
 #%%
-def mean_all(num,rank):
+def mean_all(num,var_name):
     models = ['MPI_GE_onepct','MK36','GFDL_CM3','CanESM2','CESM1_CAM5','MPI_GE']
-    vars = ['zg']
 
     print("===========================================")
-    print(f"node_num:{num} is doing {models[num-1]}")
-    composite(models[num-1])
-
+    print(f"node_num:{num} is doing {models[num-1]} {var_name}")
     # for reduction = 'mean'
     model = models[num-1]
-    var_name = vars[rank]
-    print("===========================================")
 
-    print(f"model {model} var {var_name} is doing")
     composite(model,var_name=var_name)
 
 
@@ -128,7 +122,12 @@ if __name__ == '__main__':
         rank = 0
         npro = 1
 
-    mean_same_number(num)
+
+    mean_all(num,'pr')
+
+
+    # mean_same_number(num)
+#%%
 
 # # %%
 # composite('MPI_GE_onepct_30','bDays',remove_ensmean=False)
