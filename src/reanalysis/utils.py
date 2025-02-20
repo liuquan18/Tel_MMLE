@@ -69,6 +69,7 @@ def read_gph_data(model, external_forcing="quadratic_trend", **kwargs):
                 data_month = data_month["hgt"]
             elif model == "ERA5":
                 data_month = xr.open_mfdataset(file_names, combine="by_coords")
+                data_month = data_month / 9.80665 # from geopotentil to geopotential height
                 data_month = data_month.sel(plev=plev)
                 data_month = data_month["var129"]
         data_month = data_month.sel(time=slice(start_year, end_year))
