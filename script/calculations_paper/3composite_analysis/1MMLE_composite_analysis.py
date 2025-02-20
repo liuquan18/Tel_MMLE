@@ -123,7 +123,7 @@ if __name__ == '__main__':
         npro = 1
 
 
-    mean_all(num,'pr')
+    mean_all(num,'pr') # ts, zg
 
 
     # mean_same_number(num)
