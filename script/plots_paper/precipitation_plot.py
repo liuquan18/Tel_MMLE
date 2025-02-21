@@ -5,7 +5,7 @@ import src.plots.utils as utils
 
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-import matplotlib as mpl
+import matplotlib.colors as mcolors
 import proplot as pplt
 from matplotlib.lines import Line2D
 
@@ -62,8 +62,19 @@ for model in models:
 cmap_new =  plt.matplotlib.colors.LinearSegmentedColormap.from_list('rr_colors',
                                         ['white', '#1ca8e9','#097cc4', '#095389',
                                          'forestgreen','yellowgreen',  'gold','orangered',
-                                         'brown', 'black'], gamma = 1.)
+                                         'brown', 'black'], gamma = 0.7)
+#%%
 
+prec_cmap_seq = np.loadtxt(
+    "/work/mh0033/m300883/High_frequecy_flow/data/colormaps-master/continuous_colormaps_rgb_0-1/prec_seq.txt"
+)
+prec_cmap_seq = mcolors.ListedColormap(prec_cmap_seq, name="prec_div")
+
+prec_cmap_div = np.loadtxt(
+    "/work/mh0033/m300883/High_frequecy_flow/data/colormaps-master/continuous_colormaps_rgb_0-1/prec_div.txt"
+)
+prec_cmap_div = mcolors.ListedColormap(prec_cmap_div, name="prec_div")
+#%%
 # %%
 
 def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos", **kwargs):
@@ -98,7 +109,7 @@ def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos", **kwarg
                 levels=levels,
                 extend="both",
                 transform=ccrs.PlateCarree(),
-                cmap = cmap_new,
+                cmap = prec_cmap_div,
             )
             maps.append(map)
             axes[j, i].grid(color="grey7", linewidth=0.5)
@@ -140,7 +151,7 @@ axes.format(
 )
 
 
-axes, maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes)
+axes, maps = plot_composite_single_ext(COMPOSITEs, models, axes)
 fig3.colorbar(
     maps[0],
     loc="b",
@@ -149,6 +160,8 @@ fig3.colorbar(
     width=0.1,
     shrink=1,
 )
+
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/precipitation_composite_pos.png")
 
 # %%
 fig4, axes = pplt.subplots(
@@ -175,7 +188,7 @@ axes.format(
 )
 
 
-axes, maps = composite_plot.plot_composite_single_ext(COMPOSITEs, models, axes, 'neg')
+axes, maps = plot_composite_single_ext(COMPOSITEs, models, axes, 'neg')
 fig4.colorbar(
     maps[0],
     loc="b",
@@ -184,4 +197,6 @@ fig4.colorbar(
     width=0.1,
     shrink=1,
 )
+
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/precipitation_composite_neg.png")
 # %%
