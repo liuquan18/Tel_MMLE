@@ -40,6 +40,13 @@ def read_composite(
     return composite
 
 
+# read composite
+def read_composite_rean(model, var_name, reduction="mean", group_size=40):
+    odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/"
+    composite_path = odir + "composite_mean_ts_40_withboot.nc"
+    composite = xr.open_dataset(composite_path)
+    return composite.__xarray_dataarray_variable__
+
 # %%
 models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
 models_legend = [
@@ -53,17 +60,30 @@ models_legend = [
 COMPOSITEs = {
     model: read_composite(model, var_name="pr", reduction='mean') for model in models
 }
+
+#%%
+CR20_composite = read_composite_rean("CR20_allens", "pr")
+#%%
+# add to the dictionary
+COMPOSITEs["20CR"] = CR20_composite
+
+
 #%%
 # change units from kg m-2 s-1 to mm/day
-for model in models:
+for model in COMPOSITEs.keys():
     COMPOSITEs[model] = COMPOSITEs[model] * 86400
-# %%
 #%%
-cmap_new =  plt.matplotlib.colors.LinearSegmentedColormap.from_list('rr_colors',
-                                        ['white', '#1ca8e9','#097cc4', '#095389',
-                                         'forestgreen','yellowgreen',  'gold','orangered',
-                                         'brown', 'black'], gamma = 0.7)
-#%%
+models_plot = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3", "20CR"]
+models_legend = [
+    "MPI-GE (100)",
+    "CanESM2 (50)",
+    "CESM1-CAM5 (40)",
+    "MK3.6 (30)",
+    "GFDL-CM3 (20)",
+    "20CR (80)",
+]
+
+
 
 prec_cmap_seq = np.loadtxt(
     "/work/mh0033/m300883/High_frequecy_flow/data/colormaps-master/continuous_colormaps_rgb_0-1/prec_seq.txt"
