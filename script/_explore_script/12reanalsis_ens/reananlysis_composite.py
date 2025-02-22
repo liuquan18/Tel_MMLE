@@ -54,7 +54,10 @@ def read_temp_data(model,var_name = 't2max'):
             data_month = data_month['air']
         elif model == 'CR20_allens':
             data_month = xr.open_mfdataset(all_files,combine = 'nested',concat_dim = 'ens')
-            data_month = data_month['TMP']
+            try:
+                data_month = data_month['TMP']
+            except KeyError:
+                data_month = data_month['PRATE']
 
         data_JJA.append(data_month)
     data = xr.concat(data_JJA, dim="time").sortby("time")

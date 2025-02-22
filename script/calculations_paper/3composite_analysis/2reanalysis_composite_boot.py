@@ -68,7 +68,10 @@ def read_temp_data(model,var_name = 't2max'):
             data_month = data_month['air']
         elif model == 'CR20_allens':
             data_month = xr.open_mfdataset(all_files,combine = 'nested',concat_dim = 'ens')
-            data_month = data_month['TMP']
+            try:
+                data_month = data_month['TMP']
+            except KeyError:
+                data_month = data_month['PRATE']
 
         data_JJA.append(data_month)
     data = xr.concat(data_JJA, dim="time").sortby("time")
@@ -132,7 +135,7 @@ odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
 save_path = odir + "composite/"
 
 # %%
-data = read_temp_data(model,var_name = 'ts')
+data = read_temp_data(model,var_name = 'pr')
 First_index, Last_index = read_eof(model,group_size = 40)
 
 #%%
