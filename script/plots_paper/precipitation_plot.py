@@ -202,7 +202,7 @@ axes.format(
 )
 
 
-axes, maps = plot_composite_single_ext(COMPOSITEs, models, axes, 'neg')
+axes, maps = plot_composite_single_ext(COMPOSITEs, models_plot, axes, 'neg')
 fig4.colorbar(
     maps[0],
     loc="b",
