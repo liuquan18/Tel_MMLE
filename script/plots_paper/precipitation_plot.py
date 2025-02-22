@@ -49,13 +49,6 @@ def read_composite_rean(model, var_name, reduction="mean", group_size=40):
 
 # %%
 models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
-models_legend = [
-    "MPI-GE (100)",
-    "CanESM2 (50)",
-    "CESM1-CAM5 (40)",
-    "MK3.6 (30)",
-    "GFDL-CM3 (20)",
-]
 
 COMPOSITEs = {
     model: read_composite(model, var_name="pr", reduction='mean') for model in models
@@ -171,7 +164,7 @@ axes.format(
 )
 
 
-axes, maps = plot_composite_single_ext(COMPOSITEs, models, axes)
+axes, maps = plot_composite_single_ext(COMPOSITEs, models_plot, axes)
 fig3.colorbar(
     maps[0],
     loc="b",
