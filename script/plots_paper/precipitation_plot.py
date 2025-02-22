@@ -40,13 +40,6 @@ def read_composite(
     return composite
 
 
-# read composite
-def read_composite_rean(model, var_name, reduction="mean", group_size=40):
-    odir = f"/work/mh0033/m300883/Tel_MMLE/data/{model}/composite/"
-    composite_path = odir + "composite_mean_ts_40_withboot.nc"
-    composite = xr.open_dataset(composite_path)
-    return composite.__xarray_dataarray_variable__
-
 # %%
 models = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
 
@@ -55,7 +48,12 @@ COMPOSITEs = {
 }
 
 #%%
-CR20_composite = read_composite_rean("CR20_allens", "pr")
+CR20_composite_first = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CR20_allens/composite/first_composite_mean_pr_40.nc")
+CR20_composite_last = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CR20_allens/composite/last_composite_mean_pr_40.nc")
+CR20_composite_diff = CR20_composite_last - CR20_composite_first
+CR20_composite = xr.concat([CR20_composite_first, CR20_composite_last, CR20_composite_diff], dim="period")
+CR20_composite = CR20_composite.pr
+CR20_composite['period'] = ["first", "last", "diff"]
 #%%
 # add to the dictionary
 COMPOSITEs["20CR"] = CR20_composite
@@ -63,7 +61,7 @@ COMPOSITEs["20CR"] = CR20_composite
 
 #%%
 # change units from kg m-2 s-1 to mm/day
-for model in COMPOSITEs.keys():
+for model in COMPOSITEs:
     COMPOSITEs[model] = COMPOSITEs[model] * 86400
 #%%
 models_plot = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3", "20CR"]
@@ -87,7 +85,7 @@ prec_cmap_div = np.loadtxt(
     "/work/mh0033/m300883/High_frequecy_flow/data/colormaps-master/continuous_colormaps_rgb_0-1/prec_div.txt"
 )
 prec_cmap_div = mcolors.ListedColormap(prec_cmap_div, name="prec_div")
-#%%
+
 # %%
 
 def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos", **kwargs):
@@ -96,14 +94,11 @@ def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos", **kwarg
         first = COMPOSITEs[model].sel(mode="NAO", period="first", extr_type=extr_type)
         last = COMPOSITEs[model].sel(mode="NAO", period="last", extr_type=extr_type)
         diff = COMPOSITEs[model].sel(mode="NAO", period="diff", extr_type=extr_type)
-        diff_sig = COMPOSITEs[model].sel(
-            mode="NAO", period="diff_sig", extr_type=extr_type
-        )
+
         try:
             first = utils.erase_white_line(first)
             last = utils.erase_white_line(last)
             diff = utils.erase_white_line(diff)
-            diff_sig = utils.erase_white_line(diff_sig)
         except ValueError:
             pass
 
@@ -129,6 +124,12 @@ def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos", **kwarg
 
         # significant area as hatches.
         if i < len(models) - 1:
+            diff_sig = COMPOSITEs[model].sel(
+                mode="NAO", period="diff_sig", extr_type=extr_type
+            )
+
+            diff_sig = utils.erase_white_line(diff_sig)
+
             axes[2, i].contourf(
                 diff_sig,
                 levels=[-0.5, 0.5, 1.5],
@@ -148,7 +149,7 @@ fig3, axes = pplt.subplots(
     proj="ortho",
     proj_kw=({"lon_0": -20, "lat_0": 60}),
     nrows=3,
-    ncols=5,
+    ncols=6,
 )
 axes.format(
     latlines=20,
@@ -185,7 +186,7 @@ fig4, axes = pplt.subplots(
     proj="ortho",
     proj_kw=({"lon_0": -20, "lat_0": 60}),
     nrows=3,
-    ncols=5,
+    ncols=6,
 )
 axes.format(
     latlines=20,
