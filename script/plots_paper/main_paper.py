@@ -154,8 +154,8 @@ def read_MPI_GE_random_slope(model="MPI_GE", x="tsurf"):
 # eof
 def read_eof_rean(model, group_size=40):
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
-    first_eof_path = odir + "EOF_result/first_plev50000_eof.nc"
-    last_eof_path = odir + "EOF_result/last_plev50000_eof.nc"
+    first_eof_path = odir + "EOF_result/first_plev500_eof.nc"
+    last_eof_path = odir + "EOF_result/last_plev500_eof.nc"
 
     first_eof = xr.open_dataset(first_eof_path)
     last_eof = xr.open_dataset(last_eof_path)
@@ -363,7 +363,7 @@ CR20_last_extc = CR20_last_extc / (4 * 80)
 # %% # put the 20CR_allens into the dict
 COMPOSITEs["20CR"] = CR20_composite
 # %%
-CR20_ens_first_eof, CR20_ens_last_eof = read_eof_rean("CR20_allens")
+CR20_ens_first_eof, CR20_ens_last_eof = read_eof_rean("CR20")
 
 # also read ensemble mean of 20CR
 CR20_ens_first_extc, CR20_ens_last_extc = read_extrc_rean("CR20")
@@ -820,7 +820,7 @@ plt.setp(ax8.get_yticklabels(), visible=False)
 
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/Fig1_MPI_GE_20CR.pdf",
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/Fig1_MPI_GE_20CR.pdf",bbox_inches='tight'
 )
 # %%
 # Fig 2, profiles
