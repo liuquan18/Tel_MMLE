@@ -10,7 +10,6 @@ import os
 
 # %%
 import multiprocessing as mp
-from multiprocessing import Pool
 
 #%%
 # MPI_GE_onepct
