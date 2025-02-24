@@ -19,7 +19,7 @@ def extreme_count(model):
         model        =  model,
         standard     =  "first",
         season       =  'JJA',
-        fixed_pattern=  'all')
+        fixed_pattern=  'decade_mpi')
 
 # %%
 extreme_count('MPI_GE_onepct')
