@@ -354,7 +354,6 @@ last_pattern = xr.open_dataset(
 
 # %%
 # 20CR all ens
-CR20_first_eof, CR20_last_eof = read_eof_rean("CR20_allens")
 CR20_first_extc, CR20_last_extc = read_extrc_rean("CR20_allens")
 CR20_composite = read_composite_rean("CR20_allens", "ts")
 
@@ -364,6 +363,8 @@ CR20_last_extc = CR20_last_extc / (4 * 80)
 # %% # put the 20CR_allens into the dict
 COMPOSITEs["20CR"] = CR20_composite
 # %%
+CR20_ens_first_eof, CR20_ens_last_eof = read_eof_rean("CR20_allens")
+
 # also read ensemble mean of 20CR
 CR20_ens_first_extc, CR20_ens_last_extc = read_extrc_rean("CR20")
 CR20_ens_first_extc = CR20_ens_first_extc / 4
@@ -466,8 +467,8 @@ ax1, fmap_MPI, lmap = stat_overview.spatial_pattern_plot(
 
 ax5, fmap_20CR, lmap = stat_overview.spatial_pattern_plot(
     ax5,
-    CR20_first_eof.eof.sel(mode="NAO").squeeze(),
-    CR20_first_eof.fra.sel(mode="NAO").squeeze(),
+    CR20_ens_first_eof.eof.sel(mode="NAO").squeeze(),
+    CR20_ens_first_eof.fra.sel(mode="NAO").squeeze(),
     levels=np.arange(-30, 31, 5),
 )
 
@@ -480,8 +481,8 @@ ax2, hist = stat_overview.index_distribution_plot(
 )
 ax6, hist = stat_overview.index_distribution_plot(
     ax6,
-    CR20_first_eof.pc.sel(mode="NAO"),
-    CR20_last_eof.pc.sel(mode="NAO"),
+    CR20_ens_first_eof.pc.sel(mode="NAO"),
+    CR20_ens_last_eof.pc.sel(mode="NAO"),
 )
 
 # LINE PLOT for MPI_GE
@@ -742,8 +743,8 @@ ax6.text(
 )
 
 
-first_std_CR20 = CR20_first_eof.pc.std().values
-last_std_CR20 = CR20_last_eof.pc.std().values
+first_std_CR20 = CR20_ens_first_eof.pc.std().values
+last_std_CR20 = CR20_ens_last_eof.pc.std().values
 
 ax6.set_title(
     "({first_std:0.2f} --> {last_std:0.2f})*".format(
