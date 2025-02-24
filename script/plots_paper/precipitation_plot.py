@@ -152,6 +152,7 @@ fig3, axes = pplt.subplots(
     ncols=6,
 )
 axes.format(
+    abc = True,
     latlines=20,
     lonlines=30,
     color="grey7",
@@ -180,6 +181,7 @@ plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary
 # %%
 fig4, axes = pplt.subplots(
     space=0,
+    abc = True,
     width=180 / 25.4,
     wspace=0.2,
     hspace=0.2,
