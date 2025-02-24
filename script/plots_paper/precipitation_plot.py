@@ -71,7 +71,7 @@ models_legend = [
     "CESM1-CAM5 (40)",
     "MK3.6 (30)",
     "GFDL-CM3 (20)",
-    "20CR (80)",
+    "20CR_ens (80)",
 ]
 
 
@@ -175,7 +175,7 @@ fig3.colorbar(
     shrink=1,
 )
 
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/precipitation_composite_pos.png")
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/precipitation_composite_pos.pdf", dpi=300, bbox_inches="tight")
 
 # %%
 fig4, axes = pplt.subplots(
@@ -212,5 +212,5 @@ fig4.colorbar(
     shrink=1,
 )
 
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/precipitation_composite_neg.png")
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/precipitation_composite_neg.pdf", dpi=300, bbox_inches="tight")
 # %%
