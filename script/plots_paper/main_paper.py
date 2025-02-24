@@ -1082,8 +1082,8 @@ models_legend = [
     "MPI-GE_onepct (100)",
     "MPI-GE (100)",
     "MPI-GE (resampled)",
-    "20CR (80)",
-    "20CR_ensemble_mean",
+    "20CR_ens (80)",
+    "20CR",
 ]
 colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
 
