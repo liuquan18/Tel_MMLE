@@ -520,7 +520,7 @@ ax7 = extplt.reananlysis_bar(
     pos_true_last,
     pos_err_last,
     ax=ax7,
-    x=[0.2, 0.7],
+    x=[0.3, 0.8],
     width=0.2,
     facecolor="grey",
     errcolor="grey7",
@@ -532,7 +532,7 @@ ax7 = extplt.reananlysis_bar(
     pos_true_last_ens,
     pos_err_last_ens,
     ax=ax7,
-    x=[0.3, 0.8],
+    x=[0.2, 0.7],
     width=0.2,
     facecolor="none",
     errcolor="grey7",
@@ -547,7 +547,7 @@ ax8 = extplt.reananlysis_bar(
     neg_true_last,
     neg_err_last,
     ax=ax8,
-    x=[0.2, 0.7],
+    x=[0.3, 0.8],
     width=0.2,
     facecolor="grey",
     errcolor="grey7",
@@ -559,7 +559,7 @@ ax8 = extplt.reananlysis_bar(
     neg_true_last_ens,
     neg_err_last_ens,
     ax=ax8,
-    x=[0.3, 0.8],
+    x=[0.2, 0.7],
     width=0.2,
     facecolor="none",
     errcolor="grey7",
@@ -765,11 +765,11 @@ ax7.format(
 ax7.spines["right"].set_visible(False)
 ax7.spines["top"].set_visible(False)
 
-patch_20CR = mpatches.Patch(facecolor="none", edgecolor="black", label="20CR_ensemble_mean")
-patch_20CR_allens = mpatches.Patch(color="grey", label="20CR (80)")
+patch_20CR = mpatches.Patch(facecolor="none", edgecolor="black", label="20CR")
+patch_20CR_allens = mpatches.Patch(color="grey", label="20CR_ens (80)")
 
 ax7.legend(
-    handles=[patch_20CR_allens, patch_20CR],
+    handles=[patch_20CR, patch_20CR_allens],
     loc="b",
     frameon=False,
     ncol=2,
@@ -1119,7 +1119,7 @@ models_legend = [
     "CESM1-CAM5 (40)",
     "MK3.6 (30)",
     "GFDL-CM3 (20)",
-    "20CR(80)",
+    "20CR_ens(80)",
 ]
 
 fig3, axes = pplt.subplots(
@@ -1170,7 +1170,7 @@ models_legend = [
     "CESM1-CAM5 (40)",
     "MK3.6 (30)",
     "GFDL-CM3 (20)",
-    "20CR(80)",
+    "20CR_ens(80)",
 ]
 
 fig4, axes = pplt.subplots(
