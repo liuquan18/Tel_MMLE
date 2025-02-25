@@ -78,8 +78,7 @@ def read_eof(model,group_size = 40):
     return first_eof.pc, last_eof.pc
 
 #%%
-def composite_reana(model,var_name = 'ts', group_size = 40,reduction = 'mean', **kwargs):
-    var_code = kwargs.get('var_code',var_name)
+def composite_reana(model,var_name = 'ts', var_code = 'ts', group_size = 40,reduction = 'mean', **kwargs):
     var_data = read_temp_data(model,var_name = var_name, var_code = var_code)
     first_index, last_index = read_eof(model,group_size=group_size)
     first_composite = composite.Tel_field_composite(
@@ -103,9 +102,9 @@ def composite_reana(model,var_name = 'ts', group_size = 40,reduction = 'mean', *
 #%%
 def composite_oneclick(model, var_name,group_size,reduction = 'mean',save = False, **kwargs):
     ERA_first, ERA_last, ERA_diff = composite_reana(model,var_name = var_name, group_size=group_size,reduction = reduction, **kwargs)
-    ERA_first.name = 'ts'
-    ERA_last.name = 'ts'
-    ERA_diff.name = 'ts'
+    ERA_first.name = var_name
+    ERA_last.name = var_name
+    ERA_diff.name = var_name
     # composite_plot.composite_plot(ERA_first, ERA_last, 'NAO', levels=np.arange(-1.5, 1.6, 0.3))
 
     if save:
@@ -175,5 +174,5 @@ def composite_together(model,var_name,group_size,reduction = 'mean',alpha = 0.05
     # save
     composite.to_netcdf(odir + f'composite_{reduction}_{var_name}_{group_size}.nc')
 # %%
-composite_oneclick('CR20_allens', 'psl',group_size=40, kwargs={'var_code':'PRMSL'})
+composite_oneclick('CR20_allens', 'psl',group_size=40, save = True, var_code = 'PRMSL')
 # %%
