@@ -27,7 +27,9 @@ def time_convert(data):
     data['time'] = pd.to_datetime(data['time'].values)
     return data
 
-def read_temp_data(model,var_name = 't2max'):
+def read_temp_data(model,var_name = 't2max', var_code = None):
+    if var_code is None:
+        var_code = var_name
 
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
     data_JJA = []
@@ -57,7 +59,7 @@ def read_temp_data(model,var_name = 't2max'):
             try:
                 data_month = data_month['TMP']
             except KeyError:
-                data_month = data_month['PRATE']
+                data_month = data_month[var_code]
 
         data_JJA.append(data_month)
     data = xr.concat(data_JJA, dim="time").sortby("time")
@@ -172,3 +174,4 @@ def composite_together(model,var_name,group_size,reduction = 'mean',alpha = 0.05
     # save
     composite.to_netcdf(odir + f'composite_{reduction}_{var_name}_{group_size}.nc')
 # %%
+composite_reana('CR20_allens', 'psl')
