@@ -78,8 +78,9 @@ def read_eof(model,group_size = 40):
     return first_eof.pc, last_eof.pc
 
 #%%
-def composite_reana(model,var_name = 'ts', group_size = 40,reduction = 'mean'):
-    var_data = read_temp_data(model,var_name = var_name)
+def composite_reana(model,var_name = 'ts', group_size = 40,reduction = 'mean', **kwargs):
+    var_code = kwargs.get('var_code',var_name)
+    var_data = read_temp_data(model,var_name = var_name, var_code = var_code)
     first_index, last_index = read_eof(model,group_size=group_size)
     first_composite = composite.Tel_field_composite(
         first_index,
@@ -174,4 +175,4 @@ def composite_together(model,var_name,group_size,reduction = 'mean',alpha = 0.05
     # save
     composite.to_netcdf(odir + f'composite_{reduction}_{var_name}_{group_size}.nc')
 # %%
-composite_reana('CR20_allens', 'psl')
+composite_reana('CR20_allens', 'psl', var_code = 'PRMSL')
