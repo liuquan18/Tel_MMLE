@@ -101,8 +101,8 @@ def composite_reana(model,var_name = 'ts', group_size = 40,reduction = 'mean', *
 
 
 #%%
-def composite_oneclick(model, var_name,group_size,reduction = 'mean',save = False):
-    ERA_first, ERA_last, ERA_diff = composite_reana(model,var_name = var_name, group_size=group_size,reduction = reduction)
+def composite_oneclick(model, var_name,group_size,reduction = 'mean',save = False, **kwargs):
+    ERA_first, ERA_last, ERA_diff = composite_reana(model,var_name = var_name, group_size=group_size,reduction = reduction, **kwargs)
     ERA_first.name = 'ts'
     ERA_last.name = 'ts'
     ERA_diff.name = 'ts'
@@ -175,4 +175,5 @@ def composite_together(model,var_name,group_size,reduction = 'mean',alpha = 0.05
     # save
     composite.to_netcdf(odir + f'composite_{reduction}_{var_name}_{group_size}.nc')
 # %%
-composite_reana('CR20_allens', 'psl', var_code = 'PRMSL')
+composite_oneclick('CR20_allens', 'psl',group_size=40, kwargs={'var_code':'PRMSL'})
+# %%
