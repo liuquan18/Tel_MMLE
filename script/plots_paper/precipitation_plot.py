@@ -37,6 +37,11 @@ def read_composite(
             composite = composite.pr
         except AttributeError:
             composite = composite.precip
+    elif var_name == 'psl':
+        try:
+            composite = composite.psl
+        except AttributeError:
+            composite = composite.slp
     return composite
 
 
@@ -67,7 +72,7 @@ CR20_composite_psl_first = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/C
 CR20_composite_psl_last = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/CR20_allens/composite/last_composite_mean_psl_40.nc")
 CR20_composite_psl_diff = CR20_composite_psl_last - CR20_composite_psl_first
 CR20_composite_psl = xr.concat([CR20_composite_psl_first, CR20_composite_psl_last, CR20_composite_psl_diff], dim="period")
-CR20_composite_psl = CR20_composite_psl.PRMSL
+CR20_composite_psl = CR20_composite_psl.ts # wrong name 
 CR20_composite_psl['period'] = ["first", "last", "diff"]
 #%%
 # add to the dictionary
@@ -78,6 +83,11 @@ COMPOSITEs_psl["20CR"] = CR20_composite_psl
 # change units from kg m-2 s-1 to mm/day
 for model in COMPOSITEs_pr:
     COMPOSITEs_pr[model] = COMPOSITEs_pr[model] * 86400
+#%%
+# change units from Pa to hPa
+for model in COMPOSITEs_psl:
+    if model != 'GFDL_CM3': # alread in hPa
+        COMPOSITEs_psl[model] = COMPOSITEs_psl[model] / 100
 #%%
 models_plot = ["MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3", "20CR"]
 models_legend = [
@@ -104,7 +114,8 @@ prec_cmap_div = mcolors.ListedColormap(prec_cmap_div, name="prec_div")
 # %%
 
 def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos", fill = True, **kwargs):
-    levels = kwargs.get("levels", np.arange(-1.2, 1.3, 0.3))
+    levels_shading = kwargs.get("levels_shading", np.arange(-1.2, 1.3, 0.3))
+    levels_lines = kwargs.get("levels_lines", np.arange(-2, 2.1, 0.5))
     for i, model in enumerate(models):  # cols for different models
         first = COMPOSITEs[model].sel(mode="NAO", period="first", extr_type=extr_type)
         last = COMPOSITEs[model].sel(mode="NAO", period="last", extr_type=extr_type)
@@ -130,7 +141,7 @@ def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos", fill = 
                     data,
                     x="lon",
                     y="lat",
-                    levels=levels,
+                    levels=levels_shading,
                     extend="both",
                     transform=ccrs.PlateCarree(),
                     cmap = prec_cmap_div,
@@ -140,10 +151,12 @@ def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos", fill = 
                     data,
                     x="lon",
                     y="lat",
-                    levels=[level for level in levels if level != 0],
+                    levels=[level for level in levels_lines if level != 0],
+                    colors = 'k',
+                    linewidths = 0.5,
                     extend="both",
                     transform=ccrs.PlateCarree(),
-                    cmap = prec_cmap_div,
+                    zorder = 10,
                 )
             maps.append(map)
             axes[j, i].grid(color="grey7", linewidth=0.5)
@@ -162,6 +175,7 @@ def plot_composite_single_ext(COMPOSITEs, models, axes, extr_type="pos", fill = 
                     levels=[-0.5, 0.5, 1.5],
                     colors=["none", "none"],
                     hatches=["", "xxxxx"],
+                    zorder=20,
                 )
 
     return axes, maps
@@ -194,6 +208,8 @@ axes.format(
 
 
 axes, maps = plot_composite_single_ext(COMPOSITEs_pr, models_plot, axes)
+axes, lines = plot_composite_single_ext(COMPOSITEs_psl, models_plot, axes, fill=False, levels_lines=np.arange(-5, 5.1, 1))
+
 fig3.colorbar(
     maps[0],
     loc="b",
@@ -203,7 +219,7 @@ fig3.colorbar(
     shrink=1,
 )
 
-# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/precipitation_composite_pos.pdf", dpi=300, bbox_inches="tight")
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/precipitation_composite_pos.pdf", dpi=300, bbox_inches="tight")
 
 # %%
 fig4, axes = pplt.subplots(
@@ -232,6 +248,7 @@ axes.format(
 
 
 axes, maps = plot_composite_single_ext(COMPOSITEs_pr, models_plot, axes, 'neg')
+axes, lines = plot_composite_single_ext(COMPOSITEs_psl, models_plot, axes, 'neg', fill=False, levels_lines=np.arange(-5, 5.1, 1))
 fig4.colorbar(
     maps[0],
     loc="b",
@@ -241,5 +258,5 @@ fig4.colorbar(
     shrink=1,
 )
 
-# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/precipitation_composite_neg.pdf", dpi=300, bbox_inches="tight")
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/precipitation_composite_neg.pdf", dpi=300, bbox_inches="tight")
 # %%
