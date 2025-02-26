@@ -334,7 +334,7 @@ def plot_composite_single_ext_rc(COMPOSITEs, models, axes, extr_type="pos", fill
 fig3, axes = pplt.subplots(
     space=0,
     width=180 / 25.4,
-    wspace=0.2,
+    wspace=1.5,
     hspace=0.2,
     proj="ortho",
     proj_kw=({"lon_0": -20, "lat_0": 60}),
@@ -351,8 +351,8 @@ axes.format(
     coastcolor="charcoal",
     leftlabels=models_legend,
     toplabels=["first", "last", "last - first"],
-    toplabels_kw={"fontsize": 7, },
-    leftlabels_kw={"fontsize": 7,},
+    toplabels_kw={"fontsize": 10, },
+    leftlabels_kw={"fontsize": 10,},
 )
 
 
@@ -375,7 +375,7 @@ fig4, axes = pplt.subplots(
     space=0,
     abc=True,
     width=180 / 25.4,
-    wspace=0.2,
+    wspace=1.5,
     hspace=0.2,
     proj="ortho",
     proj_kw=({"lon_0": -20, "lat_0": 60}),
@@ -391,8 +391,8 @@ axes.format(
     coastcolor="charcoal",
     leftlabels=models_legend,
     toplabels=["first", "last", "last - first"],
-    toplabels_kw={"fontsize": 7,},
-    leftlabels_kw={"fontsize": 7,},
+    toplabels_kw={"fontsize": 10,},
+    leftlabels_kw={"fontsize": 10,},
 )
 
 axes, maps = plot_composite_single_ext_rc(COMPOSITEs_pr, models_plot, axes, 'neg')
