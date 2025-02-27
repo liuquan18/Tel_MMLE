@@ -18,8 +18,8 @@ files=($odir/*.nc)
 
 # first 1850-1859
 
-cdo -P 32 -timmean -sellevel,50000 -ensmean -apply,selyear,1850/1859 [ ${files[@]} ] ${todir}${var}_1850-1859.nc
+# cdo -P 32 -timmean -sellevel,50000 -ensmean -apply,selyear,1850/1859 [ ${files[@]} ] ${todir}${var}_1850-1859.nc
 
 # last 2090-2099
 
-cdo -P 32 -timemean -sellevel,50000 -ensmean -apply,selyear,2090/2099 [ ${files[@]} ] ${todir}${var}_2090-2099.nc
+cdo -P 32 -timmean -sellevel,50000 -ensmean -apply,selyear,2090/2099 [ ${files[@]} ] ${todir}${var}_2090-2099.nc
