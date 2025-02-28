@@ -251,7 +251,7 @@ fig.colorbar(cf, ax=axes[2, 2], orientation='vertical', pad=0.05, label="EOF_NAO
 
 
 for ax in axes.flat:
-    ax.coastlines()
+    ax.coastlines(lw = 0.5, color = 'grey7')
     ax.set_global()
 
 # add a, b, c
