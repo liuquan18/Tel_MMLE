@@ -122,7 +122,7 @@ cf = axes[0, 0].contourf(
     transform=ccrs.PlateCarree()
 )
 axes[0, 0].set_title("first10 Z500 mean", fontsize=15)
-fig.colorbar(cf, ax=axes[0, 0], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.6)
+fig.colorbar(cf, ax=axes[0, 0], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.8)
 
 # Plot zg_last_mean
 cf = axes[0, 1].contourf(
@@ -133,7 +133,7 @@ cf = axes[0, 1].contourf(
     transform=ccrs.PlateCarree()
 )
 axes[0, 1].set_title("last10 Z500 mean", fontsize=15)
-fig.colorbar(cf, ax=axes[0, 1], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.6)
+fig.colorbar(cf, ax=axes[0, 1], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.8)
 
 # Plot zg_diff_mean
 cf = axes[0, 2].contourf(
@@ -144,7 +144,7 @@ cf = axes[0, 2].contourf(
     transform=ccrs.PlateCarree()
 )
 axes[0, 2].set_title("diff Z500 mean", fontsize=15)
-fig.colorbar(cf, ax=axes[0, 2], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.6)
+fig.colorbar(cf, ax=axes[0, 2], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.8)
 
 # u as contour
 axes[0, 0].contour(
@@ -184,7 +184,7 @@ cf = axes[1, 0].contourf(
     transform=ccrs.PlateCarree()
 )
 axes[1, 0].set_title("first10 Z500 std", fontsize=15)
-fig.colorbar(cf, ax=axes[1, 0], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.6)
+fig.colorbar(cf, ax=axes[1, 0], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.8)
 
 # Plot zg_last_std
 cf = axes[1, 1].contourf(
@@ -195,7 +195,7 @@ cf = axes[1, 1].contourf(
     transform=ccrs.PlateCarree()
 )
 axes[1, 1].set_title("last10 Z500 std", fontsize=15)
-fig.colorbar(cf, ax=axes[1, 1], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.6)
+fig.colorbar(cf, ax=axes[1, 1], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.8)
 
 # Plot zg_diff_std
 cf = axes[1, 2].contourf(
@@ -206,7 +206,7 @@ cf = axes[1, 2].contourf(
     transform=ccrs.PlateCarree()
 )
 axes[1, 2].set_title("diff Z500 std", fontsize=15)
-fig.colorbar(cf, ax=axes[1, 2], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.6)
+fig.colorbar(cf, ax=axes[1, 2], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.8)
 
 # u as contour
 axes[1, 0].contour(
@@ -248,7 +248,7 @@ cf = axes[2, 0].contourf(
     transform=ccrs.PlateCarree(),
 )
 axes[2,0].set_title("first10 NAO (18%)", fontsize=15)
-fig.colorbar(cf, ax=axes[2, 0], orientation='vertical',pad = 0.5, label="EOF_NAO [m]", shrink=0.6)
+fig.colorbar(cf, ax=axes[2, 0], orientation='vertical',pad = 0.5, label="EOF_NAO [m]", shrink=0.8)
 
 cf = axes[2, 1].contourf(
     eof_last_rm.lon,
@@ -260,7 +260,7 @@ cf = axes[2, 1].contourf(
     transform=ccrs.PlateCarree(),
 )
 axes[2,1].set_title("last10 NAO (24%)", fontsize=15)
-fig.colorbar(cf, ax=axes[2, 1], orientation='vertical',pad = 0.5, label="EOF_NAO[m]", shrink=0.6)
+fig.colorbar(cf, ax=axes[2, 1], orientation='vertical',pad = 0.5, label="EOF_NAO[m]", shrink=0.8)
 
 cf = axes[2, 2].contourf(
     eof_diff_rm.lon,
@@ -272,7 +272,7 @@ cf = axes[2, 2].contourf(
     transform=ccrs.PlateCarree(),
 )
 axes[2,2].set_title("diff NAO", fontsize=15)
-fig.colorbar(cf, ax=axes[2, 2], orientation='vertical',pad = 0.5, label="EOF_NAO[m]", shrink=0.6)
+fig.colorbar(cf, ax=axes[2, 2], orientation='vertical',pad = 0.5, label="EOF_NAO[m]", shrink=0.8)
 
 
 
