@@ -95,10 +95,10 @@ zg_levels_mean_div = np.arange(-180, 181, 30)
 
 zg_levels_seq = np.arange(50, 200, 10)
 u_levels_seq = np.arange(0, 60, 5)
-u_levels_seq_nonzon = np.arange(-5, 5.1, 1)
+u_levels_seq_nonzon = np.arange(-4.5, 5, 1.5)
 
 zg_levels_div = np.arange(-30, 31, 5)
-u_levels_div = np.arange(-2, 2.1, 0.5)
+u_levels_div = np.arange(-1.5, 1.6, 0.5)
 eof_levels_div = np.arange(-30, 31, 5)
 # First row for zg_mean
 # Plot zg_first_mean
@@ -140,7 +140,7 @@ axes[0, 0].contour(
     u_first.lat,
     u_first,
     lw = 0.5,
-    colors="grey8",
+    colors="black",
     levels=[level for level in u_levels_seq if level != 0],
     transform=ccrs.PlateCarree(),
 )
@@ -149,7 +149,7 @@ axes[0, 1].contour(
     u_last.lat,
     u_last,
     lw = 0.5,
-    colors="grey8",
+    colors="black",
     levels=[level for level in u_levels_seq if level != 0],
     transform=ccrs.PlateCarree(),
 )
@@ -158,7 +158,7 @@ axes[0, 2].contour(
     u_diff.lat,
     u_diff,
     lw = 0.5,
-    colors="grey8",
+    colors="black",
     levels=[level for level in u_levels_div if level != 0],
     transform=ccrs.PlateCarree(),
 )
@@ -202,7 +202,7 @@ axes[1, 0].contour(
     u_first_nozon.lat,
     u_first_nozon,
     lw = 0.5,
-    colors="grey8",
+    colors="black",
     levels=[level for level in u_levels_seq_nonzon if level != 0],
     transform=ccrs.PlateCarree(),
 )
@@ -211,7 +211,7 @@ axes[1, 1].contour(
     u_last_nozon.lat,
     u_last_nozon,
     lw = 0.5,
-    colors="grey8",
+    colors="black",
     levels=[level for level in u_levels_seq_nonzon if level != 0],
     transform=ccrs.PlateCarree(),
 )
@@ -220,7 +220,7 @@ axes[1, 2].contour(
     u_diff_nozon.lat,
     u_diff_nozon,
     lw = 0.5,
-    colors="grey8",
+    colors="black",
     levels=[level for level in u_levels_div if level != 0],
     transform=ccrs.PlateCarree(),
 )
