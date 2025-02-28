@@ -9,39 +9,45 @@ from src.plots.utils import erase_white_line
 import proplot as pplt
 
 # %%
-# odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg/"
-# # %%
-# zg = xr.open_mfdataset(odir + "*.nc", combine='nested', concat_dim='ens', parallel=True)
-# # %%
-# zg_first = zg.sel(time = slice('1850','1859'), plev = 50000).var156
-# # %%
-# zg_last = zg.sel(time = slice('2090', '2099'), plev = 50000).var156
-# # %%
-# zg_first_mean = zg_first.mean(dim=('time','ens'))
-# zg_last_mean = zg_last.mean(dim=('time','ens'))
 
-# # %%
-# zg_first_mean.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/zg_first_mean.nc")
-# zg_last_mean.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/zg_last_mean.nc")
+# odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg/"
+# zg = xr.open_mfdataset(odir + "*.nc", combine='nested', concat_dim='ens', parallel=True)
+
+# zg_first = zg.sel(time = slice('1850','1859'), plev = 50000).var156
+# zg_last = zg.sel(time = slice('2090', '2099'), plev = 50000).var156
+
+# zg_first_std = zg_first.std(dim=('time','ens'))
+# zg_last_std = zg_last.std(dim=('time','ens'))
+
+# zg_first_std.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/zg_first_std.nc")
+# zg_last_std.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/zg_last_std.nc")
+# %%
+zg_first_std = xr.open_dataarray(
+    "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/zg_first_std.nc"
+)
+zg_last_std = xr.open_dataarray(
+    "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/zg_last_std.nc"
+)
+zg_diff_std = zg_last_std - zg_first_std
 
 # %%
-zg_first = xr.open_dataarray(
+zg_first_std = erase_white_line(zg_first_std)
+zg_last_std = erase_white_line(zg_last_std)
+zg_diff_std = erase_white_line(zg_diff_std)
+# %%
+# %%
+zg_first_mean = xr.open_dataarray(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/zg_first_mean.nc"
 )
-zg_last = xr.open_dataarray(
+zg_last_mean = xr.open_dataarray(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/zg_last_mean.nc"
 )
-# %%
-zg_diff = zg_last - zg_first
+zg_diff_mean = zg_last_mean - zg_first_mean
 
 # %%
-zg_first = erase_white_line(zg_first)
-zg_last = erase_white_line(zg_last)
-zg_diff = erase_white_line(zg_diff)
-# %%
-zg_first = zg_first / 1000  # from m to km
-zg_last = zg_last / 1000
-zg_diff = zg_diff / 1000
+zg_first_mean = erase_white_line(zg_first_mean)
+zg_last_mean = erase_white_line(zg_last_mean)
+zg_diff_mean = erase_white_line(zg_diff_mean)
 # %%
 u_first = xr.open_dataset(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/u_1850-1859.nc"
@@ -58,19 +64,7 @@ u_first = erase_white_line(u_first)
 u_last = erase_white_line(u_last)
 u_diff = erase_white_line(u_diff)
 
-#%%
-eof_result_dec = xr.open_dataset(
-        "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/EOF_result/plev_50000_decade_mpi_first_JJA_eof_result_withtrend.nc"
-    )
 
-eof_first = eof_result_dec.eof.isel(decade=0)
-
-eof_last = eof_result_dec.eof.isel(decade=-1)
-
-eof_first = -1 * erase_white_line(eof_first)
-eof_last = -1 * erase_white_line(eof_last)
-
-eof_diff = eof_last - eof_first
 #%%
 eof_result_rm = xr.open_dataset(
         "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/EOF_result/plev_50000_decade_mpi_first_JJA_eof_result.nc"
@@ -84,50 +78,54 @@ eof_last_rm = erase_white_line(eof_last_rm)
 eof_diff_rm = eof_last_rm - eof_first_rm
 # %%
 fig, axes = plt.subplots(
-    nrows=4,
+    nrows=3,
     ncols=3,
     figsize=(12, 12),
     subplot_kw={"projection": ccrs.Orthographic(-20, 60)},
 )
-zg_levels_seq = np.arange(5, 6, 0.1)
-u_levels_seq = np.arange(0, 60, 5)
-eof_levels_seq = np.arange(38, 41.5, 0.5)
 
-zg_levels_div = np.arange(-0.2, 0.21, 0.02)
+zg_levels_mean = np.arange(5000, 6000, 100)
+zg_levels_mean_div = np.arange(-150, 151, 10)
+
+zg_levels_seq = np.arange(50, 200, 10)
+u_levels_seq = np.arange(0, 60, 5)
+
+zg_levels_div = np.arange(-30, 31, 5)
 u_levels_div = np.arange(-2, 2.1, 0.5)
 eof_levels_div = np.arange(-30, 31, 5)
-# Plot zg_first
+# First row for zg_mean
+# Plot zg_first_mean
 cf = axes[0, 0].contourf(
-    zg_first.lon, zg_first.lat, zg_first, 
+    zg_first_mean.lon, zg_first_mean.lat, zg_first_mean, 
     cmap="viridis", 
-    levels=zg_levels_seq,
+    levels=zg_levels_mean,
     extend='both',
     transform=ccrs.PlateCarree()
 )
-axes[0, 0].set_title("first", fontsize=15)
-fig.colorbar(cf, ax=axes[0, 0], orientation='vertical', pad=0.05, label="Z500 [km]")
+axes[0, 0].set_title("first mean", fontsize=15)
+fig.colorbar(cf, ax=axes[0, 0], orientation='vertical', pad=0.05, label="Z500 [m]", shrink=0.8)
 
-# Plot zg_last
+# Plot zg_last_mean
 cf = axes[0, 1].contourf(
-    zg_last.lon, zg_last.lat, zg_last, 
-    levels=zg_levels_seq,
+    zg_last_mean.lon, zg_last_mean.lat, zg_last_mean, 
+    levels=zg_levels_mean,
     cmap="viridis", 
     extend='both',
     transform=ccrs.PlateCarree()
 )
-axes[0, 1].set_title("last", fontsize=15)
-fig.colorbar(cf, ax=axes[0, 1], orientation='vertical', pad=0.05, label="Z500 [km]")
+axes[0, 1].set_title("last mean", fontsize=15)
+fig.colorbar(cf, ax=axes[0, 1], orientation='vertical', pad=0.05, label="Z500 [m]", shrink=0.8)
 
-# Plot zg_diff
+# Plot zg_diff_mean
 cf = axes[0, 2].contourf(
-    zg_diff.lon, zg_diff.lat, zg_diff, 
-    levels=zg_levels_div,
+    zg_diff_mean.lon, zg_diff_mean.lat, zg_diff_mean, 
+    levels=zg_levels_mean_div,
     cmap="coolwarm", 
     extend='both',
     transform=ccrs.PlateCarree()
 )
-axes[0, 2].set_title("last - first", fontsize=15)
-fig.colorbar(cf, ax=axes[0, 2], orientation='vertical', pad=0.05, label="Z500 [km]")
+axes[0, 2].set_title("last mean - first mean", fontsize=15)
+fig.colorbar(cf, ax=axes[0, 2], orientation='vertical', pad=0.05, label="Z500 [m]", shrink=0.8)
 
 # u as contour
 axes[0, 0].contour(
@@ -154,116 +152,102 @@ axes[0, 2].contour(
     levels=[level for level in u_levels_div if level != 0],
     transform=ccrs.PlateCarree(),
 )
-
-# eof1 in the second row
+# Second row for zg_std
+# Plot zg_first_std
 cf = axes[1, 0].contourf(
-    eof_first.lon,
-    eof_first.lat,
-    eof_first.isel(mode=0),
-    cmap="Reds",
-    levels=np.arange(35.5, 39, 0.5),
+    zg_first_std.lon, zg_first_std.lat, zg_first_std, 
+    cmap="viridis", 
+    levels=zg_levels_seq,
     extend='both',
-    transform=ccrs.PlateCarree(),
+    transform=ccrs.PlateCarree()
 )
-fig.colorbar(cf, ax=axes[1, 0], orientation='vertical', pad=0.05, label="EOF1")
+axes[1, 0].set_title("first std", fontsize=15)
+fig.colorbar(cf, ax=axes[1, 0], orientation='vertical', pad=0.05, label="Z500 [m]", shrink=0.8)
 
-
-cf  = axes[1, 1].contourf(
-    eof_last.lon,
-    eof_last.lat,
-    eof_last.isel(mode=0),
-    cmap="Reds",
-    levels=np.arange(35.5, 39, 0.5),
+# Plot zg_last_std
+cf = axes[1, 1].contourf(
+    zg_last_std.lon, zg_last_std.lat, zg_last_std, 
+    levels=zg_levels_seq,
+    cmap="viridis", 
     extend='both',
-    transform=ccrs.PlateCarree(),
+    transform=ccrs.PlateCarree()
 )
-fig.colorbar(cf, ax=axes[1, 1], orientation='vertical', pad=0.05, label="EOF1")
+axes[1, 1].set_title("last std", fontsize=15)
+fig.colorbar(cf, ax=axes[1, 1], orientation='vertical', pad=0.05, label="Z500 [m]", shrink=0.8)
 
+# Plot zg_diff_std
 cf = axes[1, 2].contourf(
-    eof_diff.lon,
-    eof_diff.lat,
-    eof_diff.isel(mode=0),
+    zg_diff_std.lon, zg_diff_std.lat, zg_diff_std, 
+    levels=zg_levels_div,
+    cmap="coolwarm", 
+    extend='both',
+    transform=ccrs.PlateCarree()
+)
+axes[1, 2].set_title("last std - first std", fontsize=15)
+fig.colorbar(cf, ax=axes[1, 2], orientation='vertical', pad=0.05, label="Z500 [m]", shrink=0.8)
+
+# u as contour
+axes[1, 0].contour(
+    u_first.lon,
+    u_first.lat,
+    u_first,
+    colors="black",
+    levels=[level for level in u_levels_seq if level != 0],
+    transform=ccrs.PlateCarree(),
+)
+axes[1, 1].contour(
+    u_last.lon,
+    u_last.lat,
+    u_last,
+    colors="black",
+    levels=[level for level in u_levels_seq if level != 0],
+    transform=ccrs.PlateCarree(),
+)
+axes[1, 2].contour(
+    u_diff.lon,
+    u_diff.lat,
+    u_diff,
+    colors="black",
+    levels=[level for level in u_levels_div if level != 0],
+    transform=ccrs.PlateCarree(),
+)
+
+# third row for eof_rm
+cf = axes[2, 0].contourf(
+    eof_first_rm.lon,
+    eof_first_rm.lat,
+    eof_first_rm,
     cmap="coolwarm",
     levels=np.arange(-2, 2.1, 0.5),
     extend='both',
     transform=ccrs.PlateCarree(),
 )
-fig.colorbar(cf, ax=axes[1, 2], orientation='vertical', pad=0.05, label="EOF1")
-
-# eof2 in the third row
-cf = axes[2, 0].contourf(
-    eof_first.lon,
-    eof_first.lat,
-    eof_first.isel(mode=1),
-    cmap="coolwarm",
-    levels=np.arange(-2,2.1,0.5),
-    extend='both',
-    transform=ccrs.PlateCarree(),
-)
-fig.colorbar(cf, ax=axes[2, 0], orientation='vertical', pad=0.05, label="EOF2")
+axes[2,0].set_title("first NAO", fontsize=15)
+fig.colorbar(cf, ax=axes[2, 0], orientation='vertical', pad=0.05, label="EOF_NAO", shrink=0.8)
 
 cf = axes[2, 1].contourf(
-    eof_last.lon,
-    eof_last.lat,
-    eof_last.isel(mode=1),
-    cmap="coolwarm",
-    levels=np.arange(-2,2.1,0.5),
-    extend='both',
-    transform=ccrs.PlateCarree(),
-)
-
-fig.colorbar(cf, ax=axes[2, 1], orientation='vertical', pad=0.05, label="EOF2")
-
-
-cf = axes[2, 2].contourf(
-    eof_diff.lon,
-    eof_diff.lat,
-    eof_diff.isel(mode=1),
-    cmap="coolwarm",
-    levels=np.arange(-2,2.1,0.5),
-    extend='both',
-    transform=ccrs.PlateCarree(),
-)
-fig.colorbar(cf, ax=axes[2, 2], orientation='vertical', pad=0.05, label="EOF2")
-
-# forth row for eof_rm
-cf = axes[3, 0].contourf(
-    eof_first_rm.lon,
-    eof_first_rm.lat,
-    eof_first_rm,
-    cmap="coolwarm",
-    levels= np.arange(-2,2.1,0.5),
-    extend='both',
-    transform=ccrs.PlateCarree(),
-)
-
-fig.colorbar(cf, ax=axes[3, 0], orientation='vertical', pad=0.05, label="EOF_NAO")
-
-cf = axes[3, 1].contourf(
     eof_last_rm.lon,
     eof_last_rm.lat,
     eof_last_rm,
     cmap="coolwarm",
-    levels= np.arange(-2,2.1,0.5),
+    levels=np.arange(-2, 2.1, 0.5),
     extend='both',
     transform=ccrs.PlateCarree(),
 )
+axes[2,1].set_title("last NAO", fontsize=15)
+fig.colorbar(cf, ax=axes[2, 1], orientation='vertical', pad=0.05, label="EOF_NAO", shrink=0.8)
 
-fig.colorbar(cf, ax=axes[3, 1], orientation='vertical', pad=0.05, label="EOF_NAO")
-
-
-cf = axes[3, 2].contourf(
+cf = axes[2, 2].contourf(
     eof_diff_rm.lon,
     eof_diff_rm.lat,
     eof_diff_rm,
     cmap="coolwarm",
-    levels= np.arange(-2,2.1,0.5),
+    levels=np.arange(-2, 2.1, 0.5),
     extend='both',
     transform=ccrs.PlateCarree(),
 )
-fig.colorbar(cf, ax=axes[3, 2], orientation='vertical', pad=0.05, label="EOF_NAO")
-
-
+axes[2,2].set_title("last NAO - first NAO", fontsize=15)
+fig.colorbar(cf, ax=axes[2, 2], orientation='vertical', pad=0.05, label="EOF_NAO", shrink=0.8)
 
 
 for ax in axes.flat:
@@ -280,11 +264,7 @@ axes[1, 2].text(-0.1, 1.05, "f", transform=axes[1, 2].transAxes, fontsize=15, fo
 axes[2, 0].text(-0.1, 1.05, "g", transform=axes[2, 0].transAxes, fontsize=15, fontweight='bold')
 axes[2, 1].text(-0.1, 1.05, "h", transform=axes[2, 1].transAxes, fontsize=15, fontweight='bold')
 axes[2, 2].text(-0.1, 1.05, "i", transform=axes[2, 2].transAxes, fontsize=15, fontweight='bold')
-axes[3, 0].text(-0.1, 1.05, "j", transform=axes[3, 0].transAxes, fontsize=15, fontweight='bold')
-axes[3, 1].text(-0.1, 1.05, "k", transform=axes[3, 1].transAxes, fontsize=15, fontweight='bold')
-axes[3, 2].text(-0.1, 1.05, "l", transform=axes[3, 2].transAxes, fontsize=15, fontweight='bold')
-
 
 plt.tight_layout()
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/pattern_disscusion.pdf")
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/Z500_mean_std_NAO.pdf")
 # %%
