@@ -109,7 +109,7 @@ cf = axes[0, 0].contourf(
     extend='both',
     transform=ccrs.PlateCarree()
 )
-axes[0, 0].set_title("first10 mean", fontsize=15)
+axes[0, 0].set_title("first10 Z500 mean", fontsize=15)
 fig.colorbar(cf, ax=axes[0, 0], orientation='vertical', pad=0.05, label="Z500 [m]", shrink=0.8)
 
 # Plot zg_last_mean
@@ -120,7 +120,7 @@ cf = axes[0, 1].contourf(
     extend='both',
     transform=ccrs.PlateCarree()
 )
-axes[0, 1].set_title("last10 mean", fontsize=15)
+axes[0, 1].set_title("last10 Z500 mean", fontsize=15)
 fig.colorbar(cf, ax=axes[0, 1], orientation='vertical', pad=0.05, label="Z500 [m]", shrink=0.8)
 
 # Plot zg_diff_mean
@@ -131,7 +131,7 @@ cf = axes[0, 2].contourf(
     extend='both',
     transform=ccrs.PlateCarree()
 )
-axes[0, 2].set_title("last10 mean - first10 mean", fontsize=15)
+axes[0, 2].set_title("diff Z500 mean", fontsize=15)
 fig.colorbar(cf, ax=axes[0, 2], orientation='vertical', pad=0.05, label="Z500 [m]", shrink=0.8)
 
 # u as contour
@@ -171,7 +171,7 @@ cf = axes[1, 0].contourf(
     extend='both',
     transform=ccrs.PlateCarree()
 )
-axes[1, 0].set_title("first10 std", fontsize=15)
+axes[1, 0].set_title("first10 Z500 std", fontsize=15)
 fig.colorbar(cf, ax=axes[1, 0], orientation='vertical', pad=0.05, label="Z500 [m]", shrink=0.8)
 
 # Plot zg_last_std
@@ -182,7 +182,7 @@ cf = axes[1, 1].contourf(
     extend='both',
     transform=ccrs.PlateCarree()
 )
-axes[1, 1].set_title("last10 std", fontsize=15)
+axes[1, 1].set_title("last10 Z500 std", fontsize=15)
 fig.colorbar(cf, ax=axes[1, 1], orientation='vertical', pad=0.05, label="Z500 [m]", shrink=0.8)
 
 # Plot zg_diff_std
@@ -193,7 +193,7 @@ cf = axes[1, 2].contourf(
     extend='both',
     transform=ccrs.PlateCarree()
 )
-axes[1, 2].set_title("last10 std - first10 std", fontsize=15)
+axes[1, 2].set_title("diff Z500 std", fontsize=15)
 fig.colorbar(cf, ax=axes[1, 2], orientation='vertical', pad=0.05, label="Z500 [m]", shrink=0.8)
 
 # u as contour
@@ -259,7 +259,7 @@ cf = axes[2, 2].contourf(
     extend='both',
     transform=ccrs.PlateCarree(),
 )
-axes[2,2].set_title("last10 NAO - first10 NAO", fontsize=15)
+axes[2,2].set_title("diff NAO", fontsize=15)
 fig.colorbar(cf, ax=axes[2, 2], orientation='vertical', pad=0.05, label="EOF_NAO[m]", shrink=0.8)
 
 
