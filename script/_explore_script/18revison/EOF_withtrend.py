@@ -7,7 +7,7 @@ import numpy as np
 def index_gene(model):
     GEN = index_generate.decompose_plev_JJA(
         model = model,
-        fixedPattern='decade_mpi',
+        fixedPattern='all',
     )
 
     GEN.save_result()
