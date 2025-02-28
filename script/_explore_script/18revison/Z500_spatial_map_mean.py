@@ -23,6 +23,7 @@ import proplot as pplt
 # # %%
 # zg_first_mean.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/zg_first_mean.nc")
 # zg_last_mean.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/zg_last_mean.nc")
+
 # %%
 zg_first = xr.open_dataarray(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/zg_first_mean.nc"
