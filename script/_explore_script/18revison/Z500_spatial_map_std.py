@@ -85,7 +85,7 @@ fig, axes = plt.subplots(
 )
 
 zg_levels_mean = np.arange(5000, 6000, 100)
-zg_levels_mean_div = np.arange(-150, 151, 10)
+zg_levels_mean_div = np.arange(-180, 181, 30)
 
 zg_levels_seq = np.arange(50, 200, 10)
 u_levels_seq = np.arange(0, 60, 5)
