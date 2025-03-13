@@ -73,7 +73,7 @@ ax1.fill_between(jet_loc_clim.time, jet_loc_clim - jet_loc_std, jet_loc_clim + j
 ax1.set_ylim(42, 57)
 ax1.grid(False)  # Remove gridlines
 ax_twin1 = ax1.twinx()
-jet_north_decade.drop_vars('lon').plot(ax=ax_twin1, color='red', label='count of jet Norther than 1.5 std')
+(jet_north_decade/100).drop_vars('lon').plot(ax=ax_twin1, color='red', label='count of jet Norther than 1.5 std')
 ax_twin1.grid(False)  # Remove gridlines
 
 lines, labels = ax1.get_legend_handles_labels()
@@ -92,7 +92,7 @@ ax2.fill_between(GB_clim.time, GB_clim - GB_std, GB_clim + GB_std, color='gray',
 ax2.set_ylim(5.45, 5.7)
 ax2.grid(False)  # Remove gridlines
 ax_twin2 = ax2.twinx()
-GB_above_decade.plot(ax=ax_twin2, color='red', label='count of GB above 1.5 std')
+(GB_above_decade/100).plot(ax=ax_twin2, color='red', label='count of GB above 1.5 std')
 ax_twin2.grid(False)  # Remove gridlines
 
 lines, labels = ax2.get_legend_handles_labels()
@@ -205,6 +205,6 @@ ax5.text(-0.1, 1.1, 'e', transform=ax5.transAxes,
 
 
 
-plt.savefig(f"//work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/{model}_NAO_jet_GB.pdf")
+# plt.savefig(f"//work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/{model}_NAO_jet_GB.pdf")
 
 # %%
