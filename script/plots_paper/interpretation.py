@@ -153,14 +153,25 @@ ax4.set_ylim(5.35, 5.8)
 
 # Create custom legend
 legend_elements = [
-    Line2D([0], [0], color="C0", lw=2, label="first10 (1850-1859)", linestyle="-"),
-    Line2D([0], [0], color="C1", lw=2, label="last10 (2090-2099)", linestyle="-"),
     Patch(facecolor="grey", edgecolor="k", label="NAO (positive)", alpha=0.5),
     Patch(facecolor="none", edgecolor="k", label="NAO (negative)", alpha=0.5),
+    Line2D([0], [0], color="none", lw=2, label="first10 (1850-1859)", linestyle="-"),
+    Line2D([0], [0], color="none", lw=2, label="last10 (2090-2099)", linestyle="-"),
+
 ]
 
 
+
 ax4.legend(handles=legend_elements, loc="upper right", frameon=False)
+
+# Change the font color of the labels
+for text in ax4.get_legend().get_texts():
+    if "first10" in text.get_text():
+        text.set_color("C0")
+    elif "last10" in text.get_text():
+        text.set_color("C1")
+
+
 
 ####### ax5 
 
