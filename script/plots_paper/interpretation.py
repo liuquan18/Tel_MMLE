@@ -55,14 +55,12 @@ NAO_dec = pd.concat([NAO_pos_df_dec, NAO_neg_df_dec])
 # %%
 jet_GB_corr = correlate_jet_GB(jet_loc, GB)
 # %%
-fig = plt.figure(figsize=(10, 10))
-gs = fig.add_gridspec(6,2)
+fig, axes = plt.subplots(2,2, figsize=(10, 10))
 
-ax1 = fig.add_subplot(gs[0:2, 0])
-ax2 = fig.add_subplot(gs[2:4, 0])
-ax3 = fig.add_subplot(gs[4:6, 0])
-ax4 = fig.add_subplot(gs[0:3, 1])
-ax5 = fig.add_subplot(gs[3:6, 1])
+ax1 = axes[0,0]
+ax2 = axes[1,0]
+ax4 = axes[0,1]
+ax5 = axes[1,1]
 
 
 jet_loc_clim.plot(ax=ax1, label='Climatology', x='time', add_legend=False, color='black')
@@ -89,7 +87,7 @@ GB_clim.plot(ax=ax2, label='Climatology', x='time', add_legend=False, color='bla
 ax2.set_title('')
 
 ax2.fill_between(GB_clim.time, GB_clim - GB_std, GB_clim + GB_std, color='gray', alpha=0.5, label='std')
-ax2.set_ylim(5.45, 5.7)
+ax2.set_ylim(5.45, 5.8)
 ax2.grid(False)  # Remove gridlines
 ax_twin2 = ax2.twinx()
 (GB_above_decade/100).plot(ax=ax_twin2, color='red', label='count of GB above 1.5 std')
@@ -103,11 +101,6 @@ ax2.set_ylabel('GB proxy (km)')
 ax_twin2.set_ylabel('count')
 ax2.set_title('Greenland Blocking Index')
 
-jet_GB_corr.plot(ax=ax3, color = 'k')
-ax3.set_ylabel("Correlation")
-ax3.set_title("Jet Stream location and Blocking correlation")
-# without grids
-ax3.grid(False)
 
 
 ####### ax4
@@ -162,7 +155,7 @@ ax4.set_ylim(5.35, 5.8)
 legend_elements = [
     Line2D([0], [0], color="C0", lw=2, label="first10 (1850-1859)", linestyle="-"),
     Line2D([0], [0], color="C1", lw=2, label="last10 (2090-2099)", linestyle="-"),
-    Patch(facecolor="C0", edgecolor="k", label="NAO (positive)", alpha=0.5),
+    Patch(facecolor="grey", edgecolor="k", label="NAO (positive)", alpha=0.5),
     Patch(facecolor="none", edgecolor="k", label="NAO (negative)", alpha=0.5),
 ]
 
@@ -195,8 +188,6 @@ plt.tight_layout()
 ax1.text(-0.1, 1.1, 'a', transform=ax1.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='right')
 ax2.text(-0.1, 1.1, 'b', transform=ax2.transAxes,
-        fontsize=14, fontweight='bold', va='top', ha='right')
-ax3.text(-0.1, 1.1, 'c', transform=ax3.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='right')
 ax4.text(-0.1, 1.1, 'd', transform=ax4.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='right')
