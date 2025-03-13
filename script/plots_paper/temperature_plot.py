@@ -210,7 +210,7 @@ fig3.colorbar(
     maps[0],
     loc="b",
     pad=1,
-    title="precipitation (mm/day)",
+    title="(near) surface temperature [K]",
     width=0.1,
     shrink=1,
 )
@@ -269,7 +269,7 @@ fig4.colorbar(
     maps[0],
     loc="b",
     pad=1,
-    title="precipitation (mm/day)",
+    title="(near) surface temperature [K]",
     width=0.1,
     shrink=1,
 )
