@@ -153,8 +153,8 @@ ax4.set_ylim(5.35, 5.8)
 
 # Create custom legend
 legend_elements = [
-    Patch(facecolor="grey", edgecolor="k", label="NAO (positive)", alpha=0.5),
-    Patch(facecolor="none", edgecolor="k", label="NAO (negative)", alpha=0.5),
+    Patch(facecolor="grey", edgecolor="k", label="positive NAO", alpha=0.5),
+    Patch(facecolor="none", edgecolor="k", label="negative NAO", alpha=0.5),
     Line2D([0], [0], color="none", lw=2, label="first10 (1850-1859)", linestyle="-"),
     Line2D([0], [0], color="none", lw=2, label="last10 (2090-2099)", linestyle="-"),
 
@@ -200,13 +200,13 @@ ax1.text(-0.1, 1.1, 'a', transform=ax1.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='right')
 ax2.text(-0.1, 1.1, 'b', transform=ax2.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='right')
-ax4.text(-0.1, 1.1, 'd', transform=ax4.transAxes,
+ax4.text(-0.1, 1.1, 'c', transform=ax4.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='right')
-ax5.text(-0.1, 1.1, 'e', transform=ax5.transAxes,
+ax5.text(-0.1, 1.1, 'd', transform=ax5.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='right')
 
 
 
-# plt.savefig(f"//work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/{model}_NAO_jet_GB.pdf")
+plt.savefig(f"//work/mh0033/m300883/Tel_MMLE/docs/source/plots/mechism/{model}_NAO_jet_GB.pdf")
 
 # %%
