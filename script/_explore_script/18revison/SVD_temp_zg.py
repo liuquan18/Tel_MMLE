@@ -246,13 +246,13 @@ plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary
 
 #%%
 fig, axes = plt.subplots(2,3, figsize = (12,8), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
-(mrso_mt_eofs_first.sel(mode=3)*-1).plot(ax = axes[0,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both', cbar_kwargs={'label':'soil wetness','shrink':0.8})
-(mrso_mt_eofs_last.sel(mode=3)*1).plot(ax = axes[0,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both', cbar_kwargs={'label':'soil wetness','shrink':0.8})
-((mrso_mt_eofs_last.sel(mode=3)*1) - (mrso_mt_eofs_first.sel(mode=3)*-1)).plot(ax = axes[0,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both', cbar_kwargs={'label':'soil wetness','shrink':0.8})
+(mrso_mt_eofs_first.sel(mode=3)).plot(ax = axes[0,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both', cbar_kwargs={'label':'soil wetness','shrink':0.8})
+(mrso_mt_eofs_last.sel(mode=4)).plot(ax = axes[0,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both', cbar_kwargs={'label':'soil wetness','shrink':0.8})
+((mrso_mt_eofs_last.sel(mode=4)) - (mrso_mt_eofs_first.sel(mode=3))).plot(ax = axes[0,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both', cbar_kwargs={'label':'soil wetness','shrink':0.8})
 
-(ts_mt_eofs_first.sel(mode=3)*-1).plot(ax = axes[1,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
-(ts_mt_eofs_last.sel(mode=3)*1).plot(ax = axes[1,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
-((ts_mt_eofs_last.sel(mode=3)*1) - (ts_mt_eofs_first.sel(mode=3)*-1)).plot(ax = axes[1,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
+(ts_mt_eofs_first.sel(mode=3)).plot(ax = axes[1,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
+(ts_mt_eofs_last.sel(mode=4)).plot(ax = axes[1,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
+((ts_mt_eofs_last.sel(mode=4)) - (ts_mt_eofs_first.sel(mode=3))).plot(ax = axes[1,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
 
 for ax in axes.flat:
     ax.coastlines()
