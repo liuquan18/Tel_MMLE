@@ -189,7 +189,7 @@ mr_levels = np.arange(-0.15, 0.151, 0.03)/50
 # axes[1,2].text(0.05, 0.9, 'f', transform=axes[1,2].transAxes, fontsize=16, fontweight='bold')
 
 # plt.tight_layout()
-# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/zg_ts_SVD.pdf")
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/zg_ts_SVD.pdf", bbox_inches='tight')
 
 #%%
 # the shifted temperature and z500 is in mode=4
@@ -215,7 +215,7 @@ mr_levels = np.arange(-0.15, 0.151, 0.03)/50
 # axes[1,1].text(0.05, 0.9, 'e', transform=axes[1,1].transAxes, fontsize=16, fontweight='bold')
 # axes[1,2].text(0.05, 0.9, 'f', transform=axes[1,2].transAxes, fontsize=16, fontweight='bold')
 
-# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/zg_ts_1monshift_SVD.pdf")
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/zg_ts_1monshift_SVD.pdf", bbox_inches='tight')
 
 #%%
 # the shifted temperature and z500 is in mode=4
@@ -241,7 +241,7 @@ axes[1,0].text(0.05, 0.9, 'd', transform=axes[1,0].transAxes, fontsize=16, fontw
 axes[1,1].text(0.05, 0.9, 'e', transform=axes[1,1].transAxes, fontsize=16, fontweight='bold')
 axes[1,2].text(0.05, 0.9, 'f', transform=axes[1,2].transAxes, fontsize=16, fontweight='bold')
 
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/zg_1monshift_SVD_ts.pdf")
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/zg_1monshift_SVD_ts.pdf", bbox_inches='tight')
 
 #%%
 # fig, axes = plt.subplots(2,3, figsize = (12,8), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
@@ -267,7 +267,7 @@ plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary
 # axes[1,2].text(0.05, 0.9, 'f', transform=axes[1,2].transAxes, fontsize=16, fontweight='bold')
 
 # plt.tight_layout()
-# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/mrso_ts_SVD.pdf")
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/mrso_ts_SVD.pdf", bbox_inches='tight')
 
 
 #%%
@@ -294,7 +294,7 @@ plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary
 # axes[1,2].text(0.05, 0.9, 'f', transform=axes[1,2].transAxes, fontsize=16, fontweight='bold')
 
 # plt.tight_layout()
-# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/mrso_ts_1monshift_SVD.pdf")
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/mrso_ts_1monshift_SVD.pdf", bbox_inches='tight')
 
 #%%
 fig, axes = plt.subplots(2,3, figsize = (12,8), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
@@ -320,7 +320,7 @@ axes[1,1].text(0.05, 0.9, 'e', transform=axes[1,1].transAxes, fontsize=16, fontw
 axes[1,2].text(0.05, 0.9, 'f', transform=axes[1,2].transAxes, fontsize=16, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/mrso_1monshift_ts_SVD.pdf")
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/mrso_1monshift_ts_SVD.pdf", bbox_inches='tight')
 
 
 
