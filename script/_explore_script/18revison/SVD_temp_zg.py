@@ -166,14 +166,41 @@ ts_levels = np.arange(-0.1, 0.11, 0.02)
 zg_levels = np.arange(-1.5, 1.51, 0.3)*2
 mr_levels = np.arange(-0.15, 0.151, 0.03)/50
 #%%
-fig, axes = plt.subplots(2,3, figsize = (12,8), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
-zg_zt_eofs_first.sel(mode=3).plot(ax = axes[0,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = zg_levels, extend = 'both', cbar_kwargs={'label':'Z500','shrink':0.8})
-(zg_zt_eofs_last.sel(mode=3)*-1).plot(ax = axes[0,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = zg_levels, extend = 'both', cbar_kwargs={'label':'Z500','shrink':0.8})
-((zg_zt_eofs_last.sel(mode=3)*-1) - zg_zt_eofs_first.sel(mode=3)).plot(ax = axes[0,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = zg_levels, extend = 'both', cbar_kwargs={'label':'Z500','shrink':0.8})
+# fig, axes = plt.subplots(2,3, figsize = (12,8), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
+# zg_zt_eofs_first.sel(mode=3).plot(ax = axes[0,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = zg_levels, extend = 'both', cbar_kwargs={'label':'Z500','shrink':0.8})
+# (zg_zt_eofs_last.sel(mode=3)*-1).plot(ax = axes[0,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = zg_levels, extend = 'both', cbar_kwargs={'label':'Z500','shrink':0.8})
+# ((zg_zt_eofs_last.sel(mode=3)*-1) - zg_zt_eofs_first.sel(mode=3)).plot(ax = axes[0,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = zg_levels, extend = 'both', cbar_kwargs={'label':'Z500','shrink':0.8})
 
-ts_zt_eofs_first.sel(mode=3).plot(ax = axes[1,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
-(ts_zt_eofs_last.sel(mode=3)*-1).plot(ax = axes[1,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
-((ts_zt_eofs_last.sel(mode=3)*-1) - ts_zt_eofs_first.sel(mode=3)).plot(ax = axes[1,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
+# ts_zt_eofs_first.sel(mode=3).plot(ax = axes[1,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
+# (ts_zt_eofs_last.sel(mode=3)*-1).plot(ax = axes[1,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
+# ((ts_zt_eofs_last.sel(mode=3)*-1) - ts_zt_eofs_first.sel(mode=3)).plot(ax = axes[1,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
+
+# for ax in axes.flat:
+#     ax.coastlines()
+#     ax.set_global()
+#     ax.set_title('')
+
+# # add a, b, c
+# axes[0,0].text(0.05, 0.9, 'a', transform=axes[0,0].transAxes, fontsize=16, fontweight='bold')
+# axes[0,1].text(0.05, 0.9, 'b', transform=axes[0,1].transAxes, fontsize=16, fontweight='bold')
+# axes[0,2].text(0.05, 0.9, 'c', transform=axes[0,2].transAxes, fontsize=16, fontweight='bold')
+# axes[1,0].text(0.05, 0.9, 'd', transform=axes[1,0].transAxes, fontsize=16, fontweight='bold')
+# axes[1,1].text(0.05, 0.9, 'e', transform=axes[1,1].transAxes, fontsize=16, fontweight='bold')
+# axes[1,2].text(0.05, 0.9, 'f', transform=axes[1,2].transAxes, fontsize=16, fontweight='bold')
+
+# plt.tight_layout()
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/zg_ts_SVD.pdf")
+
+#%%
+# the shifted temperature and z500 is in mode=4
+fig, axes = plt.subplots(2,3, figsize = (12,8), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
+zg_zt_eofs_first.sel(mode=4).plot(ax = axes[0,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = zg_levels, extend = 'both', cbar_kwargs={'label':'Z500','shrink':0.8})
+(zg_zt_eofs_last.sel(mode=4)*-1).plot(ax = axes[0,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = zg_levels, extend = 'both', cbar_kwargs={'label':'Z500','shrink':0.8})
+((zg_zt_eofs_last.sel(mode=4)*-1) - zg_zt_eofs_first.sel(mode=4)).plot(ax = axes[0,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = zg_levels, extend = 'both', cbar_kwargs={'label':'Z500','shrink':0.8})
+
+ts_zt_eofs_first.sel(mode=4).plot(ax = axes[1,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
+(ts_zt_eofs_last.sel(mode=4)*-1).plot(ax = axes[1,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
+((ts_zt_eofs_last.sel(mode=4)*-1) - ts_zt_eofs_first.sel(mode=4)).plot(ax = axes[1,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
 
 for ax in axes.flat:
     ax.coastlines()
@@ -188,9 +215,34 @@ axes[1,0].text(0.05, 0.9, 'd', transform=axes[1,0].transAxes, fontsize=16, fontw
 axes[1,1].text(0.05, 0.9, 'e', transform=axes[1,1].transAxes, fontsize=16, fontweight='bold')
 axes[1,2].text(0.05, 0.9, 'f', transform=axes[1,2].transAxes, fontsize=16, fontweight='bold')
 
-plt.tight_layout()
-# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/zg_ts_SVD.pdf")
 plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/zg_ts_1monshift_SVD.pdf")
+
+#%%
+# fig, axes = plt.subplots(2,3, figsize = (12,8), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
+# (mrso_mt_eofs_first.sel(mode=3)*-1).plot(ax = axes[0,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both', cbar_kwargs={'label':'soil wetness','shrink':0.8})
+# (mrso_mt_eofs_last.sel(mode=3)*1).plot(ax = axes[0,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both', cbar_kwargs={'label':'soil wetness','shrink':0.8})
+# ((mrso_mt_eofs_last.sel(mode=3)*1) - (mrso_mt_eofs_first.sel(mode=3)*-1)).plot(ax = axes[0,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both', cbar_kwargs={'label':'soil wetness','shrink':0.8})
+
+# (ts_mt_eofs_first.sel(mode=3)*-1).plot(ax = axes[1,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
+# (ts_mt_eofs_last.sel(mode=3)*1).plot(ax = axes[1,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
+# ((ts_mt_eofs_last.sel(mode=3)*1) - (ts_mt_eofs_first.sel(mode=3)*-1)).plot(ax = axes[1,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both', cbar_kwargs={'label':'temperature','shrink':0.8})
+
+# for ax in axes.flat:
+#     ax.coastlines()
+#     ax.set_global()
+#     ax.set_title('')
+
+# # add a, b, c
+# axes[0,0].text(0.05, 0.9, 'a', transform=axes[0,0].transAxes, fontsize=16, fontweight='bold')
+# axes[0,1].text(0.05, 0.9, 'b', transform=axes[0,1].transAxes, fontsize=16, fontweight='bold')
+# axes[0,2].text(0.05, 0.9, 'c', transform=axes[0,2].transAxes, fontsize=16, fontweight='bold')
+# axes[1,0].text(0.05, 0.9, 'd', transform=axes[1,0].transAxes, fontsize=16, fontweight='bold')
+# axes[1,1].text(0.05, 0.9, 'e', transform=axes[1,1].transAxes, fontsize=16, fontweight='bold')
+# axes[1,2].text(0.05, 0.9, 'f', transform=axes[1,2].transAxes, fontsize=16, fontweight='bold')
+
+# plt.tight_layout()
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/mrso_ts_SVD.pdf")
+
 
 #%%
 fig, axes = plt.subplots(2,3, figsize = (12,8), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
@@ -216,7 +268,6 @@ axes[1,1].text(0.05, 0.9, 'e', transform=axes[1,1].transAxes, fontsize=16, fontw
 axes[1,2].text(0.05, 0.9, 'f', transform=axes[1,2].transAxes, fontsize=16, fontweight='bold')
 
 plt.tight_layout()
-# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/mrso_ts_SVD.pdf")
 plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/mrso_ts_1monshift_SVD.pdf")
 
 
@@ -244,12 +295,12 @@ plt.show()
 
 #%%
 fig, axes = plt.subplots(2,4, figsize = (12,12), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
-ts_zt_eofs_first.sel(mode=0).plot(ax = axes[0,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
+ts_zt_eofs_first.sel(mode=4).plot(ax = axes[0,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
 ts_zt_eofs_first.sel(mode=1).plot(ax = axes[0,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
 ts_zt_eofs_first.sel(mode = 2).plot(ax = axes[0,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
 ts_zt_eofs_first.sel(mode = 3).plot(ax = axes[0,3], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
 
-ts_zt_eofs_last.sel(mode=0).plot(ax = axes[1,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
+ts_zt_eofs_last.sel(mode=4).plot(ax = axes[1,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
 ts_zt_eofs_last.sel(mode=1).plot(ax = axes[1,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
 ts_zt_eofs_last.sel(mode = 2).plot(ax = axes[1,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
 ts_zt_eofs_last.sel(mode = 3).plot(ax = axes[1,3], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
@@ -261,24 +312,17 @@ for ax in axes.flat:
     ax.set_title('')
 plt.show()
 # %%
+fig, axes = plt.subplots(2,4, figsize = (12,12), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
+mrso_mt_eofs_first.sel(mode=4).plot(ax = axes[0,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both')
+mrso_mt_eofs_first.sel(mode=1).plot(ax = axes[0,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both')
+mrso_mt_eofs_first.sel(mode = 2).plot(ax = axes[0,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both')
+mrso_mt_eofs_first.sel(mode = 3).plot(ax = axes[0,3], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both')
 
-mt_exp_var, mt_pcs, mt_eofs = do_mca(mrso_last, ts_last, nmodes=5)
-# %%
-mrso_mt_pcs, ts_mt_pcs = [mt_pcs['left'], mt_pcs['right']]
-mrso_mt_eofs, ts_mt_eofs = [mt_eofs['left'], mt_eofs['right']]
+mrso_mt_eofs_last.sel(mode=4).plot(ax = axes[1,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both')
+mrso_mt_eofs_last.sel(mode=1).plot(ax = axes[1,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both')
+mrso_mt_eofs_last.sel(mode = 2).plot(ax = axes[1,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both')
+mrso_mt_eofs_last.sel(mode = 3).plot(ax = axes[1,3], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both')
 
-# %%
-mrso_mt_eofs, mrso_mt_pcs, mrso_mt_fra = eofs_to_xarray(mrso_first, mrso_mt_eofs, mrso_mt_pcs, mt_exp_var)
-ts_mt_eofs, ts_mt_pcs, ts_mt_fra = eofs_to_xarray(ts_first, ts_mt_eofs, ts_mt_pcs, mt_exp_var)
-# %%
-fig, axes = plt.subplots(2,3, figsize = (12,10), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
-mrso_mt_eofs.sel(mode=0).plot(ax = axes[0,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both')
-mrso_mt_eofs.sel(mode=3).plot(ax = axes[0,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both')
-mrso_mt_eofs.sel(mode = 4).plot(ax = axes[0,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both')
-
-ts_mt_eofs.sel(mode=0).plot(ax = axes[1,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = t_levels, extend = 'both')
-ts_mt_eofs.sel(mode=3).plot(ax = axes[1,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = t_levels, extend = 'both')
-ts_mt_eofs.sel(mode=4).plot(ax = axes[1,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = t_levels, extend = 'both')
 
 for ax in axes.flat:
     ax.coastlines()
@@ -286,4 +330,23 @@ for ax in axes.flat:
     ax.set_title('')
 plt.show()
 
+
+# %%
+fig, axes = plt.subplots(2,4, figsize = (12,12), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
+ts_mt_eofs_first.sel(mode=4).plot(ax = axes[0,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
+ts_mt_eofs_first.sel(mode=1).plot(ax = axes[0,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
+ts_mt_eofs_first.sel(mode = 2).plot(ax = axes[0,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
+ts_mt_eofs_first.sel(mode = 3).plot(ax = axes[0,3], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
+
+ts_mt_eofs_last.sel(mode=4).plot(ax = axes[1,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
+ts_mt_eofs_last.sel(mode=1).plot(ax = axes[1,1], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
+ts_mt_eofs_last.sel(mode = 2).plot(ax = axes[1,2], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
+ts_mt_eofs_last.sel(mode = 3).plot(ax = axes[1,3], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = ts_levels, extend = 'both')
+
+
+for ax in axes.flat:
+    ax.coastlines()
+    ax.set_global()
+    ax.set_title('')
+plt.show()
 # %%
