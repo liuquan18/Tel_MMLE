@@ -31,16 +31,21 @@ def read_data_month(var, month, name = None, plev = None):
             pass
     return data_month
 
-def read_data(var, name = None, plev = 50000, remove_ens_mean = False):
+def read_data(var, name = None, plev = 50000, remove_ens_mean = False, temporal_shift = 0):
     if name is None:
         name = var
     data = []
-    for month in ['Jun','Jul','Aug']:
+    for month in ['May', 'Jun','Jul','Aug']: # include may to shift
         data_month = read_data_month(var, month, name, plev)
         data.append(data_month)
 
     data = xr.concat(data, dim='time')    
     data = data.sortby('time')
+
+    if temporal_shift != 0:
+        data = data.shift(time = temporal_shift)
+
+    data = data.sel(time = data.time.dt.month.isin([6,7,8])) # only keep three months
 
     # remove ensemble mean
     if remove_ens_mean:
@@ -82,7 +87,7 @@ def eofs_to_xarray(data, eof, pc, fra):
 zg_first, zg_last = read_data('zg', 'var156')
 
 # %%
-ts_first, ts_last = read_data('ts', 'tsurf', None)
+ts_first, ts_last = read_data('ts', 'tsurf', None, temporal_shift = 1)
 # %%
 mrso_first, mrso_last = read_data('mrso', 'var140', None)
 
@@ -184,7 +189,9 @@ axes[1,1].text(0.05, 0.9, 'e', transform=axes[1,1].transAxes, fontsize=16, fontw
 axes[1,2].text(0.05, 0.9, 'f', transform=axes[1,2].transAxes, fontsize=16, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/zg_ts_SVD.pdf")
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/zg_ts_SVD.pdf")
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/zg_ts_1monshift_SVD.pdf")
+
 #%%
 fig, axes = plt.subplots(2,3, figsize = (12,8), subplot_kw={'projection': ccrs.Orthographic(-20, 60)})
 (mrso_mt_eofs_first.sel(mode=3)*-1).plot(ax = axes[0,0], transform=ccrs.PlateCarree(), cmap='coolwarm', levels = mr_levels, extend = 'both', cbar_kwargs={'label':'soil wetness','shrink':0.8})
@@ -209,7 +216,8 @@ axes[1,1].text(0.05, 0.9, 'e', transform=axes[1,1].transAxes, fontsize=16, fontw
 axes[1,2].text(0.05, 0.9, 'f', transform=axes[1,2].transAxes, fontsize=16, fontweight='bold')
 
 plt.tight_layout()
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/mrso_ts_SVD.pdf")
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/mrso_ts_SVD.pdf")
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/mrso_ts_1monshift_SVD.pdf")
 
 
 
