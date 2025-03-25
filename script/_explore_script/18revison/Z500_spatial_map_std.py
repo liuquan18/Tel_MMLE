@@ -4,8 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import glob
+# import proplot as pplt
 #%%
-from src.plots.utils import erase_white_line
+from src.plotting.util import erase_white_line
 
 # %%
 
