@@ -1,36 +1,9 @@
 import cartopy.crs as ccrs
-import matplotlib as mpl
-import matplotlib.path as mpath
-import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import numpy as np
-import pandas as pd
-import seaborn as sns
 import xarray as xr
-from cartopy.mpl.geoaxes import GeoAxes
-from cartopy.mpl.ticker import LatitudeFormatter, LatitudeLocator, LongitudeFormatter
+from cartopy.mpl.ticker import LatitudeFormatter, LongitudeFormatter
 from cartopy.util import add_cyclic_point
-from matplotlib.colorbar import Colorbar
-from matplotlib.lines import Line2D
-from mpl_toolkits.axes_grid1 import AxesGrid, make_axes_locatable
-
-from cartopy.mpl.geoaxes import GeoAxes
-from cartopy.mpl.ticker import LatitudeFormatter, LatitudeLocator, LongitudeFormatter
-from cartopy.util import add_cyclic_point
-from matplotlib.colorbar import Colorbar
-from matplotlib.lines import Line2D
-from mpl_toolkits.axes_grid1 import AxesGrid, make_axes_locatable
-from cartopy.mpl.geoaxes import GeoAxes
-from cartopy.mpl.ticker import LatitudeFormatter, LatitudeLocator, LongitudeFormatter
-from cartopy.util import add_cyclic_point
-from matplotlib.colorbar import Colorbar
-from matplotlib.lines import Line2D
-from mpl_toolkits.axes_grid1 import AxesGrid, make_axes_locatable
-
-
-import iris
-import iris.plot as iplt
-import iris.quickplot as qplt
 
 
 # function to erase the white line
