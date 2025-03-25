@@ -8,7 +8,7 @@ client, cluster = slurm_cluster.init_dask_slurm_cluster(scale = 2, processes = 1
 
 # %%
 odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/u/"
-ua = xr.open_mfdataset(odir + "*.nc", combine='nested', concat_dim='ens', parallel=True)
+ua = xr.open_mfdataset(odir + "*.nc", combine='nested', concat_dim='ens')
 
 # change chunk size
 ua = ua.chunk({'time': 30, 'lat': -1, 'lon': -1})
@@ -21,3 +21,5 @@ ua_last_std = ua_last.std(dim=('time','ens'))
 
 ua_first_std.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/ua_first_std.nc")
 ua_last_std.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/ua_last_std.nc")
+
+# %%
