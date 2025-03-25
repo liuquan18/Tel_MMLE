@@ -4,9 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import glob
-# import proplot as pplt
+import matplotlib.pyplot as plt
 #%%
-from src.plotting.util import erase_white_line
+from src.plots.utils import erase_white_line
 
 # %%
 
@@ -86,25 +86,13 @@ eof_last_rm = xr.open_dataset(
 eof_diff_rm = eof_last_rm - eof_first_rm
 
 # %%
-fig, axes = pplt.subplots(
-    nrows=3,
-    ncols=3,
+fig, axes = plt.subplots(
+    3,3,
     figsize=(12, 11),
-    wspace=4.5,
-    hspace=2.,
-    proj="ortho",
-    proj_kw=({"lon_0": -20, "lat_0": 60}),
-    )
-
-axes.format(
-    abc = False,
-    latlines=20,
-    lonlines=30,
-    color="grey7",
-    coast=True,
-    coastlinewidth=0.3,
-    coastcolor="charcoal",
+    subplot_kw={"projection": ccrs.Orthographic(-20, 60)},
+    # gridspec_kw={"wspace": 4.5, "hspace": 2.},
 )
+
 
 
 zg_levels_mean = np.arange(5000, 6000, 100)
@@ -127,7 +115,7 @@ cf = axes[0, 0].contourf(
     transform=ccrs.PlateCarree()
 )
 axes[0, 0].set_title("first10 Z500 mean", fontsize=15)
-fig.colorbar(cf, ax=axes[0, 0], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.8)
+fig.colorbar(cf, ax=axes[0, 0], orientation='vertical',label="Z500 [m]", shrink=0.8)
 
 # Plot zg_last_mean
 cf = axes[0, 1].contourf(
@@ -138,7 +126,7 @@ cf = axes[0, 1].contourf(
     transform=ccrs.PlateCarree()
 )
 axes[0, 1].set_title("last10 Z500 mean", fontsize=15)
-fig.colorbar(cf, ax=axes[0, 1], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.8)
+fig.colorbar(cf, ax=axes[0, 1], orientation='vertical',label="Z500 [m]", shrink=0.8)
 
 # Plot zg_diff_mean
 cf = axes[0, 2].contourf(
@@ -149,31 +137,31 @@ cf = axes[0, 2].contourf(
     transform=ccrs.PlateCarree()
 )
 axes[0, 2].set_title("diff Z500 mean", fontsize=15)
-fig.colorbar(cf, ax=axes[0, 2], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.8)
+fig.colorbar(cf, ax=axes[0, 2], orientation='vertical',label="Z500 [m]", shrink=0.8)
 
 # u as contour
 axes[0, 0].contour(
-    u_first.lon,
-    u_first.lat,
-    u_first,
+    ua_first_mean.lon,
+    ua_first_mean.lat,
+    ua_first_mean,
     lw = 1,
     colors="black",
     levels=[level for level in u_levels_seq if level != 0],
     transform=ccrs.PlateCarree(),
 )
 axes[0, 1].contour(
-    u_last.lon,
-    u_last.lat,
-    u_last,
+    ua_last_mean.lon,
+    ua_last_mean.lat,
+    ua_last_mean,
     lw = 1,
     colors="black",
     levels=[level for level in u_levels_seq if level != 0],
     transform=ccrs.PlateCarree(),
 )
 axes[0, 2].contour(
-    u_diff.lon,
-    u_diff.lat,
-    u_diff,
+    ua_diff_mean.lon,
+    ua_diff_mean.lat,
+    ua_diff_mean,
     lw = 1,
     colors="black",
     levels=[level for level in u_levels_div if level != 0],
@@ -189,7 +177,7 @@ cf = axes[1, 0].contourf(
     transform=ccrs.PlateCarree()
 )
 axes[1, 0].set_title("first10 Z500 std", fontsize=15)
-fig.colorbar(cf, ax=axes[1, 0], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.8)
+fig.colorbar(cf, ax=axes[1, 0], orientation='vertical',label="Z500 [m]", shrink=0.8)
 
 # Plot zg_last_std
 cf = axes[1, 1].contourf(
@@ -200,7 +188,7 @@ cf = axes[1, 1].contourf(
     transform=ccrs.PlateCarree()
 )
 axes[1, 1].set_title("last10 Z500 std", fontsize=15)
-fig.colorbar(cf, ax=axes[1, 1], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.8)
+fig.colorbar(cf, ax=axes[1, 1], orientation='vertical',label="Z500 [m]", shrink=0.8)
 
 # Plot zg_diff_std
 cf = axes[1, 2].contourf(
@@ -211,31 +199,31 @@ cf = axes[1, 2].contourf(
     transform=ccrs.PlateCarree()
 )
 axes[1, 2].set_title("diff Z500 std", fontsize=15)
-fig.colorbar(cf, ax=axes[1, 2], orientation='vertical',pad = 0.5, label="Z500 [m]", shrink=0.8)
+fig.colorbar(cf, ax=axes[1, 2], orientation='vertical',label="Z500 [m]", shrink=0.8)
 
 # u as contour
 axes[1, 0].contour(
-    u_first_nozon.lon,
-    u_first_nozon.lat,
-    u_first_nozon,
+    ua_first_std.lon,
+    ua_first_std.lat,
+    ua_first_std,
     lw = 1,
     colors="black",
     levels=[level for level in u_levels_seq_nonzon if level != 0],
     transform=ccrs.PlateCarree(),
 )
 axes[1, 1].contour(
-    u_last_nozon.lon,
-    u_last_nozon.lat,
-    u_last_nozon,
+    ua_last_std.lon,
+    ua_last_std.lat,
+    ua_last_std,
     lw = 1,
     colors="black",
     levels=[level for level in u_levels_seq_nonzon if level != 0],
     transform=ccrs.PlateCarree(),
 )
 axes[1, 2].contour(
-    u_diff_nozon.lon,
-    u_diff_nozon.lat,
-    u_diff_nozon,
+    ua_diff_std.lon,
+    ua_diff_std.lat,
+    ua_diff_std,
     lw = 1,
     colors="black",
     levels=[level for level in u_levels_div if level != 0],
@@ -253,7 +241,7 @@ cf = axes[2, 0].contourf(
     transform=ccrs.PlateCarree(),
 )
 axes[2,0].set_title("first10 NAO (18%)", fontsize=15)
-fig.colorbar(cf, ax=axes[2, 0], orientation='vertical',pad = 0.5, label="EOF_NAO [m]", shrink=0.8)
+fig.colorbar(cf, ax=axes[2, 0], orientation='vertical',label="EOF_NAO [m]", shrink=0.8)
 
 cf = axes[2, 1].contourf(
     eof_last_rm.lon,
@@ -265,7 +253,7 @@ cf = axes[2, 1].contourf(
     transform=ccrs.PlateCarree(),
 )
 axes[2,1].set_title("last10 NAO (24%)", fontsize=15)
-fig.colorbar(cf, ax=axes[2, 1], orientation='vertical',pad = 0.5, label="EOF_NAO[m]", shrink=0.8)
+fig.colorbar(cf, ax=axes[2, 1], orientation='vertical',label="EOF_NAO[m]", shrink=0.8)
 
 cf = axes[2, 2].contourf(
     eof_diff_rm.lon,
@@ -277,7 +265,7 @@ cf = axes[2, 2].contourf(
     transform=ccrs.PlateCarree(),
 )
 axes[2,2].set_title("diff NAO", fontsize=15)
-fig.colorbar(cf, ax=axes[2, 2], orientation='vertical',pad = 0.5, label="EOF_NAO[m]", shrink=0.8)
+fig.colorbar(cf, ax=axes[2, 2], orientation='vertical',label="EOF_NAO[m]", shrink=0.8)
 
 
 
@@ -293,6 +281,11 @@ axes[2, 1].text(-0.1, 1.05, "h", transform=axes[2, 1].transAxes, fontsize=15, fo
 axes[2, 2].text(-0.1, 1.05, "i", transform=axes[2, 2].transAxes, fontsize=15, fontweight='bold')
 
 
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/Z500_mean_std_NAO_nonzon.pdf", bbox_inches='tight')
+for ax in axes.flat:
+    ax.coastlines()
+    ax.set_global()
+
+plt.tight_layout()
+# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/Z500_mean_std_NAO_nonzon.pdf", bbox_inches='tight')
 
 # %%
