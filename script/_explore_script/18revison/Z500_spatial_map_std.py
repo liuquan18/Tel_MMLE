@@ -3,10 +3,9 @@ import xarray as xr
 import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-import src.MMLE_TEL.index_stats as index_stats
 import glob
+#%%
 from src.plots.utils import erase_white_line
-import proplot as pplt
 
 # %%
 
@@ -48,26 +47,31 @@ zg_diff_mean = zg_last_mean - zg_first_mean
 zg_first_mean = erase_white_line(zg_first_mean)
 zg_last_mean = erase_white_line(zg_last_mean)
 zg_diff_mean = erase_white_line(zg_diff_mean)
-# %%
-u_first = xr.open_dataset(
+
+#%%
+ua_first_mean = xr.open_dataset(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/u_1850-1859.nc"
 )
-u_last = xr.open_dataset(
+ua_last_mean = xr.open_dataset(
     "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/u_2090-2099.nc"
 )
 # %%
-u_first = u_first.var131.squeeze()
-u_last = u_last.var131.squeeze()
-u_diff = u_last - u_first
+ua_first_mean = ua_first_mean.var131.squeeze()
+ua_last_mean = ua_last_mean.var131.squeeze()
+ua_diff_mean = ua_last_mean - ua_first_mean
 # %%
-u_first = erase_white_line(u_first)
-u_last = erase_white_line(u_last)
-u_diff = erase_white_line(u_diff)
-#%%
-u_first_nozon = u_first - u_first.mean(dim = 'lon')
-u_last_nozon = u_last - u_last.mean(dim = 'lon')
-u_diff_nozon = u_diff - u_diff.mean(dim = 'lon')
+ua_first_mean = erase_white_line(ua_first_mean)
+ua_last_mean = erase_white_line(ua_last_mean)
+ua_diff_mean = erase_white_line(ua_diff_mean)
 
+#%%
+ua_first_std = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/ua_first_std.nc").var131
+ua_last_std = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/zg_first_last/ua_last_std.nc").var131
+ua_diff_std = ua_last_std - ua_first_std
+#%%
+ua_first_std = erase_white_line(ua_first_std)
+ua_last_std = erase_white_line(ua_last_std)
+ua_diff_std = erase_white_line(ua_diff_std)
 
 #%%
 # the projected spatial pattern
