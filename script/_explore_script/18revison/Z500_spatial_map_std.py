@@ -96,11 +96,11 @@ fig, axes = plt.subplots(
 
 
 zg_levels_mean = np.arange(5000, 6000, 100)
-zg_levels_mean_div = np.arange(-180, 181, 30)
+zg_levels_mean_div = np.arange(0, 181, 30)
 
 zg_levels_seq = np.arange(50, 200, 10)
 u_levels_seq = np.arange(0, 21, 5)
-u_levels_seq_nonzon = np.arange(-4.5, 5, 1.5)
+u_levels_seq_nonzon = np.arange(0, 10, 2)
 
 zg_levels_div = np.arange(-30, 31, 5)
 u_levels_div = np.arange(-1.5, 1.6, 0.5)
@@ -132,7 +132,7 @@ fig.colorbar(cf, ax=axes[0, 1], orientation='vertical',label="Z500 [m]", shrink=
 cf = axes[0, 2].contourf(
     zg_diff_mean.lon, zg_diff_mean.lat, zg_diff_mean, 
     levels=zg_levels_mean_div,
-    cmap="coolwarm", 
+    cmap="Reds", 
     extend='both',
     transform=ccrs.PlateCarree()
 )
@@ -286,6 +286,6 @@ for ax in axes.flat:
     ax.set_global()
 
 plt.tight_layout()
-# plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/Z500_mean_std_NAO_nonzon.pdf", bbox_inches='tight')
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/Z500_mean_std_NAO_nonzon.pdf", bbox_inches='tight')
 
 # %%
