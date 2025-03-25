@@ -76,7 +76,6 @@ def plot_extreme_counts(extrc, ax, extr_type, model_color, ci = True):
     
     line = extrc.sel(extr_type=extr_type,confidence = 'true').plot.line(
             ax=ax, 
-            label='box_based',
             x = 'time',
             color = 'k',
             linewidth = 2,)
@@ -178,6 +177,7 @@ axes[2].text(0.05, 0.95, 'c', transform=axes[2].transAxes, fontsize=16, fontweig
 axes[1].text(0.25, 0.95, f"p-value: {p_value_pos:.2f}", transform=axes[1].transAxes, fontsize=10, va='top')
 axes[2].text(0.25, 0.95, f"p-value: {p_value_neg:.2f}", transform=axes[2].transAxes, fontsize=10, va='top')
 
+axes[0].legend()
 plt.tight_layout()
 plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/box_diff_NAO_index.pdf", bbox_inches='tight')
 # %%
