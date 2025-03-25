@@ -286,6 +286,6 @@ for ax in axes.flat:
     ax.set_global()
 
 plt.tight_layout()
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/Z500_mean_std_NAO_nonzon.pdf", bbox_inches='tight')
+plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/Z500_mean_std_NAO.pdf", bbox_inches='tight')
 
 # %%
