@@ -170,7 +170,7 @@ for ax in axes:
     ax.tick_params(axis='y', which='minor', left=False)
 axes[0].set_xticks(np.arange(-3, 3.1, 1.5))
 
-
+plt.tight_layout()
 
 plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/MPI_GE_RCP45_extreme_count.pdf",

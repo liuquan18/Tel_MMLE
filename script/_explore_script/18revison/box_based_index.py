@@ -99,36 +99,43 @@ def box_diff(zg):
     return diff
 
 # %%
-# read gph data
+# # read gph data
 
-odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/"
-data_JJA = []
-for month in ["Jun", "Jul", "Aug"]:
-    print(f"reading the gph data of {month} ...")
-    zg_path = odir + "zg_" + month + "/"
-    data_JJA.append(read_data(zg_path, plev=50000))
-data = xr.concat(data_JJA, dim="time").sortby("time")
-# %%
-data = data.sortby('time')
-# %%
-NAO_index = box_diff(data)
-# %%
-NAO_first = NAO_index.sel(time = slice('1850','1859'))
-mean = NAO_first.mean()
-std = NAO_first.std()
+# odir = "/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/"
+# data_JJA = []
+# for month in ["Jun", "Jul", "Aug"]:
+#     print(f"reading the gph data of {month} ...")
+#     zg_path = odir + "zg_" + month + "/"
+#     data_JJA.append(read_data(zg_path, plev=50000))
+# data = xr.concat(data_JJA, dim="time").sortby("time")
+# # %%
+# data = data.sortby('time')
+# # %%
+# NAO_index = box_diff(data)
+# # %%
+# NAO_first = NAO_index.sel(time = slice('1850','1859'))
+# mean = NAO_first.mean()
+# std = NAO_first.std()
 
+# # %%
+# NAO_index_ano = (NAO_index - mean)/std
+# #%%
+# NAO_ano_first = NAO_index_ano.sel(time = slice('1850','1859'))
+# NAO_ano_last = NAO_index_ano.sel(time = slice('2090','2099'))
+# # %%
+# NAO_index_ano.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/box_diff/NAO_index_ano.nc")
+# # %%
+# extrc = decadal_extrc(NAO_index_ano)
+# # %%
+# extrc.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/box_diff/NAO_index_ano_extre_counts.nc")
 # %%
-NAO_index_ano = (NAO_index - mean)/std
+NAO_index_ano = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/box_diff/NAO_index_ano.nc").var156
+extrc = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/box_diff/NAO_index_ano_extre_counts.nc").var156
 #%%
 NAO_ano_first = NAO_index_ano.sel(time = slice('1850','1859'))
 NAO_ano_last = NAO_index_ano.sel(time = slice('2090','2099'))
-# %%
-NAO_index_ano.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/box_diff/NAO_index_ano.nc")
-# %%
-extrc = decadal_extrc(NAO_index_ano)
-# %%
-extrc.to_netcdf("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/box_diff/NAO_index_ano_extre_counts.nc")
-# %%
+
+#%%
 true_extrc = extrc.sel(confidence = 'true')
 pos = true_extrc.sel(extr_type = 'pos')
 neg = true_extrc.sel(extr_type = 'neg')
@@ -168,6 +175,16 @@ axes[0].set_title('')
 axes[1].set_title('')
 axes[2].set_title('')
 axes[0].set_xlabel('NAO index')
+axes[0].legend()
+# all axes no grid
+for ax in axes:
+    ax.grid(False)
+    ax.tick_params(axis='x', which='minor', bottom=False)
+    ax.tick_params(axis='y', which='minor', left=False)
+axes[0].set_xticks(np.arange(-3, 3.1, 1.5))
+
+
+
 # add a, b,c
 axes[0].text(0.05, 0.95, 'a', transform=axes[0].transAxes, fontsize=16, fontweight='bold', va='top')
 axes[1].text(0.05, 0.95, 'b', transform=axes[1].transAxes, fontsize=16, fontweight='bold', va='top')
