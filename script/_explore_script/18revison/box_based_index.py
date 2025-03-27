@@ -132,6 +132,8 @@ def box_diff(zg):
 NAO_index_ano = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/box_diff/NAO_index_ano.nc").var156
 extrc = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE/box_diff/NAO_index_ano_extre_counts.nc").var156
 #%%
+extrc = extrc / 100
+#%%
 NAO_ano_first = NAO_index_ano.sel(time = slice('1850','1859'))
 NAO_ano_last = NAO_index_ano.sel(time = slice('2090','2099'))
 
