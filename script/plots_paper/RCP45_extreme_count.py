@@ -39,6 +39,25 @@ def test_trend_significance(dataarray):
     return p_value
 
 
+def plot_extreme_counts(extrc, ax, extr_type, model_color, ci = True):
+    
+    line = extrc.sel(extr_type=extr_type,confidence = 'true').plot.line(
+            ax=ax, 
+            x = 'time',
+            color = 'k',
+            linewidth = 2,)
+
+    if ci:
+        # fill between the confidence interval ['low','high']
+        ax.fill_between(
+            extrc.time,
+            extrc.sel(extr_type=extr_type,confidence = 'low').values,
+            extrc.sel(extr_type=extr_type,confidence = 'high').values,
+            color = 'gray',
+            alpha = 0.3,
+        )
+
+    return line
 # %%
 extreme_counts = read_extrc("MPI_GE_RCP45")
 
@@ -60,106 +79,98 @@ p_value_neg = test_trend_significance(count_neg)
 
 # %%
 extrcs = {"MPI_GE_RCP45": extreme_counts}
-# %%
-fig, axes = pplt.subplots(
-    nrows=1,
-    ncols=2,
-    width=150 / 25.4,
-    height=100 / 25.4,
-)
-fig.format(
-    abc=True,
-)
+#%%
+eof_rcp45 = xr.open_dataset("/work/mh0033/m300883/Tel_MMLE/data/MPI_GE_RCP45/EOF_result/plev_50000_decade_mpi_first_JJA_eof_result.nc")
+pc_first = eof_rcp45.pc.sel(time = slice('1850','1859'))
+pc_last = eof_rcp45.pc.sel(time = slice('2090','2099'))
 
-ax1 = axes[0]
-ax2 = axes[1]
+#%%
+fig, axes = plt.subplots(1, 3, figsize=(12, 5))
+pc_first.plot.hist(ax=axes[0], alpha=0.7, bins=np.arange(-4, 4.1, 0.5), color='k', label='first10')
+pc_last.plot.hist(ax=axes[0], alpha=0.7, bins=np.arange(-4, 4.1, 0.5), color='r', label='last10')
 
-ax1, line_pos = extplt.extrc_time_line_single(
-    extrcs,
-    extr_type="pos",
-    ax=ax1,
-    ylim=(1.5, 4.5),
-    ci=True,
-    models=["MPI_GE_RCP45"],
-)
+# vline at mean
+axes[0].axvline(pc_first.mean(), color='k', linestyle='dashed', linewidth=1.5)
+axes[0].axvline(pc_last.mean(), color='r', linestyle='dashed', linewidth=1.5)
 
-ax2, line_neg = extplt.extrc_time_line_single(
-    extrcs,
-    extr_type="neg",
-    ax=ax2,
-    ylim=(1.5, 4.5),
-    ci=True,
-    models=["MPI_GE_RCP45"],
-)
+
+# Remove right and top spines
+for ax in axes:
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+pos_line = plot_extreme_counts(extreme_counts.sel(mode = 'NAO'), axes[1], 'pos', 'k')
+neg_line = plot_extreme_counts(extreme_counts.sel(mode = 'NAO'), axes[2], 'neg', 'k')
+
+axes[1].set_ylabel('extreme counts')
+axes[2].set_ylabel('extreme counts')
+
+axes[0].set_title('')
+axes[1].set_title('')
+axes[2].set_title('')
+axes[0].set_xlabel('NAO index')
+# add a, b,c
+axes[0].text(0.05, 0.95, 'a', transform=axes[0].transAxes, fontsize=16, fontweight='bold', va='top')
+axes[1].text(0.05, 0.95, 'b', transform=axes[1].transAxes, fontsize=16, fontweight='bold', va='top')
+axes[2].text(0.05, 0.95, 'c', transform=axes[2].transAxes, fontsize=16, fontweight='bold', va='top')
+
+
 # add value of p-value as text
-ax1.text(
+axes[1].text(
     0.95,
     0.95,
     f"1850-2090 p-value: {p_value_pos:.2f}",
-    transform=ax1.transAxes,
+    transform=axes[1].transAxes,
     fontsize=8,
     ha="right",
     va="top",
 )
 
-ax1.text(
+axes[1].text(
     0.95,
     0.9,
     f"1950-2090 p-value: {p_value_pos_1950:.2f}",
-    transform=ax1.transAxes,
+    transform=axes[1].transAxes,
     fontsize=8,
     ha="right",
     va="top",
 )
 
-ax2.text(
+axes[2].text(
     0.95,
     0.95,
     f"1850-2090 p-value: {p_value_neg:.2f}",
-    transform=ax2.transAxes,
+    transform=axes[2].transAxes,
     fontsize=8,
     ha="right",
     va="top",
 )
 
-ax2.text(
+axes[2].text(
     0.95,
     0.9,
     f"1950-2090 p-value: {p_value_neg_1950:.2f}",
-    transform=ax2.transAxes,
+    transform=axes[2].transAxes,
     fontsize=8,
     ha="right",
     va="top",
 )
+axes[1].set_ylabel('extreme counts')
+axes[2].set_ylabel('extreme counts')
+
+axes[0].set_title('')
+axes[1].set_title('')
+axes[2].set_title('')
+axes[0].set_xlabel('NAO index')
+axes[0].legend()
+# all axes no grid
+for ax in axes:
+    ax.grid(False)
+    ax.tick_params(axis='x', which='minor', bottom=False)
+    ax.tick_params(axis='y', which='minor', left=False)
+axes[0].set_xticks(np.arange(-3, 3.1, 1.5))
 
 
-ax1.format(
-    xlabel="",
-    xlabelpad=0.8,
-    xtickminor=False,
-    xrotation=45,
-    ylabel="Extreme occurence decade$^{-1}$ realization$^{-1}$",
-    ylim=(1.5, 3.6),
-    facecolor="none",
-)
-ax1.set_yticks(np.arange(1.5, 3.5, 0.5))
-
-ax1.spines["right"].set_visible(False)
-ax1.spines["top"].set_visible(False)
-
-#### ax4 ####
-# set the axis
-ax2.spines["right"].set_visible(False)
-ax2.spines["top"].set_visible(False)
-ax2.format(
-    xlabel="",
-    xlabelpad=0.8,
-    xtickminor=False,
-    ylabel="",
-    ylim=(1.5, 3.6),
-    xrotation=45,
-    facecolor="none",
-)
 
 plt.savefig(
     "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_supplymentary/MPI_GE_RCP45_extreme_count.pdf",
