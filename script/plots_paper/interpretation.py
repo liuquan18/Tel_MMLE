@@ -55,14 +55,12 @@ NAO_dec = pd.concat([NAO_pos_df_dec, NAO_neg_df_dec])
 # %%
 jet_GB_corr = correlate_jet_GB(jet_loc, GB)
 # %%
-fig = plt.figure(figsize=(10, 10))
-gs = fig.add_gridspec(6,2)
+fig, axes = plt.subplots(2,2, figsize=(10, 10))
 
-ax1 = fig.add_subplot(gs[0:2, 0])
-ax2 = fig.add_subplot(gs[2:4, 0])
-ax3 = fig.add_subplot(gs[4:6, 0])
-ax4 = fig.add_subplot(gs[0:3, 1])
-ax5 = fig.add_subplot(gs[3:6, 1])
+ax1 = axes[0,0]
+ax2 = axes[1,0]
+ax4 = axes[0,1]
+ax5 = axes[1,1]
 
 
 jet_loc_clim.plot(ax=ax1, label='Climatology', x='time', add_legend=False, color='black')
@@ -73,7 +71,7 @@ ax1.fill_between(jet_loc_clim.time, jet_loc_clim - jet_loc_std, jet_loc_clim + j
 ax1.set_ylim(42, 57)
 ax1.grid(False)  # Remove gridlines
 ax_twin1 = ax1.twinx()
-jet_north_decade.drop_vars('lon').plot(ax=ax_twin1, color='red', label='count of jet Norther than 1.5 std')
+(jet_north_decade/100).drop_vars('lon').plot(ax=ax_twin1, color='red', label='count of jet Norther than 1.5 std')
 ax_twin1.grid(False)  # Remove gridlines
 
 lines, labels = ax1.get_legend_handles_labels()
@@ -89,10 +87,10 @@ GB_clim.plot(ax=ax2, label='Climatology', x='time', add_legend=False, color='bla
 ax2.set_title('')
 
 ax2.fill_between(GB_clim.time, GB_clim - GB_std, GB_clim + GB_std, color='gray', alpha=0.5, label='std')
-ax2.set_ylim(5.45, 5.7)
+ax2.set_ylim(5.45, 5.8)
 ax2.grid(False)  # Remove gridlines
 ax_twin2 = ax2.twinx()
-GB_above_decade.plot(ax=ax_twin2, color='red', label='count of GB above 1.5 std')
+(GB_above_decade/100).plot(ax=ax_twin2, color='red', label='count of GB above 1.5 std')
 ax_twin2.grid(False)  # Remove gridlines
 
 lines, labels = ax2.get_legend_handles_labels()
@@ -103,11 +101,6 @@ ax2.set_ylabel('GB proxy (km)')
 ax_twin2.set_ylabel('count')
 ax2.set_title('Greenland Blocking Index')
 
-jet_GB_corr.plot(ax=ax3, color = 'k')
-ax3.set_ylabel("Correlation")
-ax3.set_title("Jet Stream location and Blocking correlation")
-# without grids
-ax3.grid(False)
 
 
 ####### ax4
@@ -160,14 +153,25 @@ ax4.set_ylim(5.35, 5.8)
 
 # Create custom legend
 legend_elements = [
-    Line2D([0], [0], color="C0", lw=2, label="first10 (1850-1859)", linestyle="-"),
-    Line2D([0], [0], color="C1", lw=2, label="last10 (2090-2099)", linestyle="-"),
-    Patch(facecolor="C0", edgecolor="k", label="NAO (positive)", alpha=0.5),
-    Patch(facecolor="none", edgecolor="k", label="NAO (negative)", alpha=0.5),
+    Patch(facecolor="grey", edgecolor="k", label="positive NAO", alpha=0.5),
+    Patch(facecolor="none", edgecolor="k", label="negative NAO", alpha=0.5),
+    Line2D([0], [0], color="none", lw=2, label="first10 (1850-1859)", linestyle="-"),
+    Line2D([0], [0], color="none", lw=2, label="last10 (2090-2099)", linestyle="-"),
+
 ]
 
 
+
 ax4.legend(handles=legend_elements, loc="upper right", frameon=False)
+
+# Change the font color of the labels
+for text in ax4.get_legend().get_texts():
+    if "first10" in text.get_text():
+        text.set_color("C0")
+    elif "last10" in text.get_text():
+        text.set_color("C1")
+
+
 
 ####### ax5 
 
@@ -196,11 +200,9 @@ ax1.text(-0.1, 1.1, 'a', transform=ax1.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='right')
 ax2.text(-0.1, 1.1, 'b', transform=ax2.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='right')
-ax3.text(-0.1, 1.1, 'c', transform=ax3.transAxes,
+ax4.text(-0.1, 1.1, 'c', transform=ax4.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='right')
-ax4.text(-0.1, 1.1, 'd', transform=ax4.transAxes,
-        fontsize=14, fontweight='bold', va='top', ha='right')
-ax5.text(-0.1, 1.1, 'e', transform=ax5.transAxes,
+ax5.text(-0.1, 1.1, 'd', transform=ax5.transAxes,
         fontsize=14, fontweight='bold', va='top', ha='right')
 
 

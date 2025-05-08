@@ -154,8 +154,8 @@ def read_MPI_GE_random_slope(model="MPI_GE", x="tsurf"):
 # eof
 def read_eof_rean(model, group_size=40):
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
-    first_eof_path = odir + "EOF_result/first_plev50000_eof.nc"
-    last_eof_path = odir + "EOF_result/last_plev50000_eof.nc"
+    first_eof_path = odir + "EOF_result/first_plev500_eof.nc"
+    last_eof_path = odir + "EOF_result/last_plev500_eof.nc"
 
     first_eof = xr.open_dataset(first_eof_path)
     last_eof = xr.open_dataset(last_eof_path)
@@ -354,7 +354,6 @@ last_pattern = xr.open_dataset(
 
 # %%
 # 20CR all ens
-CR20_first_eof, CR20_last_eof = read_eof_rean("CR20_allens")
 CR20_first_extc, CR20_last_extc = read_extrc_rean("CR20_allens")
 CR20_composite = read_composite_rean("CR20_allens", "ts")
 
@@ -364,6 +363,8 @@ CR20_last_extc = CR20_last_extc / (4 * 80)
 # %% # put the 20CR_allens into the dict
 COMPOSITEs["20CR"] = CR20_composite
 # %%
+CR20_ens_first_eof, CR20_ens_last_eof = read_eof_rean("CR20")
+
 # also read ensemble mean of 20CR
 CR20_ens_first_extc, CR20_ens_last_extc = read_extrc_rean("CR20")
 CR20_ens_first_extc = CR20_ens_first_extc / 4
@@ -466,8 +467,8 @@ ax1, fmap_MPI, lmap = stat_overview.spatial_pattern_plot(
 
 ax5, fmap_20CR, lmap = stat_overview.spatial_pattern_plot(
     ax5,
-    CR20_first_eof.eof.sel(mode="NAO").squeeze(),
-    CR20_first_eof.fra.sel(mode="NAO").squeeze(),
+    CR20_ens_first_eof.eof.sel(mode="NAO").squeeze(),
+    CR20_ens_first_eof.fra.sel(mode="NAO").squeeze(),
     levels=np.arange(-30, 31, 5),
 )
 
@@ -480,8 +481,8 @@ ax2, hist = stat_overview.index_distribution_plot(
 )
 ax6, hist = stat_overview.index_distribution_plot(
     ax6,
-    CR20_first_eof.pc.sel(mode="NAO"),
-    CR20_last_eof.pc.sel(mode="NAO"),
+    CR20_ens_first_eof.pc.sel(mode="NAO"),
+    CR20_ens_last_eof.pc.sel(mode="NAO"),
 )
 
 # LINE PLOT for MPI_GE
@@ -520,7 +521,7 @@ ax7 = extplt.reananlysis_bar(
     pos_true_last,
     pos_err_last,
     ax=ax7,
-    x=[0.2, 0.7],
+    x=[0.3, 0.8],
     width=0.2,
     facecolor="grey",
     errcolor="grey7",
@@ -532,7 +533,7 @@ ax7 = extplt.reananlysis_bar(
     pos_true_last_ens,
     pos_err_last_ens,
     ax=ax7,
-    x=[0.3, 0.8],
+    x=[0.2, 0.7],
     width=0.2,
     facecolor="none",
     errcolor="grey7",
@@ -547,7 +548,7 @@ ax8 = extplt.reananlysis_bar(
     neg_true_last,
     neg_err_last,
     ax=ax8,
-    x=[0.2, 0.7],
+    x=[0.3, 0.8],
     width=0.2,
     facecolor="grey",
     errcolor="grey7",
@@ -559,7 +560,7 @@ ax8 = extplt.reananlysis_bar(
     neg_true_last_ens,
     neg_err_last_ens,
     ax=ax8,
-    x=[0.3, 0.8],
+    x=[0.2, 0.7],
     width=0.2,
     facecolor="none",
     errcolor="grey7",
@@ -742,8 +743,8 @@ ax6.text(
 )
 
 
-first_std_CR20 = CR20_first_eof.pc.std().values
-last_std_CR20 = CR20_last_eof.pc.std().values
+first_std_CR20 = CR20_ens_first_eof.pc.std().values
+last_std_CR20 = CR20_ens_last_eof.pc.std().values
 
 ax6.set_title(
     "({first_std:0.2f} --> {last_std:0.2f})*".format(
@@ -765,11 +766,11 @@ ax7.format(
 ax7.spines["right"].set_visible(False)
 ax7.spines["top"].set_visible(False)
 
-patch_20CR = mpatches.Patch(facecolor="none", edgecolor="black", label="20CR_ensemble_mean")
-patch_20CR_allens = mpatches.Patch(color="grey", label="20CR (80)")
+patch_20CR = mpatches.Patch(facecolor="none", edgecolor="black", label="20CR")
+patch_20CR_allens = mpatches.Patch(color="grey", label="20CR_ens (80)")
 
 ax7.legend(
-    handles=[patch_20CR_allens, patch_20CR],
+    handles=[patch_20CR, patch_20CR_allens],
     loc="b",
     frameon=False,
     ncol=2,
@@ -819,7 +820,7 @@ plt.setp(ax8.get_yticklabels(), visible=False)
 
 
 plt.savefig(
-    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/Fig1_MPI_GE_20CR.pdf",
+    "/work/mh0033/m300883/Tel_MMLE/docs/source/plots/paper_main/Fig1_MPI_GE_20CR.pdf",bbox_inches='tight'
 )
 # %%
 # Fig 2, profiles
@@ -1081,8 +1082,8 @@ models_legend = [
     "MPI-GE_onepct (100)",
     "MPI-GE (100)",
     "MPI-GE (resampled)",
-    "20CR (80)",
-    "20CR_ensemble_mean",
+    "20CR_ens (80)",
+    "20CR",
 ]
 colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
 
@@ -1119,7 +1120,7 @@ models_legend = [
     "CESM1-CAM5 (40)",
     "MK3.6 (30)",
     "GFDL-CM3 (20)",
-    "20CR(80)",
+    "20CR_ens(80)",
 ]
 
 fig3, axes = pplt.subplots(
@@ -1170,7 +1171,7 @@ models_legend = [
     "CESM1-CAM5 (40)",
     "MK3.6 (30)",
     "GFDL-CM3 (20)",
-    "20CR(80)",
+    "20CR_ens(80)",
 ]
 
 fig4, axes = pplt.subplots(

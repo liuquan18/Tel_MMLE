@@ -153,3 +153,5 @@ script/8season/seasonmean.o5808103
 # pickle files
 *.p
 *.pkl
+outdated_packages.txt
+packages_to_update.txt

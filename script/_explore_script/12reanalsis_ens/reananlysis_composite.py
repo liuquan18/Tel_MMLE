@@ -27,7 +27,9 @@ def time_convert(data):
     data['time'] = pd.to_datetime(data['time'].values)
     return data
 
-def read_temp_data(model,var_name = 't2max'):
+def read_temp_data(model,var_name = 't2max', var_code = None):
+    if var_code is None:
+        var_code = var_name
 
     odir = "/work/mh0033/m300883/Tel_MMLE/data/" + model + "/"
     data_JJA = []
@@ -54,7 +56,10 @@ def read_temp_data(model,var_name = 't2max'):
             data_month = data_month['air']
         elif model == 'CR20_allens':
             data_month = xr.open_mfdataset(all_files,combine = 'nested',concat_dim = 'ens')
-            data_month = data_month['TMP']
+            try:
+                data_month = data_month['TMP']
+            except KeyError:
+                data_month = data_month[var_code]
 
         data_JJA.append(data_month)
     data = xr.concat(data_JJA, dim="time").sortby("time")
@@ -73,8 +78,8 @@ def read_eof(model,group_size = 40):
     return first_eof.pc, last_eof.pc
 
 #%%
-def composite_reana(model,var_name = 'ts', group_size = 40,reduction = 'mean'):
-    var_data = read_temp_data(model,var_name = var_name)
+def composite_reana(model,var_name = 'ts', var_code = 'ts', group_size = 40,reduction = 'mean', **kwargs):
+    var_data = read_temp_data(model,var_name = var_name, var_code = var_code)
     first_index, last_index = read_eof(model,group_size=group_size)
     first_composite = composite.Tel_field_composite(
         first_index,
@@ -95,11 +100,11 @@ def composite_reana(model,var_name = 'ts', group_size = 40,reduction = 'mean'):
 
 
 #%%
-def composite_oneclick(model, var_name,group_size,reduction = 'mean',save = False):
-    ERA_first, ERA_last, ERA_diff = composite_reana(model,var_name = var_name, group_size=group_size,reduction = reduction)
-    ERA_first.name = 'ts'
-    ERA_last.name = 'ts'
-    ERA_diff.name = 'ts'
+def composite_oneclick(model, var_name,group_size,reduction = 'mean',save = False, **kwargs):
+    ERA_first, ERA_last, ERA_diff = composite_reana(model,var_name = var_name, group_size=group_size,reduction = reduction, **kwargs)
+    ERA_first.name = var_name
+    ERA_last.name = var_name
+    ERA_diff.name = var_name
     # composite_plot.composite_plot(ERA_first, ERA_last, 'NAO', levels=np.arange(-1.5, 1.6, 0.3))
 
     if save:
@@ -168,4 +173,6 @@ def composite_together(model,var_name,group_size,reduction = 'mean',alpha = 0.05
 
     # save
     composite.to_netcdf(odir + f'composite_{reduction}_{var_name}_{group_size}.nc')
+# %%
+composite_oneclick('CR20_allens', 'psl',group_size=40, save = True, var_code = 'PRMSL')
 # %%
