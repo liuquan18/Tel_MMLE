@@ -1,4 +1,4 @@
-#%%
+# %%
 import xarray as xr
 import numpy as np
 import src.extreme.extreme_ci as extreme
@@ -11,10 +11,11 @@ import statsmodels.api as sm
 import matplotlib.patches as patches
 import pandas as pd
 
-#%%
+# %%
+
 
 ################### extreme event count v.s surface temperature scatter ###################
-#%%
+# %%
 def extCount_tsurf_scatter(
     ext_counts, t_surf, ylim=(0, 55), xlim=(-1, 5), xlabel="temperature (K)"
 ):
@@ -37,7 +38,15 @@ def extCount_tsurf_scatter(
 
     pplt.rc.update(params)
 
-    fig, axes = pplt.subplots(nrows=1, ncols=2, figwidth=8, span=False, sharey = True, sharex = True,facecolor="black")
+    fig, axes = pplt.subplots(
+        nrows=1,
+        ncols=2,
+        figwidth=8,
+        span=False,
+        sharey=True,
+        sharex=True,
+        facecolor="black",
+    )
 
     axes.format(
         abc="a",
@@ -57,7 +66,7 @@ def extCount_tsurf_scatter(
 
     t_surf = t_surf.sel(time=ext_counts.time, method="nearest")
     t_surf = t_surf - t_surf[0]
-    for i, mode in enumerate(['NAO']):
+    for i, mode in enumerate(["NAO"]):
         for j, extr_type in enumerate(ext_counts.extr_type):
             # data preparation
             true = ext_counts.sel(extr_type=extr_type, mode=mode, confidence="true")
@@ -68,10 +77,10 @@ def extCount_tsurf_scatter(
 
             t = t_surf
 
-            true = true[[0,-1]]
-            t = t[[0,-1]]
-            low = low[[0,-1]]
-            high = high[[0,-1]]
+            true = true[[0, -1]]
+            t = t[[0, -1]]
+            low = low[[0, -1]]
+            high = high[[0, -1]]
 
             axes[i, j].errorbar(
                 x=t,
@@ -80,7 +89,7 @@ def extCount_tsurf_scatter(
                 fmt="o",
                 linewidth=2,
                 capsize=6,
-                color = 'red',
+                color="red",
             )
 
             axes[i, j].set_xlim(-1, 5)
@@ -89,20 +98,23 @@ def extCount_tsurf_scatter(
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
 
+
 #################### extreme event count profile ####################
-#%%
+# %%
 # plot function, x-axis is the extreme events count, y-axis is the pressure level
 # vertical line, and fill_betweenx the confidence interval
-def plot_extreme_count(ext_count, ax=None, label=None, conf_color = 'gray',line_color = 'k', linewidth = 2):
+def plot_extreme_count(
+    ext_count, ax=None, label=None, conf_color="gray", line_color="k", linewidth=2
+):
     """
     plot the vertical profile of extreme event count for a single mode and extreme type
     """
     color = None
     style = None
-    if 'first' in label:
+    if "first" in label:
         color = conf_color
         style = f"{line_color}-"
-    elif 'last' in label:
+    elif "last" in label:
         color = conf_color
         style = f"{line_color}--"
 
@@ -196,7 +208,7 @@ def extreme_count_profile(first_count, last_count, colored=False, **kwargs):
 ########################## MMLEA slope ################################
 # %%
 # calcualte slope
-def calc_slope( extreme_count,tsurf):
+def calc_slope(extreme_count, tsurf):
     if tsurf is not None:
         x = tsurf.squeeze().values
     else:
@@ -214,8 +226,8 @@ def calc_slope( extreme_count,tsurf):
 
 def slope_err(extr, tsurf):
 
-    slope_NAO, conf_int_NAO = calc_slope(extr.sel(mode="NAO"), tsurf = None)
-    slope_EA, conf_int_EA = calc_slope(extr.sel(mode="EA"), tsurf = None)
+    slope_NAO, conf_int_NAO = calc_slope(extr.sel(mode="NAO"), tsurf=None)
+    slope_EA, conf_int_EA = calc_slope(extr.sel(mode="EA"), tsurf=None)
 
     yerr = np.array([[slope_NAO - conf_int_NAO[0]], [conf_int_NAO[1] - slope_NAO]])
     xerr = np.array([[slope_EA - conf_int_EA[0]], [conf_int_EA[1] - slope_EA]])
@@ -287,8 +299,13 @@ def handle_label_models(colors, models):
 
 # Create a scatter plot of the slopes for each model and extreme type
 def mmle_slope_scatter(
-    extrs, tsurfs, extrs_rand, tsurfs_rand, tsurf="ens_fld_year_mean", time="all",
-    models = ["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],
+    extrs,
+    tsurfs,
+    extrs_rand,
+    tsurfs_rand,
+    tsurf="ens_fld_year_mean",
+    time="all",
+    models=["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],
 ):
     """
     plot the slope of extreme event count profile for multiple models
@@ -318,7 +335,7 @@ def mmle_slope_scatter(
     # Get a list of nine evenly spaced colors from the colormap
     ens_size = np.arange(20, 101, 10)
     extrs = {k: extrs[k] for k in models}
-    tsurfs = {k: tsurfs[k] for k in models} # select the subset of models
+    tsurfs = {k: tsurfs[k] for k in models}  # select the subset of models
     slope_models(
         extrs,
         tsurfs,
@@ -391,7 +408,7 @@ def mmle_slope_scatter(
 
 
 ####################### MMLE slope scatter with different tsurf #############################
-#%%
+# %%
 def slope_diff_tsurf(extrs, tsurf_gmst, NA_tsurf, tropical_arctic_gradient, time="all"):
     """
     plot the slope of extreme event count profile for multiple models, and different tsurf as the x axis
@@ -467,9 +484,15 @@ def slope_diff_tsurf(extrs, tsurf_gmst, NA_tsurf, tropical_arctic_gradient, time
 
 
 ############################### MMLE line plot #########################################
-#%%
+# %%
 def mmle_tsurf_line(
-    extrs, tsurfs, extrs_rands, tsurfs_rands, tsurf="ens_fld_year_mean", time="all",x_var = 'time'
+    extrs,
+    tsurfs,
+    extrs_rands,
+    tsurfs_rands,
+    tsurf="ens_fld_year_mean",
+    time="all",
+    x_var="time",
 ):
     params = {
         "ytick.color": "w",
@@ -492,7 +515,6 @@ def mmle_tsurf_line(
         facecolor="k",
         wspace=8,
         # dpi = 300,
-
     )
 
     axs.format(
@@ -505,7 +527,7 @@ def mmle_tsurf_line(
         fontsize=25,
         toplabels=["pos", "neg"],
         facecolor="k",
-        suptitle_kw = dict(color='w')
+        suptitle_kw=dict(color="w"),
     )
     models = [
         "MPI_GE_onepct",
@@ -531,13 +553,13 @@ def mmle_tsurf_line(
                 if time != "all" and model != "MPI_GE_onepct":
                     time = np.datetime64(time)
                     extrc = extrs[model].sel(
-                        mode=mode, extr_type=extr_type, time=slice(time, '2091-01-01')
+                        mode=mode, extr_type=extr_type, time=slice(time, "2091-01-01")
                     )
                     tsurf = tsurfs[model].sel(time=extrc.time, method="nearest")
                 elif model == "MPI_GE_onepct":
                     extrc = extrs[model].sel(mode=mode, extr_type=extr_type)
                     tsurf = tsurfs[model].sel(time=extrc.time, method="nearest")
-                    tsurf['time'] = pd.date_range(time, freq='10Y',periods = 14)
+                    tsurf["time"] = pd.date_range(time, freq="10Y", periods=14)
                 else:
                     extrc = extrs[model].sel(mode=mode, extr_type=extr_type)
                     tsurf = tsurfs[model].sel(time=extrc.time, method="nearest")
@@ -574,7 +596,7 @@ def mmle_tsurf_line(
         fontsize=40,
         columnspacing=2,
         labelspacing=4,
-        facecolor='none',
+        facecolor="none",
         frame=False,
         borderaxespad=5,
         bbox_to_anchor=(1.1, 0.5),
@@ -588,7 +610,14 @@ def mmle_tsurf_line(
 
 
 def extrc_tsurf_line_single(
-    extrc, tsurf, ax, extrc_rand=None, tsurf_rand=None, color="k", label=None,x_var = 'time'
+    extrc,
+    tsurf,
+    ax,
+    extrc_rand=None,
+    tsurf_rand=None,
+    color="k",
+    label=None,
+    x_var="time",
 ):
     """
     line for just one dataset.
@@ -597,12 +626,12 @@ def extrc_tsurf_line_single(
     tsurf = tsurf - tsurf[0]
     extrc = extrc.sel(confidence="true").pc.squeeze().values
 
-    if x_var == 'tsurf':
+    if x_var == "tsurf":
         x = tsurf.values
-    elif x_var == 'time':
+    elif x_var == "time":
         x = tsurf.time.dt.year.values
     ax.line(
-        x = x,
+        x=x,
         y=extrc,
         marker="o",
         color=color,
@@ -629,42 +658,59 @@ def extrc_tsurf_line_single(
         pass
     ax.set_xlim(-1, 5.6)
 
-#%%
+
+# %%
+
 
 def extrc_time_line(extrcs, **kwargs):
     ylim = kwargs.pop("ylim", (20, 280))
 
     gs = pplt.GridSpec(nrows=1, ncols=2)
-    fig = pplt.figure(refwidth=2.2, refheight = 5.2, span=False, share="labels")
+    fig = pplt.figure(refwidth=2.2, refheight=5.2, span=False, share="labels")
     # the right order of the models
     models_legend = [
-    "MPI_GE_onepct (100)",
-    "MPI-GE (100)",
-    "CanESM2 (50)",
-    "CESM1-CAM5 (40)",
-    "MK3.6 (30)",
-    "GFDL-CM3 (20)",
-]
+        "MPI_GE_onepct (100)",
+        "MPI-GE (100)",
+        "CanESM2 (50)",
+        "CESM1-CAM5 (40)",
+        "MK3.6 (30)",
+        "GFDL-CM3 (20)",
+    ]
 
     lines = []
-    for r, mode in enumerate(['NAO']):
-        for c, extr_type in enumerate(['pos','neg']):
+    for r, mode in enumerate(["NAO"]):
+        for c, extr_type in enumerate(["pos", "neg"]):
             ax = fig.subplot(gs[r, c])
-            line = extrc_time_line_single(extrcs,  extr_type, ax,ylim = ylim)
+            line = extrc_time_line_single(extrcs, extr_type, ax, ylim=ylim)
             lines.append(line)
     fig.legend(
-    lines,
-    labels=models_legend,
-    ncols=3,
-    loc="b",
-)
+        lines,
+        labels=models_legend,
+        ncols=3,
+        loc="b",
+    )
 
     return fig
 
-def extrc_time_line_single(extrcs, extr_type, ax, ylim = (20, 280),mode = 'NAO',ci = False,
-                               models = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+
+def extrc_time_line_single(
+    extrcs,
+    extr_type,
+    ax,
+    ylim=(20, 280),
+    mode="NAO",
+    ci=False,
+    models=["MPI_GE_onepct", "MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],
 ):
-    models_all = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3", "MPI_GE_RCP45"]
+    models_all = [
+        "MPI_GE_onepct",
+        "MPI_GE",
+        "CanESM2",
+        "CESM1_CAM5",
+        "MK36",
+        "GFDL_CM3",
+        "MPI_GE_RCP45",
+    ]
     colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4", "k"]
     model_color = dict(zip(models_all, colors_model))
 
@@ -674,102 +720,158 @@ def extrc_time_line_single(extrcs, extr_type, ax, ylim = (20, 280),mode = 'NAO',
             extrc = extrcs[models.index(model)]
         except KeyError:
             extrc = extrcs[model]
-        line = extrc.sel(extr_type=extr_type,mode = mode,confidence = 'true').plot.line(
-                ax=ax, 
-                label=model_color[model],
-                x = 'time',
-                color = model_color[model],
-                linewidth = 2,)
-        
+        line = extrc.sel(extr_type=extr_type, mode=mode, confidence="true").plot.line(
+            ax=ax,
+            label=model_color[model],
+            x="time",
+            color=model_color[model],
+            linewidth=2,
+        )
+
         if ci:
             # fill between the confidence interval ['low','high']
             ax.fill_between(
                 extrc.time,
-                extrc.sel(extr_type=extr_type,mode = mode,confidence = 'low').values,
-                extrc.sel(extr_type=extr_type,mode = mode,confidence = 'high').values,
-                color = model_color[model],
-                alpha = 0.15,
+                extrc.sel(extr_type=extr_type, mode=mode, confidence="low").values,
+                extrc.sel(extr_type=extr_type, mode=mode, confidence="high").values,
+                color=model_color[model],
+                alpha=0.15,
             )
         lines.append(line)
 
-            
     ax.format(
-            ylim=ylim,
-            ylabel="Extreme counts",
-            xlabel="Year",
-            suptitle="",
-            titleloc="uc",
-            ylocator=20,
-            yminorlocator="null",
-            grid=False,
-            title = '',
-        )
+        ylim=ylim,
+        ylabel="Extreme counts",
+        xlabel="Year",
+        suptitle="",
+        titleloc="uc",
+        ylocator=20,
+        yminorlocator="null",
+        grid=False,
+        title="",
+    )
     return ax, lines
 
 
-
-#%%
+# %%
 # for reananlysis data
 
-def reananlysis_bar(first_extrc, first_err, last_extrc, last_err, ax, 
-                    x = [0.2,0.8],width = 0.4,facecolor = 'none',edgecolor = 'black',linewidth = 1,errcolor = 'black'):
+
+def reananlysis_bar(
+    first_extrc,
+    first_err,
+    last_extrc,
+    last_err,
+    ax,
+    x=[0.2, 0.8],
+    width=0.4,
+    facecolor="none",
+    edgecolor="black",
+    linewidth=1,
+    errcolor="black",
+):
 
     ax.bar(
-        x =x,
-        height = [first_extrc,last_extrc],
-        width = width,
-        edgecolor = edgecolor,
-        facecolor = facecolor,
-        linewidth = 1,
-        align = 'center',
-        zorder = 9,
+        x=x,
+        height=[first_extrc, last_extrc],
+        width=width,
+        edgecolor=edgecolor,
+        facecolor=facecolor,
+        linewidth=1,
+        align="center",
+        zorder=9,
     )
     ax.errorbar(
-        x = x,
-        y = [first_extrc,last_extrc],
-        yerr = [first_err,last_err],
-        color = errcolor,
-        linewidth = 2,
-        fmt='none',
-        zorder = 10,
+        x=x,
+        y=[first_extrc, last_extrc],
+        yerr=[first_err, last_err],
+        color=errcolor,
+        linewidth=2,
+        fmt="none",
+        zorder=10,
     )
     return ax
-#%%
 
-#%%    
-def format_ens_size(ens_size,tick_number):
+
+# %%
+
+
+# %%
+def format_ens_size(ens_size, tick_number):
     if ens_size == 70:
-        formater = '100'
+        formater = "100"
     else:
-        formater = str(ens_size )
+        formater = str(ens_size)
     return formater
 
-def plot_errorbar(x,slope,low,high,color,ax,width = 2):
-    line = ax.hlines(x1 = x-width,x2 = x,y = slope,color = color,linewidth = 2)
-    x1 = x-width
+
+def plot_errorbar(x, slope, low, high, color, ax, width=2):
+    # Ensure all values are scalars
+    x = float(np.atleast_1d(x).item())
+    slope = float(np.atleast_1d(slope).item())
+    low = float(np.atleast_1d(low).item())
+    high = float(np.atleast_1d(high).item())
+    line = ax.hlines(x1=x - width, x2=x, y=slope, color=color, linewidth=2)
+    x1 = x - width
     x2 = x
     y1 = low
     y2 = high
-    rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor='none', facecolor=color,alpha = 0.5)
+    rect = patches.Rectangle(
+        (x1, y1),
+        x2 - x1,
+        y2 - y1,
+        linewidth=1,
+        edgecolor="none",
+        facecolor=color,
+        alpha=0.5,
+    )
     bar = ax.add_patch(rect)
-    return line,bar
+    return line, bar
 
-def plot_unfill_errbar(x,slope,low,high,color,ax,width = 2):
-    line = ax.hlines(x1 = x-width,x2 = x,y = slope,color = color,linewidth = 2)
-    x1 = x-width
+
+def plot_unfill_errbar(x, slope, low, high, color, ax, width=2):
+    # Ensure all values are scalars
+    x = float(np.atleast_1d(x).item())
+    slope = float(np.atleast_1d(slope).item())
+    low = float(np.atleast_1d(low).item())
+    high = float(np.atleast_1d(high).item())
+    line = ax.hlines(x1=x - width, x2=x, y=slope, color=color, linewidth=2)
+    x1 = x - width
     x2 = x
     y1 = low
     y2 = high
-    rect_out = patches.Rectangle((x1, y1), x2-x1, y2-y1, linewidth=1, edgecolor=color, facecolor='none',alpha = 0.5)
+    rect_out = patches.Rectangle(
+        (x1, y1),
+        x2 - x1,
+        y2 - y1,
+        linewidth=1,
+        edgecolor=color,
+        facecolor="none",
+        alpha=0.5,
+    )
     bar = ax.add_patch(rect_out)
-    return line,bar
+    return line, bar
 
 
-#%%
-def extrc_slope_line(slopes,ax,mode = 'NAO',extr_type = 'pos',
-                     models = ["MPI_GE_onepct", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],rand = False,shift = 0):
-    
-    models_all = ["MPI_GE_onepct","MPI_GE", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"]
+# %%
+def extrc_slope_line(
+    slopes,
+    ax,
+    mode="NAO",
+    extr_type="pos",
+    models=["MPI_GE_onepct", "CanESM2", "CESM1_CAM5", "MK36", "GFDL_CM3"],
+    rand=False,
+    shift=0,
+):
+
+    models_all = [
+        "MPI_GE_onepct",
+        "MPI_GE",
+        "CanESM2",
+        "CESM1_CAM5",
+        "MK36",
+        "GFDL_CM3",
+    ]
     colors_model = ["red", "C1", "tab:purple", "tab:blue", "tab:green", "C4"]
     ens_size = [70, 70, 50, 40, 30, 20]  # 70 for the position of 100
     model_color = dict(zip(models_all, colors_model))
@@ -778,61 +880,77 @@ def extrc_slope_line(slopes,ax,mode = 'NAO',extr_type = 'pos',
     lines = []
     bars = []
     if not rand:
-        for model in models[::-1]: # from low to high
+        for model in models[::-1]:  # from low to high
             # select time period
-            slope = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'true').values
-            low = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'low').values
-            high = slopes[model].sel(extr_type = extr_type,mode = mode,slopes = 'high').values
+            slope = (
+                slopes[model].sel(extr_type=extr_type, mode=mode, slopes="true").values
+            )
+            low = slopes[model].sel(extr_type=extr_type, mode=mode, slopes="low").values
+            high = (
+                slopes[model].sel(extr_type=extr_type, mode=mode, slopes="high").values
+            )
 
             # a shift for the x position
             # define the shift as 0 when rand = True, and 1 when rand = False
-            model_size['MPI_GE'] = 70+shift
-            model_size['MPI_GE_onepct'] = 70-shift
+            model_size["MPI_GE"] = 70 + shift
+            model_size["MPI_GE_onepct"] = 70 - shift
 
-            line,bar = plot_errorbar(
-                x = model_size[model]+shift,
-                slope = slope,
-                low = low,
-                high = high,
-                color = model_color[model],
-                ax = ax,
+            line, bar = plot_errorbar(
+                x=model_size[model] + shift,
+                slope=slope,
+                low=low,
+                high=high,
+                color=model_color[model],
+                ax=ax,
             )
             lines.append(line)
 
             bars.append(bar)
 
     else:
-        for ens_size in [20,30,40,50,100]:
+        for ens_size in [20, 30, 40, 50, 100]:
             # select time period
-            slope = slopes[ens_size].sel(extr_type = extr_type,mode = mode,slopes = 'true').values
-            low = slopes[ens_size].sel(extr_type = extr_type,mode = mode,slopes = 'low').values
-            high = slopes[ens_size].sel(extr_type = extr_type,mode = mode,slopes = 'high').values
+            slope = (
+                slopes[ens_size]
+                .sel(extr_type=extr_type, mode=mode, slopes="true")
+                .values
+            )
+            low = (
+                slopes[ens_size]
+                .sel(extr_type=extr_type, mode=mode, slopes="low")
+                .values
+            )
+            high = (
+                slopes[ens_size]
+                .sel(extr_type=extr_type, mode=mode, slopes="high")
+                .values
+            )
 
             # the position of 100 is 70
             if ens_size == 100:
                 x = 70 + 2
-                line,bar = plot_errorbar(
-                    x = x,
-                    slope = slope,
-                    low = low,
-                    high = high,
-                    color = model_color['MPI_GE'],
-                    ax = ax,
+                line, bar = plot_errorbar(
+                    x=x,
+                    slope=slope,
+                    low=low,
+                    high=high,
+                    color=model_color["MPI_GE"],
+                    ax=ax,
                 )
             else:
                 x = ens_size + 2
-                line,bar = plot_unfill_errbar(
-                    x = x,
-                    slope = slope,
-                    low = low,
-                    high = high,
-                    color = model_color['MPI_GE'],
-                    ax = ax,
+                line, bar = plot_unfill_errbar(
+                    x=x,
+                    slope=slope,
+                    low=low,
+                    high=high,
+                    color=model_color["MPI_GE"],
+                    ax=ax,
                 )
-            
-
 
     ax.xaxis.set_major_formatter(plt.FuncFormatter(format_ens_size))
 
-    return ax,bars
+    return ax, bars
+
+
 # %%
