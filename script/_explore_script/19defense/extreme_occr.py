@@ -475,7 +475,7 @@ ax3_only, lines_pos_MPI = extplt.extrc_time_line_single(
     ax=ax3_only,
     ylim=(1.5, 4.5),
     ci=True,
-    models=[ "MPI_GE"],
+    models=["MPI_GE"],
     # models=["MPI_GE_onepct", "MPI_GE"],
 )
 
@@ -487,8 +487,7 @@ ax4_only, lines_neg = extplt.extrc_time_line_single(
     ylim=(1.5, 4.5),
     ci=True,
     # models=["MPI_GE_onepct", "MPI_GE"],
-    models=[ "MPI_GE"],
-
+    models=["MPI_GE"],
 )
 
 # Formatting for ax3_only
@@ -544,6 +543,118 @@ ax3_only.legend(
 
 plt.tight_layout()
 # plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/defense/NAO_extreme_line_plots.png", dpi=500)
-plt.savefig("/work/mh0033/m300883/Tel_MMLE/docs/defense/NAO_extreme_line_plots_single.png", dpi=500)
+plt.savefig(
+    "/work/mh0033/m300883/Tel_MMLE/docs/defense/NAO_extreme_line_plots_single.png",
+    dpi=500,
+)
+
+# %%
+
+# New plot: ax6 (index distribution) + ax7 and ax8 (bar plots for extreme counts)
+gs3 = pplt.GridSpec(
+    ncols=3,
+    nrows=1,
+    wspace=5,
+    wratios=[1, 0.6, 0.6],
+)
+fig3 = pplt.figure(figsize=(180 / 25.4, 100 / 25.4), sharey=False)
+ax6_only = fig3.add_subplot(gs3[0, 0])
+ax7_only = fig3.add_subplot(gs3[0, 1])
+ax8_only = fig3.add_subplot(gs3[0, 2], sharey=ax7_only)
+
+# Redraw the index distribution plot for 20CR (ax6)
+# Use the same data and function as in fig1's ax6
+ax6_only, hist = stat_overview.index_distribution_plot(
+    ax6_only,
+    CR20_ens_first_eof.pc.sel(mode="NAO"),
+    CR20_ens_last_eof.pc.sel(mode="NAO"),
+)
+ax6_only.set_ylabel("probability density")
+ax6_only.set_xlabel("NAO index", fontsize=7)
+ax6_only.axes.set_facecolor("none")
+f_patch_MPI = mpatches.Patch(color="#1f77b4", label="first10")
+l_patch_MPI = mpatches.Patch(color="#ff7f0e", label="last10")
+ax6_only.legend(
+    handles=[f_patch_MPI, l_patch_MPI],
+    labels=["first40", "last40"],
+    loc="b",
+    frameon=False,
+    ncol=2,
+)
+first_std_CR20 = CR20_ens_first_eof.pc.std().values
+last_std_CR20 = CR20_ens_last_eof.pc.std().values
+ax6_only.set_title(
+    "({first_std:0.2f} --> {last_std:0.2f})*".format(
+        first_std=first_std_CR20, last_std=last_std_CR20
+    )
+)
+
+# Redraw the bar plots for positive extremes (ax7)
+ax7_only = extplt.reananlysis_bar(
+    pos_true_first_ens,
+    pos_err_first_ens,
+    pos_true_last_ens,
+    pos_err_last_ens,
+    ax=ax7_only,
+    x=[0.2, 0.7],
+    width=0.2,
+    facecolor="none",
+    errcolor="grey7",
+)
+ax7_only.xaxis.set_major_formatter(plt.FuncFormatter(format_period_year))
+ax7_only.set_xticks([0.2, 0.8])
+ax7_only.format(
+    ytickminor=False,
+    grid=False,
+    ylabel="Extreme occurence per decade",
+    ylim=(0, 6.5),
+    xlim=(0, 1),
+    xtickminor=False,
+    facecolor="none",
+    ylabelsize=12,  # increased fontsize
+    yticklabelsize=10,
+    xticklabelsize=10,
+)
+ax7_only.spines["right"].set_visible(False)
+ax7_only.spines["top"].set_visible(False)
+patch_20CR = mpatches.Patch(facecolor="none", edgecolor="black", label="20CR")
+patch_20CR_allens = mpatches.Patch(color="grey", label="20CR_ens (80)")
+ax7_only.set_title("Positive NAO", pad=10, fontsize=12)
+
+# Redraw the bar plots for negative extremes (ax8)
+ax8_only = extplt.reananlysis_bar(
+    neg_true_first_ens,
+    neg_err_first_ens,
+    neg_true_last_ens,
+    neg_err_last_ens,
+    ax=ax8_only,
+    x=[0.2, 0.7],
+    width=0.2,
+    facecolor="none",
+    errcolor="grey7",
+)
+ax8_only.set_xticks([0.2, 0.8])
+ax8_only.xaxis.set_major_formatter(plt.FuncFormatter(format_period_year))
+ax8_only.format(
+    ytickminor=False,
+    grid=False,
+    ylabel="",
+    ylim=(0, 6.5),
+    xtickminor=False,
+    xlim=(0, 1),
+    facecolor="none",
+    ylabelsize=12,  # increased fontsize
+    yticklabelsize=10,
+    xticklabelsize=10,
+)
+ax8_only.spines["right"].set_visible(False)
+ax8_only.spines["top"].set_visible(False)
+ax8_only.set_title("Negative NAO", pad=10, fontsize=12)
+
+plt.tight_layout()
+plt.savefig(
+    "/work/mh0033/m300883/Tel_MMLE/docs/defense/NAO_extreme_bar_plots_20CR_with_index.png",
+    dpi=500,
+)
 
 # %%
