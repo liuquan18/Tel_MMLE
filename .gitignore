@@ -135,6 +135,8 @@ src/__init__.py
 
 # plots folder
 plots/*
+*.png
+*.pdf
 
 # all nc data
 *.nc
